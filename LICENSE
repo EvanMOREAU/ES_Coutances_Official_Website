@@ -65,19 +65,19 @@ All rights are strictly reserved.
 1. General Prohibitions
 Without prior, explicit, written authorization from the author, it is strictly prohibited to:
 
-use, reproduce, copy, download, or store the software, in whole or in part;
+- use, reproduce, copy, download, or store the software, in whole or in part;
 
-modify, alter, adapt, translate, transform, or create derivative works;
+- modify, alter, adapt, translate, transform, or create derivative works;
 
-decompile, disassemble, reverse engineer, analyze, or attempt to access internal mechanisms;
+- decompile, disassemble, reverse engineer, analyze, or attempt to access internal mechanisms;
 
-redistribute, publish, distribute, sell, rent, lend, transfer, or assign the software or any of its components;
+- redistribute, publish, distribute, sell, rent, lend, transfer, or assign the software or any of its components;
 
-integrate any portion of the software into another product, service, website, application, or project, whether commercial or non‑commercial;
+- integrate any portion of the software into another product, service, website, application, or project, whether commercial or non‑commercial;
 
-exploit the software for commercial, institutional, professional, or public purposes;
+- exploit the software for commercial, institutional, professional, or public purposes;
 
-extract portions of the code, graphical elements, structures, or concepts for reuse in another project.
+- extract portions of the code, graphical elements, structures, or concepts for reuse in another project.
 
 2. Confidentiality and Non‑Disclosure
 Any technical, structural, or conceptual information obtained through access to the software is considered confidential.
@@ -90,26 +90,26 @@ Access to the code does not constitute authorization to use it.
 4. Liability and Warranty
 The software is provided “as is”, without any warranty, express or implied, including but not limited to:
 
-performance,
+- performance,
 
-security,
+- security,
 
-compatibility,
+- compatibility,
 
-fitness for a particular purpose.
+- fitness for a particular purpose.
 
 The author shall not be held liable for any direct, indirect, incidental, consequential, or special damages arising from the use or attempted use of the software, including data loss, service interruption, security breaches, or commercial harm.
 
 5. Enforcement
 Any violation of this license constitutes infringement under applicable intellectual property laws and may result in:
 
-civil prosecution,
+- civil prosecution,
 
-criminal prosecution,
+- criminal prosecution,
 
-claims for damages,
+- claims for damages,
 
-judicial injunctions.
+- judicial injunctions.
 
 6. Authorization Requests
 All authorization requests must be addressed directly to the author:
