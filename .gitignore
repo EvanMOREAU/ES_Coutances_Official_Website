@@ -1,20 +1,112 @@
-
-###> symfony/framework-bundle ###
-/.env.local
-/.env.local.php
-/.env.*.local
-/config/secrets/prod/prod.decrypt.private.php
-/public/bundles/
+###############################################################################
+# SYMFONY
+###############################################################################
 /var/
 /vendor/
-###< symfony/framework-bundle ###
 
-###> phpunit/phpunit ###
+# Fichiers de config locaux (tokens, mots de passe, BDD)
+.env.local
+.env.local.php
+.env.*.local
+
+# Cache Symfony compilé
+/public/bundles/
+
+###############################################################################
+# UPLOADS UTILISATEURS (images, logos, photos...)
+###############################################################################
+/public/uploads/
+
+###############################################################################
+# DÉPENDANCES NODE (si tu utilises Webpack Encore ou Vite)
+###############################################################################
+/node_modules/
+/public/build/
+
+###############################################################################
+# SYSTÈME D'EXPLOITATION
+###############################################################################
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# Linux
+*~
+
+###############################################################################
+# ÉDITEURS & IDE
+###############################################################################
+
+# JetBrains (PhpStorm, WebStorm...)
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim / Emacs
+*.swp
+*.swo
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+
+###############################################################################
+# PHP
+###############################################################################
+*.cache
+composer.phar
+
+###############################################################################
+# LOGS & DEBUG
+###############################################################################
+*.log
+/var/log/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+###############################################################################
+# BASE DE DONNÉES
+###############################################################################
+*.sql
+*.sqlite
+*.db
+
+###############################################################################
+# CERTIFICATS & SÉCURITÉ
+###############################################################################
+*.pem
+*.key
+*.crt
+*.p12
+/config/jwt/
+
+###############################################################################
+# DIVERS
+###############################################################################
+*.zip
+*.tar.gz
+*.rar
+.phpunit.result.cache
 /phpunit.xml
-/.phpunit.cache/
-###< phpunit/phpunit ###
-
-###> symfony/asset-mapper ###
-/public/assets/
-/assets/vendor/
-###< symfony/asset-mapper ###
