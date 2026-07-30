@@ -1,0 +1,279 @@
+{% extends 'club/_layout.html.twig' %}
+
+{% block title %}Encadrement — ES Coutances{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+/* ============================================================
+   ENCADREMENT
+   ============================================================ */
+.categorie-section {
+  margin-bottom: 60px;
+}
+
+.categorie-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 28px;
+  padding-bottom: 14px;
+  border-bottom: 2px solid var(--border);
+}
+
+.categorie-titre {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 900;
+  font-size: clamp(22px, 3vw, 32px);
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--dark);
+}
+
+.categorie-count {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: #aaa;
+  margin-left: auto;
+}
+
+/* ============================================================
+   GRILLE MEMBRES
+   ============================================================ */
+.membres-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+.membre-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  text-align: center;
+  transition: box-shadow .2s, transform .2s;
+}
+.membre-card:hover {
+  box-shadow: 0 8px 28px rgba(0,0,0,.1);
+  transform: translateY(-3px);
+}
+
+/* Photo */
+.membre-photo-wrap {
+  position: relative;
+  overflow: hidden;
+  background: var(--grey);
+}
+.membre-photo {
+  width: 100%;
+  aspect-ratio: 1/1;
+  object-fit: cover;
+  object-position: top;
+  display: block;
+  transition: transform .3s;
+}
+.membre-card:hover .membre-photo { transform: scale(1.04); }
+
+.membre-photo-placeholder {
+  width: 100%;
+  aspect-ratio: 1/1;
+  background: var(--grey);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.membre-photo-placeholder i {
+  font-size: 52px;
+  color: #ccc;
+}
+
+/* Infos */
+.membre-info {
+  padding: 16px 14px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.membre-nom {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 900;
+  font-size: 17px;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--dark);
+  line-height: 1.15;
+}
+
+.membre-poste {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: var(--red);
+}
+
+.membre-diplome {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 500;
+  color: #888;
+  background: var(--grey);
+  border-radius: 20px;
+  padding: 3px 10px;
+  margin-top: 4px;
+  align-self: center;
+}
+.membre-diplome i { font-size: 10px; color: var(--red); }
+
+/* Catégories badge sur la card */
+.membre-categories {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px;
+  margin-top: 6px;
+}
+.membre-cat-badge {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 20px;
+  background: rgba(200,16,46,.08);
+  color: var(--red);
+  border: 1px solid rgba(200,16,46,.2);
+}
+
+/* Vide */
+.encadrement-empty {
+  text-align: center;
+  padding: 80px 0;
+  color: #bbb;
+}
+.encadrement-empty i { font-size: 52px; display: block; margin-bottom: 16px; }
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 900px) {
+  .membres-grid { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 580px) {
+  .membres-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .membre-nom { font-size: 14px; }
+  .membre-poste { font-size: 10px; }
+}
+</style>
+{% endblock %}
+
+{% block body %}
+
+{# Hero #}
+<section class="page-hero">
+  <div class="container page-hero-inner">
+    <div class="breadcrumb">
+      <a href="{{ path('app_home') }}">Accueil</a>
+      <i class="fa-solid fa-chevron-right"></i>
+      <span>Le club</span>
+      <i class="fa-solid fa-chevron-right"></i>
+      <span>Encadrement</span>
+    </div>
+    <h1>Notre<br><span>encadrement</span></h1>
+  </div>
+</section>
+
+{# Contenu #}
+<section class="page-content">
+  <div class="container">
+
+    {% if categories|length == 0 %}
+      <div class="encadrement-empty">
+        <i class="fa-solid fa-people-group"></i>
+        <p>Aucun membre d'encadrement à afficher pour le moment.</p>
+      </div>
+
+    {% else %}
+
+      {% for categorie in categories %}
+        {# Filtre les membres actifs de cette catégorie, triés par ordre #}
+        {% set membres_actifs = categorie.membres
+          |filter(m => m.actif)
+          |sort((a, b) => a.ordre <=> b.ordre) %}
+
+        {% if membres_actifs|length > 0 %}
+          <div class="categorie-section">
+
+            <div class="categorie-header">
+              <h2 class="categorie-titre">{{ categorie.nom }}</h2>
+              <span class="categorie-count">
+                {{ membres_actifs|length }} membre{{ membres_actifs|length > 1 ? 's' : '' }}
+              </span>
+            </div>
+
+            <div class="membres-grid">
+              {% for membre in membres_actifs %}
+                <div class="membre-card">
+
+                  {# Photo #}
+                  <div class="membre-photo-wrap">
+                    {% if membre.photoName %}
+                      <img
+                        class="membre-photo"
+                        src="{{ asset('uploads/membres/' ~ membre.photoName) }}"
+                        alt="{{ membre.nom }}"
+                        loading="lazy"
+                      >
+                    {% else %}
+                      <div class="membre-photo-placeholder">
+                        <i class="fa-solid fa-user"></i>
+                      </div>
+                    {% endif %}
+                  </div>
+
+                  {# Infos #}
+                  <div class="membre-info">
+                    <div class="membre-nom">{{ membre.nom }}</div>
+                    <div class="membre-poste">{{ membre.poste }}</div>
+
+                    {% if membre.diplome %}
+                      <div class="membre-diplome">
+                        <i class="fa-solid fa-medal"></i>
+                        {{ membre.diplome }}
+                      </div>
+                    {% endif %}
+
+                    {# Autres catégories du membre (hors celle en cours) #}
+                    {% set autres_cats = membre.categories|filter(c => c.id != categorie.id) %}
+                    {% if autres_cats|length > 0 %}
+                      <div class="membre-categories" style="display:flex;align-items:center;flex-wrap:wrap;justify-content:center;gap:4px;margin-top:6px;">
+                        <span style="font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#aaa;white-space:nowrap;">
+                          Aussi dans :
+                        </span>
+                        {% for cat in autres_cats %}
+                          <span class="membre-cat-badge">{{ cat.nom }}</span>
+                        {% endfor %}
+                      </div>
+                    {% endif %}
+                  </div>
+
+                </div>
+              {% endfor %}
+            </div>
+
+          </div>
+        {% endif %}
+      {% endfor %}
+
+    {% endif %}
+
+  </div>
+</section>
+
+{% endblock %}

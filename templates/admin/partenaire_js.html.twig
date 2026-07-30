@@ -1,0 +1,36 @@
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    const checkbox = document.querySelector('input[name$="[isSponsor]"]');
+    const niveauSelect = document.querySelector('select[name$="[niveau]"]');
+
+    if (!checkbox || !niveauSelect) return;
+
+    // Remonte jusqu'au conteneur du champ niveau
+    function getFieldWrapper(el) {
+        let node = el;
+        for (let i = 0; i < 6; i++) {
+            node = node.parentElement;
+            if (!node) break;
+            if (node.classList.contains('mb-3') || node.classList.contains('field-select')) {
+                return node;
+            }
+        }
+        return el.parentElement.parentElement;
+    }
+
+    const wrapper = getFieldWrapper(niveauSelect);
+
+    function update() {
+        if (wrapper) {
+            wrapper.style.display = checkbox.checked ? '' : 'none';
+        }
+        if (!checkbox.checked) {
+            niveauSelect.value = '';
+        }
+    }
+
+    checkbox.addEventListener('change', update);
+    update();
+});
+</script>

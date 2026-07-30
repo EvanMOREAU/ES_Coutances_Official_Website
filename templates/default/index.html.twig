@@ -1,0 +1,695 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}ES Coutances — Entente Sportive Coutançaise{% endblock %}
+
+{% block stylesheets %}
+<style>
+/* ============================================================
+   RESET & ROOT
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { font-family: 'Inter', sans-serif; color: #0D0D0D; background: #fff; line-height: 1.6; }
+img { display: block; max-width: 100%; }
+a { text-decoration: none; color: inherit; }
+ul { list-style: none; }
+
+:root {
+  --red:    #C8102E;
+  --red-dk: #9E0C23;
+  --dark:   #0D0D0D;
+  --mid:    #3A3A3A;
+  --grey:   #F0EEEC;
+  --border: #E5E5E5;
+  --white:  #FFFFFF;
+  --nav-h:  72px;
+}
+
+/* ============================================================
+   HERO / CAROUSEL
+   ============================================================ */
+.hero { position: relative; background: var(--dark); --slide-h: clamp(340px, 52vw, 640px); width: 100%; overflow: hidden; }
+.slides-wrapper { overflow: hidden; width: 100%; position: relative; }
+.slides-track { display: flex; width: 100%; transition: transform .55s cubic-bezier(.4,0,.2,1); will-change: transform; }
+.slide { min-width: 100%; width: 100%; height: var(--slide-h); position: relative; flex-shrink: 0; overflow: hidden; }
+.slide img { width: 100%; height: 100%; object-fit: cover; opacity: .82; }
+.slide::after { content: ''; position: absolute; inset: 0; background: linear-gradient(160deg, rgba(0,0,0,.65) 0%, rgba(0,0,0,.2) 55%, rgba(200,16,46,.18) 100%); pointer-events: none; }
+.slide-accent { position: absolute; bottom: 0; left: 0; width: 100%; height: 0; border-style: solid; border-width: 0 0 70px 260px; border-color: transparent transparent var(--red) transparent; z-index: 3; }
+.slide-caption { position: absolute; bottom: 90px; left: 48px; z-index: 4; max-width: 560px; }
+.slide-caption h2 { font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: clamp(36px, 5.5vw, 70px); line-height: .95; letter-spacing: -.01em; text-transform: uppercase; color: var(--white); text-shadow: 0 2px 20px rgba(0,0,0,.4); }
+.slide-caption h2 span { color: var(--red); }
+.slide-caption p { margin-top: 10px; font-size: clamp(13px, 1.4vw, 16px); color: rgba(255,255,255,.85); font-weight: 500; letter-spacing: .03em; }
+.carousel-ctrl { position: absolute; top: 50%; transform: translateY(-50%); z-index: 5; background: rgba(255,255,255,.12); border: 1.5px solid rgba(255,255,255,.3); color: white; width: 44px; height: 44px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; transition: background .18s, border-color .18s; backdrop-filter: blur(4px); }
+.carousel-ctrl:hover { background: var(--red); border-color: var(--red); }
+.carousel-ctrl.prev { left: 20px; }
+.carousel-ctrl.next { right: 20px; }
+.carousel-dots { position: absolute; bottom: 18px; left: 50%; transform: translateX(-50%); z-index: 5; display: flex; gap: 7px; }
+.dot { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,.45); border: none; cursor: pointer; transition: background .18s, transform .18s; }
+.dot.active { background: var(--red); transform: scale(1.35); }
+
+/* ============================================================
+   SECTION UTILITIES
+   ============================================================ */
+.section { padding: 72px 0; }
+.section-sm { padding: 52px 0; }
+.container { max-width: 1160px; margin: 0 auto; padding: 0 24px; }
+.section-eyebrow { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--red); margin-bottom: 6px; }
+.section-title { font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: clamp(28px, 4vw, 46px); letter-spacing: .02em; text-transform: uppercase; line-height: 1; color: var(--dark); }
+.section-title.center { text-align: center; }
+.section-title.light { color: var(--white); }
+.section-eyebrow.center { text-align: center; }
+.red-stripe { height: 4px; background: var(--red); width: 48px; border-radius: 2px; margin: 12px 0 24px; }
+.red-stripe.center { margin: 12px auto 24px; }
+
+/* ============================================================
+   QUICK LINKS FFF
+   ============================================================ */
+.quick-links { background: var(--grey); padding: 48px 0; }
+.quick-links-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.quick-card { background: var(--white); border-radius: 6px; padding: 28px 20px; text-align: center; text-decoration: none; border: 1px solid var(--border); transition: transform .2s, box-shadow .2s, border-color .2s; }
+.quick-card:hover { transform: translateY(-4px); box-shadow: 0 10px 30px rgba(200,16,46,.12); border-color: var(--red); }
+.quick-card i { font-size: 34px; color: var(--red); margin-bottom: 12px; }
+.quick-card h5 { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 15px; letter-spacing: .1em; text-transform: uppercase; color: var(--dark); }
+
+/* ============================================================
+   REJOINDRE
+   ============================================================ */
+.join-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
+.join-card { background: var(--white); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; transition: box-shadow .2s, transform .2s; }
+.join-card:hover { box-shadow: 0 8px 32px rgba(0,0,0,.1); transform: translateY(-3px); }
+.join-card img { width: 100%; height: 200px; object-fit: cover; }
+.join-card-body { padding: 24px; flex: 1; display: flex; flex-direction: column; gap: 10px; }
+.join-card-body h5 { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 19px; letter-spacing: .06em; text-transform: uppercase; color: var(--red); }
+.join-card-body p { font-size: 14px; color: #555; flex: 1; }
+
+/* ============================================================
+   EMPLOI — centrage automatique
+   ============================================================ */
+.emploi-section { background: var(--dark); }
+.emploi-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 24px;
+  margin-top: 40px;
+}
+.emploi-card {
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 8px;
+  overflow: hidden;
+  transition: border-color .2s;
+  /* Largeur fixe pour que 1, 2 ou 3 cartes soient toujours centrées */
+  width: calc((1160px - 48px) / 3);
+  max-width: 340px;
+  flex-shrink: 0;
+}
+.emploi-card:hover { border-color: var(--red); }
+.emploi-card img { width: 100%; height: 180px; object-fit: cover; opacity: .8; }
+.emploi-card-body { padding: 22px; }
+.emploi-card-body h5 { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 18px; letter-spacing: .07em; text-transform: uppercase; color: var(--red); margin-bottom: 6px; }
+.emploi-card-body p { font-size: 13px; color: rgba(255,255,255,.65); margin-bottom: 14px; }
+
+/* ============================================================
+   ACTUALITÉS
+   ============================================================ */
+.actu-grid { display: grid; grid-template-columns: 1fr 340px; gap: 32px; align-items: start; }
+.actu-main { border: 1px solid var(--border); border-radius: 8px; overflow: hidden; transition: box-shadow .2s; }
+.actu-main:hover { box-shadow: 0 8px 32px rgba(0,0,0,.09); }
+.actu-main-img { position: relative; }
+.actu-main-img img { width: 100%; height: 280px; object-fit: cover; }
+.actu-tag { position: absolute; top: 14px; left: 14px; background: var(--red); color: var(--white); font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; padding: 4px 10px; border-radius: 3px; }
+.actu-tag-sm { position: static; display: inline-block; margin-bottom: 6px; }
+.actu-main-body { padding: 28px; }
+.actu-meta { display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: #999; margin-bottom: 10px; }
+.actu-title { font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 26px; letter-spacing: .02em; text-transform: uppercase; color: var(--dark); line-height: 1.05; margin-bottom: 12px; }
+.actu-excerpt { font-size: 14px; color: #555; line-height: 1.7; margin-bottom: 8px; }
+.actu-side { display: flex; flex-direction: column; gap: 20px; }
+.actu-card { display: grid; grid-template-columns: 110px 1fr; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; transition: box-shadow .2s; }
+.actu-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,.08); }
+.actu-card img { width: 110px; height: 100%; min-height: 110px; object-fit: cover; display: block; }
+.actu-card-body { padding: 14px; display: flex; flex-direction: column; gap: 4px; }
+.actu-card-body h4 { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 15px; letter-spacing: .03em; text-transform: uppercase; color: var(--dark); line-height: 1.15; }
+.actu-card-body p { font-size: 12px; color: #666; line-height: 1.5; }
+
+/* ============================================================
+   GALERIE
+   ============================================================ */
+.galerie-section { background: var(--grey); }
+.galerie-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 36px; }
+.galerie-grid img { width: 100%; aspect-ratio: 1/1; object-fit: cover; border-radius: 4px; cursor: pointer; transition: transform .2s, opacity .2s; }
+.galerie-grid img:hover { transform: scale(1.03); opacity: .9; }
+
+/* Lightbox galerie home */
+.lightbox {
+  display: none;
+  position: fixed;
+  z-index: 9999;
+  padding-top: 60px;
+  left: 0; top: 0;
+  width: 100%; height: 100%;
+  background-color: rgba(0,0,0,0.85);
+}
+.lightbox-content {
+  margin: auto;
+  display: block;
+  max-width: 90%;
+  max-height: 80vh;
+  border-radius: 6px;
+}
+.lightbox-close {
+  position: absolute;
+  top: 20px; right: 35px;
+  color: #fff;
+  font-size: 40px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+/* ============================================================
+   RÉSEAUX
+   ============================================================ */
+.reseaux-section { background: var(--dark); }
+
+/* ============================================================
+   CARROUSEL LOGOS PARTENAIRES / SPONSORS
+   ============================================================ */
+.logos-section {
+  background: var(--white);
+  padding: 40px 0;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.logos-track-wrap {
+  overflow: hidden;
+  position: relative;
+  /* Masques dégradés sur les côtés */
+  mask-image: linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%);
+}
+
+.logos-track {
+  display: flex;
+  align-items: center;
+  gap: 60px;
+  width: max-content;
+  animation: logos-scroll 25s linear infinite;
+}
+
+.logos-track:hover { animation-play-state: paused; }
+
+@keyframes logos-scroll {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.logo-item {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 60px;
+  filter: grayscale(100%);
+  opacity: .55;
+  transition: filter .2s, opacity .2s;
+}
+.logo-item:hover { filter: grayscale(0%); opacity: 1; }
+
+.logo-item img {
+  max-height: 60px;
+  max-width: 140px;
+  width: auto;
+  object-fit: contain;
+}
+
+/* Placeholder si pas de logo */
+.logo-placeholder {
+  height: 48px;
+  padding: 0 20px;
+  background: var(--grey);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 800;
+  font-size: 14px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: #999;
+  white-space: nowrap;
+}
+
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+.btn { display: inline-flex; align-items: center; gap: 7px; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 14px; letter-spacing: .09em; text-transform: uppercase; padding: 11px 24px; border-radius: 4px; border: none; cursor: pointer; text-decoration: none; transition: background .2s, transform .15s, color .2s; }
+.btn:hover { transform: translateY(-2px); }
+.btn-primary { background: var(--red); color: var(--white); }
+.btn-primary:hover { background: var(--red-dk); color: var(--white); }
+.btn-outline { background: transparent; color: var(--red); border: 2px solid var(--red); }
+.btn-outline:hover { background: var(--red); color: var(--white); }
+.btn-outline-white { background: transparent; color: var(--white); border: 2px solid rgba(255,255,255,.5); }
+.btn-outline-white:hover { background: var(--white); color: var(--dark); }
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 900px) {
+  .quick-links-grid { grid-template-columns: repeat(2, 1fr); }
+  .join-grid { grid-template-columns: 1fr 1fr; }
+  .emploi-card { width: calc(50% - 12px); max-width: none; }
+  .galerie-grid { grid-template-columns: repeat(2, 1fr); }
+  .footer-grid { grid-template-columns: 1fr 1fr; gap: 32px; }
+  .slide-caption { left: 28px; bottom: 80px; }
+  .actu-grid { grid-template-columns: 1fr; }
+  .actu-side { flex-direction: row; flex-wrap: wrap; }
+  .actu-card { flex: 1 1 260px; }
+  .logos-track { gap: 40px; }
+}
+@media (max-width: 580px) {
+  :root { --nav-h: 60px; }
+  .quick-links-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .join-grid { grid-template-columns: 1fr; }
+  .emploi-card { width: 100%; max-width: none; }
+  .galerie-grid { grid-template-columns: repeat(2, 1fr); }
+  .section { padding: 52px 0; }
+  .slide-caption { left: 18px; bottom: 72px; }
+  .slide-caption h2 { font-size: 32px; }
+  .actu-card { grid-template-columns: 1fr; }
+  .actu-card img { width: 100%; height: 140px; min-height: unset; }
+  .actu-card-body { padding: 12px; }
+  .logos-track { gap: 28px; animation-duration: 18s; }
+  .logo-item img { max-height: 44px; max-width: 100px; }
+}
+</style>
+{% endblock %}
+
+{% block body %}
+
+{# ============================================================
+   HERO CAROUSEL
+   ============================================================ #}
+<section class="hero" aria-label="Diaporama">
+  <div class="slides-wrapper">
+    <div class="slides-track" id="slidesTrack">
+
+      {% for slide in slides %}
+        <div class="slide">
+          <img src="{{ asset('uploads/slides/' ~ slide.imageName) }}" alt="{{ slide.titre }}">
+          <div class="slide-accent"></div>
+          <div class="slide-caption">
+            <h2>
+              {% if slide.titreMot %}
+                {{ slide.titre|replace({(slide.titreMot): '<span>' ~ slide.titreMot ~ '</span>'})|raw }}
+              {% else %}
+                {{ slide.titre }}
+              {% endif %}
+            </h2>
+            {% if slide.sousTitre %}<p>{{ slide.sousTitre }}</p>{% endif %}
+          </div>
+        </div>
+      {% else %}
+        <div class="slide">
+          <img src="{{ asset('images/hero-default.jpg') }}" alt="ES Coutances">
+          <div class="slide-accent"></div>
+          <div class="slide-caption">
+            <h2>Entente<br><span>Sportive</span><br>Coutançaise</h2>
+            <p>Une passion qui nous unit depuis 1961.</p>
+          </div>
+        </div>
+      {% endfor %}
+
+    </div>
+  </div>
+
+  <button class="carousel-ctrl prev" id="slidePrev" aria-label="Diapositive précédente">
+    <i class="fa-solid fa-chevron-left"></i>
+  </button>
+  <button class="carousel-ctrl next" id="slideNext" aria-label="Diapositive suivante">
+    <i class="fa-solid fa-chevron-right"></i>
+  </button>
+
+  <div class="carousel-dots" role="tablist" aria-label="Diapositives">
+    {% for slide in slides %}
+      <button class="dot {{ loop.first ? 'active' : '' }}" data-index="{{ loop.index0 }}" role="tab" aria-label="Diapositive {{ loop.index }}" aria-selected="{{ loop.first ? 'true' : 'false' }}"></button>
+    {% else %}
+      <button class="dot active" data-index="0" role="tab" aria-selected="true"></button>
+    {% endfor %}
+  </div>
+</section>
+
+{# ============================================================
+   LIENS RAPIDES FFF
+   ============================================================ #}
+<section class="quick-links">
+  <div class="container">
+    <div class="section-eyebrow center">FFF Normandie</div>
+    <div class="section-title center" style="margin-bottom:32px">Nos compétitions</div>
+    <div class="quick-links-grid">
+      <a href="https://normandie.fff.fr/recherche-clubs?subtab=resultats&tab=resultats&scl=548" target="_blank" class="quick-card">
+        <i class="fa-solid fa-trophy"></i><h5>Résultats</h5>
+      </a>
+      <a href="https://normandie.fff.fr/recherche-clubs?subtab=agenda&tab=resultats&scl=548" target="_blank" class="quick-card">
+        <i class="fa-regular fa-calendar-days"></i><h5>Agenda</h5>
+      </a>
+      <a href="https://normandie.fff.fr/recherche-clubs?subtab=ranking&tab=resultats&scl=548" target="_blank" class="quick-card">
+        <i class="fa-solid fa-ranking-star"></i><h5>Classements</h5>
+      </a>
+      <a href="https://normandie.fff.fr/recherche-clubs?subtab=calendar&tab=resultats&scl=548" target="_blank" class="quick-card">
+        <i class="fa-solid fa-calendar-check"></i><h5>Calendrier</h5>
+      </a>
+    </div>
+  </div>
+</section>
+
+{# ============================================================
+   NOUS REJOINDRE
+   ============================================================ #}
+<section class="section">
+  <div class="container">
+    <div class="section-eyebrow center">Rejoignez-nous</div>
+    <div class="section-title center" style="margin-bottom:0">Nous rejoindre</div>
+    <div class="red-stripe center"></div>
+    <div class="join-grid">
+
+      <div class="join-card">
+        <img src="https://raw.githubusercontent.com/CylaosICT/escoutances-images/refs/heads/main/725751192_2445468312633357_2725520192436946227_n.jpg" alt="Devenir joueur">
+        <div class="join-card-body">
+          <h5>Devenir Joueuse/Joueur</h5>
+          <p>Rejoignez l'ES Coutances et vivez votre passion du football dans un club formateur et ambitieux.</p>
+          <a href="/licence" class="btn btn-primary" style="align-self:flex-start;margin-top:4px">En savoir plus</a>
+        </div>
+      </div>
+
+      <div class="join-card">
+        <img src="https://raw.githubusercontent.com/CylaosICT/escoutances-images/refs/heads/main/503615364_18050302139580299_9100830375069093974_n.jpg" alt="Devenir partenaire">
+        <div class="join-card-body">
+          <h5>Devenir partenaire</h5>
+          <p>Soutenez le club et bénéficiez d'une visibilité locale et régionale auprès de plus de 500 licenciés.</p>
+          <a href="{{ path('app_contact') }}" class="btn btn-primary" style="align-self:flex-start;margin-top:4px">Découvrir</a>
+        </div>
+      </div>
+
+      <div class="join-card">
+        <img src="https://raw.githubusercontent.com/CylaosICT/escoutances-images/refs/heads/main/504333979_18049249775580299_875794996725620563_n.jpg" alt="Devenir bénévole">
+        <div class="join-card-body">
+          <h5>Devenir bénévole</h5>
+          <p>Participez à la vie du club et contribuez à son développement au quotidien.</p>
+          <a href="/benevoles" class="btn btn-primary" style="align-self:flex-start;margin-top:4px">Rejoindre</a>
+        </div>
+      </div>
+
+      <div class="join-card">
+        <img src="https://raw.githubusercontent.com/CylaosICT/escoutances-images/refs/heads/main/504333979_18049249775580299_875794996725620563_n.jpg" alt="Devenir arbitre">
+        <div class="join-card-body">
+          <h5>Devenir Arbitre</h5>
+          <p>Participez à la vie du club et contribuez à son développement au quotidien.</p>
+          <a href="/benevoles" class="btn btn-primary" style="align-self:flex-start;margin-top:4px">Rejoindre</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+{# ============================================================
+   OFFRES D'EMPLOI (dynamique) — centrage auto via flexbox
+   ============================================================ #}
+{% if offres|length > 0 %}
+<section class="section emploi-section">
+  <div class="container">
+    <div class="section-eyebrow center" style="color:rgba(255,255,255,.45)">Carrière</div>
+    <div class="section-title center light">Formations et Emplois</div>
+    <div class="red-stripe center"></div>
+    <p style="text-align:center;color:rgba(255,255,255,.6);font-size:15px;margin-top:-4px">
+      Découvrez nos formations et nos offres.
+    </p>
+    <div class="emploi-grid">
+      {% for offre in offres %}
+        <div class="emploi-card">
+          {% if offre.imageName %}
+            <img src="{{ asset('uploads/offres/' ~ offre.imageName) }}" alt="{{ offre.titre }}">
+          {% else %}
+            <img src="{{ asset('images/offre-default.jpg') }}" alt="{{ offre.titre }}">
+          {% endif %}
+          <div class="emploi-card-body">
+            <h5>{{ offre.titre }}</h5>
+            <p>{{ offre.description|striptags|slice(0, 120) ~ '...' }}</p>
+            <a href="/emploi/{{ offre.id }}" class="btn btn-primary">En savoir plus</a>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{# ============================================================
+   ACTUALITÉS (dynamique)
+   ============================================================ #}
+{% if article_principal %}
+<section class="section">
+  <div class="container">
+    <div class="section-eyebrow center">La vie du club</div>
+    <div class="section-title center">Actualités</div>
+    <div class="red-stripe center"></div>
+
+    <div class="actu-grid">
+
+      <article class="actu-main">
+        <div class="actu-main-img">
+          {% if article_principal.imageName %}
+            <img src="{{ asset('uploads/articles/' ~ article_principal.imageName) }}" alt="{{ article_principal.titre }}">
+          {% else %}
+            <img src="{{ asset('images/actu-default.jpg') }}" alt="{{ article_principal.titre }}">
+          {% endif %}
+          <span class="actu-tag">{{ article_principal.categorie|capitalize }}</span>
+        </div>
+        <div class="actu-main-body">
+          <div class="actu-meta">
+            <time datetime="{{ article_principal.createdAt|date('Y-m-d') }}">{{ article_principal.createdAt|date('d/m/Y') }}</time>
+            {% if article_principal.lienExterne %}<span>·</span><span>Source externe</span>{% endif %}
+          </div>
+          <h3 class="actu-title">{{ article_principal.titre }}</h3>
+          <p class="actu-excerpt">{{ article_principal.contenu|striptags|slice(0, 300) ~ '...' }}</p>
+          {% if article_principal.lienExterne %}
+            <a href="{{ article_principal.lienExterne }}" target="_blank" rel="noopener" class="btn btn-primary" style="margin-top:8px">
+              Lire l'article <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:11px"></i>
+            </a>
+          {% else %}
+            <a href="/actualites/{{ article_principal.slug }}" class="btn btn-primary" style="margin-top:8px">Lire la suite</a>
+          {% endif %}
+        </div>
+      </article>
+
+      {% if articles_secondaires|length > 0 %}
+      <div class="actu-side">
+        {% for article in articles_secondaires %}
+          {% set url = article.lienExterne is not empty ? article.lienExterne : path('app_article_detail', {slug: article.slug}) %}
+          <article class="actu-card">
+            <a href="{{ url }}" {% if article.lienExterne is not empty %}target="_blank" rel="noopener"{% endif %} style="display:contents">
+              {% if article.imageName %}
+                <img src="{{ asset('uploads/articles/' ~ article.imageName) }}" alt="{{ article.titre }}">
+              {% else %}
+                <img src="{{ asset('images/actu-default.jpg') }}" alt="{{ article.titre }}">
+              {% endif %}
+              <div class="actu-card-body">
+                <span class="actu-tag actu-tag-sm">{{ article.categorie|capitalize }}</span>
+                <h4>{{ article.titre }}</h4>
+                <p>{{ article.contenu|striptags|slice(0, 80) ~ '...' }}</p>
+                <div style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--red);margin-top:4px">
+                  {% if article.lienExterne is not empty %}
+                    Lire l'article <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:9px"></i>
+                  {% else %}
+                    Lire la suite <i class="fa-solid fa-arrow-right" style="font-size:9px"></i>
+                  {% endif %}
+                </div>
+              </div>
+            </a>
+          </article>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+    </div>
+
+    <div style="text-align:center;margin-top:36px">
+      <a href="{{ path('app_actualites') }}" class="btn btn-outline">Toutes les actualités</a>
+    </div>
+
+  </div>
+</section>
+{% endif %}
+
+{# ============================================================
+   GALERIE (dynamique — dernier album)
+   ============================================================ #}
+{% if dernier_album and dernier_album.photos|length > 0 %}
+  <section class="section-sm galerie-section">
+    <div class="container">
+      <div class="section-eyebrow center">Photographies</div>
+      <div class="section-title center">{{ dernier_album.nom }}</div>
+      <div class="galerie-grid">
+        {% for photo in dernier_album.photos|slice(0, 4) %}
+          <img class="zoomable-photo" src="{{ asset('uploads/photos/' ~ photo.imageName) }}" alt="{{ photo.legende ?? dernier_album.nom }}">
+        {% endfor %}
+      </div>
+      <div style="text-align:center;margin-top:28px">
+        <a href="{{ path('app_galerie') }}" class="btn btn-primary">Voir la galerie complète</a>
+      </div>
+    </div>
+  </section>
+
+  <div id="lightbox" class="lightbox">
+    <span class="lightbox-close">&times;</span>
+    <img class="lightbox-content" id="lightbox-img">
+  </div>
+{% endif %}
+
+{# ============================================================
+   CARROUSEL LOGOS PARTENAIRES & SPONSORS
+   ============================================================ #}
+{% if partenaires_carousel is defined and partenaires_carousel|length > 0 %}
+<section class="logos-section">
+  <div class="logos-track-wrap">
+    <div class="logos-track" id="logosTrack">
+
+      {# Première passe #}
+      {% for partenaire in partenaires_carousel %}
+        <div class="logo-item">
+          {% if partenaire.url is not empty %}
+            <a href="{{ partenaire.url }}" target="_blank" rel="noopener" title="{{ partenaire.nom }}">
+          {% endif %}
+          {% if partenaire.logoName %}
+            <img src="{{ asset('uploads/partenaires/' ~ partenaire.logoName) }}" alt="{{ partenaire.nom }}">
+          {% else %}
+            <div class="logo-placeholder">{{ partenaire.nom }}</div>
+          {% endif %}
+          {% if partenaire.url is not empty %}
+            </a>
+          {% endif %}
+        </div>
+      {% endfor %}
+
+      {# Duplication pour boucle infinie #}
+      {% for partenaire in partenaires_carousel %}
+        <div class="logo-item">
+          {% if partenaire.url is not empty %}
+            <a href="{{ partenaire.url }}" target="_blank" rel="noopener" title="{{ partenaire.nom }}">
+          {% endif %}
+          {% if partenaire.logoName %}
+            <img src="{{ asset('uploads/partenaires/' ~ partenaire.logoName) }}" alt="{{ partenaire.nom }}">
+          {% else %}
+            <div class="logo-placeholder">{{ partenaire.nom }}</div>
+          {% endif %}
+          {% if partenaire.url is not empty %}
+            </a>
+          {% endif %}
+        </div>
+      {% endfor %}
+
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{# ============================================================
+   RÉSEAUX SOCIAUX
+   ============================================================ #}
+<section class="section-sm reseaux-section">
+  <div class="container">
+    <div class="section-eyebrow center" style="color:rgba(255,255,255,.4)">Communauté</div>
+    <div class="section-title center light">Sur les réseaux</div>
+    <div style="text-align:center;margin-top:36px;color:rgba(255,255,255,.5);font-size:14px;margin-bottom:24px">
+      Suivez-nous pour ne rien manquer de l'actualité du club.
+    </div>
+    <div style="text-align:center;display:flex;justify-content:center;gap:16px;flex-wrap:wrap;">
+      <a href="https://www.facebook.com/ententesportivecoutancaise" target="_blank" rel="noopener" class="btn btn-outline-white">
+        <i class="fa-brands fa-facebook-f"></i> Facebook
+      </a>
+      <a href="https://www.instagram.com/escoutances/" target="_blank" rel="noopener" class="btn btn-outline-white">
+        <i class="fa-brands fa-instagram"></i> Instagram
+      </a>
+    </div>
+  </div>
+</section>
+
+{% endblock %}
+
+{% block javascripts %}
+<script>
+/* ---- Carousel hero ---- */
+(function() {
+  const track = document.getElementById('slidesTrack');
+  if (!track) return;
+  const slides = track.querySelectorAll('.slide');
+  const dots   = document.querySelectorAll('.dot');
+  let current  = 0, timer;
+
+  function goTo(n) {
+    current = (n + slides.length) % slides.length;
+    track.style.transform = `translateX(-${current * 100}%)`;
+    dots.forEach((d, i) => { d.classList.toggle('active', i === current); d.setAttribute('aria-selected', i === current); });
+  }
+  function autoplay() { clearInterval(timer); timer = setInterval(() => goTo(current + 1), 4500); }
+
+  const prev = document.getElementById('slidePrev');
+  const next = document.getElementById('slideNext');
+  if (prev) prev.addEventListener('click', () => { goTo(current - 1); autoplay(); });
+  if (next) next.addEventListener('click', () => { goTo(current + 1); autoplay(); });
+  dots.forEach(d => d.addEventListener('click', () => { goTo(+d.dataset.index); autoplay(); }));
+
+  let startX = 0;
+  track.addEventListener('touchstart', e => { startX = e.changedTouches[0].clientX; }, { passive: true });
+  track.addEventListener('touchend', e => { const dx = e.changedTouches[0].clientX - startX; if (Math.abs(dx) > 40) { goTo(current + (dx < 0 ? 1 : -1)); autoplay(); } }, { passive: true });
+
+  if (slides.length > 1) autoplay();
+})();
+
+/* ---- Desktop nav dropdowns ---- */
+(function() {
+  const bar = document.querySelector('.nav-bar');
+  if (!bar) return;
+  const items = Array.from(bar.querySelectorAll('.nav-item'));
+  const drops = Array.from(bar.querySelectorAll('.dropdown'));
+  function closeAll() { drops.forEach(d => d.classList.remove('open')); }
+  items.forEach(item => {
+    item.addEventListener('mouseenter', () => { closeAll(); const d = item.querySelector('.dropdown'); if (d) d.classList.add('open'); });
+    const trigger = item.querySelector('a, button');
+    if (trigger) trigger.addEventListener('click', e => { const d = item.querySelector('.dropdown'); if (d) { e.preventDefault(); const was = d.classList.contains('open'); closeAll(); if (!was) d.classList.add('open'); } });
+  });
+  bar.addEventListener('mouseleave', closeAll);
+  document.addEventListener('click', e => { if (!bar.contains(e.target)) closeAll(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAll(); });
+})();
+
+/* ---- Mobile nav ---- */
+(function() {
+  const toggle = document.getElementById('navToggle');
+  const mobileNav = document.getElementById('mobileNav');
+  if (!toggle || !mobileNav) return;
+  toggle.addEventListener('click', () => { const open = mobileNav.classList.toggle('open'); toggle.classList.toggle('open', open); toggle.setAttribute('aria-expanded', open); });
+  document.querySelectorAll('.mob-section-head').forEach(head => {
+    head.addEventListener('click', () => { const section = head.parentElement; const wasOpen = section.classList.contains('open'); document.querySelectorAll('.mob-section').forEach(s => s.classList.remove('open')); if (!wasOpen) section.classList.add('open'); });
+  });
+})();
+
+/* ---- Lightbox galerie home ---- */
+document.addEventListener('DOMContentLoaded', function () {
+  const lightbox = document.getElementById('lightbox');
+  const lightboxImg = document.getElementById('lightbox-img');
+  const closeBtn = document.querySelector('.lightbox-close');
+  if (!lightbox) return;
+
+  document.querySelectorAll('.zoomable-photo').forEach(photo => {
+    photo.addEventListener('click', () => { lightbox.style.display = 'block'; lightboxImg.src = photo.src; });
+  });
+  closeBtn.addEventListener('click', () => { lightbox.style.display = 'none'; });
+  lightbox.addEventListener('click', e => { if (e.target === lightbox) lightbox.style.display = 'none'; });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') lightbox.style.display = 'none'; });
+});
+</script>
+{% endblock %}

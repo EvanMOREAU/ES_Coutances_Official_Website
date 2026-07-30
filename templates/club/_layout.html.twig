@@ -1,0 +1,107 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+/* ============================================================
+   PAGE HERO
+   ============================================================ */
+.page-hero {
+  background: var(--dark);
+  position: relative;
+  overflow: hidden;
+  padding: 64px 0 52px;
+}
+
+.page-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(200,16,46,.15) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+/* Accent diagonal rouge en bas */
+.page-hero::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0;
+  width: 100%; height: 0;
+  border-style: solid;
+  border-width: 0 0 40px 180px;
+  border-color: transparent transparent var(--red) transparent;
+}
+
+.page-hero-inner {
+  position: relative;
+  z-index: 2;
+}
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.45);
+  margin-bottom: 16px;
+}
+.breadcrumb a { color: rgba(255,255,255,.45); transition: color .15s; }
+.breadcrumb a:hover { color: var(--red); }
+.breadcrumb i { font-size: 9px; }
+
+.page-hero h1 {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 900;
+  font-size: clamp(36px, 6vw, 72px);
+  line-height: .95;
+  letter-spacing: .02em;
+  text-transform: uppercase;
+  color: var(--white);
+}
+
+.page-hero h1 span { color: var(--red); }
+
+/* ============================================================
+   PAGE CONTENT
+   ============================================================ */
+.page-content {
+  padding: 64px 0;
+}
+
+/* Contenu WYSIWYG */
+.prose {
+  max-width: 800px;
+  margin: 0 auto;
+  font-size: 15px;
+  line-height: 1.8;
+  color: #444;
+}
+.prose h2 {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 900;
+  font-size: 28px;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--dark);
+  margin: 32px 0 12px;
+}
+.prose h3 {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 800;
+  font-size: 20px;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--red);
+  margin: 24px 0 8px;
+}
+.prose p { margin-bottom: 16px; }
+.prose ul { list-style: disc; padding-left: 20px; margin-bottom: 16px; }
+.prose ul li { margin-bottom: 6px; }
+.prose img { border-radius: 8px; margin: 24px 0; box-shadow: 0 8px 32px rgba(0,0,0,.1); }
+.prose strong { color: var(--dark); font-weight: 700; }
+.prose a { color: var(--red); text-decoration: underline; }
+</style>
+{% endblock %}

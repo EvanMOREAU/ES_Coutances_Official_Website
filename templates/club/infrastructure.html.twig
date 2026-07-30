@@ -1,0 +1,30 @@
+{% extends 'club/_layout.html.twig' %}
+
+{% block title %}{{ page.titre }} — ES Coutances{% endblock %}
+
+{% block body %}
+
+{# Hero #}
+<section class="page-hero">
+  <div class="container page-hero-inner">
+    <div class="breadcrumb">
+      <a href="{{ path('app_home') }}">Accueil</a>
+      <i class="fa-solid fa-chevron-right"></i>
+      <span>Le club</span>
+      <i class="fa-solid fa-chevron-right"></i>
+      <span>{{ page.titre }}</span>
+    </div>
+    <h1>Nos<br><span>infrastructures</span></h1>
+  </div>
+</section>
+
+{# Contenu #}
+<section class="page-content">
+  <div class="container">
+    <div class="prose">
+      {{ page.contenu|raw }}
+    </div>
+  </div>
+</section>
+
+{% endblock %}

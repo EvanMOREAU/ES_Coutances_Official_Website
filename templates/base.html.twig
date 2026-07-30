@@ -1,24 +1,323 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="UTF-8">
-        <title>{% block title %}Welcome!{% endblock %}</title>
-        <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text><text y=%221.3em%22 x=%220.2em%22 font-size=%2276%22 fill=%22%23fff%22>sf</text></svg>">
-        {% block stylesheets %}
-        {% endblock %}
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}ES Coutances — Entente Sportive Coutançaise{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;0,800;0,900;1,700;1,800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  {% block stylesheets %}{% endblock %}
 
-        {% block javascripts %}
-            {% block importmap %}{{ importmap('app') }}{% endblock %}
-        {% endblock %}
+  <style>
+/* ============================================================
+   RESET & ROOT
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { font-family: 'Inter', sans-serif; color: #0D0D0D; background: #fff; line-height: 1.6; }
+img { display: block; max-width: 100%; }
+a { text-decoration: none; color: inherit; }
+ul { list-style: none; }
 
-        {% set frankenphp_hot_reload = app.request.server.get('FRANKENPHP_HOT_RELOAD') %}
-        {% if frankenphp_hot_reload %}
-        <meta name="frankenphp-hot-reload:url" content="{{ frankenphp_hot_reload }}">
-        <script src="https://cdn.jsdelivr.net/npm/idiomorph"></script>
-        <script src="https://cdn.jsdelivr.net/npm/frankenphp-hot-reload/+esm" type="module"></script>
-        {% endif %}
-    </head>
-    <body>
-        {% block body %}{% endblock %}
-    </body>
+:root {
+  --red:    #C8102E;
+  --red-dk: #9E0C23;
+  --dark:   #0D0D0D;
+  --mid:    #3A3A3A;
+  --grey:   #F0EEEC;
+  --border: #E5E5E5;
+  --white:  #FFFFFF;
+  --nav-h:  72px;
+}
+
+/* HEADER */
+.site-header { position: sticky; top: 0; z-index: 1000; background: var(--white); box-shadow: 0 1px 0 var(--border); }
+.header-top { display: flex; align-items: center; justify-content: space-between; padding: 0 32px; height: var(--nav-h); border-bottom: 1px solid var(--border); }
+.logo-wrap { display: flex; align-items: center; gap: 14px; }
+.logo-img { height: 50px; width: auto; }
+.logo-text { line-height: 1.2; }
+.logo-name { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 17px; letter-spacing: .06em; text-transform: uppercase; color: var(--dark); }
+.logo-sub { font-size: 10px; font-weight: 500; color: #888; letter-spacing: .1em; text-transform: uppercase; }
+.header-tagline { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-style: italic; font-size: 18px; letter-spacing: .04em; text-transform: uppercase; color: var(--red); }
+
+/* HAMBURGER */
+.nav-toggle { display: none; flex-direction: column; justify-content: center; gap: 5px; cursor: pointer; background: none; border: none; padding: 4px; width: 36px; height: 36px; }
+.nav-toggle span { display: block; height: 2px; background: var(--dark); border-radius: 2px; transition: transform .25s, opacity .25s; }
+.nav-toggle.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.nav-toggle.open span:nth-child(2) { opacity: 0; }
+.nav-toggle.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+/* NAV BAR */
+.nav-bar { display: flex; align-items: center; justify-content: center; gap: 0; background: var(--white); }
+.nav-item { position: relative; }
+.nav-item > a, .nav-item > button { display: flex; align-items: center; gap: 5px; padding: 14px 16px; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 13px; letter-spacing: .09em; text-transform: uppercase; color: var(--mid); background: none; border: none; cursor: pointer; transition: color .18s; position: relative; white-space: nowrap; }
+.nav-item > a::after, .nav-item > button::after { content: ''; position: absolute; bottom: 0; left: 16px; right: 16px; height: 2px; background: var(--red); transform: scaleX(0); transition: transform .18s; }
+.nav-item:hover > a, .nav-item:hover > button { color: var(--red); }
+.nav-item:hover > a::after, .nav-item:hover > button::after { transform: scaleX(1); }
+.nav-item > a i, .nav-item > button i { font-size: 10px; opacity: .5; transition: transform .18s; }
+.nav-item:hover > a i, .nav-item:hover > button i { transform: rotate(180deg); opacity: 1; }
+
+/* DROPDOWN */
+.dropdown { position: absolute; top: 100%; left: 0; display: flex; gap: 0; background: var(--white); border-top: 3px solid var(--red); box-shadow: 0 12px 36px rgba(0,0,0,.12); width: max-content; opacity: 0; visibility: hidden; transform: translateY(-6px); transition: opacity .18s, transform .18s, visibility .18s; pointer-events: none; z-index: 999; }
+.nav-item::after { content: ''; position: absolute; bottom: -10px; left: 0; right: 0; height: 10px; display: block; }
+.dropdown.open, .nav-item:hover .dropdown, .nav-item:focus-within .dropdown { opacity: 1; visibility: visible; transform: translateY(0); pointer-events: auto; }
+.dd-col { padding: 20px; width: 210px; flex: 0 0 210px; border-right: 1px solid var(--border); overflow: hidden; }
+.dd-col:last-child { border-right: none; }
+.dd-col.wide { width: 230px; flex: 0 0 230px; }
+.dd-col h4 { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--red); margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+.dd-col a { display: flex; align-items: center; gap: 0; padding: 5px 0; font-size: 12px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: #555; white-space: nowrap; transition: color .15s, padding-left .15s, gap .15s; position: relative; }
+.dd-col a::before { content: '›'; color: var(--red); font-size: 14px; line-height: 1; flex-shrink: 0; width: 10px; text-align: center; opacity: 0; transition: opacity .15s; }
+.dd-col a:hover { color: var(--dark); gap: 6px; padding-left: 4px; }
+.dd-col a:hover::before { opacity: 1; }
+
+/* MOBILE NAV */
+.mobile-nav { display: none; flex-direction: column; background: var(--white); border-top: 1px solid var(--border); overflow-y: auto; max-height: calc(100vh - var(--nav-h)); }
+.mobile-nav.open { display: flex; }
+.mob-section { border-bottom: 1px solid var(--border); }
+.mob-section-head { display: flex; align-items: center; justify-content: space-between; padding: 14px 24px; font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 14px; letter-spacing: .08em; text-transform: uppercase; cursor: pointer; color: var(--dark); }
+.mob-section-head i { font-size: 11px; transition: transform .2s; }
+.mob-section.open .mob-section-head i { transform: rotate(180deg); color: var(--red); }
+.mob-section.open .mob-section-head { color: var(--red); }
+.mob-links { display: none; padding: 0 24px 12px 32px; }
+.mob-section.open .mob-links { display: block; }
+.mob-links a { display: block; padding: 5px 0; font-size: 12px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: #666; }
+.mob-links a:hover { color: var(--red); }
+.mob-links h5 { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--red); margin: 10px 0 4px; }
+.mob-direct { display: block; padding: 14px 24px; font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 14px; letter-spacing: .08em; text-transform: uppercase; color: var(--dark); border-bottom: 1px solid var(--border); }
+
+/* UTILITIES */
+.container { max-width: 1160px; margin: 0 auto; padding: 0 24px; }
+.section { padding: 72px 0; }
+.section-sm { padding: 52px 0; }
+.section-eyebrow { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--red); margin-bottom: 6px; }
+.section-title { font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: clamp(28px, 4vw, 46px); letter-spacing: .02em; text-transform: uppercase; line-height: 1; color: var(--dark); }
+.section-title.center { text-align: center; }
+.section-title.light { color: var(--white); }
+.section-eyebrow.center { text-align: center; }
+.red-stripe { height: 4px; background: var(--red); width: 48px; border-radius: 2px; margin: 12px 0 24px; }
+.red-stripe.center { margin: 12px auto 24px; }
+
+/* BUTTONS */
+.btn { display: inline-flex; align-items: center; gap: 7px; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 14px; letter-spacing: .09em; text-transform: uppercase; padding: 11px 24px; border-radius: 4px; border: none; cursor: pointer; text-decoration: none; transition: background .2s, transform .15s, color .2s; }
+.btn:hover { transform: translateY(-2px); }
+.btn-primary { background: var(--red); color: var(--white); }
+.btn-primary:hover { background: var(--red-dk); color: var(--white); }
+.btn-outline { background: transparent; color: var(--red); border: 2px solid var(--red); }
+.btn-outline:hover { background: var(--red); color: var(--white); }
+.btn-outline-white { background: transparent; color: var(--white); border: 2px solid rgba(255,255,255,.5); }
+.btn-outline-white:hover { background: var(--white); color: var(--dark); }
+
+/* FOOTER */
+.site-footer { background: linear-gradient(165deg, var(--red) 0%, var(--red-dk) 100%); color: var(--white); padding: 64px 0 32px; }
+.footer-grid { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 48px; padding-bottom: 40px; border-bottom: 1px solid rgba(255,255,255,.2); }
+.footer-col h5 { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 14px; letter-spacing: .1em; text-transform: uppercase; margin-bottom: 14px; color: rgba(255,255,255,.6); }
+.footer-col p { font-size: 14px; line-height: 1.7; opacity: .85; }
+.footer-col ul li { margin-bottom: 6px; }
+.footer-col ul li a { font-size: 14px; color: rgba(255,255,255,.85); transition: color .15s, padding-left .15s; }
+.footer-col ul li a:hover { color: var(--white); padding-left: 4px; }
+.social-links { display: flex; gap: 12px; margin-top: 4px; }
+.social-links a { display: flex; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 50%; background: rgba(255,255,255,.15); color: var(--white); font-size: 16px; transition: background .18s; }
+.social-links a:hover { background: rgba(255,255,255,.35); }
+.footer-bottom { margin-top: 28px; text-align: center; font-size: 12px; opacity: .6; letter-spacing: .04em; }
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+  .nav-toggle { display: flex; }
+  .nav-bar, .header-tagline { display: none; }
+  .header-top { padding: 0 20px; }
+  .footer-grid { grid-template-columns: 1fr 1fr; gap: 32px; }
+}
+@media (max-width: 580px) {
+  :root { --nav-h: 60px; }
+  .logo-img { height: 38px; }
+  .logo-name { font-size: 14px; }
+  .footer-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+{# ============================================================
+   HEADER
+   ============================================================ #}
+<header class="site-header">
+  <div class="header-top">
+    <a href="{{ path('app_home') }}" class="logo-wrap" aria-label="Accueil ES Coutances">
+      <img
+        src="{{ asset('images/logo_hd_trans3_gt.png') }}"
+        alt="Logo ES Coutances"
+        class="logo-img"
+      >
+      <div class="logo-text">
+        <div class="logo-name">Entente Sportive Coutançaise</div>
+        <div class="logo-sub">Depuis 1961</div>
+      </div>
+    </a>
+
+    <div class="header-tagline" aria-hidden="true">Esprit Entente</div>
+
+    <button class="nav-toggle" id="navToggle" aria-label="Ouvrir le menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+
+  {# Desktop nav #}
+  <nav class="nav-bar" aria-label="Navigation principale">
+    <div class="nav-item">
+      <a href="{{ path('app_home') }}">Accueil</a>
+    </div>
+
+    <div class="nav-item">
+      <a href="#">Club <i class="fa-solid fa-chevron-down"></i></a>
+      <div class="dropdown">
+        <div class="dd-col">
+          <h4>Le club</h4>
+            <a href="{{ path('app_histoire') }}">Histoire</a>
+            <a href="{{ path('app_encadrement') }}">Encadrement</a>
+            <a href="{{ path('app_infrastructure') }}">Infrastructure</a>
+        </div>
+      </div>
+    </div>
+
+    {# <div class="nav-item">
+      <button aria-haspopup="true">
+        Équipes <i class="fa-solid fa-chevron-down"></i>
+      </button>
+      {{ render(controller('App\\Controller\\NavController::equipes')) }}
+    </div> #}
+
+    <div class="nav-item">
+      <a href="#">Actualités <i class="fa-solid fa-chevron-down"></i></a>
+      <div class="dropdown">
+        <div class="dd-col">
+          <h4>Actualités</h4>
+          <a href="{{ path('app_actualites') }}">Toutes les news</a>
+          <a href="{{ path('app_communiques') }}">Communiqués</a>
+          <a href="{{ path('app_medias') }}">Médias</a>
+        </div>
+      </div>
+    </div>
+
+    {# <div class="nav-item">
+      <a href="#">Boutique <i class="fa-solid fa-chevron-down"></i></a>
+      <div class="dropdown">
+        <div class="dd-col">
+          <h4>Boutique</h4>
+          <a href="#">Maillots</a>
+          <a href="#">Accessoires</a>
+          <a href="#">Promotions</a>
+        </div>
+      </div>
+    </div> #}
+
+    <div class="nav-item">
+      <a href="{{ path('app_contact') }}">Contact</a>
+    </div>
+
+  </nav>
+
+  {# Mobile nav #}
+  <div class="mobile-nav" id="mobileNav" aria-label="Menu mobile">
+
+    <div class="mob-section">
+      <div class="mob-section-head">Club <i class="fa-solid fa-chevron-down"></i></div>
+      <div class="mob-links">
+            <a href="{{ path('app_histoire') }}">Histoire</a>
+            <a href="{{ path('app_encadrement') }}">Encadrement</a>
+            <a href="{{ path('app_infrastructure') }}">Infrastructure</a>
+      </div>
+    </div>
+
+    {# <div class="mob-section">
+      <div class="mob-section-head">
+        Équipes <i class="fa-solid fa-chevron-down"></i>
+      </div>
+      <div class="mob-links">
+        {{ render(controller('App\\Controller\\NavController::equipesMobile')) }}
+      </div>
+    </div> #}
+
+    <div class="mob-section">
+      <div class="mob-section-head">Actualités <i class="fa-solid fa-chevron-down"></i></div>
+      <div class="mob-links">
+        <a href="{{ path('app_actualites') }}">Toutes les news</a>
+        <a href="{{ path('app_communiques') }}">Communiqués</a>
+        <a href="{{ path('app_medias') }}">Médias</a>
+      </div>
+    </div>
+
+    {# <div class="mob-section">
+      <div class="mob-section-head">Boutique <i class="fa-solid fa-chevron-down"></i></div>
+      <div class="mob-links">
+        <a href="#">Maillots</a>
+        <a href="#">Accessoires</a>
+        <a href="#">Promotions</a>
+      </div>
+    </div> #}
+
+    <a href="{{ path('app_contact') }}" class="mob-direct">Contact</a>
+
+  </div>
+</header>
+
+{# ============================================================
+   CONTENU
+   ============================================================ #}
+{% block body %}{% endblock %}
+
+{# ============================================================
+   FOOTER
+   ============================================================ #}
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+
+      <div class="footer-col">
+        <h5>ES Coutances</h5>
+        <p>Depuis 1961, l'Entente Sportive Coutançaise forme des joueurs, des éducateurs et des passionnés de football en Normandie.</p>
+      </div>
+
+      <div class="footer-col">
+        <h5>Navigation</h5>
+        <ul>
+          <li><a href="#">Le club</a></li>
+          {# <li><a href="#">Équipes</a></li> #}
+          <li><a href="#">Actualités</a></li>
+          <li><a href="#">Boutique</a></li>
+          <li><a href="#">Contact</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h5>Nous suivre</h5>
+        <div class="social-links">
+          <a href="https://www.facebook.com/ententesportivecoutancaise" target="_blank" rel="noopener" aria-label="Facebook ES Coutances">
+            <i class="fa-brands fa-facebook-f"></i>
+          </a>
+          <a href="https://www.instagram.com/escoutances/" target="_blank" rel="noopener" aria-label="Instagram ES Coutances">
+            <i class="fa-brands fa-instagram"></i>
+          </a>
+        </div>
+      </div>
+
+    </div>
+    <div class="footer-bottom">
+      © {{ "now"|date("Y") }} Entente Sportive Coutançaise — Tous droits réservés
+    </div>
+  </div>
+</footer>
+
+{% block javascripts %}{% endblock %}
+{# Raccourci clavier admin : Ctrl + Shift + A #}
+<script>
+  document.addEventListener('keydown', function(e) {
+    if (e.ctrlKey && e.shiftKey && e.key === 'A') {
+      e.preventDefault();
+      window.location.href = '{{ path('app_login') }}';
+    }
+  });
+</script>
+</body>
 </html>

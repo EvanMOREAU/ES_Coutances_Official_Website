@@ -1,0 +1,33 @@
+vich_uploader:
+    db_driver: orm
+
+    mappings:
+        article_image:
+            uri_prefix: /uploads/articles
+            upload_destination: '%kernel.project_dir%/public/uploads/articles'
+            namer: Vich\UploaderBundle\Naming\SmartUniqueNamer
+
+        offre_image:
+            uri_prefix: /uploads/offres
+            upload_destination: '%kernel.project_dir%/public/uploads/offres'
+            namer: Vich\UploaderBundle\Naming\SmartUniqueNamer
+
+        photo_image:
+            uri_prefix: /uploads/photos
+            upload_destination: '%kernel.project_dir%/public/uploads/photos'
+            namer: Vich\UploaderBundle\Naming\SmartUniqueNamer
+
+        partenaire_logo:
+            uri_prefix: /uploads/partenaires
+            upload_destination: '%kernel.project_dir%/public/uploads/partenaires'
+            namer: Vich\UploaderBundle\Naming\SmartUniqueNamer
+
+        slide_image:
+            uri_prefix: /uploads/slides
+            upload_destination: '%kernel.project_dir%/public/uploads/slides'
+            namer: Vich\UploaderBundle\Naming\SmartUniqueNamer
+
+        membre_photo:
+            uri_prefix: /uploads/membres
+            upload_destination: '%kernel.project_dir%/public/uploads/membres'
+            namer: Vich\UploaderBundle\Naming\SmartUniqueNamer

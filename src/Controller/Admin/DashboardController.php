@@ -1,0 +1,52 @@
+<?php
+
+namespace App\Controller\Admin;
+
+use App\Controller\Admin\MembreCrudController;
+use App\Controller\Admin\OffreEmploiCrudController;
+use App\Controller\Admin\PageContenuCrudController;
+use App\Controller\Admin\SlideCarouselCrudController;
+use App\Controller\Admin\UserCrudController;
+use App\Controller\Admin\PartenaireCrudController;
+use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminDashboard;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
+use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
+use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractDashboardController;
+use Symfony\Component\HttpFoundation\Response;
+
+#[AdminDashboard(routePath: '/admin', routeName: 'admin')]
+class DashboardController extends AbstractDashboardController
+{
+    public function index(): Response
+    {
+        return $this->render('admin/dashboard.html.twig');
+    }
+
+    public function configureDashboard(): Dashboard
+    {
+        return Dashboard::new()
+            ->setTitle('ES Coutances — Admin')
+            ->setLocales(['fr']);
+    }
+
+    public function configureMenuItems(): iterable
+    {
+        yield MenuItem::linkToDashboard('Tableau de bord', 'fa fa-home');
+        yield MenuItem::linkToUrl('Voir le site', 'fa fa-eye', '/');
+
+        if ($this->isGranted('ROLE_ADMIN')) {
+            yield MenuItem::section('Club');
+            yield MenuItem::linkTo(PartenaireCrudController::class, 'Partenaires', 'fa fa-handshake');
+            yield MenuItem::linkTo(OffreEmploiCrudController::class, 'Offres d\'emploi', 'fa fa-briefcase');
+            yield MenuItem::linkTo(SlideCarouselCrudController::class, 'Carousel', 'fa fa-sliders');
+            yield MenuItem::linkTo(PageContenuCrudController::class, 'Pages', 'fa fa-file-lines');
+            yield MenuItem::linkTo(CategorieCrudController::class, 'Catégories encadrement', 'fa fa-tags');
+            yield MenuItem::linkTo(MembreCrudController::class, 'Encadrement', 'fa fa-people-group');   
+
+            yield MenuItem::section('Administration');
+            yield MenuItem::linkTo(UserCrudController::class, 'Utilisateurs', 'fa fa-users');
+        }
+
+        yield MenuItem::linkToLogout('Déconnexion', 'fa fa-right-from-bracket');
+    }
+}

@@ -1,0 +1,417 @@
+{% extends 'club/_layout.html.twig' %}
+
+{% block title %}Contact — ES Coutances{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+/* ============================================================
+   LAYOUT CONTACT
+   ============================================================ */
+.contact-layout {
+  display: grid;
+  grid-template-columns: 1fr 420px;
+  gap: 56px;
+  align-items: start;
+}
+
+/* ============================================================
+   FORMULAIRE
+   ============================================================ */
+.contact-form-titre {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 900;
+  font-size: clamp(22px, 3vw, 34px);
+  letter-spacing: .02em;
+  text-transform: uppercase;
+  color: var(--dark);
+  margin-bottom: 6px;
+}
+.contact-form-sub {
+  font-size: 14px;
+  color: #777;
+  margin-bottom: 28px;
+}
+
+.form-contact {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.form-row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-group label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: #555;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  padding: 11px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 5px;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  color: var(--dark);
+  background: var(--white);
+  transition: border-color .15s, box-shadow .15s;
+  outline: none;
+  width: 100%;
+}
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  border-color: var(--red);
+  box-shadow: 0 0 0 3px rgba(200,16,46,.08);
+}
+.form-group textarea { resize: vertical; min-height: 140px; }
+
+/* Erreurs Symfony */
+.form-group .form-error,
+.form-group ul.form-error { 
+  font-size: 12px; 
+  color: var(--red); 
+  font-weight: 500;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* Succès */
+.form-success {
+  background: #f0fdf4;
+  border: 1.5px solid #86efac;
+  border-radius: 8px;
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 24px;
+}
+.form-success i { font-size: 26px; color: #16a34a; flex-shrink: 0; }
+.form-success h4 {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 800;
+  font-size: 17px;
+  text-transform: uppercase;
+  color: #15803d;
+  margin-bottom: 2px;
+}
+.form-success p { font-size: 13px; color: #166534; }
+
+/* ============================================================
+   SIDEBAR INFOS
+   ============================================================ */
+.contact-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  position: sticky;
+  top: calc(var(--nav-h) + 24px);
+}
+
+.info-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.info-card-header {
+  background: var(--dark);
+  padding: 14px 20px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 800;
+  font-size: 13px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--white);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.info-card-header i { color: var(--red); }
+
+.info-card-body { padding: 20px; }
+
+.info-ligne {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--grey);
+  font-size: 14px;
+  color: #444;
+  line-height: 1.5;
+}
+.info-ligne:last-child { border-bottom: none; }
+
+.info-ligne i {
+  color: var(--red);
+  font-size: 15px;
+  margin-top: 2px;
+  flex-shrink: 0;
+  width: 18px;
+  text-align: center;
+}
+
+.info-ligne a {
+  color: var(--red);
+  text-decoration: none;
+  transition: opacity .15s;
+}
+.info-ligne a:hover { opacity: .75; }
+
+/* Horaires */
+.horaires-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px 16px;
+}
+.horaire-jour {
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--dark);
+}
+.horaire-heure {
+  font-size: 13px;
+  color: #666;
+}
+.horaire-ferme { color: #bbb; font-style: italic; }
+
+/* Carte OSM */
+.carte-osm {
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  height: 220px;
+}
+.carte-osm iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 900px) {
+  .contact-layout {
+    grid-template-columns: 1fr;
+  }
+  .contact-sidebar { position: static; }
+  .form-row-2 { grid-template-columns: 1fr; }
+}
+@media (max-width: 580px) {
+  .horaires-grid { grid-template-columns: 1fr; }
+}
+</style>
+{% endblock %}
+
+{% block body %}
+
+{# Hero #}
+<section class="page-hero">
+  <div class="container page-hero-inner">
+    <div class="breadcrumb">
+      <a href="{{ path('app_home') }}">Accueil</a>
+      <i class="fa-solid fa-chevron-right"></i>
+      <span>Contact</span>
+    </div>
+    <h1>Nous<br><span>contacter</span></h1>
+  </div>
+</section>
+
+{# Contenu #}
+<section class="page-content">
+  <div class="container">
+    <div class="contact-layout">
+
+      {# ---- Formulaire ---- #}
+      <div>
+        <div class="contact-form-titre">Envoyez-nous un message</div>
+        <p class="contact-form-sub">Notre équipe vous répondra dans les meilleurs délais.</p>
+
+        {% if success %}
+          <div class="form-success">
+            <i class="fa-solid fa-circle-check"></i>
+            <div>
+              <h4>Message envoyé !</h4>
+              <p>Merci de nous avoir contactés. Nous vous répondrons dès que possible.</p>
+            </div>
+          </div>
+        {% endif %}
+
+        {{ form_start(form, { attr: { class: 'form-contact', novalidate: 'novalidate' } }) }}
+
+          <div class="form-row-2">
+            <div class="form-group">
+              {{ form_label(form.nom) }}
+              {{ form_widget(form.nom) }}
+              {{ form_errors(form.nom) }}
+            </div>
+            <div class="form-group">
+              {{ form_label(form.email) }}
+              {{ form_widget(form.email) }}
+              {{ form_errors(form.email) }}
+            </div>
+          </div>
+
+          <div class="form-row-2">
+            <div class="form-group">
+              {{ form_label(form.telephone) }}
+              {{ form_widget(form.telephone) }}
+              {{ form_errors(form.telephone) }}
+            </div>
+            <div class="form-group">
+              {{ form_label(form.type) }}
+              {{ form_widget(form.type) }}
+              {{ form_errors(form.type) }}
+            </div>
+          </div>
+
+          <div class="form-group">
+            {{ form_label(form.sujet) }}
+            {{ form_widget(form.sujet) }}
+            {{ form_errors(form.sujet) }}
+          </div>
+
+          <div class="form-group">
+            {{ form_label(form.message) }}
+            {{ form_widget(form.message) }}
+            {{ form_errors(form.message) }}
+          </div>
+
+          <div>
+            <button type="submit" class="btn btn-primary">
+              <i class="fa-solid fa-paper-plane"></i> Envoyer le message
+            </button>
+          </div>
+
+        {{ form_end(form) }}
+      </div>
+
+      {# ---- Sidebar infos ---- #}
+      <aside class="contact-sidebar">
+
+        {# Coordonnées #}
+        <div class="info-card">
+          <div class="info-card-header">
+            <i class="fa-solid fa-location-dot"></i>
+            Nos coordonnées
+          </div>
+          <div class="info-card-body">
+
+            <div class="info-ligne">
+              <i class="fa-solid fa-location-dot"></i>
+              <span>
+                Stade Paul-Maundrell<br>
+                BP 602<br>
+                50200 Coutances
+              </span>
+            </div>
+
+            <div class="info-ligne">
+              <i class="fa-solid fa-phone"></i>
+              <a href="tel:+33233470490">02 33 47 04 90</a>
+            </div>
+
+            <div class="info-ligne">
+              <i class="fa-solid fa-envelope"></i>
+              <a href="mailto:contact@escoutances.fr">contact@escoutances.fr</a>
+            </div>
+
+            <div class="info-ligne">
+              <i class="fa-brands fa-facebook-f"></i>
+              <a href="https://www.facebook.com/ententesportivecoutancaise" target="_blank" rel="noopener">
+                Facebook ES Coutances
+              </a>
+            </div>
+
+            <div class="info-ligne">
+              <i class="fa-brands fa-instagram"></i>
+              <a href="https://www.instagram.com/escoutances/" target="_blank" rel="noopener">
+                @escoutances
+              </a>
+            </div>
+
+          </div>
+        </div>
+
+        {# Horaires #}
+        <div class="info-card">
+          <div class="info-card-header">
+            <i class="fa-solid fa-clock"></i>
+            Horaires du secrétariat
+          </div>
+          <div class="info-card-body">
+            <div class="horaires-grid">
+              <div class="horaire-jour">Lundi</div>
+              <div class="horaire-heure">14h00 – 18h00</div>
+
+              <div class="horaire-jour">Mardi</div>
+              <div class="horaire-heure">14h00 – 18h00</div>
+
+              <div class="horaire-jour">Mercredi</div>
+              <div class="horaire-heure">09h00 – 12h00</div>
+
+              <div class="horaire-jour">Jeudi</div>
+              <div class="horaire-heure">14h00 – 18h00</div>
+
+              <div class="horaire-jour">Vendredi</div>
+              <div class="horaire-heure">14h00 – 17h00</div>
+
+              <div class="horaire-jour">Samedi</div>
+              <div class="horaire-heure horaire-ferme">Fermé</div>
+
+              <div class="horaire-jour">Dimanche</div>
+              <div class="horaire-heure horaire-ferme">Fermé</div>
+            </div>
+          </div>
+        </div>
+
+        {# Carte OpenStreetMap #}
+        <div class="carte-osm">
+          <iframe
+            src="https://www.openstreetmap.org/export/embed.html?bbox=-1.4560%2C49.0520%2C-1.4360%2C49.0620&layer=mapnik&marker=49.0570%2C-1.4460"
+            title="Localisation ES Coutances — Stade Paul-Maundrell"
+            loading="lazy"
+          ></iframe>
+        </div>
+        <div style="text-align:right;margin-top:-16px">
+          <a
+            href="https://www.openstreetmap.org/?mlat=49.0570&mlon=-1.4460#map=15/49.0570/-1.4460"
+            target="_blank"
+            rel="noopener"
+            style="font-size:11px;color:#aaa;text-decoration:none;"
+          >
+            Voir sur OpenStreetMap <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:9px"></i>
+          </a>
+        </div>
+
+      </aside>
+
+    </div>
+  </div>
+</section>
+
+{% endblock %}

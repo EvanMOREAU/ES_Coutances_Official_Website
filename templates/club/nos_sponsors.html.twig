@@ -1,0 +1,284 @@
+{% extends 'club/_layout.html.twig' %}
+
+{% block title %}Nos Sponsors — ES Coutances{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+/* ============================================================
+   NOS SPONSORS
+   ============================================================ */
+.sponsors-intro {
+  text-align: center;
+  max-width: 640px;
+  margin: 0 auto 56px;
+  font-size: 15px;
+  color: #555;
+  line-height: 1.7;
+}
+
+.niveau-section { margin-bottom: 64px; }
+
+.niveau-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+.niveau-badge {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 900;
+  font-size: 12px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  padding: 6px 16px;
+  border-radius: 3px;
+  white-space: nowrap;
+}
+.badge-principal { background: var(--dark); color: var(--white); }
+.badge-or        { background: #B8860B; color: var(--white); }
+.badge-argent    { background: #888; color: var(--white); }
+.badge-bronze    { background: #8B4513; color: var(--white); }
+
+.niveau-line { flex: 1; height: 1px; background: var(--border); }
+
+/* Grilles par niveau — tailles différentes */
+.sponsors-grid { display: grid; gap: 20px; }
+.sponsors-grid.grid-principal { grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
+.sponsors-grid.grid-or        { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+.sponsors-grid.grid-argent    { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); }
+.sponsors-grid.grid-bronze    { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+
+/* Card sponsor */
+.sponsor-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 32px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  text-align: center;
+  text-decoration: none;
+  color: var(--dark);
+  transition: box-shadow .2s, transform .2s, border-color .2s;
+  position: relative;
+  overflow: hidden;
+}
+.sponsor-card::before {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--red);
+  transform: scaleX(0);
+  transition: transform .2s;
+}
+.sponsor-card:hover {
+  box-shadow: 0 8px 32px rgba(0,0,0,.1);
+  transform: translateY(-4px);
+  border-color: rgba(200,16,46,.2);
+}
+.sponsor-card:hover::before { transform: scaleX(1); }
+
+.sponsor-logo {
+  max-height: 90px;
+  max-width: 100%;
+  width: auto;
+  object-fit: contain;
+  transition: transform .2s;
+}
+.sponsor-card:hover .sponsor-logo { transform: scale(1.05); }
+
+.sponsor-logo-placeholder {
+  width: 90px;
+  height: 90px;
+  background: var(--grey);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.sponsor-logo-placeholder i { font-size: 32px; color: #ccc; }
+
+.sponsor-nom {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 800;
+  font-size: 16px;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--dark);
+}
+
+.sponsor-url {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: #aaa;
+  letter-spacing: .04em;
+}
+.sponsor-url i { font-size: 9px; }
+
+/* Principal : card plus grande avec bandeau #1 */
+.grid-principal .sponsor-card {
+  padding: 40px 32px;
+}
+.grid-principal .sponsor-logo { max-height: 120px; }
+.grid-principal .sponsor-nom { font-size: 20px; }
+
+/* Vide */
+.sponsors-empty {
+  text-align: center;
+  padding: 80px 0;
+  color: #bbb;
+}
+.sponsors-empty i { font-size: 48px; display: block; margin-bottom: 16px; }
+
+/* CTA Devenir partenaire */
+.sponsors-cta {
+  background: var(--dark);
+  border-radius: 12px;
+  padding: 52px 40px;
+  text-align: center;
+  margin-top: 32px;
+}
+.sponsors-cta h2 {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 900;
+  font-size: clamp(24px, 4vw, 40px);
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--white);
+  margin-bottom: 10px;
+}
+.sponsors-cta h2 span { color: var(--red); }
+.sponsors-cta p {
+  color: rgba(255,255,255,.55);
+  font-size: 14px;
+  margin-bottom: 28px;
+  max-width: 480px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 900px) {
+  .sponsors-grid.grid-principal { grid-template-columns: repeat(2, 1fr); }
+  .sponsors-grid.grid-or        { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 580px) {
+  .sponsors-grid.grid-principal,
+  .sponsors-grid.grid-or,
+  .sponsors-grid.grid-argent,
+  .sponsors-grid.grid-bronze { grid-template-columns: repeat(2, 1fr); }
+  .sponsors-cta { padding: 32px 20px; }
+}
+</style>
+{% endblock %}
+
+{% block body %}
+
+{# Hero #}
+<section class="page-hero">
+  <div class="container page-hero-inner">
+    <div class="breadcrumb">
+      <a href="{{ path('app_home') }}">Accueil</a>
+      <i class="fa-solid fa-chevron-right"></i>
+      <span>Partenaires</span>
+      <i class="fa-solid fa-chevron-right"></i>
+      <span>Nos sponsors</span>
+    </div>
+    <h1>Nos<br><span>sponsors</span></h1>
+  </div>
+</section>
+
+<section class="page-content">
+  <div class="container">
+
+    <p class="sponsors-intro">
+      L'ES Coutances remercie chaleureusement tous ses partenaires pour leur soutien précieux.
+      Grâce à eux, le club peut continuer à se développer et à former les joueurs de demain.
+    </p>
+
+    {% set labels = {
+      'principal': 'Partenaire principal',
+      'or':        'Partenaires Or',
+      'argent':    'Partenaires Argent',
+      'bronze':    'Partenaires Bronze'
+    } %}
+
+    {% if partenaires_by_niveau|length > 0 %}
+
+      {% for niveau, partenaires in partenaires_by_niveau %}
+        <div class="niveau-section">
+
+          <div class="niveau-header">
+            <span class="niveau-badge badge-{{ niveau }}">
+              {{ labels[niveau] ?? niveau|capitalize }}
+            </span>
+            <div class="niveau-line"></div>
+          </div>
+
+          <div class="sponsors-grid grid-{{ niveau }}">
+            {% for partenaire in partenaires %}
+              <a
+                href="{{ partenaire.url is not empty ? partenaire.url : '#' }}"
+                class="sponsor-card"
+                {% if partenaire.url is not empty %}
+                  target="_blank" rel="noopener"
+                {% endif %}
+              >
+                {% if partenaire.logoName %}
+                  <img
+                    class="sponsor-logo"
+                    src="{{ asset('uploads/partenaires/' ~ partenaire.logoName) }}"
+                    alt="{{ partenaire.nom }}"
+                  >
+                {% else %}
+                  <div class="sponsor-logo-placeholder">
+                    <i class="fa-solid fa-building"></i>
+                  </div>
+                {% endif %}
+
+                <div class="sponsor-nom">{{ partenaire.nom }}</div>
+
+                {% if partenaire.url is not empty %}
+                  <div class="sponsor-url">
+                    <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                    {{ partenaire.url
+                      |replace({'https://': '', 'http://': '', 'www.': ''})
+                      |split('/')|first }}
+                  </div>
+                {% endif %}
+
+              </a>
+            {% endfor %}
+          </div>
+
+        </div>
+      {% endfor %}
+
+    {% else %}
+      <div class="sponsors-empty">
+        <i class="fa-solid fa-handshake"></i>
+        Nos partenaires seront bientôt affichés ici.
+      </div>
+    {% endif %}
+
+    {# CTA #}
+    <div class="sponsors-cta">
+      <h2>Rejoignez nos <span>partenaires</span></h2>
+      <p>Vous souhaitez soutenir l'ES Coutances et bénéficier d'une visibilité locale et régionale ?</p>
+      <a href="{{ path('app_devenir_sponsors') }}" class="btn btn-primary">
+        <i class="fa-solid fa-handshake"></i> Devenir partenaire
+      </a>
+    </div>
+
+  </div>
+</section>
+
+{% endblock %}
