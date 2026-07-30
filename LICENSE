@@ -1,24 +1,119 @@
-This is free and unencumbered software released into the public domain.
+Le présent logiciel, incluant sans limitation son code source, sa structure, son architecture, ses fichiers, ses ressources, ses éléments graphiques, ses contenus textuels, ses bases de données, ses scripts, ses composants techniques, ainsi que toute œuvre dérivée ou élément associé, est protégé par les législations françaises et internationales relatives à la propriété intellectuelle, au droit d’auteur et à la protection des œuvres numériques.
 
-Anyone is free to copy, modify, publish, use, compile, sell, or
-distribute this software, either in source code form or as a compiled
-binary, for any purpose, commercial or non-commercial, and by any
-means.
+Tous droits sont strictement réservés.
 
-In jurisdictions that recognize copyright laws, the author or authors
-of this software dedicate any and all copyright interest in the
-software to the public domain. We make this dedication for the benefit
-of the public at large and to the detriment of our heirs and
-successors. We intend this dedication to be an overt act of
-relinquishment in perpetuity of all present and future rights to this
-software under copyright law.
+1. Interdictions générales
+Sans autorisation écrite, préalable et expresse de l’auteur, il est strictement interdit de :
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
-OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
-ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-OTHER DEALINGS IN THE SOFTWARE.
+utiliser, reproduire, copier, télécharger ou stocker le logiciel, en tout ou partie ;
 
-For more information, please refer to <https://unlicense.org>
+modifier, altérer, adapter, traduire, transformer ou créer une œuvre dérivée ;
+
+décompiler, désassembler, analyser, effectuer une ingénierie inverse ou tenter d’accéder aux mécanismes internes ;
+
+redistribuer, publier, diffuser, vendre, louer, prêter, transférer ou céder le logiciel ou l’un de ses composants ;
+
+intégrer tout ou partie du logiciel dans un autre produit, service, site web, application ou projet, commercial ou non ;
+
+exploiter le logiciel à des fins commerciales, institutionnelles, professionnelles ou publiques ;
+
+extraire des portions du code, des éléments graphiques, des structures ou des concepts pour les réutiliser dans un autre projet.
+
+2. Confidentialité et non‑divulgation
+Toute information technique, structurelle ou conceptuelle obtenue par l’accès au logiciel est considérée comme confidentielle.
+Toute divulgation, communication ou transmission à un tiers est strictement interdite sans accord écrit de l’auteur.
+
+3. Absence de licence
+Aucune licence, aucun droit d’usage, d’accès, de consultation, d’exploitation ou de diffusion n’est accordé, explicitement ou implicitement.
+L’accès au code ne constitue en aucun cas une autorisation d’utilisation.
+
+4. Responsabilité et garanties
+Le logiciel est fourni « tel quel », sans aucune garantie, explicite ou implicite, notamment concernant :
+
+la performance,
+
+la sécurité,
+
+la compatibilité,
+
+l’adéquation à un usage particulier.
+
+L’auteur ne pourra être tenu responsable de tout dommage direct, indirect, accessoire, consécutif ou spécial résultant de l’utilisation ou de la tentative d’utilisation du logiciel, y compris en cas de perte de données, interruption de service, faille de sécurité ou préjudice commercial.
+
+5. Sanctions
+Toute violation de la présente licence constitue une contrefaçon au sens des articles L.335‑2 et suivants du Code de la propriété intellectuelle et expose son auteur à :
+
+des poursuites civiles,
+
+des poursuites pénales,
+
+des demandes de dommages et intérêts,
+
+des injonctions judiciaires.
+
+6. Demandes d’autorisation
+Toute demande d’autorisation doit être adressée directement à l’auteur :
+Evan Moreau - evan.moreau@etik.com
+
+==============================================================================================================================================================================================================================
+
+
+This software, including but not limited to its source code, structure, architecture, files, resources, graphical elements, textual content, databases, scripts, technical components, and any derivative work or associated element, is protected under French and international intellectual property and copyright laws.
+
+All rights are strictly reserved.
+
+1. General Prohibitions
+Without prior, explicit, written authorization from the author, it is strictly prohibited to:
+
+use, reproduce, copy, download, or store the software, in whole or in part;
+
+modify, alter, adapt, translate, transform, or create derivative works;
+
+decompile, disassemble, reverse engineer, analyze, or attempt to access internal mechanisms;
+
+redistribute, publish, distribute, sell, rent, lend, transfer, or assign the software or any of its components;
+
+integrate any portion of the software into another product, service, website, application, or project, whether commercial or non‑commercial;
+
+exploit the software for commercial, institutional, professional, or public purposes;
+
+extract portions of the code, graphical elements, structures, or concepts for reuse in another project.
+
+2. Confidentiality and Non‑Disclosure
+Any technical, structural, or conceptual information obtained through access to the software is considered confidential.
+Disclosure, communication, or transmission to any third party is strictly prohibited without written authorization from the author.
+
+3. No License Granted
+No license, usage right, access right, exploitation right, or distribution right is granted, explicitly or implicitly.
+Access to the code does not constitute authorization to use it.
+
+4. Liability and Warranty
+The software is provided “as is”, without any warranty, express or implied, including but not limited to:
+
+performance,
+
+security,
+
+compatibility,
+
+fitness for a particular purpose.
+
+The author shall not be held liable for any direct, indirect, incidental, consequential, or special damages arising from the use or attempted use of the software, including data loss, service interruption, security breaches, or commercial harm.
+
+5. Enforcement
+Any violation of this license constitutes infringement under applicable intellectual property laws and may result in:
+
+civil prosecution,
+
+criminal prosecution,
+
+claims for damages,
+
+judicial injunctions.
+
+6. Authorization Requests
+All authorization requests must be addressed directly to the author:
+Evan Moreau - evan.moreau@etik.com
+
+==============================================================================================================================================================================================================================
+
