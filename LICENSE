@@ -5,19 +5,19 @@ Tous droits sont strictement réservés.
 1. Interdictions générales
 Sans autorisation écrite, préalable et expresse de l’auteur, il est strictement interdit de :
 
-utiliser, reproduire, copier, télécharger ou stocker le logiciel, en tout ou partie ;
+- utiliser, reproduire, copier, télécharger ou stocker le logiciel, en tout ou partie ;
 
-modifier, altérer, adapter, traduire, transformer ou créer une œuvre dérivée ;
+- modifier, altérer, adapter, traduire, transformer ou créer une œuvre dérivée ;
 
-décompiler, désassembler, analyser, effectuer une ingénierie inverse ou tenter d’accéder aux mécanismes internes ;
+- décompiler, désassembler, analyser, effectuer une ingénierie inverse ou tenter d’accéder aux mécanismes internes ;
 
-redistribuer, publier, diffuser, vendre, louer, prêter, transférer ou céder le logiciel ou l’un de ses composants ;
+- redistribuer, publier, diffuser, vendre, louer, prêter, transférer ou céder le logiciel ou l’un de ses composants ;
 
-intégrer tout ou partie du logiciel dans un autre produit, service, site web, application ou projet, commercial ou non ;
+- intégrer tout ou partie du logiciel dans un autre produit, service, site web, application ou projet, commercial ou non ;
 
-exploiter le logiciel à des fins commerciales, institutionnelles, professionnelles ou publiques ;
+- exploiter le logiciel à des fins commerciales, institutionnelles, professionnelles ou publiques ;
 
-extraire des portions du code, des éléments graphiques, des structures ou des concepts pour les réutiliser dans un autre projet.
+- extraire des portions du code, des éléments graphiques, des structures ou des concepts pour les réutiliser dans un autre projet.
 
 2. Confidentialité et non‑divulgation
 Toute information technique, structurelle ou conceptuelle obtenue par l’accès au logiciel est considérée comme confidentielle.
@@ -30,26 +30,26 @@ L’accès au code ne constitue en aucun cas une autorisation d’utilisation.
 4. Responsabilité et garanties
 Le logiciel est fourni « tel quel », sans aucune garantie, explicite ou implicite, notamment concernant :
 
-la performance,
+- la performance,
 
-la sécurité,
+- la sécurité,
 
-la compatibilité,
+- la compatibilité,
 
-l’adéquation à un usage particulier.
+- l’adéquation à un usage particulier.
 
 L’auteur ne pourra être tenu responsable de tout dommage direct, indirect, accessoire, consécutif ou spécial résultant de l’utilisation ou de la tentative d’utilisation du logiciel, y compris en cas de perte de données, interruption de service, faille de sécurité ou préjudice commercial.
 
 5. Sanctions
 Toute violation de la présente licence constitue une contrefaçon au sens des articles L.335‑2 et suivants du Code de la propriété intellectuelle et expose son auteur à :
 
-des poursuites civiles,
+- des poursuites civiles,
 
-des poursuites pénales,
+- des poursuites pénales,
 
-des demandes de dommages et intérêts,
+- des demandes de dommages et intérêts,
 
-des injonctions judiciaires.
+- des injonctions judiciaires.
 
 6. Demandes d’autorisation
 Toute demande d’autorisation doit être adressée directement à l’auteur :
