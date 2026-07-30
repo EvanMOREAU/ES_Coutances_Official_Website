@@ -18,7 +18,7 @@
 /public/uploads/
 
 ###############################################################################
-# DÉPENDANCES NODE (si tu utilises Webpack Encore ou Vite)
+# DÉPENDANCES NODE (si utilisation Webpack Encore ou Vite)
 ###############################################################################
 /node_modules/
 /public/build/
