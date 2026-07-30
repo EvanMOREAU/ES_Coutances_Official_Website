@@ -1,69 +1,248 @@
-Le présent logiciel, incluant sans limitation son code source, sa structure, son architecture, ses fichiers, ses ressources, ses éléments graphiques, ses contenus textuels, ses bases de données, ses scripts, ses composants techniques, ainsi que toute œuvre dérivée ou élément associé, est protégé par les législations françaises et internationales relatives à la propriété intellectuelle, au droit d’auteur et à la protection des œuvres numériques.
+LICENCE PROPRIÉTAIRE — TOUS DROITS RÉSERVÉS
+Proprietary License — All Rights Reserved
+
+Auteur / Author : Evan MOREAU — Cylaos ICT
+Contact         : evan.moreau@etik.com
+Projet / Project: Site web officiel de l'Entente Sportive Coutançaise
+Date            : 2026
+
+==============================================================================================
+VERSION FRANÇAISE
+==============================================================================================
+
+AVERTISSEMENT
+
+Le présent logiciel, incluant sans limitation son code source, sa structure, son architecture,
+ses fichiers, ses ressources, ses éléments graphiques, ses contenus textuels, ses bases de
+données, ses scripts, ses composants techniques, ainsi que toute œuvre dérivée ou élément
+associé, est protégé par les législations françaises et internationales relatives à la propriété
+intellectuelle, au droit d'auteur et à la protection des œuvres numériques.
 
 Tous droits sont strictement réservés.
 
-1. Interdictions générales
-Sans autorisation écrite, préalable et expresse de l’auteur, il est strictement interdit de :
+----------------------------------------------------------------------------------------------
+1. PARTIES
+----------------------------------------------------------------------------------------------
+
+Le présent accord est conclu entre :
+
+- L'AUTEUR : Evan MOREAU, développeur indépendant agissant au nom de Cylaos ICT,
+  ci-après dénommé « l'Auteur » ;
+
+- LE CLIENT : Entente Sportive Coutançaise (ES Coutances), association sportive domiciliée
+  à Coutances (50200), Normandie, France, ci-après dénommé « le Client » ;
+
+- TOUT TIERS accédant au présent dépôt ou au code source, qu'il soit ou non autorisé.
+
+----------------------------------------------------------------------------------------------
+2. OBJET
+----------------------------------------------------------------------------------------------
+
+La présente licence régit l'utilisation, la reproduction, la modification, la distribution et
+toute autre exploitation du logiciel désigné ci-dessus.
+
+----------------------------------------------------------------------------------------------
+3. DROITS ACCORDÉS AU CLIENT
+----------------------------------------------------------------------------------------------
+
+Dans le cadre de la mission confiée par le Client à l'Auteur, le Client bénéficie des droits
+suivants, non exclusifs et non transférables :
+
+- Utiliser le logiciel dans le cadre exclusif de l'exploitation du site web officiel de
+  l'Entente Sportive Coutançaise ;
+
+- Accéder au code source à des fins de maintenance, de correction de bugs et d'évolution du
+  site, sous réserve d'en informer préalablement l'Auteur ;
+
+- Héberger le logiciel sur les serveurs choisis par le Client.
+
+Ces droits sont accordés pour la durée de la collaboration et peuvent être prolongés par accord
+écrit entre les parties.
+
+----------------------------------------------------------------------------------------------
+4. INTERDICTIONS GÉNÉRALES
+----------------------------------------------------------------------------------------------
+
+Sans autorisation écrite, préalable et expresse de l'Auteur, il est strictement interdit à
+tout tiers de :
 
 - utiliser, reproduire, copier, télécharger ou stocker le logiciel, en tout ou partie ;
 
 - modifier, altérer, adapter, traduire, transformer ou créer une œuvre dérivée ;
 
-- décompiler, désassembler, analyser, effectuer une ingénierie inverse ou tenter d’accéder aux mécanismes internes ;
+- décompiler, désassembler, analyser, effectuer une ingénierie inverse ou tenter d'accéder
+  aux mécanismes internes ;
 
-- redistribuer, publier, diffuser, vendre, louer, prêter, transférer ou céder le logiciel ou l’un de ses composants ;
+- redistribuer, publier, diffuser, vendre, louer, prêter, transférer ou céder le logiciel ou
+  l'un de ses composants ;
 
-- intégrer tout ou partie du logiciel dans un autre produit, service, site web, application ou projet, commercial ou non ;
+- intégrer tout ou partie du logiciel dans un autre produit, service, site web, application
+  ou projet, commercial ou non ;
 
-- exploiter le logiciel à des fins commerciales, institutionnelles, professionnelles ou publiques ;
+- exploiter le logiciel à des fins commerciales, institutionnelles, professionnelles ou
+  publiques sans autorisation expresse ;
 
-- extraire des portions du code, des éléments graphiques, des structures ou des concepts pour les réutiliser dans un autre projet.
+- extraire des portions du code, des éléments graphiques, des structures ou des concepts pour
+  les réutiliser dans un autre projet.
 
-2. Confidentialité et non‑divulgation
-Toute information technique, structurelle ou conceptuelle obtenue par l’accès au logiciel est considérée comme confidentielle.
-Toute divulgation, communication ou transmission à un tiers est strictement interdite sans accord écrit de l’auteur.
+----------------------------------------------------------------------------------------------
+5. CONFIDENTIALITÉ ET NON-DIVULGATION
+----------------------------------------------------------------------------------------------
 
-3. Absence de licence
-Aucune licence, aucun droit d’usage, d’accès, de consultation, d’exploitation ou de diffusion n’est accordé, explicitement ou implicitement.
-L’accès au code ne constitue en aucun cas une autorisation d’utilisation.
+Toute information technique, structurelle ou conceptuelle obtenue par l'accès au logiciel est
+considérée comme confidentielle.
 
-4. Responsabilité et garanties
-Le logiciel est fourni « tel quel », sans aucune garantie, explicite ou implicite, notamment concernant :
+Toute divulgation, communication ou transmission à un tiers est strictement interdite sans
+accord écrit de l'Auteur.
 
-- la performance,
+Cette obligation de confidentialité s'applique sans limitation de durée, y compris après la
+fin de la collaboration entre l'Auteur et le Client.
 
-- la sécurité,
+----------------------------------------------------------------------------------------------
+6. ABSENCE DE LICENCE POUR LES TIERS
+----------------------------------------------------------------------------------------------
 
-- la compatibilité,
+Aucune licence, aucun droit d'usage, d'accès, de consultation, d'exploitation ou de diffusion
+n'est accordé aux tiers, explicitement ou implicitement.
 
-- l’adéquation à un usage particulier.
+L'accès au code ne constitue en aucun cas une autorisation d'utilisation.
 
-L’auteur ne pourra être tenu responsable de tout dommage direct, indirect, accessoire, consécutif ou spécial résultant de l’utilisation ou de la tentative d’utilisation du logiciel, y compris en cas de perte de données, interruption de service, faille de sécurité ou préjudice commercial.
+----------------------------------------------------------------------------------------------
+7. PROPRIÉTÉ INTELLECTUELLE
+----------------------------------------------------------------------------------------------
 
-5. Sanctions
-Toute violation de la présente licence constitue une contrefaçon au sens des articles L.335‑2 et suivants du Code de la propriété intellectuelle et expose son auteur à :
+L'Auteur conserve l'intégralité des droits de propriété intellectuelle sur le logiciel,
+y compris son architecture, ses composants, ses choix techniques et ses éléments visuels
+originaux, sauf accord contraire formalisé par écrit.
 
-- des poursuites civiles,
+Les contenus fournis par le Client (textes, images, logos, données) restent la propriété
+exclusive du Client.
 
-- des poursuites pénales,
+----------------------------------------------------------------------------------------------
+8. RESPONSABILITÉ ET GARANTIES
+----------------------------------------------------------------------------------------------
 
-- des demandes de dommages et intérêts,
+Le logiciel est fourni « tel quel », sans aucune garantie, explicite ou implicite, notamment
+concernant :
 
-- des injonctions judiciaires.
+- la performance et la disponibilité ;
+- la sécurité et l'absence de vulnérabilités ;
+- la compatibilité avec tout environnement tiers ;
+- l'adéquation à un usage particulier.
 
-6. Demandes d’autorisation
-Toute demande d’autorisation doit être adressée directement à l’auteur :
-Evan Moreau - evan.moreau@etik.com
+L'Auteur s'engage à mettre en œuvre tous les moyens raisonnables pour assurer la qualité du
+logiciel, sans toutefois garantir un résultat parfait.
 
-==============================================================================================================================================================================================================================
+L'Auteur ne pourra être tenu responsable de tout dommage direct, indirect, accessoire,
+consécutif ou spécial résultant de l'utilisation ou de la tentative d'utilisation du logiciel,
+y compris en cas de perte de données, interruption de service, faille de sécurité ou préjudice
+commercial résultant d'une utilisation non conforme à la présente licence.
 
+----------------------------------------------------------------------------------------------
+9. RÉSILIATION
+----------------------------------------------------------------------------------------------
 
-This software, including but not limited to its source code, structure, architecture, files, resources, graphical elements, textual content, databases, scripts, technical components, and any derivative work or associated element, is protected under French and international intellectual property and copyright laws.
+La présente licence peut être résiliée :
+
+- Par l'Auteur, en cas de violation par le Client ou un tiers des dispositions de la présente
+  licence, avec effet immédiat et sans mise en demeure préalable ;
+
+- Par accord mutuel écrit entre l'Auteur et le Client.
+
+En cas de résiliation, le Client s'engage à cesser toute utilisation du logiciel et à
+supprimer toute copie en sa possession, sauf accord contraire formalisé par écrit.
+
+----------------------------------------------------------------------------------------------
+10. SANCTIONS
+----------------------------------------------------------------------------------------------
+
+Toute violation de la présente licence constitue une contrefaçon au sens des articles L.335-2
+et suivants du Code de la propriété intellectuelle et expose son auteur à :
+
+- des poursuites civiles ;
+- des poursuites pénales pouvant aller jusqu'à 3 ans d'emprisonnement et 300 000 € d'amende ;
+- des demandes de dommages et intérêts ;
+- des injonctions judiciaires de cessation immédiate.
+
+----------------------------------------------------------------------------------------------
+11. LOI APPLICABLE ET JURIDICTION COMPÉTENTE
+----------------------------------------------------------------------------------------------
+
+La présente licence est régie par le droit français.
+
+En cas de litige relatif à l'interprétation, l'exécution ou la résiliation de la présente
+licence, les parties s'engagent à rechercher une solution amiable dans un délai de 30 jours.
+
+À défaut d'accord amiable, tout litige sera soumis à la compétence exclusive du Tribunal
+Judiciaire de Coutances (50200), nonobstant pluralité de défendeurs ou appel en garantie.
+
+----------------------------------------------------------------------------------------------
+12. DEMANDES D'AUTORISATION
+----------------------------------------------------------------------------------------------
+
+Toute demande d'autorisation doit être adressée directement à l'Auteur :
+
+    Evan MOREAU — Cylaos ICT
+    evan.moreau@etik.com
+
+==============================================================================================
+ENGLISH VERSION
+==============================================================================================
+
+WARNING
+
+This software, including but not limited to its source code, structure, architecture, files,
+resources, graphical elements, textual content, databases, scripts, technical components, and
+any derivative work or associated element, is protected under French and international
+intellectual property and copyright laws.
 
 All rights are strictly reserved.
 
-1. General Prohibitions
-Without prior, explicit, written authorization from the author, it is strictly prohibited to:
+----------------------------------------------------------------------------------------------
+1. PARTIES
+----------------------------------------------------------------------------------------------
+
+This agreement is entered into between:
+
+- THE AUTHOR: Evan MOREAU, independent developer acting on behalf of Cylaos ICT,
+  hereinafter referred to as "the Author";
+
+- THE CLIENT: Entente Sportive Coutançaise (ES Coutances), a sports association located in
+  Coutances (50200), Normandy, France, hereinafter referred to as "the Client";
+
+- ANY THIRD PARTY accessing this repository or source code, whether authorized or not.
+
+----------------------------------------------------------------------------------------------
+2. PURPOSE
+----------------------------------------------------------------------------------------------
+
+This license governs the use, reproduction, modification, distribution, and any other
+exploitation of the software designated above.
+
+----------------------------------------------------------------------------------------------
+3. RIGHTS GRANTED TO THE CLIENT
+----------------------------------------------------------------------------------------------
+
+Within the scope of the mission entrusted by the Client to the Author, the Client is granted
+the following non-exclusive, non-transferable rights:
+
+- Use the software exclusively for the operation of the official website of Entente Sportive
+  Coutançaise;
+
+- Access the source code for maintenance, bug fixing, and site evolution purposes, subject to
+  prior notification to the Author;
+
+- Host the software on servers of the Client's choosing.
+
+These rights are granted for the duration of the collaboration and may be extended by written
+agreement between the parties.
+
+----------------------------------------------------------------------------------------------
+4. GENERAL PROHIBITIONS
+----------------------------------------------------------------------------------------------
+
+Without prior, explicit, written authorization from the Author, it is strictly prohibited for
+any third party to:
 
 - use, reproduce, copy, download, or store the software, in whole or in part;
 
@@ -71,49 +250,120 @@ Without prior, explicit, written authorization from the author, it is strictly p
 
 - decompile, disassemble, reverse engineer, analyze, or attempt to access internal mechanisms;
 
-- redistribute, publish, distribute, sell, rent, lend, transfer, or assign the software or any of its components;
+- redistribute, publish, distribute, sell, rent, lend, transfer, or assign the software or
+  any of its components;
 
-- integrate any portion of the software into another product, service, website, application, or project, whether commercial or non‑commercial;
+- integrate any portion of the software into another product, service, website, application,
+  or project, whether commercial or non-commercial;
 
-- exploit the software for commercial, institutional, professional, or public purposes;
+- exploit the software for commercial, institutional, professional, or public purposes without
+  express authorization;
 
-- extract portions of the code, graphical elements, structures, or concepts for reuse in another project.
+- extract portions of code, graphical elements, structures, or concepts for reuse in another
+  project.
 
-2. Confidentiality and Non‑Disclosure
-Any technical, structural, or conceptual information obtained through access to the software is considered confidential.
-Disclosure, communication, or transmission to any third party is strictly prohibited without written authorization from the author.
+----------------------------------------------------------------------------------------------
+5. CONFIDENTIALITY AND NON-DISCLOSURE
+----------------------------------------------------------------------------------------------
 
-3. No License Granted
-No license, usage right, access right, exploitation right, or distribution right is granted, explicitly or implicitly.
+Any technical, structural, or conceptual information obtained through access to the software
+is considered confidential.
+
+Disclosure, communication, or transmission to any third party is strictly prohibited without
+written authorization from the Author.
+
+This confidentiality obligation applies without time limitation, including after the end of
+the collaboration between the Author and the Client.
+
+----------------------------------------------------------------------------------------------
+6. NO LICENSE GRANTED TO THIRD PARTIES
+----------------------------------------------------------------------------------------------
+
+No license, usage right, access right, consultation right, exploitation right, or distribution
+right is granted to third parties, explicitly or implicitly.
+
 Access to the code does not constitute authorization to use it.
 
-4. Liability and Warranty
-The software is provided “as is”, without any warranty, express or implied, including but not limited to:
+----------------------------------------------------------------------------------------------
+7. INTELLECTUAL PROPERTY
+----------------------------------------------------------------------------------------------
 
-- performance,
+The Author retains full intellectual property rights over the software, including its
+architecture, components, technical choices, and original visual elements, unless otherwise
+agreed in writing.
 
-- security,
+Content provided by the Client (texts, images, logos, data) remains the exclusive property
+of the Client.
 
-- compatibility,
+----------------------------------------------------------------------------------------------
+8. LIABILITY AND WARRANTY
+----------------------------------------------------------------------------------------------
 
+The software is provided "as is", without any warranty, express or implied, including but not
+limited to:
+
+- performance and availability;
+- security and absence of vulnerabilities;
+- compatibility with any third-party environment;
 - fitness for a particular purpose.
 
-The author shall not be held liable for any direct, indirect, incidental, consequential, or special damages arising from the use or attempted use of the software, including data loss, service interruption, security breaches, or commercial harm.
+The Author commits to making all reasonable efforts to ensure software quality, without
+however guaranteeing a perfect result.
 
-5. Enforcement
-Any violation of this license constitutes infringement under applicable intellectual property laws and may result in:
+The Author shall not be held liable for any direct, indirect, incidental, consequential, or
+special damages arising from the use or attempted use of the software, including data loss,
+service interruption, security breaches, or commercial harm resulting from use not in
+compliance with this license.
 
-- civil prosecution,
+----------------------------------------------------------------------------------------------
+9. TERMINATION
+----------------------------------------------------------------------------------------------
 
-- criminal prosecution,
+This license may be terminated:
 
-- claims for damages,
+- By the Author, in the event of a violation of this license by the Client or a third party,
+  with immediate effect and without prior notice;
 
-- judicial injunctions.
+- By mutual written agreement between the Author and the Client.
 
-6. Authorization Requests
-All authorization requests must be addressed directly to the author:
-Evan Moreau - evan.moreau@etik.com
+Upon termination, the Client agrees to cease all use of the software and to delete any copies
+in their possession, unless otherwise agreed in writing.
 
-==============================================================================================================================================================================================================================
+----------------------------------------------------------------------------------------------
+10. ENFORCEMENT
+----------------------------------------------------------------------------------------------
 
+Any violation of this license constitutes infringement under applicable intellectual property
+laws, including Articles L.335-2 et seq. of the French Intellectual Property Code, and may
+expose the violator to:
+
+- civil prosecution;
+- criminal prosecution (up to 3 years imprisonment and €300,000 fine under French law);
+- claims for damages;
+- judicial injunctions for immediate cessation.
+
+----------------------------------------------------------------------------------------------
+11. GOVERNING LAW AND JURISDICTION
+----------------------------------------------------------------------------------------------
+
+This license is governed by French law.
+
+In the event of a dispute regarding the interpretation, performance, or termination of this
+license, the parties agree to seek an amicable resolution within 30 days.
+
+Failing an amicable agreement, any dispute shall be subject to the exclusive jurisdiction of
+the Tribunal Judiciaire de Coutances (50200), notwithstanding multiple defendants or third-
+party claims.
+
+----------------------------------------------------------------------------------------------
+12. AUTHORIZATION REQUESTS
+----------------------------------------------------------------------------------------------
+
+All authorization requests must be addressed directly to the Author:
+
+    Evan MOREAU — Cylaos ICT
+    evan.moreau@etik.com
+
+==============================================================================================
+© 2026 Evan MOREAU — Cylaos ICT. All rights reserved.
+==============================================================================================
