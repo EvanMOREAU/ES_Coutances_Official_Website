@@ -86,24 +86,8 @@ ul { list-style: none; }
    EMPLOI — centrage automatique
    ============================================================ */
 .emploi-section { background: var(--dark); }
-.emploi-grid {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 24px;
-  margin-top: 40px;
-}
-.emploi-card {
-  background: rgba(255,255,255,.04);
-  border: 1px solid rgba(255,255,255,.1);
-  border-radius: 8px;
-  overflow: hidden;
-  transition: border-color .2s;
-  /* Largeur fixe pour que 1, 2 ou 3 cartes soient toujours centrées */
-  width: calc((1160px - 48px) / 3);
-  max-width: 340px;
-  flex-shrink: 0;
-}
+.emploi-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 24px; margin-top: 40px; }
+.emploi-card { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.1); border-radius: 8px; overflow: hidden; transition: border-color .2s; width: calc((1160px - 48px) / 3); max-width: 340px; flex-shrink: 0; }
 .emploi-card:hover { border-color: var(--red); }
 .emploi-card img { width: 100%; height: 180px; object-fit: cover; opacity: .8; }
 .emploi-card-body { padding: 22px; }
@@ -111,136 +95,22 @@ ul { list-style: none; }
 .emploi-card-body p { font-size: 13px; color: rgba(255,255,255,.65); margin-bottom: 14px; }
 
 /* ============================================================
-   ACTUALITÉS
+   CARROUSEL LOGOS PARTENAIRES / SPONSORS
    ============================================================ */
-.actu-grid { display: grid; grid-template-columns: 1fr 340px; gap: 32px; align-items: start; }
-.actu-main { border: 1px solid var(--border); border-radius: 8px; overflow: hidden; transition: box-shadow .2s; }
-.actu-main:hover { box-shadow: 0 8px 32px rgba(0,0,0,.09); }
-.actu-main-img { position: relative; }
-.actu-main-img img { width: 100%; height: 280px; object-fit: cover; }
-.actu-tag { position: absolute; top: 14px; left: 14px; background: var(--red); color: var(--white); font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; padding: 4px 10px; border-radius: 3px; }
-.actu-tag-sm { position: static; display: inline-block; margin-bottom: 6px; }
-.actu-main-body { padding: 28px; }
-.actu-meta { display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: #999; margin-bottom: 10px; }
-.actu-title { font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 26px; letter-spacing: .02em; text-transform: uppercase; color: var(--dark); line-height: 1.05; margin-bottom: 12px; }
-.actu-excerpt { font-size: 14px; color: #555; line-height: 1.7; margin-bottom: 8px; }
-.actu-side { display: flex; flex-direction: column; gap: 20px; }
-.actu-card { display: grid; grid-template-columns: 110px 1fr; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; transition: box-shadow .2s; }
-.actu-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,.08); }
-.actu-card img { width: 110px; height: 100%; min-height: 110px; object-fit: cover; display: block; }
-.actu-card-body { padding: 14px; display: flex; flex-direction: column; gap: 4px; }
-.actu-card-body h4 { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 15px; letter-spacing: .03em; text-transform: uppercase; color: var(--dark); line-height: 1.15; }
-.actu-card-body p { font-size: 12px; color: #666; line-height: 1.5; }
-
-/* ============================================================
-   GALERIE
-   ============================================================ */
-.galerie-section { background: var(--grey); }
-.galerie-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 36px; }
-.galerie-grid img { width: 100%; aspect-ratio: 1/1; object-fit: cover; border-radius: 4px; cursor: pointer; transition: transform .2s, opacity .2s; }
-.galerie-grid img:hover { transform: scale(1.03); opacity: .9; }
-
-/* Lightbox galerie home */
-.lightbox {
-  display: none;
-  position: fixed;
-  z-index: 9999;
-  padding-top: 60px;
-  left: 0; top: 0;
-  width: 100%; height: 100%;
-  background-color: rgba(0,0,0,0.85);
-}
-.lightbox-content {
-  margin: auto;
-  display: block;
-  max-width: 90%;
-  max-height: 80vh;
-  border-radius: 6px;
-}
-.lightbox-close {
-  position: absolute;
-  top: 20px; right: 35px;
-  color: #fff;
-  font-size: 40px;
-  font-weight: bold;
-  cursor: pointer;
-}
-
+.logos-section { background: var(--white); padding: 40px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); overflow: hidden; }
+.logos-track-wrap { overflow: hidden; position: relative; mask-image: linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%); -webkit-mask-image: linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%); }
+.logos-track { display: flex; align-items: center; gap: 60px; width: max-content; animation: logos-scroll 25s linear infinite; }
+.logos-track:hover { animation-play-state: paused; }
+@keyframes logos-scroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+.logo-item { flex-shrink: 0; display: flex; align-items: center; justify-content: center; height: 60px; filter: grayscale(100%); opacity: .55; transition: filter .2s, opacity .2s; }
+.logo-item:hover { filter: grayscale(0%); opacity: 1; }
+.logo-item img { max-height: 60px; max-width: 140px; width: auto; object-fit: contain; }
+.logo-placeholder { height: 48px; padding: 0 20px; background: var(--grey); border-radius: 4px; display: flex; align-items: center; justify-content: center; font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 14px; letter-spacing: .08em; text-transform: uppercase; color: #999; white-space: nowrap; }
+.logos-section { background: var(--white); padding: 52px 0 40px; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); overflow: hidden; }
 /* ============================================================
    RÉSEAUX
    ============================================================ */
 .reseaux-section { background: var(--dark); }
-
-/* ============================================================
-   CARROUSEL LOGOS PARTENAIRES / SPONSORS
-   ============================================================ */
-.logos-section {
-  background: var(--white);
-  padding: 40px 0;
-  border-top: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
-  overflow: hidden;
-}
-
-.logos-track-wrap {
-  overflow: hidden;
-  position: relative;
-  /* Masques dégradés sur les côtés */
-  mask-image: linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%);
-  -webkit-mask-image: linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%);
-}
-
-.logos-track {
-  display: flex;
-  align-items: center;
-  gap: 60px;
-  width: max-content;
-  animation: logos-scroll 25s linear infinite;
-}
-
-.logos-track:hover { animation-play-state: paused; }
-
-@keyframes logos-scroll {
-  0%   { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
-}
-
-.logo-item {
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 60px;
-  filter: grayscale(100%);
-  opacity: .55;
-  transition: filter .2s, opacity .2s;
-}
-.logo-item:hover { filter: grayscale(0%); opacity: 1; }
-
-.logo-item img {
-  max-height: 60px;
-  max-width: 140px;
-  width: auto;
-  object-fit: contain;
-}
-
-/* Placeholder si pas de logo */
-.logo-placeholder {
-  height: 48px;
-  padding: 0 20px;
-  background: var(--grey);
-  border-radius: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: 'Barlow Condensed', sans-serif;
-  font-weight: 800;
-  font-size: 14px;
-  letter-spacing: .08em;
-  text-transform: uppercase;
-  color: #999;
-  white-space: nowrap;
-}
 
 /* ============================================================
    BUTTONS
@@ -261,12 +131,7 @@ ul { list-style: none; }
   .quick-links-grid { grid-template-columns: repeat(2, 1fr); }
   .join-grid { grid-template-columns: 1fr 1fr; }
   .emploi-card { width: calc(50% - 12px); max-width: none; }
-  .galerie-grid { grid-template-columns: repeat(2, 1fr); }
-  .footer-grid { grid-template-columns: 1fr 1fr; gap: 32px; }
   .slide-caption { left: 28px; bottom: 80px; }
-  .actu-grid { grid-template-columns: 1fr; }
-  .actu-side { flex-direction: row; flex-wrap: wrap; }
-  .actu-card { flex: 1 1 260px; }
   .logos-track { gap: 40px; }
 }
 @media (max-width: 580px) {
@@ -274,13 +139,9 @@ ul { list-style: none; }
   .quick-links-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
   .join-grid { grid-template-columns: 1fr; }
   .emploi-card { width: 100%; max-width: none; }
-  .galerie-grid { grid-template-columns: repeat(2, 1fr); }
   .section { padding: 52px 0; }
   .slide-caption { left: 18px; bottom: 72px; }
   .slide-caption h2 { font-size: 32px; }
-  .actu-card { grid-template-columns: 1fr; }
-  .actu-card img { width: 100%; height: 140px; min-height: unset; }
-  .actu-card-body { padding: 12px; }
   .logos-track { gap: 28px; animation-duration: 18s; }
   .logo-item img { max-height: 44px; max-width: 100px; }
 }
@@ -298,7 +159,11 @@ ul { list-style: none; }
 
       {% for slide in slides %}
         <div class="slide">
-          <img src="{{ asset('uploads/slides/' ~ slide.imageName) }}" alt="{{ slide.titre }}">
+          <img
+            src="{{ asset('uploads/slides/' ~ slide.imageName) }}"
+            alt="{{ slide.titre }}"
+            loading="eager"
+          >
           <div class="slide-accent"></div>
           <div class="slide-caption">
             <h2>
@@ -313,7 +178,11 @@ ul { list-style: none; }
         </div>
       {% else %}
         <div class="slide">
-          <img src="{{ asset('images/hero-default.jpg') }}" alt="ES Coutances">
+          <img
+            src="{{ asset('images/hero-default.jpg') }}"
+            alt="ES Coutances"
+            loading="eager"
+          >
           <div class="slide-accent"></div>
           <div class="slide-caption">
             <h2>Entente<br><span>Sportive</span><br>Coutançaise</h2>
@@ -334,7 +203,13 @@ ul { list-style: none; }
 
   <div class="carousel-dots" role="tablist" aria-label="Diapositives">
     {% for slide in slides %}
-      <button class="dot {{ loop.first ? 'active' : '' }}" data-index="{{ loop.index0 }}" role="tab" aria-label="Diapositive {{ loop.index }}" aria-selected="{{ loop.first ? 'true' : 'false' }}"></button>
+      <button
+        class="dot {{ loop.first ? 'active' : '' }}"
+        data-index="{{ loop.index0 }}"
+        role="tab"
+        aria-label="Diapositive {{ loop.index }}"
+        aria-selected="{{ loop.first ? 'true' : 'false' }}"
+      ></button>
     {% else %}
       <button class="dot active" data-index="0" role="tab" aria-selected="true"></button>
     {% endfor %}
@@ -376,7 +251,11 @@ ul { list-style: none; }
     <div class="join-grid">
 
       <div class="join-card">
-        <img src="https://raw.githubusercontent.com/CylaosICT/escoutances-images/refs/heads/main/725751192_2445468312633357_2725520192436946227_n.jpg" alt="Devenir joueur">
+        <img
+          src="https://raw.githubusercontent.com/CylaosICT/escoutances-images/refs/heads/main/725751192_2445468312633357_2725520192436946227_n.jpg"
+          alt="Devenir joueur"
+          loading="lazy"
+        >
         <div class="join-card-body">
           <h5>Devenir Joueuse/Joueur</h5>
           <p>Rejoignez l'ES Coutances et vivez votre passion du football dans un club formateur et ambitieux.</p>
@@ -385,7 +264,11 @@ ul { list-style: none; }
       </div>
 
       <div class="join-card">
-        <img src="https://raw.githubusercontent.com/CylaosICT/escoutances-images/refs/heads/main/503615364_18050302139580299_9100830375069093974_n.jpg" alt="Devenir partenaire">
+        <img
+          src="https://raw.githubusercontent.com/CylaosICT/escoutances-images/refs/heads/main/503615364_18050302139580299_9100830375069093974_n.jpg"
+          alt="Devenir partenaire"
+          loading="lazy"
+        >
         <div class="join-card-body">
           <h5>Devenir partenaire</h5>
           <p>Soutenez le club et bénéficiez d'une visibilité locale et régionale auprès de plus de 500 licenciés.</p>
@@ -394,7 +277,11 @@ ul { list-style: none; }
       </div>
 
       <div class="join-card">
-        <img src="https://raw.githubusercontent.com/CylaosICT/escoutances-images/refs/heads/main/504333979_18049249775580299_875794996725620563_n.jpg" alt="Devenir bénévole">
+        <img
+          src="https://raw.githubusercontent.com/CylaosICT/escoutances-images/refs/heads/main/504333979_18049249775580299_875794996725620563_n.jpg"
+          alt="Devenir bénévole"
+          loading="lazy"
+        >
         <div class="join-card-body">
           <h5>Devenir bénévole</h5>
           <p>Participez à la vie du club et contribuez à son développement au quotidien.</p>
@@ -403,7 +290,11 @@ ul { list-style: none; }
       </div>
 
       <div class="join-card">
-        <img src="https://raw.githubusercontent.com/CylaosICT/escoutances-images/refs/heads/main/504333979_18049249775580299_875794996725620563_n.jpg" alt="Devenir arbitre">
+        <img
+          src="https://raw.githubusercontent.com/CylaosICT/escoutances-images/refs/heads/main/504333979_18049249775580299_875794996725620563_n.jpg"
+          alt="Devenir arbitre"
+          loading="lazy"
+        >
         <div class="join-card-body">
           <h5>Devenir Arbitre</h5>
           <p>Participez à la vie du club et contribuez à son développement au quotidien.</p>
@@ -431,9 +322,17 @@ ul { list-style: none; }
       {% for offre in offres %}
         <div class="emploi-card">
           {% if offre.imageName %}
-            <img src="{{ asset('uploads/offres/' ~ offre.imageName) }}" alt="{{ offre.titre }}">
+            <img
+              src="{{ asset('uploads/offres/' ~ offre.imageName) }}"
+              alt="{{ offre.titre }}"
+              loading="lazy"
+            >
           {% else %}
-            <img src="{{ asset('images/offre-default.jpg') }}" alt="{{ offre.titre }}">
+            <img
+              src="{{ asset('images/offre-default.jpg') }}"
+              alt="{{ offre.titre }}"
+              loading="lazy"
+            >
           {% endif %}
           <div class="emploi-card-body">
             <h5>{{ offre.titre }}</h5>
@@ -448,112 +347,16 @@ ul { list-style: none; }
 {% endif %}
 
 {# ============================================================
-   ACTUALITÉS (dynamique)
-   ============================================================ #}
-{% if article_principal %}
-<section class="section">
-  <div class="container">
-    <div class="section-eyebrow center">La vie du club</div>
-    <div class="section-title center">Actualités</div>
-    <div class="red-stripe center"></div>
-
-    <div class="actu-grid">
-
-      <article class="actu-main">
-        <div class="actu-main-img">
-          {% if article_principal.imageName %}
-            <img src="{{ asset('uploads/articles/' ~ article_principal.imageName) }}" alt="{{ article_principal.titre }}">
-          {% else %}
-            <img src="{{ asset('images/actu-default.jpg') }}" alt="{{ article_principal.titre }}">
-          {% endif %}
-          <span class="actu-tag">{{ article_principal.categorie|capitalize }}</span>
-        </div>
-        <div class="actu-main-body">
-          <div class="actu-meta">
-            <time datetime="{{ article_principal.createdAt|date('Y-m-d') }}">{{ article_principal.createdAt|date('d/m/Y') }}</time>
-            {% if article_principal.lienExterne %}<span>·</span><span>Source externe</span>{% endif %}
-          </div>
-          <h3 class="actu-title">{{ article_principal.titre }}</h3>
-          <p class="actu-excerpt">{{ article_principal.contenu|striptags|slice(0, 300) ~ '...' }}</p>
-          {% if article_principal.lienExterne %}
-            <a href="{{ article_principal.lienExterne }}" target="_blank" rel="noopener" class="btn btn-primary" style="margin-top:8px">
-              Lire l'article <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:11px"></i>
-            </a>
-          {% else %}
-            <a href="/actualites/{{ article_principal.slug }}" class="btn btn-primary" style="margin-top:8px">Lire la suite</a>
-          {% endif %}
-        </div>
-      </article>
-
-      {% if articles_secondaires|length > 0 %}
-      <div class="actu-side">
-        {% for article in articles_secondaires %}
-          {% set url = article.lienExterne is not empty ? article.lienExterne : path('app_article_detail', {slug: article.slug}) %}
-          <article class="actu-card">
-            <a href="{{ url }}" {% if article.lienExterne is not empty %}target="_blank" rel="noopener"{% endif %} style="display:contents">
-              {% if article.imageName %}
-                <img src="{{ asset('uploads/articles/' ~ article.imageName) }}" alt="{{ article.titre }}">
-              {% else %}
-                <img src="{{ asset('images/actu-default.jpg') }}" alt="{{ article.titre }}">
-              {% endif %}
-              <div class="actu-card-body">
-                <span class="actu-tag actu-tag-sm">{{ article.categorie|capitalize }}</span>
-                <h4>{{ article.titre }}</h4>
-                <p>{{ article.contenu|striptags|slice(0, 80) ~ '...' }}</p>
-                <div style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--red);margin-top:4px">
-                  {% if article.lienExterne is not empty %}
-                    Lire l'article <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:9px"></i>
-                  {% else %}
-                    Lire la suite <i class="fa-solid fa-arrow-right" style="font-size:9px"></i>
-                  {% endif %}
-                </div>
-              </div>
-            </a>
-          </article>
-        {% endfor %}
-      </div>
-      {% endif %}
-
-    </div>
-
-    <div style="text-align:center;margin-top:36px">
-      <a href="{{ path('app_actualites') }}" class="btn btn-outline">Toutes les actualités</a>
-    </div>
-
-  </div>
-</section>
-{% endif %}
-
-{# ============================================================
-   GALERIE (dynamique — dernier album)
-   ============================================================ #}
-{% if dernier_album and dernier_album.photos|length > 0 %}
-  <section class="section-sm galerie-section">
-    <div class="container">
-      <div class="section-eyebrow center">Photographies</div>
-      <div class="section-title center">{{ dernier_album.nom }}</div>
-      <div class="galerie-grid">
-        {% for photo in dernier_album.photos|slice(0, 4) %}
-          <img class="zoomable-photo" src="{{ asset('uploads/photos/' ~ photo.imageName) }}" alt="{{ photo.legende ?? dernier_album.nom }}">
-        {% endfor %}
-      </div>
-      <div style="text-align:center;margin-top:28px">
-        <a href="{{ path('app_galerie') }}" class="btn btn-primary">Voir la galerie complète</a>
-      </div>
-    </div>
-  </section>
-
-  <div id="lightbox" class="lightbox">
-    <span class="lightbox-close">&times;</span>
-    <img class="lightbox-content" id="lightbox-img">
-  </div>
-{% endif %}
-
-{# ============================================================
    CARROUSEL LOGOS PARTENAIRES & SPONSORS
    ============================================================ #}
 {% if partenaires_carousel is defined and partenaires_carousel|length > 0 %}
 <section class="logos-section">
+
+  <div style="text-align:center;margin-bottom:28px;">
+    <div class="section-eyebrow center">Ils nous soutiennent</div>
+    <div class="section-title center">Nos partenaires <span style="color:var(--red)">&</span> sponsors</div>
+  </div>
+
   <div class="logos-track-wrap">
     <div class="logos-track" id="logosTrack">
 
@@ -564,7 +367,11 @@ ul { list-style: none; }
             <a href="{{ partenaire.url }}" target="_blank" rel="noopener" title="{{ partenaire.nom }}">
           {% endif %}
           {% if partenaire.logoName %}
-            <img src="{{ asset('uploads/partenaires/' ~ partenaire.logoName) }}" alt="{{ partenaire.nom }}">
+            <img
+              src="{{ asset('uploads/partenaires/' ~ partenaire.logoName) }}"
+              alt="{{ partenaire.nom }}"
+              loading="lazy"
+            >
           {% else %}
             <div class="logo-placeholder">{{ partenaire.nom }}</div>
           {% endif %}
@@ -581,7 +388,11 @@ ul { list-style: none; }
             <a href="{{ partenaire.url }}" target="_blank" rel="noopener" title="{{ partenaire.nom }}">
           {% endif %}
           {% if partenaire.logoName %}
-            <img src="{{ asset('uploads/partenaires/' ~ partenaire.logoName) }}" alt="{{ partenaire.nom }}">
+            <img
+              src="{{ asset('uploads/partenaires/' ~ partenaire.logoName) }}"
+              alt="{{ partenaire.nom }}"
+              loading="lazy"
+            >
           {% else %}
             <div class="logo-placeholder">{{ partenaire.nom }}</div>
           {% endif %}
@@ -632,7 +443,10 @@ ul { list-style: none; }
   function goTo(n) {
     current = (n + slides.length) % slides.length;
     track.style.transform = `translateX(-${current * 100}%)`;
-    dots.forEach((d, i) => { d.classList.toggle('active', i === current); d.setAttribute('aria-selected', i === current); });
+    dots.forEach((d, i) => {
+      d.classList.toggle('active', i === current);
+      d.setAttribute('aria-selected', i === current);
+    });
   }
   function autoplay() { clearInterval(timer); timer = setInterval(() => goTo(current + 1), 4500); }
 
@@ -644,52 +458,12 @@ ul { list-style: none; }
 
   let startX = 0;
   track.addEventListener('touchstart', e => { startX = e.changedTouches[0].clientX; }, { passive: true });
-  track.addEventListener('touchend', e => { const dx = e.changedTouches[0].clientX - startX; if (Math.abs(dx) > 40) { goTo(current + (dx < 0 ? 1 : -1)); autoplay(); } }, { passive: true });
+  track.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - startX;
+    if (Math.abs(dx) > 40) { goTo(current + (dx < 0 ? 1 : -1)); autoplay(); }
+  }, { passive: true });
 
   if (slides.length > 1) autoplay();
 })();
-
-/* ---- Desktop nav dropdowns ---- */
-(function() {
-  const bar = document.querySelector('.nav-bar');
-  if (!bar) return;
-  const items = Array.from(bar.querySelectorAll('.nav-item'));
-  const drops = Array.from(bar.querySelectorAll('.dropdown'));
-  function closeAll() { drops.forEach(d => d.classList.remove('open')); }
-  items.forEach(item => {
-    item.addEventListener('mouseenter', () => { closeAll(); const d = item.querySelector('.dropdown'); if (d) d.classList.add('open'); });
-    const trigger = item.querySelector('a, button');
-    if (trigger) trigger.addEventListener('click', e => { const d = item.querySelector('.dropdown'); if (d) { e.preventDefault(); const was = d.classList.contains('open'); closeAll(); if (!was) d.classList.add('open'); } });
-  });
-  bar.addEventListener('mouseleave', closeAll);
-  document.addEventListener('click', e => { if (!bar.contains(e.target)) closeAll(); });
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAll(); });
-})();
-
-/* ---- Mobile nav ---- */
-(function() {
-  const toggle = document.getElementById('navToggle');
-  const mobileNav = document.getElementById('mobileNav');
-  if (!toggle || !mobileNav) return;
-  toggle.addEventListener('click', () => { const open = mobileNav.classList.toggle('open'); toggle.classList.toggle('open', open); toggle.setAttribute('aria-expanded', open); });
-  document.querySelectorAll('.mob-section-head').forEach(head => {
-    head.addEventListener('click', () => { const section = head.parentElement; const wasOpen = section.classList.contains('open'); document.querySelectorAll('.mob-section').forEach(s => s.classList.remove('open')); if (!wasOpen) section.classList.add('open'); });
-  });
-})();
-
-/* ---- Lightbox galerie home ---- */
-document.addEventListener('DOMContentLoaded', function () {
-  const lightbox = document.getElementById('lightbox');
-  const lightboxImg = document.getElementById('lightbox-img');
-  const closeBtn = document.querySelector('.lightbox-close');
-  if (!lightbox) return;
-
-  document.querySelectorAll('.zoomable-photo').forEach(photo => {
-    photo.addEventListener('click', () => { lightbox.style.display = 'block'; lightboxImg.src = photo.src; });
-  });
-  closeBtn.addEventListener('click', () => { lightbox.style.display = 'none'; });
-  lightbox.addEventListener('click', e => { if (e.target === lightbox) lightbox.style.display = 'none'; });
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') lightbox.style.display = 'none'; });
-});
 </script>
 {% endblock %}

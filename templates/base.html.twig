@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}ES Coutances — Entente Sportive Coutançaise{% endblock %}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="icon" type="image/png" href="{{ asset('images/favicon.png') }}">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;0,800;0,900;1,700;1,800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -122,6 +123,37 @@ ul { list-style: none; }
 .social-links a:hover { background: rgba(255,255,255,.35); }
 .footer-bottom { margin-top: 28px; text-align: center; font-size: 12px; opacity: .6; letter-spacing: .04em; }
 
+/* ON AIR badge */
+.on-air {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 10px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--red);
+  background: rgba(200,16,46,.08);
+  border: 1px solid rgba(200,16,46,.25);
+  border-radius: 20px;
+  padding: 2px 8px;
+  margin-left: 2px;
+  vertical-align: middle;
+}
+.on-air-dot {
+  width: 6px;
+  height: 6px;
+  background: var(--red);
+  border-radius: 50%;
+  flex-shrink: 0;
+  animation: pulse-dot 1.4s ease-in-out infinite;
+}
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: .4; transform: scale(.7); }
+}
+
 /* RESPONSIVE */
 @media (max-width: 900px) {
   .nav-toggle { display: flex; }
@@ -165,6 +197,7 @@ ul { list-style: none; }
 
   {# Desktop nav #}
   <nav class="nav-bar" aria-label="Navigation principale">
+
     <div class="nav-item">
       <a href="{{ path('app_home') }}">Accueil</a>
     </div>
@@ -174,43 +207,34 @@ ul { list-style: none; }
       <div class="dropdown">
         <div class="dd-col">
           <h4>Le club</h4>
-            <a href="{{ path('app_histoire') }}">Histoire</a>
-            <a href="{{ path('app_encadrement') }}">Encadrement</a>
-            <a href="{{ path('app_infrastructure') }}">Infrastructure</a>
+          <a href="{{ path('app_histoire') }}">Histoire</a>
+          <a href="{{ path('app_encadrement') }}">Encadrement</a>
+          <a href="{{ path('app_infrastructure') }}">Infrastructure</a>
         </div>
       </div>
     </div>
-
-    {# <div class="nav-item">
-      <button aria-haspopup="true">
-        Équipes <i class="fa-solid fa-chevron-down"></i>
-      </button>
-      {{ render(controller('App\\Controller\\NavController::equipes')) }}
-    </div> #}
 
     <div class="nav-item">
       <a href="#">Actualités <i class="fa-solid fa-chevron-down"></i></a>
       <div class="dropdown">
         <div class="dd-col">
           <h4>Actualités</h4>
-          <a href="{{ path('app_actualites') }}">Toutes les news</a>
-          <a href="{{ path('app_communiques') }}">Communiqués</a>
-          <a href="{{ path('app_medias') }}">Médias</a>
+          <a href="#">Toutes les news</a>
+          <a href="#">Communiqués</a>
+          <a href="#">Médias</a>
         </div>
       </div>
     </div>
 
-    {# <div class="nav-item">
-      <a href="#">Boutique <i class="fa-solid fa-chevron-down"></i></a>
-      <div class="dropdown">
-        <div class="dd-col">
-          <h4>Boutique</h4>
-          <a href="#">Maillots</a>
-          <a href="#">Accessoires</a>
-          <a href="#">Promotions</a>
-        </div>
-      </div>
-    </div> #}
+    <div class="nav-item">
+      <a href="#">
+        Match en Live
+        <span class="on-air">
+          <span class="on-air-dot"></span>
+          En cours
+        </span>
+      </a>
+    </div>
 
     <div class="nav-item">
       <a href="{{ path('app_contact') }}">Contact</a>
@@ -224,38 +248,28 @@ ul { list-style: none; }
     <div class="mob-section">
       <div class="mob-section-head">Club <i class="fa-solid fa-chevron-down"></i></div>
       <div class="mob-links">
-            <a href="{{ path('app_histoire') }}">Histoire</a>
-            <a href="{{ path('app_encadrement') }}">Encadrement</a>
-            <a href="{{ path('app_infrastructure') }}">Infrastructure</a>
+        <a href="{{ path('app_histoire') }}">Histoire</a>
+        <a href="{{ path('app_encadrement') }}">Encadrement</a>
+        <a href="{{ path('app_infrastructure') }}">Infrastructure</a>
       </div>
     </div>
-
-    {# <div class="mob-section">
-      <div class="mob-section-head">
-        Équipes <i class="fa-solid fa-chevron-down"></i>
-      </div>
-      <div class="mob-links">
-        {{ render(controller('App\\Controller\\NavController::equipesMobile')) }}
-      </div>
-    </div> #}
 
     <div class="mob-section">
       <div class="mob-section-head">Actualités <i class="fa-solid fa-chevron-down"></i></div>
       <div class="mob-links">
-        <a href="{{ path('app_actualites') }}">Toutes les news</a>
-        <a href="{{ path('app_communiques') }}">Communiqués</a>
-        <a href="{{ path('app_medias') }}">Médias</a>
+        <a href="#">Toutes les news</a>
+        <a href="#">Communiqués</a>
+        <a href="#">Médias</a>
       </div>
     </div>
 
-    {# <div class="mob-section">
-      <div class="mob-section-head">Boutique <i class="fa-solid fa-chevron-down"></i></div>
-      <div class="mob-links">
-        <a href="#">Maillots</a>
-        <a href="#">Accessoires</a>
-        <a href="#">Promotions</a>
-      </div>
-    </div> #}
+    <a href="#" class="mob-direct">
+      Match en Live
+      <span class="on-air" style="margin-left:8px">
+        <span class="on-air-dot"></span>
+        On Air
+      </span>
+    </a>
 
     <a href="{{ path('app_contact') }}" class="mob-direct">Contact</a>
 
@@ -283,10 +297,9 @@ ul { list-style: none; }
         <h5>Navigation</h5>
         <ul>
           <li><a href="#">Le club</a></li>
-          {# <li><a href="#">Équipes</a></li> #}
           <li><a href="#">Actualités</a></li>
-          <li><a href="#">Boutique</a></li>
-          <li><a href="#">Contact</a></li>
+          <li><a href="#">Match en Live</a></li>
+          <li><a href="{{ path('app_contact') }}">Contact</a></li>
         </ul>
       </div>
 
@@ -310,14 +323,44 @@ ul { list-style: none; }
 </footer>
 
 {% block javascripts %}{% endblock %}
+
 {# Raccourci clavier admin : Ctrl + Shift + A #}
 <script>
-  document.addEventListener('keydown', function(e) {
-    if (e.ctrlKey && e.shiftKey && e.key === 'A') {
-      e.preventDefault();
-      window.location.href = '{{ path('app_login') }}';
-    }
+document.addEventListener('keydown', function(e) {
+  if (e.ctrlKey && e.shiftKey && e.key === 'A') {
+    e.preventDefault();
+    window.location.href = '{{ path('app_login') }}';
+  }
+});
+
+/* ---- Desktop nav dropdowns ---- */
+(function() {
+  const bar = document.querySelector('.nav-bar');
+  if (!bar) return;
+  const items = Array.from(bar.querySelectorAll('.nav-item'));
+  const drops = Array.from(bar.querySelectorAll('.dropdown'));
+  function closeAll() { drops.forEach(d => d.classList.remove('open')); }
+  items.forEach(item => {
+    item.addEventListener('mouseenter', () => { closeAll(); const d = item.querySelector('.dropdown'); if (d) d.classList.add('open'); });
+    const trigger = item.querySelector('a, button');
+    if (trigger) trigger.addEventListener('click', e => { const d = item.querySelector('.dropdown'); if (d) { e.preventDefault(); const was = d.classList.contains('open'); closeAll(); if (!was) d.classList.add('open'); } });
   });
+  bar.addEventListener('mouseleave', closeAll);
+  document.addEventListener('click', e => { if (!bar.contains(e.target)) closeAll(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAll(); });
+})();
+
+/* ---- Mobile nav ---- */
+(function() {
+  const toggle = document.getElementById('navToggle');
+  const mobileNav = document.getElementById('mobileNav');
+  if (!toggle || !mobileNav) return;
+  toggle.addEventListener('click', () => { const open = mobileNav.classList.toggle('open'); toggle.classList.toggle('open', open); toggle.setAttribute('aria-expanded', open); });
+  document.querySelectorAll('.mob-section-head').forEach(head => {
+    head.addEventListener('click', () => { const section = head.parentElement; const wasOpen = section.classList.contains('open'); document.querySelectorAll('.mob-section').forEach(s => s.classList.remove('open')); if (!wasOpen) section.classList.add('open'); });
+  });
+})();
 </script>
+
 </body>
 </html>

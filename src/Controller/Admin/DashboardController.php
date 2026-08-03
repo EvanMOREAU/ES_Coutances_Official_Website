@@ -26,21 +26,24 @@ class DashboardController extends AbstractDashboardController
     {
         return Dashboard::new()
             ->setTitle('ES Coutances — Admin')
-            ->setLocales(['fr']);
+            ->setLocales(['fr'])
+            ->setFaviconPath('images/favicon.png');  // ou '/favicon.png'
     }
 
     public function configureMenuItems(): iterable
     {
         yield MenuItem::linkToDashboard('Tableau de bord', 'fa fa-home');
         yield MenuItem::linkToUrl('Voir le site', 'fa fa-eye', '/');
-
+        if ($this->isGranted('ROLE_DEV')) {
+            yield MenuItem::section('Développeur');
+            yield MenuItem::linkTo(CategorieCrudController::class, 'Catégories encadrement', 'fa fa-tags');
+        }
         if ($this->isGranted('ROLE_ADMIN')) {
             yield MenuItem::section('Club');
             yield MenuItem::linkTo(PartenaireCrudController::class, 'Partenaires', 'fa fa-handshake');
             yield MenuItem::linkTo(OffreEmploiCrudController::class, 'Offres d\'emploi', 'fa fa-briefcase');
             yield MenuItem::linkTo(SlideCarouselCrudController::class, 'Carousel', 'fa fa-sliders');
             yield MenuItem::linkTo(PageContenuCrudController::class, 'Pages', 'fa fa-file-lines');
-            yield MenuItem::linkTo(CategorieCrudController::class, 'Catégories encadrement', 'fa fa-tags');
             yield MenuItem::linkTo(MembreCrudController::class, 'Encadrement', 'fa fa-people-group');   
 
             yield MenuItem::section('Administration');

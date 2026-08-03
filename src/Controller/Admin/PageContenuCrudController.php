@@ -3,6 +3,7 @@
 namespace App\Controller\Admin;
 
 use App\Entity\PageContenu;
+use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
@@ -23,7 +24,7 @@ class PageContenuCrudController extends AbstractCrudController
     {
         return $crud
             ->setEntityLabelInSingular('Page')
-            ->setEntityLabelInPlural('Pages de contenu');
+            ->setEntityLabelInPlural('Contenu de page');
     }
 
     public function configureActions(Actions $actions): Actions
@@ -39,5 +40,17 @@ class PageContenuCrudController extends AbstractCrudController
         yield SlugField::new('slug')->setTargetFieldName('titre')->hideOnIndex();
         yield TextEditorField::new('contenu', 'Contenu')->hideOnIndex()->setNumOfRows(20);
         yield DateTimeField::new('updatedAt', 'Modifié le')->hideOnForm();
+    }
+
+    public function updateEntity(EntityManagerInterface $em, mixed $entity): void
+    {
+        $entity->setUpdatedAt(new \DateTimeImmutable());
+        parent::updateEntity($em, $entity);
+    }
+
+    public function persistEntity(EntityManagerInterface $em, mixed $entity): void
+    {
+        $entity->setUpdatedAt(new \DateTimeImmutable());
+        parent::persistEntity($em, $entity);
     }
 }

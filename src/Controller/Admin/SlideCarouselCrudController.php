@@ -3,6 +3,8 @@
 namespace App\Controller\Admin;
 
 use App\Entity\SlideCarousel;
+use App\Service\OrdreService;
+use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
@@ -15,6 +17,10 @@ use Vich\UploaderBundle\Form\Type\VichImageType;
 
 class SlideCarouselCrudController extends AbstractCrudController
 {
+    public function __construct(
+        private OrdreService $ordreService
+    ) {}
+
     public function configureActions(Actions $actions): Actions
     {
         if (!$this->isGranted('ROLE_ADMIN')) {
@@ -22,7 +28,7 @@ class SlideCarouselCrudController extends AbstractCrudController
         }
         return $actions;
     }
-    
+
     public static function getEntityFqcn(): string
     {
         return SlideCarousel::class;
@@ -47,7 +53,27 @@ class SlideCarouselCrudController extends AbstractCrudController
         yield ImageField::new('imageName', 'Aperçu')
             ->setBasePath('/uploads/slides')
             ->onlyOnIndex();
-        yield IntegerField::new('ordre', 'Ordre');
+        yield IntegerField::new('ordre', 'Ordre')
+            ->setHelp('Rempli automatiquement. Modifier uniquement si nécessaire.');
         yield BooleanField::new('actif', 'Actif');
+    }
+
+    public function createEntity(string $entityFqcn): object
+    {
+        $entity = parent::createEntity($entityFqcn);
+        $entity->setOrdre($this->ordreService->getNextOrdre(SlideCarousel::class));
+        return $entity;
+    }
+
+    public function persistEntity(EntityManagerInterface $em, mixed $entity): void
+    {
+        $this->ordreService->ensureUniqueOrdre(SlideCarousel::class, $entity);
+        parent::persistEntity($em, $entity);
+    }
+
+    public function updateEntity(EntityManagerInterface $em, mixed $entity): void
+    {
+        $this->ordreService->ensureUniqueOrdre(SlideCarousel::class, $entity);
+        parent::updateEntity($em, $entity);
     }
 }

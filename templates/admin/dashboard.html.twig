@@ -7,68 +7,68 @@
     </h1>
     <p style="color:#666;margin-bottom:32px;">Gérez le contenu du site ES Coutances.</p>
 
-    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px;">
-
-        <a href="{{ ea_url().setController('App\\Controller\\Admin\\ArticleCrudController').setAction('index') }}"
+    {% macro card(url, icon, label) %}
+        <a href="{{ url }}"
            style="background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:24px;text-decoration:none;color:#0D0D0D;display:block;transition:box-shadow .2s"
            onmouseover="this.style.boxShadow='0 4px 16px rgba(0,0,0,.1)'"
            onmouseout="this.style.boxShadow='none'">
-            <div style="font-size:28px;color:#C8102E;margin-bottom:8px;"><i class="fa fa-newspaper"></i></div>
-            <div style="font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:.05em;">Actualités</div>
+            <div style="font-size:28px;color:#C8102E;margin-bottom:8px;"><i class="fa {{ icon }}"></i></div>
+            <div style="font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:.05em;">{{ label }}</div>
         </a>
+    {% endmacro %}
 
-        <a href="{{ ea_url().setController('App\\Controller\\Admin\\AlbumCrudController').setAction('index') }}"
-           style="background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:24px;text-decoration:none;color:#0D0D0D;display:block;transition:box-shadow .2s"
-           onmouseover="this.style.boxShadow='0 4px 16px rgba(0,0,0,.1)'"
-           onmouseout="this.style.boxShadow='none'">
-            <div style="font-size:28px;color:#C8102E;margin-bottom:8px;"><i class="fa fa-images"></i></div>
-            <div style="font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:.05em;">Albums photos</div>
-        </a>
+    {# ---- Section Développeur ---- #}
+    {% if is_granted('ROLE_DEV') %}
+        <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#C8102E;margin-bottom:12px;padding-bottom:6px;border-bottom:2px solid #e5e7eb;">
+            Développeur
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px;margin-bottom:32px;">
+            {{ _self.card(
+                ea_url().setController('App\\Controller\\Admin\\CategorieCrudController').setAction('index'),
+                'fa-tags', 'Catégories encadrement'
+            ) }}
+        </div>
+    {% endif %}
 
-        <a href="{{ ea_url().setController('App\\Controller\\Admin\\PhotoCrudController').setAction('index') }}"
-           style="background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:24px;text-decoration:none;color:#0D0D0D;display:block;transition:box-shadow .2s"
-           onmouseover="this.style.boxShadow='0 4px 16px rgba(0,0,0,.1)'"
-           onmouseout="this.style.boxShadow='none'">
-            <div style="font-size:28px;color:#C8102E;margin-bottom:8px;"><i class="fa fa-image"></i></div>
-            <div style="font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:.05em;">Photos</div>
-        </a>
+    {# ---- Section Club ---- #}
+    {% if is_granted('ROLE_ADMIN') %}
+        <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#C8102E;margin-bottom:12px;padding-bottom:6px;border-bottom:2px solid #e5e7eb;">
+            Club
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px;margin-bottom:32px;">
+            {{ _self.card(
+                ea_url().setController('App\\Controller\\Admin\\PartenaireCrudController').setAction('index'),
+                'fa-handshake', 'Partenaires & Sponsors'
+            ) }}
+            {{ _self.card(
+                ea_url().setController('App\\Controller\\Admin\\OffreEmploiCrudController').setAction('index'),
+                'fa-briefcase', "Offres d'emploi"
+            ) }}
+            {{ _self.card(
+                ea_url().setController('App\\Controller\\Admin\\SlideCarouselCrudController').setAction('index'),
+                'fa-sliders', 'Carousel'
+            ) }}
+            {{ _self.card(
+                ea_url().setController('App\\Controller\\Admin\\PageContenuCrudController').setAction('index'),
+                'fa-file-lines', 'Pages'
+            ) }}
+            {{ _self.card(
+                ea_url().setController('App\\Controller\\Admin\\MembreCrudController').setAction('index'),
+                'fa-people-group', 'Encadrement'
+            ) }}
+        </div>
 
-        {% if is_granted('ROLE_ADMIN') %}
+        {# ---- Section Administration ---- #}
+        <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#C8102E;margin-bottom:12px;padding-bottom:6px;border-bottom:2px solid #e5e7eb;">
+            Administration
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px;margin-bottom:32px;">
+            {{ _self.card(
+                ea_url().setController('App\\Controller\\Admin\\UserCrudController').setAction('index'),
+                'fa-users', 'Utilisateurs'
+            ) }}
+        </div>
+    {% endif %}
 
-        <a href="{{ ea_url().setController('App\\Controller\\Admin\\EquipeCrudController').setAction('index') }}"
-           style="background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:24px;text-decoration:none;color:#0D0D0D;display:block;transition:box-shadow .2s"
-           onmouseover="this.style.boxShadow='0 4px 16px rgba(0,0,0,.1)'"
-           onmouseout="this.style.boxShadow='none'">
-            <div style="font-size:28px;color:#C8102E;margin-bottom:8px;"><i class="fa fa-shield"></i></div>
-            <div style="font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:.05em;">Équipes</div>
-        </a>
-
-        <a href="{{ ea_url().setController('App\\Controller\\Admin\\OffreEmploiCrudController').setAction('index') }}"
-           style="background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:24px;text-decoration:none;color:#0D0D0D;display:block;transition:box-shadow .2s"
-           onmouseover="this.style.boxShadow='0 4px 16px rgba(0,0,0,.1)'"
-           onmouseout="this.style.boxShadow='none'">
-            <div style="font-size:28px;color:#C8102E;margin-bottom:8px;"><i class="fa fa-briefcase"></i></div>
-            <div style="font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:.05em;">Offres d'emploi</div>
-        </a>
-
-        <a href="{{ ea_url().setController('App\\Controller\\Admin\\PartenaireCrudController').setAction('index') }}"
-           style="background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:24px;text-decoration:none;color:#0D0D0D;display:block;transition:box-shadow .2s"
-           onmouseover="this.style.boxShadow='0 4px 16px rgba(0,0,0,.1)'"
-           onmouseout="this.style.boxShadow='none'">
-            <div style="font-size:28px;color:#C8102E;margin-bottom:8px;"><i class="fa fa-handshake"></i></div>
-            <div style="font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:.05em;">Partenaires et Sponsors</div>
-        </a>
-
-        <a href="{{ ea_url().setController('App\\Controller\\Admin\\SlideCarouselCrudController').setAction('index') }}"
-           style="background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:24px;text-decoration:none;color:#0D0D0D;display:block;transition:box-shadow .2s"
-           onmouseover="this.style.boxShadow='0 4px 16px rgba(0,0,0,.1)'"
-           onmouseout="this.style.boxShadow='none'">
-            <div style="font-size:28px;color:#C8102E;margin-bottom:8px;"><i class="fa fa-sliders"></i></div>
-            <div style="font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:.05em;">Carousel</div>
-        </a>
-
-        {% endif %}
-
-    </div>
 </div>
 {% endblock %}
