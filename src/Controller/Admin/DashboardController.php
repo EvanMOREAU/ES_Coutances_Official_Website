@@ -44,7 +44,8 @@ class DashboardController extends AbstractDashboardController
             yield MenuItem::linkTo(OffreEmploiCrudController::class, 'Offres d\'emploi', 'fa fa-briefcase');
             yield MenuItem::linkTo(SlideCarouselCrudController::class, 'Carousel', 'fa fa-sliders');
             yield MenuItem::linkTo(PageContenuCrudController::class, 'Pages', 'fa fa-file-lines');
-            yield MenuItem::linkTo(MembreCrudController::class, 'Encadrement', 'fa fa-people-group');   
+            yield MenuItem::linkTo(MembreCrudController::class, 'Encadrement', 'fa fa-people-group');
+            yield MenuItem::linkToRoute('Chiffres clés', 'fa fa-chart-simple', 'admin_chiffres_cles');
 
             yield MenuItem::section('Administration');
             yield MenuItem::linkTo(UserCrudController::class, 'Utilisateurs', 'fa fa-users');

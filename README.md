@@ -9,15 +9,14 @@ Développé par **Evan MOREAU**.
 
 | Technologie | Version | Rôle |
 |---|---|---|
-| PHP | 8.2+ | Langage serveur |
-| Symfony | 7.x | Framework principal |
+| PHP | 8.4+ | Langage serveur |
+| Symfony | 8.1.x | Framework principal |
 | Doctrine ORM | 3.x | ORM / Base de données |
-| MySQL / MariaDB | 8.x | Base de données |
-| EasyAdmin | 5.x | Back-office administration |
+| MySQL / MariaDB | 10.11+ | Base de données |
+| EasyAdmin | 5.4 | Back-office administration |
 | VichUploader | — | Gestion des uploads d'images |
 | Symfony Mailer | — | Envoi d'emails (contact) |
-| Symfony Cache | — | Cache des appels API Facebook |
-| Symfony HttpClient | — | Appels API externes (Facebook Graph) |
+| Symfony AssetMapper | — | Gestion des assets (pas de bundler Node) |
 | Twig | 3.x | Moteur de templates |
 | CSS natif | — | Pas de Bootstrap — Grid/Flexbox pur |
 | Font Awesome | 6.5 | Icônes |
@@ -51,7 +50,7 @@ escoutances_symfony/
 │   │   ├── Admin/
 │   │   │   ├── DashboardController.php
 │   │   │   ├── CategorieCrudController.php
-│   │   │   ├── EquipeCrudController.php
+│   │   │   ├── ChiffresClesSettingsController.php
 │   │   │   ├── MembreCrudController.php
 │   │   │   ├── OffreEmploiCrudController.php
 │   │   │   ├── PageContenuCrudController.php
@@ -61,11 +60,10 @@ escoutances_symfony/
 │   │   ├── ClubController.php
 │   │   ├── ContactController.php
 │   │   ├── DefaultController.php
-│   │   ├── GalerieController.php
-│   │   └── NavController.php
+│   │   └── LoginController.php
 │   ├── Entity/
 │   │   ├── Categorie.php
-│   │   ├── Equipe.php
+│   │   ├── ChiffresCles.php
 │   │   ├── Membre.php
 │   │   ├── OffreEmploi.php
 │   │   ├── PageContenu.php
@@ -78,11 +76,11 @@ escoutances_symfony/
 │   ├── Security/
 │   │   └── UserVoter.php
 │   └── Service/
-│       ├── FacebookService.php
 │       └── OrdreService.php
 ├── templates/
 │   ├── admin/
-│   │   └── dashboard.html.twig
+│   │   ├── dashboard.html.twig
+│   │   └── chiffres_cles.html.twig
 │   ├── club/
 │   │   ├── _layout.html.twig
 │   │   ├── encadrement.html.twig
@@ -92,13 +90,8 @@ escoutances_symfony/
 │   │   └── index.html.twig
 │   ├── default/
 │   │   └── index.html.twig
-│   ├── galerie/
-│   │   └── index.html.twig
 │   ├── login/
 │   │   └── index.html.twig
-│   ├── nav/
-│   │   ├── _equipes_dropdown.html.twig
-│   │   └── _equipes_mobile.html.twig
 │   └── base.html.twig
 ├── .env
 ├── .env.local          ← JAMAIS commité
@@ -114,13 +107,13 @@ escoutances_symfony/
 | Entité | Description |
 |---|---|
 | `User` | Utilisateurs du back-office |
-| `Equipe` | Équipes du club (catégorie, niveau, lien FFF) |
 | `OffreEmploi` | Offres d'emploi / formations |
 | `SlideCarousel` | Slides du carousel hero |
 | `PageContenu` | Pages éditables (Histoire, Infrastructure) |
 | `Membre` | Membres de l'encadrement |
 | `Categorie` | Catégories d'encadrement (Senior, Académie...) |
 | `Partenaire` | Partenaires & sponsors (nom, logo, url) |
+| `ChiffresCles` | Chiffres clés affichés en page d'accueil (licenciés, éducateurs, bénévoles) — ligne unique éditée via `/admin/chiffres-cles` |
 
 ---
 
@@ -128,9 +121,9 @@ escoutances_symfony/
 
 | Rôle | Accès |
 |---|---|
-| `ROLE_DEV` | Accès total + gestion des comptes développeurs + gestion des équipes |
-| `ROLE_ADMIN` | Accès à tout le back-office sauf comptes dev |
-| `ROLE_EDITOR` | Accès limité |
+| `ROLE_DEV` | Accès total + gestion des comptes développeurs + catégories d'encadrement |
+| `ROLE_ADMIN` | Accès au back-office métier (partenaires, offres, carousel, pages, encadrement, chiffres clés) |
+| `ROLE_EDITOR` | Accès limité au back-office (`/admin`) |
 | `ROLE_USER` | Rôle de base (hérité par tous) |
 
 **Hiérarchie :** `ROLE_DEV` → `ROLE_ADMIN` → `ROLE_EDITOR` → `ROLE_USER`
@@ -148,7 +141,7 @@ escoutances_symfony/
 
 ### Prérequis
 
-- PHP 8.2+
+- PHP 8.4+
 - Composer
 - MySQL / MariaDB
 - Symfony CLI (optionnel)
@@ -157,15 +150,15 @@ escoutances_symfony/
 
 ```bash
 # 1. Cloner le dépôt
-git clone https://github.com/EvanMOREAU/Football_Website_Symfony.git
-cd Football_Website_Symfony
+git clone https://github.com/EvanMOREAU/ES_Coutances_Official_Website.git
+cd ES_Coutances_Official_Website
 
 # 2. Installer les dépendances
 composer install
 
 # 3. Configurer l'environnement
 cp .env .env.local
-# Éditer .env.local avec tes valeurs
+# Éditer .env.local avec tes valeurs (DATABASE_URL, MAILER_DSN...)
 
 # 4. Créer la base de données
 php bin/console doctrine:database:create
@@ -181,7 +174,7 @@ php bin/console app:create-user dev@exemple.fr MotDePasse "Prénom Nom" ROLE_DEV
 mkdir -p public/uploads/slides public/uploads/offres public/uploads/membres public/uploads/partenaires
 
 # 8. Vider le cache
-php -d memory_limit=512M bin/console cache:clear
+php bin/console cache:clear
 
 # 9. Lancer le serveur
 symfony server:start
@@ -192,10 +185,8 @@ symfony server:start
 ## 🔐 Variables d'environnement
 
 ```env
-DATABASE_URL="mysql://user:password@127.0.0.1:3306/escoutances"
+DATABASE_URL="mysql://user:password@127.0.0.1:3306/escoutances_symfony?serverVersion=10.11.2-MariaDB&charset=utf8mb4"
 MAILER_DSN=smtp://localhost:1025
-FACEBOOK_PAGE_ID=ententesportivecoutancaise
-FACEBOOK_ACCESS_TOKEN=ton_token_long_lived_ici
 ```
 
 > ⚠️ **Ne jamais commiter `.env.local`**
@@ -206,14 +197,14 @@ FACEBOOK_ACCESS_TOKEN=ton_token_long_lived_ici
 
 | URL | Description |
 |---|---|
-| `/` | Page d'accueil |
+| `/` | Page d'accueil (carousel, chiffres clés, offres, partenaires) |
 | `/club/histoire` | Histoire du club (éditable) |
 | `/club/encadrement` | Encadrement par catégorie |
 | `/club/infrastructure` | Infrastructure (éditable) |
 | `/contact` | Formulaire de contact |
-| `/galerie` | Galerie photos avec lightbox |
 | `/admin` | Back-office EasyAdmin |
 | `/admin/login` | Page de connexion admin |
+| `/admin/chiffres-cles` | Réglage des chiffres clés de la page d'accueil |
 
 ---
 
@@ -221,7 +212,7 @@ FACEBOOK_ACCESS_TOKEN=ton_token_long_lived_ici
 
 ```bash
 # Vider le cache
-php -d memory_limit=512M bin/console cache:clear
+php bin/console cache:clear
 
 # Créer un utilisateur
 php bin/console app:create-user email@exemple.fr MotDePasse "Prénom Nom" ROLE_DEV
@@ -252,8 +243,7 @@ php bin/console debug:router
 - **`loading="lazy"`** sur toutes les images hors viewport initial
 - **`loading="eager"`** sur les slides hero et le logo
 - **Cache HTTP 5 min** sur la page d'accueil
-- **Cache Symfony 30 min** sur les appels API Facebook
-- **Eager loading Doctrine** sur les membres par catégorie
+- **Animations au scroll** (fade/slide-in) et effet Ken Burns sur le carousel hero
 - **OrdreService** — gestion automatique et unique des ordres d'affichage
 
 ---
@@ -262,16 +252,7 @@ php bin/console debug:router
 
 - **Auto-incrémentation** à la création (dernier ordre + 1)
 - **Unicité garantie** — si un ordre est déjà pris, les suivants sont décalés de +1
-- **Entités concernées** : `Equipe`, `Membre`, `Partenaire`, `SlideCarousel`, `OffreEmploi`, `Categorie`
-
----
-
-## 📘 API Facebook Graph (Non fonctionnel)
-
-- Posts récupérés via l'API Graph v19
-- Cache 30 minutes (Symfony Cache)
-- Fallback : boutons réseaux sociaux si l'API échoue
-- Token à renouveler tous les ~60 jours sur [developers.facebook.com/tools/explorer](https://developers.facebook.com/tools/explorer)
+- **Entités concernées** : `Categorie`, `Membre`, `SlideCarousel`
 
 ---
 

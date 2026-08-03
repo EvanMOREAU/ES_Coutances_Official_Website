@@ -2,7 +2,7 @@
 
 namespace App\Controller;
 
-use App\Repository\EquipeRepository;
+use App\Repository\ChiffresClesRepository;
 use App\Repository\OffreEmploiRepository;
 use App\Repository\PartenaireRepository;
 use App\Repository\SlideCarouselRepository;
@@ -16,9 +16,9 @@ final class DefaultController extends AbstractController
     #[Route('/', name: 'app_home')]
     public function index(
         SlideCarouselRepository $slideRepo,
-        EquipeRepository        $equipeRepo,
         OffreEmploiRepository   $offreRepo,
         PartenaireRepository    $partenaireRepo,
+        ChiffresClesRepository  $chiffresClesRepo,
     ): Response {
 
         // Slides actifs, triés par ordre
@@ -33,22 +33,18 @@ final class DefaultController extends AbstractController
             ['ordre' => 'ASC']
         );
 
-        // Équipes groupées par catégorie
-        $equipes = $equipeRepo->findBy([], ['ordre' => 'ASC']);
-        $equipesByCategorie = [];
-        foreach ($equipes as $equipe) {
-            $equipesByCategorie[$equipe->getCategorie()][] = $equipe;
-        }
-
         // Offres d'emploi actives
         $offres = $offreRepo->findBy(['actif' => true]);
+
+        // Chiffres clés du club
+        $chiffresCles = $chiffresClesRepo->getSingleton();
 
         // Render + cache HTTP 5 minutes
         $response = $this->render('default/index.html.twig', [
             'slides'               => $slides,
-            'equipes_by_categorie' => $equipesByCategorie,
             'offres'               => $offres,
             'partenaires_carousel' => $partenairesCarousel,
+            'chiffres_cles'        => $chiffresCles,
         ]);
 
         $response->setMaxAge(300);        // cache navigateur 5 min
