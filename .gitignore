@@ -59,6 +59,9 @@ $RECYCLE.BIN/
 .vscode/
 *.code-workspace
 
+# Claude Code (config locale, non partagée)
+.claude/settings.local.json
+
 # Sublime Text
 *.sublime-project
 *.sublime-workspace

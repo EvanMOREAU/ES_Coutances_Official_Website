@@ -1,0 +1,21 @@
+{% extends '@EasyAdmin/layout.html.twig' %}
+
+{% form_theme form '@EasyAdmin/crud/form_theme.html.twig' %}
+
+{% block content_title %}Chiffres clés{% endblock %}
+
+{% block main %}
+    <div class="content-panel">
+        <div class="content-panel-body">
+            {{ form_start(form) }}
+                {{ form_row(form.nbLicencies) }}
+                {{ form_row(form.nbEducateurs) }}
+                {{ form_row(form.nbBenevoles) }}
+
+                <div class="form-actions">
+                    {{ form_widget(form.save, { attr: { class: 'btn btn-primary action-save' } }) }}
+                </div>
+            {{ form_end(form) }}
+        </div>
+    </div>
+{% endblock %}
