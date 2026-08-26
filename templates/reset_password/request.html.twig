@@ -1,4 +1,4 @@
-{# {% block title %}Hello LoginController!{% endblock %} #}
+{% block title %}Mot de passe oublié{% endblock %}
 
 {% block body %}
 <!DOCTYPE html>
@@ -7,7 +7,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" type="image/png" href="{{ asset('images/favicon.png') }}">
-    <title>Connexion — ES Coutances Admin</title>
+    <title>Mot de passe oublié — ES Coutances Admin</title>
     <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -36,12 +36,18 @@
         .login-header h1 {
             font-family: 'Barlow Condensed', sans-serif;
             font-weight: 900;
-            font-size: 22px;
+            font-size: 20px;
             letter-spacing: .06em;
             text-transform: uppercase;
             color: #fff;
         }
         .login-body { padding: 32px; }
+        .login-body p.hint {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
         .alert-error {
             background: #fef2f2;
             border: 1px solid #fca5a5;
@@ -60,15 +66,13 @@
             color: #555;
             margin-bottom: 6px;
         }
-        input[type="email"],
-        input[type="password"] {
+        input[type="email"] {
             width: 100%;
             padding: 11px 14px;
             border: 1px solid #e5e7eb;
             border-radius: 4px;
             font-size: 14px;
             margin-bottom: 16px;
-            transition: border-color .15s;
             outline: none;
         }
         input:focus { border-color: #C8102E; }
@@ -88,16 +92,7 @@
             transition: background .2s;
         }
         button:hover { background: #9E0C23; }
-        .alert-success {
-            background: #f0fdf4;
-            border: 1px solid #86efac;
-            color: #166534;
-            padding: 10px 14px;
-            border-radius: 4px;
-            font-size: 13px;
-            margin-bottom: 20px;
-        }
-        .forgot-link {
+        .back-link {
             display: block;
             text-align: center;
             margin-top: 16px;
@@ -105,34 +100,30 @@
             color: #666;
             text-decoration: none;
         }
-        .forgot-link:hover { color: #C8102E; }
+        .back-link:hover { color: #C8102E; }
     </style>
 </head>
 <body>
     <div class="login-box">
         <div class="login-header">
             <img src="https://raw.githubusercontent.com/CylaosICT/escoutances-images/refs/heads/main/logo_hd_trans3_gt.png" alt="ES Coutances">
-            <h1>Espace Administration</h1>
+            <h1>Mot de passe oublié</h1>
         </div>
         <div class="login-body">
-            {% for message in app.flashes('success') %}
-                <div class="alert-success">{{ message }}</div>
+            {% for flash_error in app.flashes('reset_password_error') %}
+                <div class="alert-error">{{ flash_error }}</div>
             {% endfor %}
-            {% if error %}
-                <div class="alert-error">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
-            {% endif %}
-            <form method="post">
-                <label for="email">Adresse e-mail</label>
-                <input type="email" id="email" name="email" value="{{ last_username }}" autocomplete="email" required>
 
-                <label for="password">Mot de passe</label>
-                <input type="password" id="password" name="password" autocomplete="current-password" required>
+            <p class="hint">Indiquez votre adresse e-mail. Si un compte lui correspond, vous recevrez un lien pour réinitialiser votre mot de passe.</p>
 
-                <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+            {{ form_start(requestForm) }}
+                <label for="{{ requestForm.email.vars.id }}">Adresse e-mail</label>
+                {{ form_widget(requestForm.email, { attr: { autocomplete: 'email', autofocus: true } }) }}
 
-                <button type="submit">Se connecter</button>
-            </form>
-            <a class="forgot-link" href="{{ path('app_forgot_password_request') }}">Mot de passe oublié ?</a>
+                <button type="submit">Envoyer le lien</button>
+            {{ form_end(requestForm) }}
+
+            <a class="back-link" href="{{ path('app_login') }}">&larr; Retour à la connexion</a>
         </div>
     </div>
 </body>

@@ -56,6 +56,10 @@
                 ea_url().setController('App\\Controller\\Admin\\MembreCrudController').setAction('index'),
                 'fa-people-group', 'Encadrement'
             ) }}
+            {{ _self.card(
+                path('admin_chiffres_cles'),
+                'fa-chart-simple', 'Chiffres clés'
+            ) }}
         </div>
 
         {# ---- Section Administration ---- #}
@@ -69,6 +73,15 @@
             ) }}
         </div>
     {% endif %}
+
+    {# ---- Section Mon compte (tous les utilisateurs connectés) ---- #}
+    <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#C8102E;margin-bottom:12px;padding-bottom:6px;border-bottom:2px solid #e5e7eb;">
+        Mon compte
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px;margin-bottom:32px;">
+        {{ _self.card(path('app_account_password'), 'fa-key', 'Changer mon mot de passe') }}
+        {{ _self.card(path('app_home'), 'fa-eye', 'Voir le site') }}
+    </div>
 
 </div>
 {% endblock %}

@@ -1,4 +1,4 @@
-{# {% block title %}Hello LoginController!{% endblock %} #}
+{% block title %}Nouveau mot de passe{% endblock %}
 
 {% block body %}
 <!DOCTYPE html>
@@ -7,7 +7,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" type="image/png" href="{{ asset('images/favicon.png') }}">
-    <title>Connexion — ES Coutances Admin</title>
+    <title>Nouveau mot de passe — ES Coutances Admin</title>
     <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -36,7 +36,7 @@
         .login-header h1 {
             font-family: 'Barlow Condensed', sans-serif;
             font-weight: 900;
-            font-size: 22px;
+            font-size: 20px;
             letter-spacing: .06em;
             text-transform: uppercase;
             color: #fff;
@@ -60,7 +60,6 @@
             color: #555;
             margin-bottom: 6px;
         }
-        input[type="email"],
         input[type="password"] {
             width: 100%;
             padding: 11px 14px;
@@ -68,10 +67,14 @@
             border-radius: 4px;
             font-size: 14px;
             margin-bottom: 16px;
-            transition: border-color .15s;
             outline: none;
         }
         input:focus { border-color: #C8102E; }
+        .form-help {
+            font-size: 12px;
+            color: #888;
+            margin: -10px 0 16px;
+        }
         button[type="submit"] {
             width: 100%;
             background: #C8102E;
@@ -88,51 +91,31 @@
             transition: background .2s;
         }
         button:hover { background: #9E0C23; }
-        .alert-success {
-            background: #f0fdf4;
-            border: 1px solid #86efac;
-            color: #166534;
-            padding: 10px 14px;
-            border-radius: 4px;
-            font-size: 13px;
-            margin-bottom: 20px;
-        }
-        .forgot-link {
-            display: block;
-            text-align: center;
-            margin-top: 16px;
-            font-size: 13px;
-            color: #666;
-            text-decoration: none;
-        }
-        .forgot-link:hover { color: #C8102E; }
     </style>
 </head>
 <body>
     <div class="login-box">
         <div class="login-header">
             <img src="https://raw.githubusercontent.com/CylaosICT/escoutances-images/refs/heads/main/logo_hd_trans3_gt.png" alt="ES Coutances">
-            <h1>Espace Administration</h1>
+            <h1>Nouveau mot de passe</h1>
         </div>
         <div class="login-body">
-            {% for message in app.flashes('success') %}
-                <div class="alert-success">{{ message }}</div>
+            {% for flash_error in app.flashes('reset_password_error') %}
+                <div class="alert-error">{{ flash_error }}</div>
             {% endfor %}
-            {% if error %}
-                <div class="alert-error">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
-            {% endif %}
-            <form method="post">
-                <label for="email">Adresse e-mail</label>
-                <input type="email" id="email" name="email" value="{{ last_username }}" autocomplete="email" required>
 
-                <label for="password">Mot de passe</label>
-                <input type="password" id="password" name="password" autocomplete="current-password" required>
+            {{ form_start(resetForm) }}
+                <label for="{{ resetForm.plainPassword.first.vars.id }}">Nouveau mot de passe</label>
+                {{ form_widget(resetForm.plainPassword.first, { attr: { autofocus: true } }) }}
+                <div class="form-help">12 caractères minimum.</div>
 
-                <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+                <label for="{{ resetForm.plainPassword.second.vars.id }}">Confirmer le mot de passe</label>
+                {{ form_widget(resetForm.plainPassword.second) }}
 
-                <button type="submit">Se connecter</button>
-            </form>
-            <a class="forgot-link" href="{{ path('app_forgot_password_request') }}">Mot de passe oublié ?</a>
+                {{ form_errors(resetForm.plainPassword) }}
+
+                <button type="submit">Réinitialiser le mot de passe</button>
+            {{ form_end(resetForm) }}
         </div>
     </div>
 </body>

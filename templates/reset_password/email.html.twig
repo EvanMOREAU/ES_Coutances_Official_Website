@@ -1,0 +1,19 @@
+<div style="font-family: 'Inter', Arial, sans-serif; max-width: 480px; margin: 0 auto;">
+    <div style="background:#C8102E; padding:24px; text-align:center;">
+        <h1 style="color:#fff; font-family: 'Barlow Condensed', Arial, sans-serif; font-size:20px; letter-spacing:.06em; text-transform:uppercase; margin:0;">
+            ES Coutances — Administration
+        </h1>
+    </div>
+    <div style="background:#fff; padding:32px; color:#0D0D0D; line-height:1.6;">
+        <p>Bonjour,</p>
+        <p>Une demande de réinitialisation de mot de passe a été effectuée pour votre compte administrateur.</p>
+        <p style="text-align:center; margin:32px 0;">
+            <a href="{{ url('app_reset_password', {token: resetToken.token}) }}"
+               style="background:#C8102E; color:#fff; padding:13px 28px; border-radius:4px; text-decoration:none; font-weight:700; text-transform:uppercase; letter-spacing:.05em; font-size:14px;">
+                Réinitialiser mon mot de passe
+            </a>
+        </p>
+        <p>Ce lien expirera dans {{ resetToken.expirationMessageKey|trans(resetToken.expirationMessageData, 'ResetPasswordBundle') }}.</p>
+        <p style="color:#888; font-size:13px;">Si vous n'êtes pas à l'origine de cette demande, vous pouvez ignorer cet e-mail : votre mot de passe restera inchangé.</p>
+    </div>
+</div>
