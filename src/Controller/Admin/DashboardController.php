@@ -52,7 +52,7 @@ class DashboardController extends AbstractDashboardController
         }
 
         yield MenuItem::section('Mon compte');
-        yield MenuItem::linkToRoute('Changer mon mot de passe', 'fa fa-key', 'app_account_password');
+        yield MenuItem::linkToRoute('Changer mon mot de passe', 'fa fa-key', 'admin_account_password');
         yield MenuItem::linkToLogout('Déconnexion', 'fa fa-right-from-bracket');
     }
 }
