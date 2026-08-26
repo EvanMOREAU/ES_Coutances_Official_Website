@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Form\ContactType;
+use App\Repository\ContactSettingsRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -12,8 +13,14 @@ use Symfony\Component\Routing\Attribute\Route;
 
 class ContactController extends AbstractController
 {
+    /**
+     * Adresse utilisée tant qu'aucun email de contact n'a été configuré
+     * depuis l'admin (Administration > Email de contact).
+     */
+    private const DEFAULT_CONTACT_EMAIL = 'evan.moreau@etik.com';
+
     #[Route('/contact', name: 'app_contact')]
-    public function index(Request $request, MailerInterface $mailer): Response
+    public function index(Request $request, MailerInterface $mailer, ContactSettingsRepository $contactSettingsRepo): Response
     {
         $form = $this->createForm(ContactType::class);
         $form->handleRequest($request);
@@ -23,9 +30,11 @@ class ContactController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
 
+            $contactEmail = $contactSettingsRepo->getSingleton()?->getEmail() ?: self::DEFAULT_CONTACT_EMAIL;
+
             $email = (new Email())
                 ->from('noreply@escoutances.fr')
-                ->to('evan.moreau@etik.com')
+                ->to($contactEmail)
                 ->replyTo($data['email'])
                 ->subject('[Contact ESC] ' . $data['sujet'])
                 ->html(sprintf(

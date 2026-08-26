@@ -75,6 +75,10 @@
                 ea_url().setController('App\\Controller\\Admin\\UserCrudController').setAction('index'),
                 'fa-users', 'Utilisateurs'
             ) }}
+            {{ _self.card(
+                path('admin_contact_settings'),
+                'fa-envelope', 'Email de contact'
+            ) }}
         </div>
     {% endif %}
 

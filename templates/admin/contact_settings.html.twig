@@ -1,0 +1,20 @@
+{% extends '@EasyAdmin/layout.html.twig' %}
+
+{% form_theme form '@EasyAdmin/crud/form_theme.html.twig' %}
+
+{% block content_title %}Email de contact{% endblock %}
+
+{% block main %}
+    {% include 'admin/_native_input_fix.html.twig' %}
+    <div class="content-panel">
+        <div class="content-panel-body with-background">
+            {{ form_start(form) }}
+                {{ form_row(form.email) }}
+
+                <div class="form-actions">
+                    {{ form_widget(form.save, { attr: { class: 'btn btn-primary action-save' } }) }}
+                </div>
+            {{ form_end(form) }}
+        </div>
+    </div>
+{% endblock %}
