@@ -97,7 +97,7 @@ class UserCrudController extends AbstractCrudController
 }
     public function persistEntity(EntityManagerInterface $em, mixed $entity): void
     {
-        $this->hashPassword($entity);
+        $this->hashPasswordIfChanged($em, $entity);
         parent::persistEntity($em, $entity);
     }
 
@@ -108,7 +108,7 @@ class UserCrudController extends AbstractCrudController
                 'Seul un développeur peut modifier un compte développeur.'
             );
         }
-        $this->hashPassword($entity);
+        $this->hashPasswordIfChanged($em, $entity);
         parent::updateEntity($em, $entity);
     }
 
@@ -123,9 +123,17 @@ class UserCrudController extends AbstractCrudController
         parent::deleteEntity($em, $entity);
     }
 
-    private function hashPassword(User $user): void
+    /**
+     * Ne (re)hash le mot de passe que s'il a réellement été saisi/modifié dans
+     * le formulaire. Sur l'édition, laisser le champ vide ne doit pas changer
+     * le mot de passe existant : sans cette vérification, on rehasherait le
+     * hash déjà stocké à chaque sauvegarde (et casserait la connexion).
+     */
+    private function hashPasswordIfChanged(EntityManagerInterface $em, User $user): void
     {
-        if ($user->getPassword()) {
+        $originalPassword = $em->getUnitOfWork()->getOriginalEntityData($user)['password'] ?? null;
+
+        if ($user->getPassword() && $user->getPassword() !== $originalPassword) {
             $user->setPassword(
                 $this->hasher->hashPassword($user, $user->getPassword())
             );

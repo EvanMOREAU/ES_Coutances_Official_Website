@@ -46,7 +46,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setRoles(array $roles): static { $this->roles = $roles; return $this; }
 
     public function getPassword(): ?string { return $this->password; }
-    public function setPassword(string $password): static { $this->password = $password; return $this; }
+    public function setPassword(?string $password): static
+    {
+        // Le formulaire d'édition (EasyAdmin) soumet le champ mot de passe vide
+        // (donc null) quand on ne veut pas le changer : on ignore ce cas pour
+        // ne pas écraser le mot de passe existant.
+        if ($password !== null && $password !== '') {
+            $this->password = $password;
+        }
+
+        return $this;
+    }
 
     public function getNom(): ?string { return $this->nom; }
     public function setNom(string $nom): static { $this->nom = $nom; return $this; }
