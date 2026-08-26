@@ -2,14 +2,13 @@
 
 namespace App\EventListener;
 
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Attribute\AsEventListener;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Twig\Environment;
 
-#[AsEventListener(event: KernelEvents::REQUEST, priority: 256)]
-class MaintenanceListener
+class MaintenanceListener implements EventSubscriberInterface
 {
     public function __construct(
         private readonly Environment $twig,
@@ -17,7 +16,14 @@ class MaintenanceListener
     ) {
     }
 
-    public function __invoke(RequestEvent $event): void
+    public static function getSubscribedEvents(): array
+    {
+        return [
+            KernelEvents::REQUEST => ['onKernelRequest', 256],
+        ];
+    }
+
+    public function onKernelRequest(RequestEvent $event): void
     {
         if (!$event->isMainRequest() || !is_file($this->maintenanceFlagPath)) {
             return;
