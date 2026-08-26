@@ -2,7 +2,7 @@
 
 {% form_theme form '@EasyAdmin/crud/form_theme.html.twig' %}
 
-{% block content_title %}Email de contact{% endblock %}
+{% block content_title %}Page de contact{% endblock %}
 
 {% block main %}
     {% include 'admin/_native_input_fix.html.twig' %}
@@ -10,6 +10,15 @@
         <div class="content-panel-body with-background">
             {{ form_start(form) }}
                 {{ form_row(form.email) }}
+                {{ form_row(form.adresse) }}
+                {{ form_row(form.telephone) }}
+                {{ form_row(form.horaireLundi) }}
+                {{ form_row(form.horaireMardi) }}
+                {{ form_row(form.horaireMercredi) }}
+                {{ form_row(form.horaireJeudi) }}
+                {{ form_row(form.horaireVendredi) }}
+                {{ form_row(form.horaireSamedi) }}
+                {{ form_row(form.horaireDimanche) }}
 
                 <div class="form-actions">
                     {{ form_widget(form.save, { attr: { class: 'btn btn-primary action-save' } }) }}

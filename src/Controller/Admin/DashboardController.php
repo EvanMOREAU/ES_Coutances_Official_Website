@@ -50,7 +50,7 @@ class DashboardController extends AbstractDashboardController
 
             yield MenuItem::section('Administration');
             yield MenuItem::linkTo(UserCrudController::class, 'Utilisateurs', 'fa fa-users');
-            yield MenuItem::linkToRoute('Email de contact', 'fa fa-envelope', 'admin_contact_settings');
+            yield MenuItem::linkToRoute('Page de contact', 'fa fa-envelope', 'admin_contact_settings');
         }
 
         yield MenuItem::section('Mon compte');

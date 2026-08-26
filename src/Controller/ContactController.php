@@ -15,7 +15,7 @@ class ContactController extends AbstractController
 {
     /**
      * Adresse utilisée tant qu'aucun email de contact n'a été configuré
-     * depuis l'admin (Administration > Email de contact).
+     * depuis l'admin (Administration > Page de contact).
      */
     private const DEFAULT_CONTACT_EMAIL = 'evan.moreau@etik.com';
 
@@ -26,11 +26,12 @@ class ContactController extends AbstractController
         $form->handleRequest($request);
 
         $success = false;
+        $contactSettings = $contactSettingsRepo->getSingleton();
 
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
 
-            $contactEmail = $contactSettingsRepo->getSingleton()?->getEmail() ?: self::DEFAULT_CONTACT_EMAIL;
+            $contactEmail = $contactSettings?->getEmail() ?: self::DEFAULT_CONTACT_EMAIL;
 
             $email = (new Email())
                 ->from('noreply@escoutances.fr')
@@ -59,8 +60,9 @@ class ContactController extends AbstractController
         }
 
         return $this->render('contact/index.html.twig', [
-            'form'    => $form,
-            'success' => $success,
+            'form'             => $form,
+            'success'          => $success,
+            'contact_settings' => $contactSettings,
         ]);
     }
 }

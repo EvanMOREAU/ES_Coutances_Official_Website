@@ -323,21 +323,19 @@
 
             <div class="info-ligne">
               <i class="fa-solid fa-location-dot"></i>
-              <span>
-                Stade Paul-Maundrell<br>
-                BP 602<br>
-                50200 Coutances
-              </span>
+              <span>{{ contact_settings ? contact_settings.adresse : 'Stade Paul-Maundrell, BP 602, 50200 Coutances' }}</span>
             </div>
 
             <div class="info-ligne">
               <i class="fa-solid fa-phone"></i>
-              <a href="tel:+33233470490">02 33 47 04 90</a>
+              {% set telephone = contact_settings ? contact_settings.telephone : '02 33 47 04 90' %}
+              <a href="tel:{{ telephone|replace({' ': ''}) }}">{{ telephone }}</a>
             </div>
 
             <div class="info-ligne">
               <i class="fa-solid fa-envelope"></i>
-              <a href="mailto:contact@escoutances.fr">contact@escoutances.fr</a>
+              {% set contact_email = contact_settings ? contact_settings.email : 'contact@escoutances.fr' %}
+              <a href="mailto:{{ contact_email }}">{{ contact_email }}</a>
             </div>
 
             <div class="info-ligne">
@@ -364,27 +362,20 @@
             Horaires du secrétariat
           </div>
           <div class="info-card-body">
+            {% set jours = [
+              {label: 'Lundi', valeur: contact_settings ? contact_settings.horaireLundi : '14h00 – 18h00'},
+              {label: 'Mardi', valeur: contact_settings ? contact_settings.horaireMardi : '14h00 – 18h00'},
+              {label: 'Mercredi', valeur: contact_settings ? contact_settings.horaireMercredi : '09h00 – 12h00'},
+              {label: 'Jeudi', valeur: contact_settings ? contact_settings.horaireJeudi : '14h00 – 18h00'},
+              {label: 'Vendredi', valeur: contact_settings ? contact_settings.horaireVendredi : '14h00 – 17h00'},
+              {label: 'Samedi', valeur: contact_settings ? contact_settings.horaireSamedi : 'Fermé'},
+              {label: 'Dimanche', valeur: contact_settings ? contact_settings.horaireDimanche : 'Fermé'},
+            ] %}
             <div class="horaires-grid">
-              <div class="horaire-jour">Lundi</div>
-              <div class="horaire-heure">14h00 – 18h00</div>
-
-              <div class="horaire-jour">Mardi</div>
-              <div class="horaire-heure">14h00 – 18h00</div>
-
-              <div class="horaire-jour">Mercredi</div>
-              <div class="horaire-heure">09h00 – 12h00</div>
-
-              <div class="horaire-jour">Jeudi</div>
-              <div class="horaire-heure">14h00 – 18h00</div>
-
-              <div class="horaire-jour">Vendredi</div>
-              <div class="horaire-heure">14h00 – 17h00</div>
-
-              <div class="horaire-jour">Samedi</div>
-              <div class="horaire-heure horaire-ferme">Fermé</div>
-
-              <div class="horaire-jour">Dimanche</div>
-              <div class="horaire-heure horaire-ferme">Fermé</div>
+              {% for jour in jours %}
+                <div class="horaire-jour">{{ jour.label }}</div>
+                <div class="horaire-heure{{ jour.valeur|lower == 'fermé' ? ' horaire-ferme' : '' }}">{{ jour.valeur }}</div>
+              {% endfor %}
             </div>
           </div>
         </div>
