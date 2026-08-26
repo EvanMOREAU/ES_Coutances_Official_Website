@@ -1,0 +1,24 @@
+{# Les contrôles natifs du navigateur (spinners des <input type=number>, icône
+   "afficher le mot de passe" des <input type=password>, autofill...) sont
+   dessinés par le navigateur et ne suivent pas toujours le thème choisi dans
+   EasyAdmin : ça se traduit par un carré blanc/clair sur fond sombre (ou
+   l'inverse en thème clair). EasyAdmin pose la classe "ea-dark-scheme" ou
+   "ea-light-scheme" sur <body> selon le thème actif (page-color-scheme.js) :
+   on s'aligne dessus plutôt que de figer un color-scheme fixe, pour rester
+   correct quel que soit le thème choisi par l'utilisateur. #}
+<style>
+    body.ea-dark-scheme .content-panel input {
+        color-scheme: dark;
+    }
+    body.ea-light-scheme .content-panel input {
+        color-scheme: light;
+    }
+    .content-panel input[type=number]::-webkit-inner-spin-button,
+    .content-panel input[type=number]::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+    .content-panel input[type=number] {
+        -moz-appearance: textfield;
+    }
+</style>

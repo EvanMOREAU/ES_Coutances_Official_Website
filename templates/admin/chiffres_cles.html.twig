@@ -5,23 +5,7 @@
 {% block content_title %}Chiffres clés{% endblock %}
 
 {% block main %}
-    {# Les spinners natifs des <input type="number"> ne suivent pas toujours le
-       color-scheme hérité du body en mode sombre (carré blanc sur fond sombre
-       dans certains navigateurs) : on les masque et on force le color-scheme
-       localement pour un rendu cohérent quel que soit le navigateur. #}
-    <style>
-        .content-panel input[type=number] {
-            color-scheme: light dark;
-        }
-        .content-panel input[type=number]::-webkit-inner-spin-button,
-        .content-panel input[type=number]::-webkit-outer-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
-        .content-panel input[type=number] {
-            -moz-appearance: textfield;
-        }
-    </style>
+    {% include 'admin/_native_input_fix.html.twig' %}
     <div class="content-panel">
         <div class="content-panel-body">
             {{ form_start(form) }}
