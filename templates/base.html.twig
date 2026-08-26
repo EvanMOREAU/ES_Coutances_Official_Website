@@ -228,13 +228,16 @@ ul { list-style: none; }
     </div>
     #}
 
+    {% set match_live = match_live() %}
     <div class="nav-item">
-      <a href="#">
+      <a href="{{ match_live and match_live.url ? match_live.url : '#' }}"{{ match_live and match_live.url ? ' target="_blank" rel="noopener"' : '' }}>
         Match en Live
-        <span class="on-air">
-          <span class="on-air-dot"></span>
-          En cours
-        </span>
+        {% if match_live and match_live.enLigne %}
+          <span class="on-air">
+            <span class="on-air-dot"></span>
+            En cours
+          </span>
+        {% endif %}
       </a>
     </div>
 
@@ -267,12 +270,14 @@ ul { list-style: none; }
     </div>
     #}
 
-    <a href="#" class="mob-direct">
+    <a href="{{ match_live and match_live.url ? match_live.url : '#' }}"{{ match_live and match_live.url ? ' target="_blank" rel="noopener"' : '' }} class="mob-direct">
       Match en Live
-      <span class="on-air" style="margin-left:8px">
-        <span class="on-air-dot"></span>
-        On Air
-      </span>
+      {% if match_live and match_live.enLigne %}
+        <span class="on-air" style="margin-left:8px">
+          <span class="on-air-dot"></span>
+          En cours
+        </span>
+      {% endif %}
     </a>
 
     <a href="{{ path('app_contact') }}" class="mob-direct">Contact</a>
@@ -304,7 +309,7 @@ ul { list-style: none; }
           {# Actualités désactivé : fonctionnalité non utilisée pour le moment
           <li><a href="#">Actualités</a></li>
           #}
-          <li><a href="#">Match en Live</a></li>
+          <li><a href="{{ match_live and match_live.url ? match_live.url : '#' }}"{{ match_live and match_live.url ? ' target="_blank" rel="noopener"' : '' }}>Match en Live</a></li>
           <li><a href="{{ path('app_contact') }}">Contact</a></li>
           <li><a href="{{ path('app_login') }}">Administration</a></li>
         </ul>

@@ -46,6 +46,7 @@ class DashboardController extends AbstractDashboardController
             yield MenuItem::linkTo(PageContenuCrudController::class, 'Pages', 'fa fa-file-lines');
             yield MenuItem::linkTo(MembreCrudController::class, 'Encadrement', 'fa fa-people-group');
             yield MenuItem::linkToRoute('Chiffres clés', 'fa fa-chart-simple', 'admin_chiffres_cles');
+            yield MenuItem::linkToRoute('Match en Live', 'fa fa-tower-broadcast', 'admin_match_live');
 
             yield MenuItem::section('Administration');
             yield MenuItem::linkTo(UserCrudController::class, 'Utilisateurs', 'fa fa-users');
