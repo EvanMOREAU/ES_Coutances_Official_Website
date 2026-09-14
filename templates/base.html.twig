@@ -112,7 +112,7 @@ ul { list-style: none; }
 
 /* FOOTER */
 .site-footer { background: linear-gradient(165deg, var(--red) 0%, var(--red-dk) 100%); color: var(--white); padding: 64px 0 32px; }
-.footer-grid { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 48px; padding-bottom: 40px; border-bottom: 1px solid rgba(255,255,255,.2); }
+.footer-grid { display: grid; grid-template-columns: 1.2fr 1fr 1fr 1fr; gap: 48px; padding-bottom: 40px; border-bottom: 1px solid rgba(255,255,255,.2); }
 .footer-col h5 { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 14px; letter-spacing: .1em; text-transform: uppercase; margin-bottom: 14px; color: rgba(255,255,255,.6); }
 .footer-col p { font-size: 14px; line-height: 1.7; opacity: .85; }
 .footer-col ul li { margin-bottom: 6px; }
@@ -159,7 +159,7 @@ ul { list-style: none; }
   .nav-toggle { display: flex; }
   .nav-bar, .header-tagline { display: none; }
   .header-top { padding: 0 20px; }
-  .footer-grid { grid-template-columns: 1fr 1fr; gap: 32px; }
+  .footer-grid { grid-template-columns: 1fr 1fr; gap: 32px 48px; }
 }
 @media (max-width: 580px) {
   :root { --nav-h: 60px; }
@@ -312,6 +312,15 @@ ul { list-style: none; }
           <li><a href="{{ match_live and match_live.url ? match_live.url : '#' }}"{{ match_live and match_live.url ? ' target="_blank" rel="noopener"' : '' }}>Match en Live</a></li>
           <li><a href="{{ path('app_contact') }}">Contact</a></li>
           <li><a href="{{ path('app_login') }}">Administration</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h5>Liens utiles</h5>
+        <ul>
+          <li><a href="https://portailclubs.fff.fr/" target="_blank" rel="noopener">Portailclubs</a></li>
+          <li><a href="https://normandie.fff.fr/" target="_blank" rel="noopener">Ligue de Football de Normandie</a></li>
+          <li><a href="https://manche.fff.fr/" target="_blank" rel="noopener">District de la Manche de Football</a></li>
         </ul>
       </div>
 
