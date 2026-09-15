@@ -37,11 +37,15 @@ escoutances_symfony/
 │   ├── index.php
 │   ├── images/
 │   │   └── favicon.png
+│   ├── css/
+│   │   └── admin-theme.css   ← thème visuel EasyAdmin (accent marque, sidebar, KPI...)
 │   └── uploads/            ← gitignore
 │       ├── slides/
 │       ├── offres/
 │       ├── membres/
-│       └── partenaires/
+│       ├── partenaires/
+│       ├── banniere/
+│       └── pages/
 ├── src/
 │   ├── Command/
 │   │   ├── CreateUserCommand.php
@@ -127,7 +131,7 @@ escoutances_symfony/
 | Rôle | Accès |
 |---|---|
 | `ROLE_DEV` | Accès total + gestion des comptes développeurs + catégories d'encadrement |
-| `ROLE_ADMIN` | Accès au back-office métier (partenaires, offres, carousel, pages, encadrement, chiffres clés) |
+| `ROLE_ADMIN` | Accès au back-office métier (partenaires, offres, carousel, pages, encadrement, réglages) |
 | `ROLE_EDITOR` | Accès limité au back-office (`/admin`) |
 | `ROLE_USER` | Rôle de base (hérité par tous) |
 
@@ -139,6 +143,13 @@ escoutances_symfony/
 - Seul un `ROLE_DEV` peut modifier ou supprimer un compte `ROLE_DEV`
 - Le bouton Delete/Edit est masqué visuellement pour les non-dev (via `UserVoter`)
 - Les comptes dev apparaissent toujours en premier dans la liste
+
+---
+
+## 🎨 Panel admin
+
+- **Thème visuel** : `public/css/admin-theme.css` re-thème EasyAdmin via son système de design tokens (accent couleur de la marque, sidebar sombre, cartes KPI sur le tableau de bord) — chargé depuis `DashboardController::configureAssets()`.
+- **Réglages unifiés** : `ReglagesController` regroupe la bannière d'accueil, la page de contact, le bandeau "Match en Live" et le changement de mot de passe sous une seule entrée de menu (`/admin/reglages`) avec navigation par onglets, plutôt que 4 pages isolées.
 
 ---
 
@@ -176,7 +187,7 @@ php bin/console app:init-pages
 php bin/console app:create-user dev@exemple.fr MotDePasse "Prénom Nom" ROLE_DEV
 
 # 7. Créer les dossiers d'uploads
-mkdir -p public/uploads/slides public/uploads/offres public/uploads/membres public/uploads/partenaires
+mkdir -p public/uploads/slides public/uploads/offres public/uploads/membres public/uploads/partenaires public/uploads/banniere public/uploads/pages
 
 # 8. Vider le cache
 php bin/console cache:clear
@@ -202,14 +213,17 @@ MAILER_DSN=smtp://localhost:1025
 
 | URL | Description |
 |---|---|
-| `/` | Page d'accueil (carousel, chiffres clés, offres, partenaires) |
-| `/club/histoire` | Histoire du club (éditable) |
+| `/` | Page d'accueil (carousel, bannière image + lien, offres, partenaires) |
+| `/club/histoire` | Histoire du club (éditable, avec image d'en-tête et chapô) |
 | `/club/encadrement` | Encadrement par catégorie |
-| `/club/infrastructure` | Infrastructure (éditable) |
+| `/club/infrastructure` | Infrastructure (éditable, avec image d'en-tête et chapô) |
 | `/contact` | Formulaire de contact |
 | `/admin` | Back-office EasyAdmin |
 | `/admin/login` | Page de connexion admin |
-| `/admin/chiffres-cles` | Réglage des chiffres clés de la page d'accueil |
+| `/admin/reglages/accueil` | Réglage de la bannière image + lien de la page d'accueil |
+| `/admin/reglages/contact` | Réglage des informations de la page de contact |
+| `/admin/reglages/match-live` | Réglage du bandeau "Match en Live" |
+| `/admin/reglages/mon-compte` | Changement du mot de passe du compte connecté |
 
 ---
 
@@ -240,6 +254,8 @@ php bin/console debug:router
 | `offre_image` | `/uploads/offres/` | Offres d'emploi |
 | `membre_photo` | `/uploads/membres/` | Encadrement |
 | `partenaire_logo` | `/uploads/partenaires/` | Partenaires & sponsors |
+| `homepage_banner_image` | `/uploads/banniere/` | Bannière image + lien de la page d'accueil |
+| `page_contenu_image` | `/uploads/pages/` | Image d'en-tête des pages éditables (Histoire, Infrastructure) |
 
 ---
 
