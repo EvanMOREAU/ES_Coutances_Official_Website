@@ -1,0 +1,31 @@
+{% extends '@EasyAdmin/layout.html.twig' %}
+
+{% form_theme form '@EasyAdmin/crud/form_theme.html.twig' %}
+
+{% block content_title %}Réglages{% endblock %}
+
+{% block main %}
+    {% include 'admin/_native_input_fix.html.twig' %}
+
+    {% set tabs = [
+        { id: 'accueil', label: 'Accueil', icon: 'fa-image', route: 'admin_reglages_accueil' },
+        { id: 'contact', label: 'Contact', icon: 'fa-envelope', route: 'admin_reglages_contact' },
+        { id: 'match_live', label: 'Match en live', icon: 'fa-tower-broadcast', route: 'admin_reglages_match_live' },
+        { id: 'compte', label: 'Mon compte', icon: 'fa-key', route: 'admin_reglages_compte' },
+    ] %}
+
+    <div class="reglages-tabs">
+        {% for tab in tabs %}
+            <a href="{{ path(tab.route) }}" class="reglages-tab{{ active_tab == tab.id ? ' is-active' : '' }}">
+                <i class="fa {{ tab.icon }}"></i>
+                <span>{{ tab.label }}</span>
+            </a>
+        {% endfor %}
+    </div>
+
+    <div class="content-panel">
+        <div class="content-panel-body with-background">
+            {% block tab_content %}{% endblock %}
+        </div>
+    </div>
+{% endblock %}

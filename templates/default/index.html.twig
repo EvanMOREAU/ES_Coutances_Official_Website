@@ -86,13 +86,13 @@ ul { list-style: none; }
 .quick-card h5 { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 15px; letter-spacing: .1em; text-transform: uppercase; color: var(--dark); }
 
 /* ============================================================
-   CHIFFRES CLÉS
+   BANNIÈRE ACCUEIL (image + lien)
    ============================================================ */
-.stats-section { background: var(--dark); position: relative; overflow: hidden; }
-.stats-section::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 15% 20%, rgba(200,16,46,.18), transparent 60%); pointer-events: none; }
-.stats-grid { position: relative; display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; text-align: center; }
-.stat-number { font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: clamp(36px, 5vw, 56px); color: var(--white); line-height: 1; }
-.stat-label { margin-top: 8px; font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: rgba(255,255,255,.55); }
+.section-sm.banner-section { background: var(--dark); padding: 0; }
+.homepage-banner { display: block; position: relative; overflow: hidden; }
+.homepage-banner img { display: block; width: 100%; height: auto; transition: transform .4s ease; }
+a.homepage-banner:hover img { transform: scale(1.02); }
+.homepage-banner-title { position: absolute; left: 24px; bottom: 24px; margin: 0; font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: clamp(20px, 3vw, 32px); text-transform: uppercase; color: var(--white); text-shadow: 0 2px 12px rgba(0,0,0,.6); }
 
 /* ============================================================
    REJOINDRE
@@ -162,7 +162,6 @@ ul { list-style: none; }
   .emploi-card { width: calc(50% - 12px); max-width: none; }
   .slide-caption { left: 28px; bottom: 80px; }
   .logos-track { gap: 40px; }
-  .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 32px 16px; }
   .scroll-cue { display: none; }
 }
 @media (max-width: 580px) {
@@ -175,7 +174,6 @@ ul { list-style: none; }
   .slide-caption h2 { font-size: 32px; }
   .logos-track { gap: 28px; animation-duration: 18s; }
   .logo-item img { max-height: 44px; max-width: 100px; }
-  .stat-number { font-size: 32px; }
 }
 </style>
 {% endblock %}
@@ -278,27 +276,19 @@ ul { list-style: none; }
 </section>
 
 {# ============================================================
-   CHIFFRES CLÉS
+   BANNIÈRE ACCUEIL (image + lien)
    ============================================================ #}
-<section class="section-sm stats-section">
-  <div class="container">
-    {% set anciennete = ("now"|date("Y")) - 1961 %}
-    {% set stats = [
-      { number: chiffres_cles ? chiffres_cles.nbLicencies : 500, suffix: '+', label: 'Licenciés' },
-      { number: anciennete, suffix: '', label: "Années d'existence" },
-      { number: chiffres_cles ? chiffres_cles.nbEducateurs : 40, suffix: '+', label: 'Éducateurs diplômés' },
-      { number: chiffres_cles ? chiffres_cles.nbBenevoles : 80, suffix: '+', label: 'Bénévoles actifs' },
-    ] %}
-    <div class="stats-grid">
-      {% for stat in stats %}
-        <div class="stat-item reveal" style="--d:{{ loop.index0 }}">
-          <div class="stat-number" data-target="{{ stat.number }}" data-suffix="{{ stat.suffix }}">0{{ stat.suffix }}</div>
-          <div class="stat-label">{{ stat.label }}</div>
-        </div>
-      {% endfor %}
-    </div>
-  </div>
+{% if homepage_banner and homepage_banner.imageName %}
+<section class="section-sm banner-section">
+  {% set banner_tag = homepage_banner.url ? 'a' : 'div' %}
+  <{{ banner_tag }} class="homepage-banner reveal"{% if homepage_banner.url %} href="{{ homepage_banner.url }}" target="_blank" rel="noopener"{% endif %}>
+    <img src="/uploads/banniere/{{ homepage_banner.imageName }}" alt="{{ homepage_banner.titre|default('') }}">
+    {% if homepage_banner.titre %}
+      <h3 class="homepage-banner-title">{{ homepage_banner.titre }}</h3>
+    {% endif %}
+  </{{ banner_tag }}>
 </section>
+{% endif %}
 
 {# ============================================================
    NOUS REJOINDRE
@@ -539,34 +529,6 @@ ul { list-style: none; }
     });
   }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
   els.forEach(el => io.observe(el));
-})();
-
-/* ---- Compteurs animés (chiffres clés) ---- */
-(function() {
-  const counters = document.querySelectorAll('.stat-number[data-target]');
-  if (!counters.length) return;
-  function animate(el) {
-    const target = parseInt(el.dataset.target, 10) || 0;
-    const suffix = el.dataset.suffix || '';
-    const duration = 1400;
-    const start = performance.now();
-    function step(now) {
-      const progress = Math.min((now - start) / duration, 1);
-      const eased = 1 - Math.pow(1 - progress, 3);
-      el.textContent = Math.round(eased * target) + suffix;
-      if (progress < 1) requestAnimationFrame(step);
-    }
-    requestAnimationFrame(step);
-  }
-  const io = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        animate(entry.target);
-        io.unobserve(entry.target);
-      }
-    });
-  }, { threshold: 0.4 });
-  counters.forEach(el => io.observe(el));
 })();
 </script>
 {% endblock %}

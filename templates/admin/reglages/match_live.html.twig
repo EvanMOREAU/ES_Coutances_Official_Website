@@ -1,0 +1,12 @@
+{% extends 'admin/reglages/_layout.html.twig' %}
+
+{% block tab_content %}
+    {{ form_start(form) }}
+        {{ form_row(form.enLigne) }}
+        {{ form_row(form.url) }}
+
+        <div class="form-actions">
+            {{ form_widget(form.save, { attr: { class: 'btn btn-primary action-save' } }) }}
+        </div>
+    {{ form_end(form) }}
+{% endblock %}

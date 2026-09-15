@@ -9,9 +9,13 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
+use EasyCorp\Bundle\EasyAdminBundle\Field\ImageField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\SlugField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextEditorField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use Vich\UploaderBundle\Form\Type\VichImageType;
 
 class PageContenuCrudController extends AbstractCrudController
 {
@@ -38,7 +42,17 @@ class PageContenuCrudController extends AbstractCrudController
     {
         yield TextField::new('titre', 'Titre de la page');
         yield SlugField::new('slug')->setTargetFieldName('titre')->hideOnIndex();
-        yield TextEditorField::new('contenu', 'Contenu')->hideOnIndex()->setNumOfRows(20);
+        yield Field::new('imageFile', 'Image d\'en-tête')
+            ->setFormType(VichImageType::class)
+            ->onlyOnForms();
+        yield ImageField::new('imageName', 'Image')
+            ->setBasePath('/uploads/pages')
+            ->onlyOnIndex();
+        yield TextareaField::new('chapo', 'Chapô')
+            ->hideOnIndex()
+            ->setHelp('Court texte d\'introduction affiché au-dessus du contenu détaillé.')
+            ->setNumOfRows(3);
+        yield TextEditorField::new('contenu', 'Contenu détaillé')->hideOnIndex()->setNumOfRows(12);
         yield DateTimeField::new('updatedAt', 'Modifié le')->hideOnForm();
     }
 

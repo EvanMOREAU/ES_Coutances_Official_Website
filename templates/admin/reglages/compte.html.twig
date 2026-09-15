@@ -1,0 +1,13 @@
+{% extends 'admin/reglages/_layout.html.twig' %}
+
+{% block tab_content %}
+    {{ form_start(form) }}
+        {{ form_row(form.currentPassword) }}
+        {{ form_row(form.newPassword.first) }}
+        {{ form_row(form.newPassword.second) }}
+
+        <div class="form-actions">
+            {{ form_widget(form.save, { attr: { class: 'btn btn-primary action-save' } }) }}
+        </div>
+    {{ form_end(form) }}
+{% endblock %}

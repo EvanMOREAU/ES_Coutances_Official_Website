@@ -1,0 +1,190 @@
+/* ============================================================
+   Thème admin ES Coutances
+   Re-thème EasyAdmin 5 via son système de design tokens (--ea-*,
+   --sidebar-*, --content-*...) plutôt que de réécrire ses sélecteurs :
+   voir vendor/easycorp/easyadmin-bundle/assets/css/easyadmin-theme/.
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&display=swap');
+
+:root {
+    --ea-radius: 0.5rem;
+}
+
+:root,
+.ea-dark-scheme {
+    /* accent de la marque (rouge ES Coutances) : re-teinte automatiquement
+       boutons, liens, badges, switches, pagination... via les tokens dérivés.
+       Doit aussi être redéclaré sur .ea-dark-scheme (posé sur <body>) : sinon
+       le design-tokens.css du bundle réaffecte --ea-primary au bleu par
+       défaut du thème sombre, qui l'emporte par héritage sur le <html>. */
+    --ea-primary: #C8102E;
+    --ea-primary-foreground: #ffffff;
+
+    /* sidebar sombre, cohérente avec l'identité du site public */
+    --sidebar-bg: #14161c;
+    --sidebar-border-color: #22252e;
+    --sidebar-logo-color: #ffffff;
+    --sidebar-menu-color: #b7bac3;
+    --sidebar-menu-header-color: #6b6f7b;
+    --sidebar-menu-icon-color: #8a8d98;
+    --sidebar-menu-active-item-bg: color-mix(in srgb, var(--ea-primary) 18%, transparent);
+    --sidebar-menu-active-item-color: #ffffff;
+    --sidebar-menu-hover-color: #ffffff;
+    --sidebar-item-hover-bg: rgba(255, 255, 255, 0.06);
+    --sidebar-item-icon-tile-hover-bg: rgba(255, 255, 255, 0.1);
+}
+
+.ea-sidebar-logo,
+.ea-sidebar-logo a {
+    color: var(--sidebar-logo-color);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 900;
+    letter-spacing: .03em;
+    text-transform: uppercase;
+}
+
+.content-header-title h1 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: .02em;
+}
+
+.content-panel {
+    border-radius: var(--border-radius-xl);
+    box-shadow: var(--shadow-md);
+}
+
+/* ------------------------------------------------------------
+   Tableau de bord : cartes KPI
+   ------------------------------------------------------------ */
+.admin-section-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: 12px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--ea-primary);
+    margin: 0 0 12px;
+    padding-bottom: 6px;
+    border-bottom: 2px solid var(--border-secondary-color);
+}
+
+.admin-kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin-bottom: 32px;
+}
+
+.admin-kpi-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: var(--content-panel-bg, var(--white));
+    border: 1px solid var(--border-secondary-color);
+    border-radius: var(--border-radius-xl);
+    padding: 20px;
+    box-shadow: var(--shadow-md);
+}
+
+.admin-kpi-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: var(--border-radius-lg);
+    background: color-mix(in srgb, var(--ea-primary) 12%, transparent);
+    color: var(--ea-primary);
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.admin-kpi-value {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 900;
+    font-size: 30px;
+    line-height: 1;
+    color: var(--text-color);
+}
+
+.admin-kpi-label {
+    margin-top: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: .03em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
+
+.admin-card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 16px;
+    margin-bottom: 32px;
+}
+
+.admin-card {
+    background: var(--white);
+    border: 1px solid var(--border-secondary-color);
+    border-radius: var(--border-radius-xl);
+    padding: 24px;
+    text-decoration: none;
+    color: var(--text-color);
+    display: block;
+    transition: box-shadow .2s, transform .2s;
+}
+
+.admin-card:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-2px);
+    color: var(--text-color);
+}
+
+.admin-card-icon {
+    font-size: 26px;
+    color: var(--ea-primary);
+    margin-bottom: 10px;
+}
+
+.admin-card-label {
+    font-weight: 700;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+}
+
+/* ------------------------------------------------------------
+   Réglages : navigation par onglets
+   ------------------------------------------------------------ */
+.reglages-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--border-secondary-color);
+}
+
+.reglages-tab {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+}
+
+.reglages-tab:hover {
+    color: var(--text-color);
+}
+
+.reglages-tab.is-active {
+    color: var(--ea-primary);
+    border-bottom-color: var(--ea-primary);
+}
