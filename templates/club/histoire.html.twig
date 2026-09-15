@@ -21,6 +21,12 @@
 {# Contenu #}
 <section class="page-content">
   <div class="container">
+    {% if page.imageName %}
+      <img class="page-content-image" src="/uploads/pages/{{ page.imageName }}" alt="{{ page.titre }}">
+    {% endif %}
+    {% if page.chapo %}
+      <p class="page-content-chapo">{{ page.chapo }}</p>
+    {% endif %}
     <div class="prose">
       {{ page.contenu|raw }}
     </div>

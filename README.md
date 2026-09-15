@@ -50,11 +50,11 @@ escoutances_symfony/
 │   │   ├── Admin/
 │   │   │   ├── DashboardController.php
 │   │   │   ├── CategorieCrudController.php
-│   │   │   ├── ChiffresClesSettingsController.php
 │   │   │   ├── MembreCrudController.php
 │   │   │   ├── OffreEmploiCrudController.php
 │   │   │   ├── PageContenuCrudController.php
 │   │   │   ├── PartenaireCrudController.php
+│   │   │   ├── ReglagesController.php
 │   │   │   ├── SlideCarouselCrudController.php
 │   │   │   └── UserCrudController.php
 │   │   ├── ClubController.php
@@ -63,7 +63,7 @@ escoutances_symfony/
 │   │   └── LoginController.php
 │   ├── Entity/
 │   │   ├── Categorie.php
-│   │   ├── ChiffresCles.php
+│   │   ├── HomepageBanner.php
 │   │   ├── Membre.php
 │   │   ├── OffreEmploi.php
 │   │   ├── PageContenu.php
@@ -80,7 +80,12 @@ escoutances_symfony/
 ├── templates/
 │   ├── admin/
 │   │   ├── dashboard.html.twig
-│   │   └── chiffres_cles.html.twig
+│   │   └── reglages/
+│   │       ├── _layout.html.twig
+│   │       ├── accueil.html.twig
+│   │       ├── contact.html.twig
+│   │       ├── match_live.html.twig
+│   │       └── compte.html.twig
 │   ├── club/
 │   │   ├── _layout.html.twig
 │   │   ├── encadrement.html.twig
@@ -113,7 +118,7 @@ escoutances_symfony/
 | `Membre` | Membres de l'encadrement |
 | `Categorie` | Catégories d'encadrement (Senior, Académie...) |
 | `Partenaire` | Partenaires & sponsors (nom, logo, url) |
-| `ChiffresCles` | Chiffres clés affichés en page d'accueil (licenciés, éducateurs, bénévoles) — ligne unique éditée via `/admin/chiffres-cles` |
+| `HomepageBanner` | Bannière image + lien affichée en page d'accueil — ligne unique éditée via l'onglet "Accueil" de `/admin/reglages` |
 
 ---
 

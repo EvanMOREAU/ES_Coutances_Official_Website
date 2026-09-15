@@ -8,7 +8,11 @@ use App\Controller\Admin\PageContenuCrudController;
 use App\Controller\Admin\SlideCarouselCrudController;
 use App\Controller\Admin\UserCrudController;
 use App\Controller\Admin\PartenaireCrudController;
+use App\Repository\MembreRepository;
+use App\Repository\OffreEmploiRepository;
+use App\Repository\PartenaireRepository;
 use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminDashboard;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Assets;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractDashboardController;
@@ -17,9 +21,22 @@ use Symfony\Component\HttpFoundation\Response;
 #[AdminDashboard(routePath: '/admin', routeName: 'admin')]
 class DashboardController extends AbstractDashboardController
 {
+    public function __construct(
+        private readonly PartenaireRepository $partenaireRepo,
+        private readonly OffreEmploiRepository $offreRepo,
+        private readonly MembreRepository $membreRepo,
+    ) {
+    }
+
     public function index(): Response
     {
-        return $this->render('admin/dashboard.html.twig');
+        return $this->render('admin/dashboard.html.twig', [
+            'kpis' => [
+                ['label' => 'Partenaires actifs', 'value' => $this->partenaireRepo->count(['actif' => true]), 'icon' => 'fa-handshake'],
+                ['label' => "Offres d'emploi actives", 'value' => $this->offreRepo->count(['actif' => true]), 'icon' => 'fa-briefcase'],
+                ['label' => 'Membres encadrement', 'value' => $this->membreRepo->count(['actif' => true]), 'icon' => 'fa-people-group'],
+            ],
+        ]);
     }
 
     public function configureDashboard(): Dashboard
@@ -28,6 +45,12 @@ class DashboardController extends AbstractDashboardController
             ->setTitle('ES Coutances — Admin')
             ->setLocales(['fr'])
             ->setFaviconPath('images/favicon.png');  // ou '/favicon.png'
+    }
+
+    public function configureAssets(): Assets
+    {
+        return parent::configureAssets()
+            ->addCssFile('css/admin-theme.css');
     }
 
     public function configureMenuItems(): iterable
@@ -45,16 +68,14 @@ class DashboardController extends AbstractDashboardController
             yield MenuItem::linkTo(SlideCarouselCrudController::class, 'Carousel', 'fa fa-sliders');
             yield MenuItem::linkTo(PageContenuCrudController::class, 'Pages', 'fa fa-file-lines');
             yield MenuItem::linkTo(MembreCrudController::class, 'Encadrement', 'fa fa-people-group');
-            yield MenuItem::linkToRoute('Chiffres clés', 'fa fa-chart-simple', 'admin_chiffres_cles');
-            yield MenuItem::linkToRoute('Match en Live', 'fa fa-tower-broadcast', 'admin_match_live');
 
             yield MenuItem::section('Administration');
             yield MenuItem::linkTo(UserCrudController::class, 'Utilisateurs', 'fa fa-users');
-            yield MenuItem::linkToRoute('Page de contact', 'fa fa-envelope', 'admin_contact_settings');
+            yield MenuItem::linkToRoute('Réglages', 'fa fa-sliders', 'admin_reglages_accueil');
         }
 
         yield MenuItem::section('Mon compte');
-        yield MenuItem::linkToRoute('Changer mon mot de passe', 'fa fa-key', 'admin_account_password');
+        yield MenuItem::linkToRoute('Changer mon mot de passe', 'fa fa-key', 'admin_reglages_compte');
         yield MenuItem::linkToLogout('Déconnexion', 'fa fa-right-from-bracket');
     }
 }

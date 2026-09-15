@@ -2,38 +2,34 @@
 
 namespace App\Entity;
 
-use App\Repository\PageContenuRepository;
-use Doctrine\DBAL\Types\Types;
+use App\Repository\HomepageBannerRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\HttpFoundation\File\File;
 use Vich\UploaderBundle\Mapping\Annotation as Vich;
 
-#[ORM\Entity(repositoryClass: PageContenuRepository::class)]
+#[ORM\Entity(repositoryClass: HomepageBannerRepository::class)]
 #[Vich\Uploadable]
-class PageContenu
+class HomepageBanner
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 100)]
-    private ?string $slug = null;
-
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 150, nullable: true)]
     private ?string $titre = null;
-
-    #[ORM\Column(type: Types::TEXT, nullable: true)]
-    private ?string $chapo = null;
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $imageName = null;
 
-    #[Vich\UploadableField(mapping: 'page_contenu_image', fileNameProperty: 'imageName')]
+    #[Vich\UploadableField(mapping: 'homepage_banner_image', fileNameProperty: 'imageName')]
     private ?File $imageFile = null;
 
-    #[ORM\Column(type: Types::TEXT)]
-    private ?string $contenu = null;
+    #[ORM\Column(length: 500, nullable: true)]
+    private ?string $url = null;
+
+    #[ORM\Column]
+    private bool $actif = false;
 
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $updatedAt = null;
@@ -43,38 +39,14 @@ class PageContenu
         return $this->id;
     }
 
-    public function getSlug(): ?string
-    {
-        return $this->slug;
-    }
-
-    public function setSlug(string $slug): static
-    {
-        $this->slug = $slug;
-
-        return $this;
-    }
-
     public function getTitre(): ?string
     {
         return $this->titre;
     }
 
-    public function setTitre(string $titre): static
+    public function setTitre(?string $titre): static
     {
         $this->titre = $titre;
-
-        return $this;
-    }
-
-    public function getChapo(): ?string
-    {
-        return $this->chapo;
-    }
-
-    public function setChapo(?string $chapo): static
-    {
-        $this->chapo = $chapo;
 
         return $this;
     }
@@ -104,14 +76,26 @@ class PageContenu
         }
     }
 
-    public function getContenu(): ?string
+    public function getUrl(): ?string
     {
-        return $this->contenu;
+        return $this->url;
     }
 
-    public function setContenu(string $contenu): static
+    public function setUrl(?string $url): static
     {
-        $this->contenu = $contenu;
+        $this->url = $url;
+
+        return $this;
+    }
+
+    public function isActif(): bool
+    {
+        return $this->actif;
+    }
+
+    public function setActif(bool $actif): static
+    {
+        $this->actif = $actif;
 
         return $this;
     }
