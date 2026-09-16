@@ -293,6 +293,7 @@ a.homepage-banner:hover img { transform: scale(1.02); }
 {# ============================================================
    NOUS REJOINDRE
    ============================================================ #}
+{% if rejoindre_cards is defined and rejoindre_cards|length > 0 %}
 <section class="section">
   <div class="container">
     <div class="section-eyebrow center reveal" style="--d:0">Rejoignez-nous</div>
@@ -300,61 +301,39 @@ a.homepage-banner:hover img { transform: scale(1.02); }
     <div class="red-stripe center reveal" style="--d:2"></div>
     <div class="join-grid">
 
-      <div class="join-card reveal" style="--d:0">
-        <img
-          src="https://raw.githubusercontent.com/CylaosICT/escoutances-images/refs/heads/main/725751192_2445468312633357_2725520192436946227_n.jpg"
-          alt="Devenir joueur"
-          loading="lazy"
-        >
-        <div class="join-card-body">
-          <h5>Devenir Joueuse/Joueur</h5>
-          <p>Rejoignez l'ES Coutances et vivez votre passion du football dans un club formateur et ambitieux.</p>
-          <a href="/licence" class="btn btn-primary" style="align-self:flex-start;margin-top:4px">En savoir plus</a>
+      {% for card in rejoindre_cards %}
+        <div class="join-card reveal" style="--d:{{ loop.index0 }}">
+          {% if card.imageName %}
+            <img
+              src="{{ asset('uploads/rejoindre/' ~ card.imageName) }}"
+              alt="{{ card.titre }}"
+              loading="lazy"
+            >
+          {% endif %}
+          <div class="join-card-body">
+            <h5>{{ card.titre }}</h5>
+            {% if card.description %}<p>{{ card.description }}</p>{% endif %}
+            {% set is_external = card.boutonUrl starts with 'http://' or card.boutonUrl starts with 'https://' %}
+            {% if is_external %}
+              {% set card_href = card.boutonUrl %}
+            {% elseif card.pageDetail %}
+              {% set card_href = path('app_page_detail', {slug: card.pageDetail.slug}) %}
+            {% elseif card.boutonUrl %}
+              {% set card_href = card.boutonUrl %}
+            {% else %}
+              {% set card_href = null %}
+            {% endif %}
+            {% if card_href and card.boutonTexte %}
+              <a href="{{ card_href }}" {% if is_external %}target="_blank" rel="noopener noreferrer"{% endif %} class="btn btn-primary" style="align-self:flex-start;margin-top:4px">{{ card.boutonTexte }}</a>
+            {% endif %}
+          </div>
         </div>
-      </div>
-
-      <div class="join-card reveal" style="--d:1">
-        <img
-          src="https://raw.githubusercontent.com/CylaosICT/escoutances-images/refs/heads/main/503615364_18050302139580299_9100830375069093974_n.jpg"
-          alt="Devenir partenaire"
-          loading="lazy"
-        >
-        <div class="join-card-body">
-          <h5>Devenir partenaire</h5>
-          <p>Soutenez le club et bénéficiez d'une visibilité locale et régionale auprès de plus de 500 licenciés.</p>
-          <a href="{{ path('app_contact') }}" class="btn btn-primary" style="align-self:flex-start;margin-top:4px">Découvrir</a>
-        </div>
-      </div>
-
-      <div class="join-card reveal" style="--d:2">
-        <img
-          src="https://raw.githubusercontent.com/CylaosICT/escoutances-images/refs/heads/main/504333979_18049249775580299_875794996725620563_n.jpg"
-          alt="Devenir bénévole"
-          loading="lazy"
-        >
-        <div class="join-card-body">
-          <h5>Devenir bénévole</h5>
-          <p>Participez à la vie du club et contribuez à son développement au quotidien.</p>
-          <a href="/benevoles" class="btn btn-primary" style="align-self:flex-start;margin-top:4px">Rejoindre</a>
-        </div>
-      </div>
-
-      <div class="join-card reveal" style="--d:3">
-        <img
-          src="https://raw.githubusercontent.com/CylaosICT/escoutances-images/refs/heads/main/504333979_18049249775580299_875794996725620563_n.jpg"
-          alt="Devenir arbitre"
-          loading="lazy"
-        >
-        <div class="join-card-body">
-          <h5>Devenir Arbitre</h5>
-          <p>Participez à la vie du club et contribuez à son développement au quotidien.</p>
-          <a href="/benevoles" class="btn btn-primary" style="align-self:flex-start;margin-top:4px">Rejoindre</a>
-        </div>
-      </div>
+      {% endfor %}
 
     </div>
   </div>
 </section>
+{% endif %}
 
 {# ============================================================
    OFFRES D'EMPLOI (dynamique) — centrage auto via flexbox

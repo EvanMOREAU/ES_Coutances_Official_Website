@@ -32,7 +32,7 @@ class PageContenu
     #[Vich\UploadableField(mapping: 'page_contenu_image', fileNameProperty: 'imageName')]
     private ?File $imageFile = null;
 
-    #[ORM\Column(type: Types::TEXT)]
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $contenu = null;
 
     #[ORM\Column(nullable: true)]
@@ -109,7 +109,7 @@ class PageContenu
         return $this->contenu;
     }
 
-    public function setContenu(string $contenu): static
+    public function setContenu(?string $contenu): static
     {
         $this->contenu = $contenu;
 
@@ -126,5 +126,10 @@ class PageContenu
         $this->updatedAt = $updatedAt;
 
         return $this;
+    }
+
+    public function __toString(): string
+    {
+        return $this->titre ?? '';
     }
 }

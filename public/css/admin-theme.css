@@ -188,3 +188,18 @@
     color: var(--ea-primary);
     border-bottom-color: var(--ea-primary);
 }
+
+/* ------------------------------------------------------------
+   Éditeur de contenu de page (Trix) : image insérée dans le texte
+   ------------------------------------------------------------ */
+.trix-content img {
+    border-radius: 8px;
+    margin: 8px 0;
+}
+.trix-content figure {
+    margin: 8px 0;
+}
+.trix-content figcaption {
+    font-size: 12px;
+    color: var(--text-muted);
+}

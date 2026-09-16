@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Repository\HomepageBannerRepository;
 use App\Repository\OffreEmploiRepository;
 use App\Repository\PartenaireRepository;
+use App\Repository\RejoindreCardRepository;
 use App\Repository\SlideCarouselRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -19,6 +20,7 @@ final class DefaultController extends AbstractController
         OffreEmploiRepository   $offreRepo,
         PartenaireRepository    $partenaireRepo,
         HomepageBannerRepository $bannerRepo,
+        RejoindreCardRepository $rejoindreRepo,
     ): Response {
 
         // Slides actifs, triés par ordre
@@ -42,12 +44,19 @@ final class DefaultController extends AbstractController
             $banner = null;
         }
 
+        // Cartes "Nous rejoindre" actives, les plus récemment créées en premier
+        $rejoindreCards = $rejoindreRepo->findBy(
+            ['actif' => true],
+            ['id' => 'DESC']
+        );
+
         // Render + cache HTTP 5 minutes
         $response = $this->render('default/index.html.twig', [
             'slides'               => $slides,
             'offres'               => $offres,
             'partenaires_carousel' => $partenairesCarousel,
             'homepage_banner'      => $banner,
+            'rejoindre_cards'      => $rejoindreCards,
         ]);
 
         $response->setMaxAge(300);        // cache navigateur 5 min
