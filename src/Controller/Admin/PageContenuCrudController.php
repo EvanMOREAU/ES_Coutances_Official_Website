@@ -33,15 +33,18 @@ class PageContenuCrudController extends AbstractCrudController
 
     public function configureActions(Actions $actions): Actions
     {
-        return $actions
-            ->disable(Action::DELETE)   // supprime le bouton Delete
-            ->disable(Action::NEW);     // optionnel : empêche aussi la création de nouvelles pages
+        // Les pages "histoire" et "infrastructure" sont liées à des routes fixes : ne pas les supprimer.
+        // La création de nouvelles pages sert notamment aux pages de détail "Nous rejoindre".
+        return $actions;
     }
 
     public function configureFields(string $pageName): iterable
     {
         yield TextField::new('titre', 'Titre de la page');
-        yield SlugField::new('slug')->setTargetFieldName('titre')->hideOnIndex();
+        yield SlugField::new('slug')
+            ->setTargetFieldName('titre')
+            ->hideOnIndex()
+            ->setHelp('Utilisé dans l\'URL de la page : /page/{slug}. Ne pas utiliser "histoire" ou "infrastructure" (déjà réservés).');
         yield Field::new('imageFile', 'Image d\'en-tête')
             ->setFormType(VichImageType::class)
             ->onlyOnForms();
@@ -52,7 +55,12 @@ class PageContenuCrudController extends AbstractCrudController
             ->hideOnIndex()
             ->setHelp('Court texte d\'introduction affiché au-dessus du contenu détaillé.')
             ->setNumOfRows(3);
-        yield TextEditorField::new('contenu', 'Contenu détaillé')->hideOnIndex()->setNumOfRows(12);
+        yield TextEditorField::new('contenu', 'Contenu détaillé')
+            ->hideOnIndex()
+            ->setNumOfRows(12)
+            ->setRequired(false)
+            ->addJsFiles('js/admin-trix-upload.js')
+            ->setHelp('Éditeur de texte riche : mise en forme (titres, gras, listes...), et glissez-déposez ou collez directement une image à l\'endroit voulu dans le texte pour l\'insérer.');
         yield DateTimeField::new('updatedAt', 'Modifié le')->hideOnForm();
     }
 

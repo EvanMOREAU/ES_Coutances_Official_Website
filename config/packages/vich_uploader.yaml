@@ -41,3 +41,8 @@ vich_uploader:
             uri_prefix: /uploads/pages
             upload_destination: '%kernel.project_dir%/public/uploads/pages'
             namer: Vich\UploaderBundle\Naming\SmartUniqueNamer
+
+        rejoindre_image:
+            uri_prefix: /uploads/rejoindre
+            upload_destination: '%kernel.project_dir%/public/uploads/rejoindre'
+            namer: Vich\UploaderBundle\Naming\SmartUniqueNamer

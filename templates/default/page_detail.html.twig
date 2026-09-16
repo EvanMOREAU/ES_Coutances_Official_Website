@@ -1,0 +1,34 @@
+{% extends 'club/_layout.html.twig' %}
+
+{% block title %}{{ page.titre }} — ES Coutances{% endblock %}
+
+{% block body %}
+
+{# Hero #}
+<section class="page-hero">
+  <div class="container page-hero-inner">
+    <div class="breadcrumb">
+      <a href="{{ path('app_home') }}">Accueil</a>
+      <i class="fa-solid fa-chevron-right"></i>
+      <span>{{ page.titre }}</span>
+    </div>
+    <h1>{{ page.titre }}</h1>
+  </div>
+</section>
+
+{# Contenu #}
+<section class="page-content">
+  <div class="container">
+    {% if page.imageName %}
+      <img class="page-content-image" src="/uploads/pages/{{ page.imageName }}" alt="{{ page.titre }}">
+    {% endif %}
+    {% if page.chapo %}
+      <p class="page-content-chapo">{{ page.chapo }}</p>
+    {% endif %}
+    <div class="prose">
+      {{ page.contenu|raw }}
+    </div>
+  </div>
+</section>
+
+{% endblock %}

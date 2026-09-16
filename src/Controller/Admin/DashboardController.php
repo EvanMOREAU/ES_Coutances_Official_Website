@@ -8,6 +8,7 @@ use App\Controller\Admin\PageContenuCrudController;
 use App\Controller\Admin\SlideCarouselCrudController;
 use App\Controller\Admin\UserCrudController;
 use App\Controller\Admin\PartenaireCrudController;
+use App\Controller\Admin\RejoindreCardCrudController;
 use App\Repository\MembreRepository;
 use App\Repository\OffreEmploiRepository;
 use App\Repository\PartenaireRepository;
@@ -64,6 +65,7 @@ class DashboardController extends AbstractDashboardController
         if ($this->isGranted('ROLE_ADMIN')) {
             yield MenuItem::section('Club');
             yield MenuItem::linkTo(PartenaireCrudController::class, 'Partenaires', 'fa fa-handshake');
+            yield MenuItem::linkTo(RejoindreCardCrudController::class, 'Nous rejoindre', 'fa fa-user-plus');
             yield MenuItem::linkTo(OffreEmploiCrudController::class, 'Offres d\'emploi', 'fa fa-briefcase');
             yield MenuItem::linkTo(SlideCarouselCrudController::class, 'Carousel', 'fa fa-sliders');
             yield MenuItem::linkTo(PageContenuCrudController::class, 'Pages', 'fa fa-file-lines');
