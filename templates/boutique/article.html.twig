@@ -1,0 +1,118 @@
+{% extends 'boutique/_layout.html.twig' %}
+
+{% block boutique_title %}{{ article.nom }}{% endblock %}
+{% block breadcrumb %}<a href="{{ path('boutique_index') }}">Boutique</a> <i class="fa-solid fa-chevron-right"></i> <span>{{ article.nom }}</span>{% endblock %}
+{% block hero_title %}{{ article.nom }}{% endblock %}
+
+{% block boutique_styles %}
+<style>
+.detail { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 48px; align-items: start; }
+@media (max-width: 800px) { .detail { grid-template-columns: minmax(0, 1fr); gap: 28px; } }
+.detail-img { aspect-ratio: 1 / 1; border-radius: 8px; overflow: hidden; background: var(--grey); border: 1px solid var(--border); }
+.detail-img img { width: 100%; height: 100%; object-fit: cover; }
+.detail-img .placeholder { display: flex; width: 100%; height: 100%; align-items: center; justify-content: center; font-size: 90px; color: #c9c5c0; }
+.detail .price { font-size: 38px; }
+.detail-desc { margin: 16px 0 24px; color: #444; line-height: 1.75; white-space: pre-line; }
+.field-label { display: block; margin-bottom: 8px; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 13px; letter-spacing: .1em; text-transform: uppercase; color: var(--mid); }
+.sizes { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 22px; }
+.size input { position: absolute; opacity: 0; pointer-events: none; }
+.size span { display: inline-flex; min-width: 54px; flex-direction: column; align-items: center; padding: 8px 14px; border: 2px solid var(--border); border-radius: 6px; font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 17px; cursor: pointer; transition: border-color .15s, background .15s, color .15s; }
+.size span small { font-family: 'Inter', sans-serif; font-weight: 500; font-size: 10px; color: #999; letter-spacing: 0; }
+.size span:hover { border-color: var(--red); }
+.size input:checked + span { border-color: var(--red); background: var(--red); color: #fff; }
+.size input:checked + span small { color: rgba(255,255,255,.85); }
+.size input:focus-visible + span { outline: 2px solid var(--dark); outline-offset: 2px; }
+.size input:disabled + span { opacity: .4; cursor: not-allowed; text-decoration: line-through; border-style: dashed; }
+.size input:disabled + span:hover { border-color: var(--border); }
+.qty { display: inline-flex; align-items: center; border: 2px solid var(--border); border-radius: 6px; }
+.qty button { width: 40px; height: 44px; background: none; border: 0; font-size: 18px; cursor: pointer; color: var(--mid); }
+.qty button:hover { color: var(--red); }
+.qty input { width: 48px; height: 44px; text-align: center; border: 0; font: 700 16px 'Inter', sans-serif; -moz-appearance: textfield; }
+.qty input::-webkit-outer-spin-button, .qty input::-webkit-inner-spin-button { -webkit-appearance: none; }
+.buy-row { display: flex; gap: 12px; align-items: stretch; flex-wrap: wrap; }
+.buy-row .btn { flex: 1; justify-content: center; min-width: 200px; }
+.perks { margin-top: 28px; padding-top: 22px; border-top: 1px solid var(--border); display: grid; gap: 10px; }
+.stock-low { color: #b45309; font-size: 13px; font-weight: 600; margin: -10px 0 18px; }
+</style>
+{% endblock %}
+
+{% block shop_body %}
+  {% set variantes = article.variantes %}
+  <div class="detail">
+    <div class="detail-img">
+      {% if article.imageName %}
+        <img src="{{ asset('uploads/articles/' ~ article.imageName) }}" alt="{{ article.nom }}">
+      {% else %}
+        <span class="placeholder"><i class="fa-solid fa-shirt"></i></span>
+      {% endif %}
+    </div>
+
+    <div>
+      <p class="price">{{ article.prixCentimes|money }}</p>
+      {% if article.description %}<p class="detail-desc">{{ article.description }}</p>{% endif %}
+
+      {% if not article.disponible %}
+        <p><span class="tag tag-grey">Épuisé</span></p>
+        <p class="note" style="margin-top:12px;">Cet article n'est plus en stock pour le moment.</p>
+        <p style="margin-top:20px;"><a class="btn btn-outline" href="{{ path('boutique_index') }}">Retour à la boutique</a></p>
+      {% else %}
+        <form method="post" action="{{ path('boutique_panier_ajouter') }}" data-shop-form>
+          <input type="hidden" name="_token" value="{{ csrf_token('boutique-panier') }}">
+
+          {% if article.sansDeclinaison %}
+            <input type="hidden" name="variante" value="{{ variantes.first.id }}">
+            {% if variantes.first.stock <= 5 %}<p class="stock-low">Plus que {{ variantes.first.stock }} en stock</p>{% endif %}
+          {% else %}
+            <fieldset style="border:0;">
+              <legend class="field-label">Taille</legend>
+              <div class="sizes">
+                {% for v in variantes %}
+                  <label class="size">
+                    <input type="radio" name="variante" value="{{ v.id }}" {{ v.stock <= 0 ? 'disabled' }} data-stock="{{ v.stock }}" required>
+                    <span>{{ v.libelle }}{% if v.stock <= 0 %}<small>Épuisé</small>{% elseif v.stock <= 3 %}<small>Plus que {{ v.stock }}</small>{% endif %}</span>
+                  </label>
+                {% endfor %}
+              </div>
+            </fieldset>
+          {% endif %}
+
+          <div class="buy-row">
+            <div class="qty" data-qty>
+              <button type="button" data-step="-1" aria-label="Diminuer la quantité">−</button>
+              <input type="number" name="quantite" value="1" min="1" max="{{ constant('App\\Service\\Boutique\\Panier::QUANTITE_MAX') }}" aria-label="Quantité">
+              <button type="button" data-step="1" aria-label="Augmenter la quantité">+</button>
+            </div>
+            <button type="submit" class="btn btn-primary"><i class="fa-solid fa-bag-shopping"></i> Ajouter au panier</button>
+          </div>
+        </form>
+
+        <div class="perks note">
+          <p><i class="fa-solid fa-store"></i> <strong>Retrait au club</strong> : pas de livraison, nous vous prévenons dès que votre commande est prête.</p>
+          <p><i class="fa-solid fa-credit-card"></i> Règlement par carte en ligne, ou en espèces / par chèque lors du retrait.</p>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      var form = document.querySelector('[data-shop-form]');
+      if (!form) return;
+      var qty = form.querySelector('[data-qty] input');
+      form.querySelectorAll('[data-step]').forEach(function (b) {
+        b.addEventListener('click', function () {
+          var max = parseInt(qty.max, 10) || 10;
+          var chosen = form.querySelector('input[name="variante"]:checked');
+          if (chosen && chosen.dataset.stock) max = Math.min(max, parseInt(chosen.dataset.stock, 10));
+          qty.value = Math.max(1, Math.min(max, (parseInt(qty.value, 10) || 1) + parseInt(b.dataset.step, 10)));
+        });
+      });
+      // La quantité ne dépasse jamais le stock de la taille choisie.
+      form.querySelectorAll('input[name="variante"][data-stock]').forEach(function (r) {
+        r.addEventListener('change', function () {
+          qty.value = Math.min(parseInt(qty.value, 10) || 1, parseInt(r.dataset.stock, 10));
+        });
+      });
+    })();
+  </script>
+{% endblock %}

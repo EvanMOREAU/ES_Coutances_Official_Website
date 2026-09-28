@@ -82,6 +82,30 @@
 }
 .form-group textarea { resize: vertical; min-height: 140px; }
 
+/* Liste déroulante personnalisée (assets/custom_select.js), aux couleurs du site */
+:root {
+  --cs-bg: var(--white);
+  --cs-surface: var(--white);
+  --cs-text: var(--dark);
+  --cs-muted: #777;
+  --cs-border: var(--border);
+  --cs-accent: var(--red);
+  --cs-danger: var(--red);
+}
+.form-group .cs-trigger {
+  padding: 11px 14px;
+  border-width: 1.5px;
+  border-radius: 5px;
+  font-size: 14px;
+}
+.form-group .cs-trigger:focus-visible,
+.form-group .cs.is-open .cs-trigger {
+  border-color: var(--red);
+  box-shadow: 0 0 0 3px rgba(200,16,46,.08);
+}
+.cs-panel { border-radius: 8px; box-shadow: 0 12px 32px -10px rgba(0,0,0,.25); }
+.cs-option { font-size: 14px; border-radius: 5px; }
+
 /* Erreurs Symfony */
 .form-group .form-error,
 .form-group ul.form-error { 
@@ -405,4 +429,8 @@
   </div>
 </section>
 
+{% endblock %}
+
+{% block javascripts %}
+{{ importmap('public') }}
 {% endblock %}

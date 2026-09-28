@@ -1,0 +1,101 @@
+{% extends 'admin/_layout.html.twig' %}
+{% form_theme form 'admin/_form_theme.html.twig' %}
+
+{% block title %}Nouvelle famille{% endblock %}
+
+{% set prototype_html %}
+    <div class="licencie-row-item admin-card rounded-xl p-4 relative mb-4" data-index="__name__" data-controller="category-preview">
+        <button type="button" data-action="click->wizard#removeLicencie" class="absolute top-3 right-3 text-sm text-admin-text-muted hover:text-admin-danger">
+            <i class="fa-solid fa-trash"></i>
+        </button>
+        <div class="grid sm:grid-cols-2 gap-4">
+            {{ form_row(form.licencies.vars.prototype.nom) }}
+            {{ form_row(form.licencies.vars.prototype.prenom) }}
+        </div>
+        {{ form_row(form.licencies.vars.prototype.dateNaissance) }}
+        {{ form_row(form.licencies.vars.prototype.email) }}
+        {{ form_row(form.licencies.vars.prototype.saison) }}
+        <div class="rounded-xl border border-admin-border p-4 mb-2">
+            <p class="text-xs font-semibold uppercase tracking-wide text-admin-text-muted mb-2">Catégorie calculée</p>
+            <div data-category-preview-target="output" class="mb-4"></div>
+            {{ form_row(form.licencies.vars.prototype.decalageCategorie) }}
+            {{ form_row(form.licencies.vars.prototype.equipes) }}
+        </div>
+    </div>
+{% endset %}
+
+{% block body %}
+    <h1 class="text-2xl font-black mb-1" style="font-family:'Barlow Condensed',sans-serif;">Nouvelle famille</h1>
+    <p class="text-sm text-admin-text-muted mb-6">Créez la famille puis, si besoin, un ou plusieurs licenciés rattachés — chacun avec son propre compte.</p>
+
+    <div data-controller="wizard">
+        {# Indicateur d'étapes #}
+        <div class="flex items-center justify-center gap-4 mb-8">
+            {% for step in [{n: 1, label: 'Famille'}, {n: 2, label: 'Licenciés'}, {n: 3, label: 'Récapitulatif'}] %}
+                <div class="flex items-center gap-3">
+                    <span data-wizard-target="indicator" class="flex h-9 w-9 items-center justify-center rounded-full text-sm font-bold {{ loop.first ? 'admin-gradient text-white' : 'bg-admin-surface text-admin-text-muted border border-admin-border' }}">{{ step.n }}</span>
+                    <span class="text-sm {{ loop.first ? 'text-admin-text font-medium' : 'text-admin-text-muted' }}">{{ step.label }}</span>
+                </div>
+                {% if not loop.last %}<div class="w-10 h-px bg-admin-border"></div>{% endif %}
+            {% endfor %}
+        </div>
+
+        {{ form_start(form, {attr: {novalidate: 'novalidate'}}) }}
+            <div class="admin-card rounded-2xl p-6 max-w-2xl mx-auto">
+
+                {# Étape 1 : Famille #}
+                <div data-wizard-target="step">
+                    <h2 class="font-bold mb-1">Informations de la famille</h2>
+                    <p class="text-sm text-admin-text-muted mb-4">Le compte de connexion de la famille sera créé à l'adresse indiquée.</p>
+                    {{ form_row(form.nom) }}
+                    {{ form_row(form.email) }}
+                    {{ form_row(form.adresse) }}
+                    <div class="grid grid-cols-2 gap-4">
+                        {{ form_row(form.codePostal) }}
+                        {{ form_row(form.ville) }}
+                    </div>
+                    {{ form_row(form.telephone) }}
+                </div>
+
+                {# Étape 2 : Licenciés #}
+                <div data-wizard-target="step" class="hidden">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h2 class="font-bold mb-1">Licenciés</h2>
+                            <p class="text-sm text-admin-text-muted">Optionnel : vous pouvez aussi n'ajouter aucun licencié maintenant et le faire plus tard.</p>
+                        </div>
+                    </div>
+
+                    <div data-wizard-target="licenciesList" data-prototype="{{ prototype_html|e('html_attr') }}"></div>
+
+                    <button type="button" data-action="click->wizard#addLicencie"
+                            class="w-full rounded-xl border-2 border-dashed border-admin-border py-3 text-sm text-admin-text-muted hover:text-admin-text hover:border-admin-text-muted transition-colors">
+                        <i class="fa-solid fa-plus mr-1"></i> Ajouter un licencié
+                    </button>
+                </div>
+
+                {# Étape 3 : Récapitulatif #}
+                <div data-wizard-target="step" class="hidden">
+                    <h2 class="font-bold mb-4">Récapitulatif</h2>
+                    <div data-wizard-target="summary" class="text-sm"></div>
+                </div>
+
+                <div class="flex items-center justify-between mt-6 pt-4 border-t border-admin-border">
+                    <button type="button" data-wizard-target="backButton" data-action="click->wizard#back" class="invisible text-sm text-admin-text-muted hover:text-admin-text">
+                        <i class="fa-solid fa-arrow-left mr-1"></i> Précédent
+                    </button>
+                    <div class="flex items-center gap-3">
+                        <a href="{{ path('admin_famille_index') }}" class="text-sm text-admin-text-muted hover:text-admin-text">Annuler</a>
+                        <button type="button" data-wizard-target="nextButton" data-action="click->wizard#next"
+                                class="rounded-lg admin-gradient px-5 py-2 text-sm font-semibold text-white">
+                            Suivant <i class="fa-solid fa-arrow-right ml-1"></i>
+                        </button>
+                        <button type="submit" data-wizard-target="submitButton" class="hidden rounded-lg admin-gradient px-5 py-2 text-sm font-semibold text-white">
+                            Créer la famille
+                        </button>
+                    </div>
+                </div>
+            </div>
+        {{ form_end(form) }}
+    </div>
+{% endblock %}

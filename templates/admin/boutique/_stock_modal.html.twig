@@ -1,0 +1,32 @@
+{% extends 'admin/_layout.html.twig' %}
+
+{% block title %}Gestion des stocks{% endblock %}
+
+{% block body %}
+    <h1 class="text-xl font-black mb-1" style="font-family:'Barlow Condensed',sans-serif;">Gestion des stocks — {{ article.nom }}</h1>
+    <p class="text-sm text-admin-text-muted mb-5">Indiquez la quantité reçue pour chaque taille : elle s'ajoute au stock déjà en place.</p>
+
+    <form method="post" action="{{ path('admin_article_stock', {id: article.id}) }}">
+        <input type="hidden" name="_token" value="{{ csrf_token('stock-article-' ~ article.id) }}">
+
+        <div class="admin-card rounded-2xl p-5">
+            {% for variante in article.variantes %}
+                <div class="flex items-center justify-between gap-4 py-2 {{ not loop.last ? 'border-b border-admin-border' }}">
+                    <div>
+                        <p class="font-medium">{{ variante.libelle }}</p>
+                        <p class="text-xs text-admin-text-muted">Stock actuel : {{ variante.stock }}</p>
+                    </div>
+                    <label class="flex items-center gap-2 text-sm text-admin-text-muted">
+                        Ajouter <input type="number" name="quantite[{{ variante.id }}]" value="0" min="0" step="1">
+                    </label>
+                </div>
+            {% else %}
+                <p class="text-sm text-admin-text-muted">Cet article n'a aucune taille.</p>
+            {% endfor %}
+        </div>
+
+        <div class="flex items-center gap-3 mt-6">
+            <button type="submit" class="rounded-lg admin-gradient px-5 py-2 text-sm font-semibold text-white">Ajouter au stock</button>
+        </div>
+    </form>
+{% endblock %}

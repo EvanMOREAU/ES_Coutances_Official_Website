@@ -1,0 +1,97 @@
+{% extends 'boutique/_layout.html.twig' %}
+
+{% block boutique_title %}Mon panier{% endblock %}
+{% block breadcrumb %}<a href="{{ path('boutique_index') }}">Boutique</a> <i class="fa-solid fa-chevron-right"></i> <span>Panier</span>{% endblock %}
+{% block hero_title %}Mon <span>panier</span>{% endblock %}
+
+{% block boutique_styles %}
+<style>
+.cart-line { display: grid; grid-template-columns: 84px minmax(0, 1fr) auto; gap: 16px; padding: 18px 0; border-top: 1px solid var(--border); align-items: center; }
+.cart-line:first-of-type { border-top: 0; padding-top: 0; }
+.cart-thumb { width: 84px; height: 84px; border-radius: 6px; overflow: hidden; background: var(--grey); display: flex; align-items: center; justify-content: center; color: #c9c5c0; font-size: 28px; }
+.cart-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.cart-name { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 19px; letter-spacing: .03em; text-transform: uppercase; line-height: 1.1; }
+.cart-name a:hover { color: var(--red); }
+.cart-meta { font-size: 13px; color: #777; margin-top: 2px; }
+.cart-controls { display: flex; align-items: center; gap: 14px; margin-top: 10px; flex-wrap: wrap; }
+.cart-controls form { display: inline-flex; }
+.qty-inline { display: inline-flex; align-items: center; border: 1px solid var(--border); border-radius: 6px; }
+.qty-inline button { width: 32px; height: 34px; background: none; border: 0; cursor: pointer; font-size: 16px; color: var(--mid); }
+.qty-inline button:hover:not(:disabled) { color: var(--red); }
+.qty-inline button:disabled { opacity: .3; cursor: not-allowed; }
+.qty-inline span { min-width: 30px; text-align: center; font-weight: 700; font-size: 14px; }
+.link-remove { background: none; border: 0; font-size: 13px; color: #888; cursor: pointer; text-decoration: underline; }
+.link-remove:hover { color: var(--red); }
+.cart-total { text-align: right; }
+.cart-total .price { font-size: 22px; }
+.cart-total small { display: block; font-size: 12px; color: #888; }
+.cart-empty { text-align: center; padding: 64px 0; color: #777; }
+.cart-empty i { font-size: 44px; color: #cfcac5; margin-bottom: 16px; }
+.cart-empty h2 { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 26px; text-transform: uppercase; color: var(--dark); margin-bottom: 6px; }
+.summary { position: sticky; top: calc(var(--nav-h) + 90px); }
+@media (max-width: 560px) { .cart-line { grid-template-columns: 64px minmax(0, 1fr); } .cart-thumb { width: 64px; height: 64px; } .cart-total { grid-column: 2; text-align: left; } }
+</style>
+{% endblock %}
+
+{% block shop_body %}
+  {% if lignes is empty %}
+    <div class="cart-empty">
+      <i class="fa-solid fa-bag-shopping"></i>
+      <h2>Votre panier est vide</h2>
+      <p style="margin-bottom:22px;">Découvrez les articles du club et ajoutez-les à votre panier.</p>
+      <a class="btn btn-primary" href="{{ path('boutique_index') }}">Voir la boutique</a>
+    </div>
+  {% else %}
+    <div class="shop-cols">
+      <div class="box">
+        <h2>{{ lignes|length }} article{{ lignes|length > 1 ? 's' }} dans votre panier</h2>
+        {% for ligne in lignes %}
+          {% set v = ligne.variante %}
+          {% set article = v.article %}
+          <div class="cart-line">
+            <a href="{{ path('boutique_article', {slug: article.slug}) }}" class="cart-thumb">
+              {% if article.imageName %}<img src="{{ asset('uploads/articles/' ~ article.imageName) }}" alt="" loading="lazy">{% else %}<i class="fa-solid fa-shirt"></i>{% endif %}
+            </a>
+            <div>
+              <p class="cart-name"><a href="{{ path('boutique_article', {slug: article.slug}) }}">{{ article.nom }}</a></p>
+              <p class="cart-meta">{% if not article.sansDeclinaison %}Taille {{ v.libelle }} · {% endif %}{{ article.prixCentimes|money }} l'unité</p>
+              <div class="cart-controls">
+                <div class="qty-inline">
+                  <form method="post" action="{{ path('boutique_panier_modifier') }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('boutique-panier') }}">
+                    <input type="hidden" name="variante" value="{{ v.id }}">
+                    <input type="hidden" name="quantite" value="{{ ligne.quantite - 1 }}">
+                    <button type="submit" aria-label="Diminuer la quantité">−</button>
+                  </form>
+                  <span>{{ ligne.quantite }}</span>
+                  <form method="post" action="{{ path('boutique_panier_modifier') }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('boutique-panier') }}">
+                    <input type="hidden" name="variante" value="{{ v.id }}">
+                    <input type="hidden" name="quantite" value="{{ ligne.quantite + 1 }}">
+                    <button type="submit" aria-label="Augmenter la quantité" {{ ligne.quantite >= min(v.stock, constant('App\\Service\\Boutique\\Panier::QUANTITE_MAX')) ? 'disabled' }}>+</button>
+                  </form>
+                </div>
+                <form method="post" action="{{ path('boutique_panier_retirer') }}">
+                  <input type="hidden" name="_token" value="{{ csrf_token('boutique-panier') }}">
+                  <input type="hidden" name="variante" value="{{ v.id }}">
+                  <button type="submit" class="link-remove">Retirer</button>
+                </form>
+              </div>
+            </div>
+            <div class="cart-total"><span class="price">{{ ligne.total|money }}</span></div>
+          </div>
+        {% endfor %}
+        <p style="margin-top:8px;"><a href="{{ path('boutique_index') }}" class="note"><i class="fa-solid fa-arrow-left"></i> Continuer mes achats</a></p>
+      </div>
+
+      <aside class="box summary">
+        <h2>Récapitulatif</h2>
+        <div class="sum-row"><span>Sous-total</span><span>{{ total|money }}</span></div>
+        <div class="sum-row"><span>Retrait au club</span><span>Gratuit</span></div>
+        <div class="sum-row total"><span>Total</span><span class="price">{{ total|money }}</span></div>
+        <a href="{{ path('boutique_commande') }}" class="btn btn-primary btn-block" style="margin-top:18px;">Commander <i class="fa-solid fa-arrow-right"></i></a>
+        <p class="note" style="margin-top:14px;"><i class="fa-solid fa-store"></i> Pas de livraison : vous retirez votre commande au club.</p>
+      </aside>
+    </div>
+  {% endif %}
+{% endblock %}

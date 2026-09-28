@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="fr" class="h-full"
+      {% if app.user and app.user.theme != 'system' %}data-theme="{{ app.user.theme }}"{% endif %}
+      data-scheme="{{ app.user ? app.user.colorScheme : 'rouge' }}"
+      data-density="{{ app.user ? app.user.density : 'comfortable' }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/png" href="{{ asset('images/favicon.png') }}">
+    <title>{% block title %}Tableau de bord{% endblock %} — ES Coutances Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/trix@2.1.15/dist/trix.css">
+    <script src="https://cdn.jsdelivr.net/npm/trix@2.1.15/dist/trix.umd.min.js" defer></script>
+    <script src="{{ asset('js/admin-trix-upload.js') }}" defer></script>
+    {# Page affichée dans la grande fenêtre du « Site vitrine » (iframe) : on masque menu et barre du haut. #}
+    <script>if (window.self !== window.top) document.documentElement.classList.add('is-embedded');</script>
+    {{ importmap('admin') }}
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        trix-editor {
+            min-height: 220px;
+            background-color: var(--color-admin-bg);
+            border: 1px solid var(--color-admin-border);
+            border-radius: 0.5rem;
+            color: var(--color-admin-text);
+            padding: 0.75rem;
+        }
+        trix-toolbar .trix-button-group {
+            background-color: var(--color-admin-surface);
+            border-color: var(--color-admin-border);
+        }
+        trix-toolbar .trix-button {
+            background-color: transparent;
+            border-color: var(--color-admin-border);
+            color: var(--color-admin-text);
+        }
+    </style>
+</head>
+<body class="admin-shell h-full bg-admin-bg text-admin-text" data-turbo="false">
+    {% set notifications = admin_notifications() %}
+    <div class="flex h-full" data-controller="admin-sidebar">
+        {# Fond sombre mobile derrière la sidebar ouverte #}
+        <div data-admin-sidebar-target="backdrop"
+             data-action="click->admin-sidebar#close"
+             class="admin-chrome hidden fixed inset-0 z-30 bg-black/60 lg:hidden"></div>
+
+        <aside data-admin-sidebar-target="panel"
+               class="admin-chrome fixed inset-y-0 left-0 z-40 w-64 lg:w-64 -translate-x-full transform border-r border-admin-border bg-admin-surface transition-all duration-200 lg:static lg:translate-x-0 flex flex-col">
+            {# Même hauteur fixe que la barre du haut, pour que les deux filets horizontaux soient alignés #}
+            <div class="relative flex h-[4.5rem] shrink-0 items-center gap-3 px-5 border-b border-admin-border">
+                <img src="https://raw.githubusercontent.com/CylaosICT/escoutances-images/refs/heads/main/logo_hd_trans3_gt.png" alt="ES Coutances" class="h-9 shrink-0">
+                <div data-admin-sidebar-target="label">
+                    <p class="font-black uppercase tracking-wide text-sm whitespace-nowrap" style="font-family:'Barlow Condensed',sans-serif;">ES Coutances</p>
+                    <p class="text-[11px] uppercase tracking-widest text-admin-text-muted whitespace-nowrap">Admin</p>
+                </div>
+
+                <button type="button" data-action="click->admin-sidebar#toggleCollapse"
+                        class="hidden lg:flex absolute -right-3 top-6 h-6 w-6 items-center justify-center rounded-full border border-admin-border bg-admin-surface text-admin-text-muted hover:text-admin-text shadow-sm">
+                    <i data-admin-sidebar-target="collapseIcon" class="fa-solid fa-chevron-left text-[10px] transition-transform duration-200"></i>
+                </button>
+            </div>
+
+            <nav class="flex-1 overflow-y-auto overflow-x-hidden admin-scrollbar px-3 py-4 space-y-6">
+                <div data-controller="nav-section" data-nav-section-id-value="vue-ensemble">
+                    {{ _self.nav_section_label('Vue d\'ensemble') }}
+                    <div class="space-y-1" data-nav-section-target="links">
+                        {{ _self.nav_link('admin', 'admin', 'fa-gauge', 'Tableau de bord', true) }}
+                    </div>
+                </div>
+
+                {% if can('famille.voir,licencie.voir,equipe.voir,saison.voir,adhesion.voir,planning.voir,import.voir') %}
+                <div data-controller="nav-section" data-nav-section-id-value="licencies">
+                    {{ _self.nav_section_label('Licenciés') }}
+                    {# Une seule entrée : familles, licenciés, équipes et saisons s'ouvrent depuis cette page #}
+                    <div class="space-y-1" data-nav-section-target="links">
+                        {% if can('famille.voir,licencie.voir,equipe.voir,saison.voir,adhesion.voir,import.voir') %}{{ _self.nav_link('admin_licencies_hub', ['admin_licencies_hub', 'admin_famille', 'admin_licencie', 'admin_equipe', 'admin_saison'], 'fa-users-rectangle', 'Gestion des licenciés', false, advice_count('licencies')) }}{% endif %}
+                        {% if can('adhesion.voir') %}{{ _self.nav_link('admin_adhesion_index', 'admin_adhesion', 'fa-file-invoice-dollar', 'Paiements des licences') }}{% endif %}
+                        {% if can('planning.voir') %}{{ _self.nav_link('admin_planning_index', 'admin_planning', 'fa-calendar-days', 'Planning') }}{% endif %}
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if can('messagerie.utiliser') %}
+                <div data-controller="nav-section" data-nav-section-id-value="echanges">
+                    {{ _self.nav_section_label('Échanges') }}
+                    <div class="space-y-1" data-nav-section-target="links">
+                        {{ _self.nav_link('admin_chat_index', 'admin_chat', 'fa-comments', 'Messagerie', false, chat_unread(), true) }}
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if can('commande.voir,article.voir') %}
+                <div data-controller="nav-section" data-nav-section-id-value="boutique">
+                    {{ _self.nav_section_label('Boutique') }}
+                    <div class="space-y-1" data-nav-section-target="links">
+                        {% if can('commande.voir') %}{{ _self.nav_link('admin_commande_index', 'admin_commande', 'fa-bag-shopping', 'Commandes', false, commandes_a_preparer(), false, 'à préparer') }}{% endif %}
+                        {% if can('article.voir') %}{{ _self.nav_link('admin_article_index', 'admin_article', 'fa-shirt', 'Articles') }}{% endif %}
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if can('partenaire.voir,rejoindre_card.voir,offre_emploi.voir,slide_carousel.voir,page_contenu.voir,membre.voir,reglages.voir') %}
+                <div data-controller="nav-section" data-nav-section-id-value="site-vitrine">
+                    {{ _self.nav_section_label('Site vitrine') }}
+                    {# Une seule entrée : partenaires, nous rejoindre, offres, carousel, pages, encadrement et réglages s'ouvrent depuis cette page #}
+                    <div class="space-y-1" data-nav-section-target="links">
+                        {{ _self.nav_link('admin_site_vitrine', ['admin_site_vitrine', 'admin_partenaire', 'admin_rejoindre_card', 'admin_offre_emploi', 'admin_slide_carousel', 'admin_page_contenu', 'admin_membre', 'admin_reglages'], 'fa-globe', 'Site vitrine', false, advice_count('vitrine')) }}
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if is_granted('ROLE_DEV') %}
+                <div data-controller="nav-section" data-nav-section-id-value="developpeur">
+                    {{ _self.nav_section_label('Développeur') }}
+                    <div class="space-y-1" data-nav-section-target="links">
+                        {{ _self.nav_link('admin_categorie_index', 'admin_categorie', 'fa-tags', 'Catégories encadrement') }}
+                        {{ _self.nav_link('admin_boutique_maintenance', 'admin_boutique_maintenance', 'fa-shop-slash', 'Maintenance boutique') }}
+                        {{ _self.nav_link('admin_deploy_index', 'admin_deploy', 'fa-rocket', 'Déploiement') }}
+                        {{ _self.nav_link('admin_journal_index', 'admin_journal', 'fa-scroll', "Journal d'activité") }}
+                        {{ _self.nav_link('admin_changelog_index', 'admin_changelog', 'fa-clock-rotate-left', 'Changelog') }}
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if can('utilisateur.voir,autorisation.voir,import.voir,fichiers.voir,mail.voir') %}
+                <div data-controller="nav-section" data-nav-section-id-value="administration">
+                    {{ _self.nav_section_label('Administration') }}
+                    <div class="space-y-1" data-nav-section-target="links">
+                        {% if can('utilisateur.voir,autorisation.voir') %}{{ _self.nav_link('admin_acces_hub', ['admin_acces_hub', 'admin_user', 'admin_profil'], 'fa-user-shield', 'Utilisateurs et autorisations') }}{% endif %}
+                        {% if can('import.voir') %}{{ _self.nav_link('admin_import_hub', 'admin_import', 'fa-file-import', 'Import') }}{% endif %}
+                        {% if can('fichiers.voir') %}{{ _self.nav_link('admin_files_index', 'admin_files', 'fa-folder-tree', 'Fichiers') }}{% endif %}
+                        {% if can('mail.voir') %}{{ _self.nav_link('admin_mail_settings', 'admin_mail', 'fa-envelope-circle-check', 'Paramètres e-mail') }}{% endif %}
+                    </div>
+                </div>
+                {% endif %}
+            </nav>
+
+            <div class="border-t border-admin-border p-3">
+                <a href="{{ path('app_logout') }}" title="Déconnexion" class="admin-surface-hover flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-admin-text-muted hover:text-admin-text transition-colors">
+                    <i class="fa-solid fa-right-from-bracket w-4 text-center"></i> <span data-admin-sidebar-target="label" class="whitespace-nowrap">Déconnexion</span>
+                </a>
+            </div>
+        </aside>
+
+        <div class="flex-1 flex flex-col min-w-0">
+            <header class="admin-chrome flex h-[4.5rem] shrink-0 items-center justify-between gap-4 border-b border-admin-border px-4 lg:px-8">
+                <button type="button" data-action="click->admin-sidebar#toggle" class="lg:hidden text-admin-text-muted hover:text-admin-text">
+                    <i class="fa-solid fa-bars text-lg"></i>
+                </button>
+
+                <div class="hidden sm:flex items-center gap-2 rounded-lg border border-admin-border bg-admin-surface px-3 py-2 text-sm text-admin-text-muted w-full max-w-sm">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <span>Recherche à venir…</span>
+                </div>
+
+                <div class="flex items-center gap-3 ml-auto">
+                    {% set unread_count = admin_notifications_unread() %}
+                    <div class="relative" data-controller="admin-dropdown notifications"
+                         data-notifications-read-url-value="{{ path('admin_notification_read') }}"
+                         data-notifications-dismiss-url-value="{{ path('admin_notification_dismiss') }}"
+                         data-notifications-token-value="{{ csrf_token('admin-notifications') }}">
+                        <button type="button" data-action="click->admin-dropdown#toggle" aria-label="Notifications"
+                                class="relative flex h-9 w-9 items-center justify-center rounded-full border border-admin-border bg-admin-surface text-admin-text-muted hover:text-admin-text">
+                            <i class="fa-regular fa-bell"></i>
+                            <span data-notif-badge {{ unread_count == 0 ? 'hidden' }} class="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full admin-gradient border-2 border-admin-surface"></span>
+                        </button>
+                        <div data-admin-dropdown-target="menu" class="notif-menu hidden absolute right-0 mt-2 w-[22rem] max-w-[calc(100vw-2rem)] rounded-lg border border-admin-border bg-admin-surface shadow-xl text-sm z-50">
+                            <div class="notif-menu-head">
+                                <p class="font-semibold">Notifications
+                                    <span class="notif-count" data-notif-count {{ unread_count == 0 ? 'hidden' }}><span data-notif-count-value>{{ unread_count }}</span></span>
+                                </p>
+                                {% if notifications|length > 0 %}
+                                    <button type="button" class="notif-link-btn" data-action="notifications#readAll"><i class="fa-solid fa-check-double"></i> Tout marquer comme lu</button>
+                                {% endif %}
+                            </div>
+                            <div class="notif-list" data-notifications-target="list">
+                                {% for n in notifications|slice(0, 6) %}
+                                    {% include 'admin/notifications/_item.html.twig' %}
+                                {% endfor %}
+                            </div>
+                            <p class="notif-empty" data-notifications-target="empty" {{ notifications is not empty ? 'hidden' }}>
+                                <i class="fa-regular fa-bell-slash"></i>
+                                Rien à signaler pour le moment.
+                            </p>
+                            <a href="{{ path('admin_notification_index') }}" class="notif-menu-foot">
+                                Voir toutes les notifications{% if notifications|length > 6 %} ({{ notifications|length }}){% endif %}
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="relative" data-controller="admin-dropdown">
+                        <button type="button" data-action="click->admin-dropdown#toggle"
+                                class="flex items-center gap-2 rounded-full bg-admin-surface border border-admin-border px-3 py-1.5 text-sm">
+                            {{ _self.avatar(app.user, 'h-7 w-7 text-xs') }}
+                            <span class="hidden sm:inline">{{ app.user ? app.user.nomComplet : '' }}</span>
+                            <i class="fa-solid fa-chevron-down text-xs text-admin-text-muted"></i>
+                        </button>
+                        <div data-admin-dropdown-target="menu" class="hidden absolute right-0 mt-2 w-56 rounded-lg border border-admin-border bg-admin-surface shadow-xl py-1 text-sm z-50">
+                            <div class="px-4 py-3 border-b border-admin-border">
+                                <p class="font-semibold text-admin-text">{{ app.user ? app.user.nomComplet : '' }}</p>
+                                <p class="text-xs text-admin-text-muted">{{ app.user ? app.user.email : '' }}</p>
+                            </div>
+                            <a href="{{ path('admin_parametres_profil') }}" class="admin-surface-hover flex items-center gap-2 px-4 py-2"><i class="fa-solid fa-sliders w-4 text-admin-text-muted"></i> Paramètres</a>
+                            <a href="{{ path('admin_parametres_preferences') }}" class="admin-surface-hover flex items-center gap-2 px-4 py-2"><i class="fa-regular fa-bell w-4 text-admin-text-muted"></i> Notifications</a>
+                            <a href="{{ path('app_logout') }}" class="admin-surface-hover flex items-center gap-2 px-4 py-2 border-t border-admin-border mt-1 pt-2"><i class="fa-solid fa-right-from-bracket w-4 text-admin-text-muted"></i> Déconnexion</a>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            {# relative : les éléments position:absolute (ex. .sr-only) restent dans la zone qui défile, sans allonger la page entière #}
+            <main class="relative flex-1 overflow-y-auto admin-scrollbar p-4 lg:p-8">
+                {% for label, messages in app.flashes %}
+                    {% for message in messages %}
+                        <div class="mb-4 rounded-lg border {{ label == 'success' ? 'border-admin-success/30 bg-admin-success/10 text-admin-success' : 'border-admin-danger/30 bg-admin-danger/10 text-admin-danger' }} px-4 py-3 text-sm">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endfor %}
+
+                {% block body %}{% endblock %}
+            </main>
+        </div>
+    </div>
+
+</body>
+</html>
+
+{% macro nav_section_label(label) %}
+    <button type="button" data-admin-sidebar-target="label" data-action="click->nav-section#toggle"
+            class="flex w-full items-center justify-between px-4 mb-2 text-[11px] font-semibold uppercase tracking-widest text-admin-text-muted whitespace-nowrap">
+        <span>{{ label }}</span>
+        <i data-nav-section-target="icon" class="fa-solid fa-chevron-down text-[9px] transition-transform duration-150"></i>
+    </button>
+{% endmacro %}
+
+{% macro nav_link(route, prefix, icon, label, exact, badge, live, badge_title) %}
+    {% set current = app.request.attributes.get('_route') %}
+    {% set prefixes = prefix is iterable ? prefix : [prefix] %}
+    {% set active = prefixes|filter(p => exact ? current == p : current starts with p)|length > 0 %}
+    <a href="{{ path(route) }}" title="{{ label }}"
+       class="group relative flex items-center gap-3 rounded-lg pl-4 pr-3 py-2 text-sm font-medium transition-colors {{ active ? 'admin-surface-active' : 'text-admin-text-muted admin-surface-hover hover:text-admin-text' }}">
+        <span class="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-1 rounded-full transition-all duration-150 {{ active ? 'admin-gradient' : 'bg-transparent group-hover:bg-admin-text-muted/40' }}"></span>
+        <i class="fa-solid {{ icon }} w-4 text-center shrink-0"></i> <span data-admin-sidebar-target="label" class="whitespace-nowrap">{{ label }}</span>
+        {% if live|default(false) %}
+            <span data-admin-sidebar-target="label" data-chat-badge {{ badge|default(0) == 0 ? 'hidden' }} class="ml-auto rounded-full admin-gradient px-1.5 text-[10px] font-bold leading-4 text-white" title="Messages non lus">{{ badge|default(0) }}</span>
+        {% elseif badge|default(0) > 0 %}<span data-admin-sidebar-target="label" class="ml-auto rounded-full admin-gradient px-1.5 text-[10px] font-bold leading-4 text-white" title="{{ badge_title is empty ? badge ~ ' suggestion' ~ (badge > 1 ? 's') ~ ' de configuration' : badge ~ ' ' ~ badge_title }}">{{ badge }}</span>{% endif %}
+    </a>
+{% endmacro %}
+
+{% macro avatar(user, size) %}
+    {% if user and user.avatarName %}
+        <img src="{{ asset('uploads/avatars/' ~ user.avatarName) }}" class="{{ size }} rounded-full object-cover">
+    {% else %}
+        <span class="flex {{ size }} items-center justify-center rounded-full admin-gradient font-bold text-white">
+            {{ user ? user.initiale : '?' }}
+        </span>
+    {% endif %}
+{% endmacro %}

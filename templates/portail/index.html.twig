@@ -1,0 +1,84 @@
+{% extends 'portail/_layout.html.twig' %}
+
+{% block title %}Mon espace{% endblock %}
+
+{% block body %}
+    {% if famille %}
+        <h1>Bonjour, {{ famille.nom }}</h1>
+
+        <div class="card">
+            <h2>Mes informations</h2>
+            <table>
+                <tr><th>Adresse</th><td>{{ famille.adresse ?? '—' }}</td></tr>
+                <tr><th>Code postal / Ville</th><td>{{ famille.codePostal ?? '—' }} {{ famille.ville ?? '' }}</td></tr>
+                <tr><th>Téléphone</th><td>{{ famille.telephone ?? '—' }}</td></tr>
+            </table>
+        </div>
+
+        <div class="card">
+            <h2>Licenciés rattachés</h2>
+            {% if famille.licencies is empty %}
+                <p>Aucun licencié rattaché pour le moment.</p>
+            {% else %}
+                <table>
+                    <thead>
+                        <tr><th>Nom</th><th>Catégorie(s)</th><th>Saison</th><th>Statut</th><th></th></tr>
+                    </thead>
+                    <tbody>
+                        {% for licencie in famille.licencies %}
+                            <tr>
+                                <td>{{ licencie.prenom }} {{ licencie.nom }}</td>
+                                <td>{{ licencie.categorie ~ (licencie.equipes|length ? ' — ' ~ licencie.equipes|map(e => e.nom)|join(', ') : '') }}</td>
+                                <td>{{ licencie.saison }}</td>
+                                <td>{{ licencie.actif ? 'Actif' : 'Inactif' }}</td>
+                                <td><a class="bouton" href="{{ path('portail_licencie', {id: licencie.id}) }}">Voir</a></td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
+        </div>
+    {% elseif licencie %}
+        <h1>Bonjour, {{ licencie.prenom }}</h1>
+        <div class="card">
+            <h2>Mes informations</h2>
+            <table>
+                <tr><th>Famille</th><td>{{ licencie.famille }}</td></tr>
+                <tr><th>Catégorie(s)</th><td>{{ licencie.categorie ~ (licencie.equipes|length ? ' — ' ~ licencie.equipes|map(e => e.nom)|join(', ') : '') }}</td></tr>
+                <tr><th>Saison</th><td>{{ licencie.saison }}</td></tr>
+            </table>
+            <p style="margin-top:16px;"><a class="bouton" href="{{ path('portail_licencie', {id: licencie.id}) }}">Voir ma fiche complète</a></p>
+        </div>
+    {% else %}
+        <h1>Mon espace</h1>
+        <div class="card">
+            <p>Aucune information n'est pour le moment rattachée à ce compte. Contactez le club si vous pensez qu'il s'agit d'une erreur.</p>
+        </div>
+    {% endif %}
+
+    {% if famille or licencie %}
+        <div class="card">
+            <h2>Prochains entraînements et rencontres</h2>
+            {% if entrainements is empty %}
+                <p>Aucun entraînement n'est planifié pour le moment.</p>
+            {% else %}
+                <table>
+                    <thead>
+                        <tr><th>Date</th><th>Horaire</th><th>Catégorie</th><th>Lieu</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for e in entrainements %}
+                            <tr>
+                                <td>{{ e.date|date_fr('EEEE d MMMM')|capitalize }}</td>
+                                <td>{{ e.heureDebut|date('H:i') }}{{ e.heureFin ? ' – ' ~ e.heureFin|date('H:i') }}</td>
+                                <td>{{ e.rencontre ? e.titre : e.categories|join(', ') }}</td>
+                                <td>{{ e.lieu ?? '—' }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
+            <p style="margin-top:16px;"><a class="bouton" href="{{ path('portail_planning') }}">Voir le planning complet</a></p>
+        </div>
+    {% endif %}
+{% endblock %}

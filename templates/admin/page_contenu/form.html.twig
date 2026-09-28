@@ -1,0 +1,25 @@
+{% extends 'admin/_layout.html.twig' %}
+{% form_theme form 'admin/_form_theme.html.twig' %}
+
+{% block title %}{{ page.id ? 'Modifier la page' : 'Nouvelle page' }}{% endblock %}
+
+{% block body %}
+    <h1 class="text-2xl font-black mb-6" style="font-family:'Barlow Condensed',sans-serif;">
+        {{ page.id ? 'Modifier la page' : 'Nouvelle page' }}
+    </h1>
+
+    <div class="admin-card rounded-2xl p-6 max-w-3xl">
+        {{ form_start(form) }}
+            {{ form_row(form.titre) }}
+            {{ form_row(form.slug) }}
+            {{ form_row(form.imageFile) }}
+            {{ form_row(form.chapo) }}
+            {{ include('admin/_components/trix_field.html.twig', { field: form.contenu }) }}
+
+            <div class="flex items-center gap-3 mt-6">
+                <button type="submit" class="rounded-lg admin-gradient px-5 py-2 text-sm font-semibold text-white">Enregistrer</button>
+                <a href="{{ path('admin_page_contenu_index') }}" class="text-sm text-admin-text-muted hover:text-white">Annuler</a>
+            </div>
+        {{ form_end(form) }}
+    </div>
+{% endblock %}

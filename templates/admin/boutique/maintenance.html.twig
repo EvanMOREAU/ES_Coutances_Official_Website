@@ -1,0 +1,18 @@
+{% extends 'admin/_layout.html.twig' %}
+{% form_theme form 'admin/_form_theme.html.twig' %}
+
+{% block title %}Maintenance boutique{% endblock %}
+
+{% block body %}
+    <h1 class="text-2xl font-black mb-1" style="font-family:'Barlow Condensed',sans-serif;">Maintenance boutique</h1>
+    <p class="text-sm text-admin-text-muted mb-6">Permet de masquer la boutique publique (ex. pendant sa mise en place) sans toucher au reste du site.</p>
+
+    <div class="admin-card rounded-2xl p-6 max-w-xl">
+        {{ form_start(form) }}
+            {{ form_row(form.enMaintenance) }}
+            <div class="mt-4">
+                {{ form_widget(form.save) }}
+            </div>
+        {{ form_end(form) }}
+    </div>
+{% endblock %}

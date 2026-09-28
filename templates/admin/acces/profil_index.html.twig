@@ -1,0 +1,47 @@
+{% extends 'admin/_layout.html.twig' %}
+
+{% block title %}Autorisations{% endblock %}
+
+{% block body %}
+    <div class="flex flex-wrap items-center justify-between gap-3 mb-2">
+        <h1 class="text-2xl font-black" style="font-family:'Barlow Condensed',sans-serif;">Profils d'autorisation</h1>
+        {% if can('autorisation.creer') %}{% if can_url(path('admin_profil_new')) %}<a href="{{ path('admin_profil_new') }}" class="rounded-lg admin-gradient px-4 py-2 text-sm font-semibold text-white">+ Nouveau profil</a>{% endif %}{% endif %}
+    </div>
+    <p class="text-sm text-admin-text-muted mb-6">Un profil regroupe des autorisations prêtes à attribuer à un utilisateur (fiche de l'utilisateur, champ « Profil »). Modifier un profil met à jour tous ses utilisateurs.</p>
+
+    {% embed 'admin/_components/data_table.html.twig' with {
+        key: 'profil',
+        plural: 'profils',
+        bulk: false,
+        search_placeholder: 'Rechercher un profil…',
+        empty_message: 'Aucun profil ne correspond à votre recherche.',
+        columns: [
+            {key: 'nom', label: 'Profil'},
+            {key: 'description', label: 'Description'},
+            {key: 'perms', label: 'Autorisations', type: 'number'},
+            {key: 'membres', label: 'Utilisateurs', type: 'number'},
+        ],
+    } %}
+        {% block rows %}
+            {% for profil in profils %}
+                <tr data-data-table-target="row" data-id="{{ profil.id }}" data-href="{{ can_url(path('admin_profil_edit', {id: profil.id})) ? path('admin_profil_edit', {id: profil.id}) }}">
+                    <td data-col="nom" data-sort="{{ profil.nom|lower }}" class="font-medium">{{ profil.nom }}</td>
+                    <td data-col="description" class="dt-muted">{{ profil.description ?: '—' }}</td>
+                    <td data-col="perms" data-sort="{{ profil.permissions|length }}">{{ profil.permissions|length }}</td>
+                    <td data-col="membres" data-sort="{{ membres[profil.id] }}">{{ membres[profil.id] }}</td>
+                    {% include 'admin/_components/row_menu.html.twig' with {
+                        edit_url: path('admin_profil_edit', {id: profil.id}),
+                        actions: can('autorisation.creer') ? [{
+                            url: path('admin_profil_new', {copie: profil.id}), get: true,
+                            label: 'Dupliquer', icon: 'fa-copy',
+                        }] : [],
+                        delete_url: path('admin_profil_delete', {id: profil.id}),
+                        delete_token: csrf_token('delete-profil-' ~ profil.id),
+                        delete_title: 'Supprimer ce profil ?',
+                        delete_message: 'Le profil « ' ~ profil.nom ~ ' » sera supprimé. ' ~ (membres[profil.id] > 0 ? membres[profil.id] ~ ' utilisateur(s) conservent leurs autorisations à titre personnel.' : ''),
+                    } %}
+                </tr>
+            {% endfor %}
+        {% endblock %}
+    {% endembed %}
+{% endblock %}

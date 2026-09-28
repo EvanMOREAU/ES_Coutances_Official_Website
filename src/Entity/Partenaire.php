@@ -3,14 +3,20 @@
 namespace App\Entity;
 
 use App\Repository\PartenaireRepository;
+use App\Entity\Concern\CreatedAtTrait;
+use App\Entity\Concern\StatutTrait;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\HttpFoundation\File\File;
-use Vich\UploaderBundle\Mapping\Annotation as Vich;
+use Vich\UploaderBundle\Mapping\Attribute as Vich;
 
 #[ORM\Entity(repositoryClass: PartenaireRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 #[Vich\Uploadable]
 class Partenaire
 {
+    use CreatedAtTrait;
+    use StatutTrait { setStatut as private setStatutBase; }
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -60,10 +66,27 @@ class Partenaire
     public function setUpdatedAt(?\DateTimeImmutable $updatedAt): static { $this->updatedAt = $updatedAt; return $this; }
 
     public function isActif(): bool { return $this->actif; }
-    public function setActif(bool $actif): static { $this->actif = $actif; return $this; }
 
     public function getOrdre(): int { return $this->ordre; }
     public function setOrdre(int $ordre): static { $this->ordre = $ordre; return $this; }
 
     public function __toString(): string { return $this->nom ?? ''; }
+
+    /** Vrai uniquement quand le statut est "actif" (utilisé par le site public). */
+    public function setStatut(string $statut): static
+    {
+        $this->setStatutBase($statut);
+        $this->actif = self::STATUT_ACTIVE === $statut;
+
+        return $this;
+    }
+
+    public function setActif(bool $actif): static
+    {
+        if ($actif) {
+            return $this->setStatut(self::STATUT_ACTIVE);
+        }
+
+        return $this->setStatut(self::STATUT_ACTIVE === $this->getStatut() ? self::STATUT_ARCHIVED : $this->getStatut());
+    }
 }

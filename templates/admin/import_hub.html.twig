@@ -1,0 +1,12 @@
+{% extends 'admin/_layout.html.twig' %}
+
+{% block title %}Import{% endblock %}
+
+{% block body %}
+    <div class="mb-6">
+        <h1 class="text-2xl font-black" style="font-family:'Barlow Condensed',sans-serif;">Import</h1>
+        <p class="text-sm text-admin-text-muted">Importez des données depuis les outils extérieurs au site. Cliquez sur une carte pour ouvrir l'outil.</p>
+    </div>
+
+    {{ include('admin/_hub.html.twig', {groups: {'Imports': 'Sources d\'import'}, advice: [], hide_advice: true}) }}
+{% endblock %}

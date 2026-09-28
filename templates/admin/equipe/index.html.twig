@@ -1,0 +1,44 @@
+{% extends 'admin/_layout.html.twig' %}
+
+{% block title %}Équipes{% endblock %}
+
+{% block body %}
+    <div class="flex items-center justify-between mb-2">
+        <h1 class="text-2xl font-black" style="font-family:'Barlow Condensed',sans-serif;">Équipes</h1>
+        {% if can_url(path('admin_equipe_new')) %}<a href="{{ path('admin_equipe_new') }}" class="rounded-lg admin-gradient px-4 py-2 text-sm font-semibold text-white">+ Nouvelle équipe</a>{% endif %}
+    </div>
+    <p class="text-sm text-admin-text-muted mb-6">La catégorie d'un licencié (U11, U12…) est calculée automatiquement d'après sa date de naissance. Les équipes servent à l'affilier pour les matchs à l'intérieur de sa catégorie.</p>
+
+    {% embed 'admin/_components/data_table.html.twig' with {
+        key: 'equipe',
+        plural: 'équipes',
+        statuses: true,
+        search_placeholder: 'Rechercher une équipe…',
+        empty_message: 'Aucune équipe ne correspond à votre recherche.',
+        columns: [
+            {key: 'categorie', label: 'Catégorie'},
+            {key: 'nom', label: 'Équipe'},
+            {key: 'statut', label: 'Statut'},
+            {key: 'cree', label: 'Créée le'},
+        ],
+    } %}
+        {% block rows %}
+            {% for equipe in equipes %}
+                <tr data-data-table-target="row" data-id="{{ equipe.id }}" data-status="{{ equipe.statut }}">
+                    {% if bulk %}<td class="dt-check-col"><input type="checkbox" data-row-check value="{{ equipe.id }}" data-action="change->data-table#toggleRow" aria-label="Sélectionner {{ equipe.nom }}"></td>{% endif %}
+                    <td data-col="categorie" data-sort="{{ equipe.categorie }}"><span class="rounded-full admin-gradient px-2.5 py-0.5 text-xs font-semibold text-white">{{ equipe.categorie }}</span></td>
+                    <td data-col="nom" data-sort="{{ equipe.nom|lower }}" class="font-medium">{{ equipe.nom }}</td>
+                    <td data-col="statut"><span class="badge badge-{{ equipe.statut }}">{{ equipe.statutLabel }}</span></td>
+                    <td data-col="cree" data-sort="{{ equipe.createdAt ? equipe.createdAt|date('Y-m-d H:i') : '' }}" class="dt-muted">{{ equipe.createdAt ? equipe.createdAt|date('d/m/Y') : '—' }}</td>
+                    {% include 'admin/_components/row_menu.html.twig' with {
+                        edit_url: path('admin_equipe_edit', {id: equipe.id}),
+                        delete_url: path('admin_equipe_delete', {id: equipe.id}),
+                        delete_token: csrf_token('delete-equipe-' ~ equipe.id),
+                        delete_title: 'Supprimer cette équipe ?',
+                        delete_message: 'L\'équipe « ' ~ equipe.nom ~ ' » sera supprimée définitivement.',
+                    } %}
+                </tr>
+            {% endfor %}
+        {% endblock %}
+    {% endembed %}
+{% endblock %}

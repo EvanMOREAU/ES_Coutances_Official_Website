@@ -1,0 +1,103 @@
+{% extends 'admin/_layout.html.twig' %}
+
+{% block title %}Commande {{ commande.reference }}{% endblock %}
+
+{% macro action(commande, action, label, icon, style, confirm) %}
+    <form method="post" action="{{ path('admin_commande_action', {id: commande.id, action: action}) }}"
+          {% if confirm %}data-confirm="{{ confirm.message }}" data-confirm-title="{{ confirm.title }}" data-confirm-label="{{ label }}"{% endif %}>
+        <input type="hidden" name="_token" value="{{ csrf_token('commande-' ~ commande.id) }}">
+        <button type="submit" class="admin-btn {{ style }} w-full justify-center"><i class="fa-solid {{ icon }}"></i> {{ label }}</button>
+    </form>
+{% endmacro %}
+
+{% block body %}
+    <a href="{{ path('admin_commande_index') }}" class="text-sm text-admin-text-muted hover:text-admin-text"><i class="fa-solid fa-arrow-left"></i> Toutes les commandes</a>
+
+    <div class="flex flex-wrap items-center gap-3 mt-3 mb-6">
+        <h1 class="text-2xl font-black" style="font-family:'Barlow Condensed',sans-serif;">Commande {{ commande.reference }}</h1>
+        <span class="badge badge-cmd-{{ commande.statut }}">{{ commande.statutLabel }}</span>
+        <span class="badge badge-{{ commande.payee ? 'paye' : (commande.statut == 'annulee' ? 'archived' : 'attente') }}">{{ commande.payee ? 'Payée' : (commande.statut == 'annulee' ? 'Non payée' : 'Règlement en attente') }}</span>
+        <span class="text-sm text-admin-text-muted">passée le {{ commande.createdAt|date('d/m/Y à H:i') }}</span>
+    </div>
+
+    <div class="grid gap-6 lg:grid-cols-3 items-start">
+        <div class="lg:col-span-2 space-y-6">
+            <section class="admin-card rounded-2xl p-6">
+                <h2 class="font-semibold mb-4">Articles commandés</h2>
+                <table class="cmd-lines">
+                    <thead>
+                        <tr><th>Article</th><th class="num">Prix</th><th class="num">Qté</th><th class="num">Total</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for ligne in commande.lignes %}
+                            <tr>
+                                <td>{{ ligne.libelle }}</td>
+                                <td class="num">{{ ligne.prixCentimes|money }}</td>
+                                <td class="num">{{ ligne.quantite }}</td>
+                                <td class="num">{{ ligne.totalCentimes|money }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot>
+                        <tr><td colspan="3">Total à régler</td><td class="num">{{ commande.totalCentimes|money }}</td></tr>
+                    </tfoot>
+                </table>
+                {% if commande.note %}
+                    <div class="cmd-note">
+                        <p class="text-xs font-semibold uppercase tracking-wide text-admin-text-muted mb-1">Message du client</p>
+                        <p>{{ commande.note|nl2br }}</p>
+                    </div>
+                {% endif %}
+            </section>
+        </div>
+
+        <div class="space-y-6">
+            <section class="admin-card rounded-2xl p-6">
+                <h2 class="font-semibold mb-4">Traitement</h2>
+                <div class="space-y-2.5">
+                    {% if commande.statut == 'nouvelle' %}
+                        {{ _self.action(commande, 'preparer', 'Marquer comme prête', 'fa-box-open', 'admin-btn-primary', null) }}
+                    {% endif %}
+                    {% if commande.enCours %}
+                        {% if not commande.payee %}
+                            {{ _self.action(commande, 'payer', 'Enregistrer le règlement', 'fa-money-bill-wave', 'admin-btn-ghost', null) }}
+                        {% endif %}
+                        {{ _self.action(commande, 'retirer', commande.payee ? 'Remettre au client' : 'Encaisser et remettre', 'fa-hand-holding-hand', commande.statut == 'prete' ? 'admin-btn-primary' : 'admin-btn-ghost', null) }}
+                        {{ _self.action(commande, 'annuler', 'Annuler la commande', 'fa-ban', 'admin-btn-ghost cmd-cancel', {
+                            title: 'Annuler cette commande ?',
+                            message: 'Le stock des articles sera remis à jour.' ~ (commande.payee ? ' La commande a déjà été payée : pensez à rembourser le client.' : ''),
+                        }) }}
+                    {% else %}
+                        <p class="text-sm text-admin-text-muted">
+                            {% if commande.statut == 'retiree' %}Cette commande a été remise au client.{% else %}Cette commande est annulée : le stock a été remis à jour.{% endif %}
+                        </p>
+                    {% endif %}
+                </div>
+            </section>
+
+            <section class="admin-card rounded-2xl p-6">
+                <h2 class="font-semibold mb-4">Client</h2>
+                <dl class="cmd-dl">
+                    <dt>Nom</dt><dd>{{ commande.nomComplet }}</dd>
+                    <dt>Email</dt><dd><a href="mailto:{{ commande.email }}" class="hover:underline">{{ commande.email }}</a></dd>
+                    <dt>Téléphone</dt><dd>{{ commande.telephone ?: '—' }}</dd>
+                    <dt>Compte</dt><dd>{{ commande.user ? 'Compte du club' : 'Sans compte' }}</dd>
+                </dl>
+            </section>
+
+            <section class="admin-card rounded-2xl p-6">
+                <h2 class="font-semibold mb-4">Règlement</h2>
+                <dl class="cmd-dl">
+                    <dt>Mode</dt><dd>{{ commande.modePaiementLabel }}</dd>
+                    <dt>État</dt><dd>{{ commande.payee ? 'Payée le ' ~ commande.payeeLe|date('d/m/Y') : 'En attente' }}</dd>
+                    <dt>Montant</dt><dd>{{ commande.totalCentimes|money }}</dd>
+                </dl>
+                {% if not commande.payee and commande.statut != 'annulee' and commande.modePaiement != 'carte' %}
+                    <p class="text-xs text-admin-text-muted mt-3">À encaisser au club, lors du retrait.</p>
+                {% elseif not commande.payee and commande.statut != 'annulee' %}
+                    <p class="text-xs text-admin-text-muted mt-3">Paiement par carte non finalisé par le client.</p>
+                {% endif %}
+            </section>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,86 @@
+<?php
+
+namespace App\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
+
+/** Une échéance de règlement d'une licence (espèces, carte ou chèque), à encaisser puis à remettre en banque. */
+#[ORM\Entity]
+#[ORM\Table(name: 'reglement')]
+class Reglement
+{
+    public const MODE_ESPECES = 'especes';
+    public const MODE_CARTE   = 'carte';
+    public const MODE_CHEQUE  = 'cheque';
+
+    public const MODES = [
+        self::MODE_ESPECES => 'Espèces',
+        self::MODE_CARTE   => 'Carte bancaire',
+        self::MODE_CHEQUE  => 'Chèque',
+    ];
+
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column]
+    private ?int $id = null;
+
+    #[ORM\ManyToOne(targetEntity: Adhesion::class, inversedBy: 'reglements')]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
+    private ?Adhesion $adhesion = null;
+
+    #[ORM\Column(length: 20)]
+    #[Assert\Choice(choices: [self::MODE_ESPECES, self::MODE_CARTE, self::MODE_CHEQUE], message: 'Choisissez un mode de règlement.')]
+    private string $mode = self::MODE_CHEQUE;
+
+    #[ORM\Column]
+    #[Assert\Positive(message: 'Indiquez un montant.')]
+    private int $montantCentimes = 0;
+
+    /** Position dans l'échelonnement (1, 2 ou 3). */
+    #[ORM\Column(options: ['default' => 1])]
+    private int $ordre = 1;
+
+    /** Date à laquelle ce règlement doit être encaissé. */
+    #[ORM\Column(type: 'date_immutable', nullable: true)]
+    private ?\DateTimeImmutable $dateEcheance = null;
+
+    /** Règlement encaissé (chèque reçu, espèces remises, paiement carte effectué). */
+    #[ORM\Column(options: ['default' => false])]
+    private bool $recu = false;
+
+    /** Date de remise en banque (chèques, espèces) ou date du paiement par carte. */
+    #[ORM\Column(type: 'date_immutable', nullable: true)]
+    private ?\DateTimeImmutable $dateRemise = null;
+
+    /** Numéro de chèque, référence du paiement… */
+    #[ORM\Column(length: 100, nullable: true)]
+    private ?string $reference = null;
+
+    public function getId(): ?int { return $this->id; }
+
+    public function getAdhesion(): ?Adhesion { return $this->adhesion; }
+    public function setAdhesion(?Adhesion $adhesion): static { $this->adhesion = $adhesion; return $this; }
+
+    public function getMode(): string { return $this->mode; }
+    public function setMode(string $mode): static { $this->mode = $mode; return $this; }
+    public function getModeLabel(): string { return self::MODES[$this->mode] ?? $this->mode; }
+
+    public function getMontantCentimes(): int { return $this->montantCentimes; }
+    public function setMontantCentimes(?int $c): static { $this->montantCentimes = max(0, (int) $c); return $this; }
+
+    public function getOrdre(): int { return $this->ordre; }
+    public function setOrdre(int $ordre): static { $this->ordre = $ordre; return $this; }
+
+    public function getDateEcheance(): ?\DateTimeImmutable { return $this->dateEcheance; }
+    public function setDateEcheance(?\DateTimeImmutable $d): static { $this->dateEcheance = $d; return $this; }
+
+    public function isRecu(): bool { return $this->recu; }
+    public function setRecu(bool $recu): static { $this->recu = $recu; return $this; }
+
+    public function getDateRemise(): ?\DateTimeImmutable { return $this->dateRemise; }
+    public function setDateRemise(?\DateTimeImmutable $d): static { $this->dateRemise = $d; return $this; }
+
+    public function getReference(): ?string { return $this->reference; }
+    public function setReference(?string $reference): static { $this->reference = $reference; return $this; }
+}

@@ -1,0 +1,78 @@
+{% extends 'admin/_layout.html.twig' %}
+
+{% block title %}Articles{% endblock %}
+
+{% block body %}
+    <div class="flex flex-wrap items-center justify-between gap-3 mb-2">
+        <h1 class="text-2xl font-black" style="font-family:'Barlow Condensed',sans-serif;">Articles de la boutique</h1>
+        <div class="flex items-center gap-2">
+            <a href="{{ path('admin_commande_index') }}" class="admin-btn admin-btn-ghost"><i class="fa-solid fa-bag-shopping"></i> Commandes</a>
+            {% if can_url(path('admin_article_new')) %}<a href="{{ path('admin_article_new') }}" class="rounded-lg admin-gradient px-4 py-2 text-sm font-semibold text-white">+ Nouvel article</a>{% endif %}
+        </div>
+    </div>
+    <p class="text-sm text-admin-text-muted mb-6">Chaque article se décline en tailles, avec son propre stock. Seuls les articles « actifs » apparaissent dans la <a href="{{ path('boutique_index') }}" target="_blank" rel="noopener" class="underline">boutique du site</a>.</p>
+
+    {% embed 'admin/_components/data_table.html.twig' with {
+        key: 'article',
+        plural: 'articles',
+        statuses: true,
+        search_placeholder: 'Rechercher un article…',
+        empty_message: 'Aucun article ne correspond à votre recherche.',
+        columns: [
+            {key: 'photo', label: 'Photo', sortable: false},
+            {key: 'nom', label: 'Article'},
+            {key: 'categorie', label: 'Catégorie'},
+            {key: 'prix', label: 'Prix', type: 'number'},
+            {key: 'stock', label: 'Stock', type: 'number'},
+            {key: 'statut', label: 'Statut'},
+            {key: 'cree', label: 'Créé le'},
+        ],
+    } %}
+        {% block rows %}
+            {% for article in articles %}
+                <tr data-data-table-target="row" data-id="{{ article.id }}" data-status="{{ article.statut }}" data-href="{{ path('admin_article_show', {id: article.id}) }}">
+                    {% if bulk %}<td class="dt-check-col"><input type="checkbox" data-row-check value="{{ article.id }}" data-action="change->data-table#toggleRow" aria-label="Sélectionner {{ article.nom }}"></td>{% endif %}
+                    <td data-col="photo">
+                        {% if article.imageName %}
+                            <img src="{{ asset('uploads/articles/' ~ article.imageName) }}" alt="" class="h-10 w-10 rounded object-cover bg-white/10">
+                        {% else %}
+                            <span class="art-thumb-empty"><i class="fa-regular fa-image"></i></span>
+                        {% endif %}
+                    </td>
+                    <td data-col="nom" data-sort="{{ article.nom|lower }}" class="font-medium">
+                        <a href="{{ path('admin_article_show', {id: article.id}) }}" class="hover:underline">{{ article.nom }}</a>
+                        <span class="block text-xs text-admin-text-muted font-normal">
+                            {% for v in article.variantes %}<span class="art-size {{ v.stock == 0 ? 'is-out' : (v.stock <= 3 ? 'is-low') }}" title="{{ v.stock }} en stock">{{ v.libelle }}<b>{{ v.stock }}</b></span>{% endfor %}
+                        </span>
+                    </td>
+                    <td data-col="categorie" data-sort="{{ article.categorie ? article.categorie.nom|lower : '' }}" class="dt-muted">{{ article.categorie ? article.categorie.nom : '—' }}</td>
+                    <td data-col="prix" data-sort="{{ article.prixCentimes }}">{{ article.prixCentimes|money }}</td>
+                    <td data-col="stock" data-sort="{{ article.stockTotal }}">
+                        {% if article.stockTotal == 0 %}<span class="badge badge-cmd-annulee">Épuisé</span>{% else %}{{ article.stockTotal }}{% endif %}
+                    </td>
+                    <td data-col="statut"><span class="badge badge-{{ article.statut }}">{{ article.statutLabel }}</span></td>
+                    <td data-col="cree" data-sort="{{ article.createdAt ? article.createdAt|date('Y-m-d H:i') : '' }}" class="dt-muted">{{ article.createdAt ? article.createdAt|date('d/m/Y') : '—' }}</td>
+                    {% include 'admin/_components/row_menu.html.twig' with {
+                        show_url: path('admin_article_show', {id: article.id}),
+                        actions: [{
+                            url: path('admin_toggle_actif', {type: 'article', id: article.id}),
+                            token: csrf_token('toggle-article-' ~ article.id),
+                            label: article.actif ? 'Désactiver' : 'Activer',
+                            icon: article.actif ? 'fa-eye-slash' : 'fa-eye',
+                        }, {
+                            url: path('admin_article_stock', {id: article.id}),
+                            label: 'Gestion des stocks',
+                            icon: 'fa-boxes-stacked',
+                            modal: true,
+                        }],
+                        edit_url: path('admin_article_edit', {id: article.id}),
+                        delete_url: path('admin_article_delete', {id: article.id}),
+                        delete_token: csrf_token('delete-article-' ~ article.id),
+                        delete_title: 'Supprimer cet article ?',
+                        delete_message: 'L\'article « ' ~ article.nom ~ ' » sera supprimé définitivement. Les commandes déjà passées conservent leur détail.',
+                    } %}
+                </tr>
+            {% endfor %}
+        {% endblock %}
+    {% endembed %}
+{% endblock %}

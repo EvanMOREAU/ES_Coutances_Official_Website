@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/png" href="{{ asset('images/favicon.png') }}">
+    <title>{% block title %}Espace Familles &amp; Licenciés{% endblock %} — ES Coutances</title>
+    {% block head_assets %}{% endblock %}
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <style>
+        /* Couleurs lues par les composants partagés avec l'admin (fenêtres, listes déroulantes, messagerie) : thème clair, rouge du club. */
+        :root {
+            --color-admin-bg: #f4f4f5;
+            --color-admin-surface: #ffffff;
+            --color-admin-surface-hover: #f0f0f3;
+            --color-admin-border: rgba(10, 10, 15, 0.12);
+            --color-admin-text: #18181b;
+            --color-admin-text-muted: #71717a;
+            --color-admin-primary-from: #C8102E;
+            --color-admin-primary-to: #9E0C23;
+            --color-admin-success: #16a34a;
+            --color-admin-danger: #dc2626;
+        }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background: #f4f4f5; color: #18181b; }
+        header {
+            background: #0D0D0D;
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        header img { height: 40px; }
+        header .titre {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 800;
+            letter-spacing: .06em;
+            text-transform: uppercase;
+            color: #fff;
+            font-size: 16px;
+        }
+        header a.logout {
+            color: #f4f4f5;
+            font-size: 13px;
+            text-decoration: none;
+            border: 1px solid #444;
+            padding: 8px 14px;
+            border-radius: 4px;
+        }
+        header .entete-liens { display: flex; align-items: center; gap: 8px; }
+        header a.lien-nav { color: #f4f4f5; font-size: 13px; text-decoration: none; padding: 8px 12px; border-radius: 4px; }
+        header a.lien-nav:hover { background: rgba(255,255,255,.1); }
+        .pastille { display: inline-block; min-width: 18px; margin-left: 6px; padding: 1px 6px; font-size: 11px; font-weight: 700; text-align: center; color: #fff; background: #C8102E; border-radius: 9999px; }
+        .pastille[hidden] { display: none; }
+        header a.logout:hover { border-color: #C8102E; color: #C8102E; }
+        main { max-width: 900px; margin: 32px auto; padding: 0 24px; }
+        h1 {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+            font-size: 28px;
+            margin-bottom: 20px;
+            color: #0D0D0D;
+        }
+        .card {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 16px rgba(0,0,0,.06);
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+        .card h2 {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 800;
+            text-transform: uppercase;
+            font-size: 18px;
+            margin-bottom: 16px;
+            color: #C8102E;
+        }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #eee; font-size: 14px; }
+        th { color: #71717a; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; }
+        a.bouton {
+            display: inline-block;
+            background: #C8102E;
+            color: #fff;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        a.bouton:hover { background: #9E0C23; }
+        a.lien-retour { color: #666; font-size: 13px; text-decoration: none; }
+        a.lien-retour:hover { color: #C8102E; }
+        /* Petits écrans : la barre du haut passe à la ligne au lieu de déborder. */
+        @media (max-width: 760px) {
+            header { flex-wrap: wrap; gap: 10px; padding: 12px 16px; }
+            header .titre { font-size: 14px; }
+            header .entete-liens { flex-wrap: wrap; width: 100%; gap: 4px; }
+            main { margin: 24px auto; padding: 0 16px; }
+        }
+        .badge-ok { color: #166534; }
+        .badge-ko { color: #991b1b; }
+    </style>
+</head>
+<body>
+    <header>
+        <div style="display:flex; align-items:center; gap:12px;">
+            <img src="https://raw.githubusercontent.com/CylaosICT/escoutances-images/refs/heads/main/logo_hd_trans3_gt.png" alt="ES Coutances">
+            <span class="titre">Espace Familles &amp; Licenciés</span>
+        </div>
+        <nav class="entete-liens">
+            <a class="lien-nav" href="{{ path('portail_index') }}">Mon espace</a>
+            <a class="lien-nav" href="{{ path('portail_planning') }}">Planning</a>
+            {% if portail_facturation() %}<a class="lien-nav" href="{{ path('portail_factures') }}">Factures</a><a class="lien-nav" href="{{ path('portail_commandes') }}">Commandes</a>{% endif %}
+            <a class="lien-nav" href="{{ path('portail_chat_index') }}">Messagerie{% set unread = chat_unread() %}<span class="pastille" data-chat-badge {{ unread == 0 ? 'hidden' }}>{{ unread }}</span></a>
+            <a class="logout" href="{{ path('portail_logout') }}">Déconnexion</a>
+        </nav>
+    </header>
+    <main>
+        {% block body %}{% endblock %}
+    </main>
+</body>
+</html>

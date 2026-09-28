@@ -1,0 +1,55 @@
+{% extends 'admin/_layout.html.twig' %}
+
+{% block title %}Encadrement{% endblock %}
+
+{% block body %}
+    <div class="flex items-center justify-between mb-6">
+        <h1 class="text-2xl font-black" style="font-family:'Barlow Condensed',sans-serif;">Encadrement</h1>
+        {% if can_url(path('admin_membre_new')) %}<a href="{{ path('admin_membre_new') }}" class="rounded-lg admin-gradient px-4 py-2 text-sm font-semibold text-white">+ Nouveau membre</a>{% endif %}
+    </div>
+
+    {% embed 'admin/_components/data_table.html.twig' with {
+        key: 'membre',
+        plural: 'membres',
+        search_placeholder: 'Rechercher un membre…',
+        empty_message: 'Aucun membre ne correspond à votre recherche.',
+        statuses: true,
+        status_tabs: {all: 'Tous', active: 'Actifs', inactive: 'Inactifs'},
+        status_actions: false,
+        columns: [
+            {key: 'photo', label: 'Photo', sortable: false},
+            {key: 'nom', label: 'Nom'},
+            {key: 'poste', label: 'Poste'},
+            {key: 'categories', label: 'Catégories'},
+            {key: 'statut', label: 'Statut'},
+        ],
+    } %}
+        {% block rows %}
+            {% for membre in membres %}
+                <tr data-data-table-target="row" data-id="{{ membre.id }}" data-status="{{ membre.actif ? 'active' : 'inactive' }}">
+                    {% if bulk %}<td class="dt-check-col"><input type="checkbox" data-row-check value="{{ membre.id }}" data-action="change->data-table#toggleRow" aria-label="Sélectionner {{ membre.nom }}"></td>{% endif %}
+                    <td data-col="photo">
+                        {% if membre.photoName %}<img src="{{ asset('uploads/membres/' ~ membre.photoName) }}" alt="" class="h-9 w-9 rounded-full object-cover bg-white/10">{% else %}<span class="dt-muted">—</span>{% endif %}
+                    </td>
+                    <td data-col="nom" data-sort="{{ membre.nom|lower }}" class="font-medium">{{ membre.nom }}</td>
+                    <td data-col="poste" class="dt-muted">{{ membre.poste }}</td>
+                    <td data-col="categories" class="dt-muted">{{ membre.categories|map(c => c.nom)|join(', ') ?: '—' }}</td>
+                    <td data-col="statut" data-sort="{{ membre.actif ? 1 : 0 }}"><span class="badge {{ membre.actif ? 'badge-active' : 'badge-archived' }}">{{ membre.actif ? 'Actif' : 'Inactif' }}</span></td>
+                    {% include 'admin/_components/row_menu.html.twig' with {
+                        actions: [{
+                            url: path('admin_toggle_actif', {type: 'membre', id: membre.id}),
+                            token: csrf_token('toggle-membre-' ~ membre.id),
+                            label: membre.actif ? 'Désactiver' : 'Activer',
+                            icon: membre.actif ? 'fa-eye-slash' : 'fa-eye',
+                        }],
+                        edit_url: path('admin_membre_edit', {id: membre.id}),
+                        delete_url: path('admin_membre_delete', {id: membre.id}),
+                        delete_token: csrf_token('delete-membre-' ~ membre.id),
+                        delete_title: 'Supprimer ce membre ?',
+                        delete_message: membre.nom ~ ' sera supprimé définitivement.',
+                    } %}
+                </tr>
+            {% endfor %}
+        {% endblock %}
+    {% endembed %}
+{% endblock %}

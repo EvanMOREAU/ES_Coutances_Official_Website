@@ -125,7 +125,9 @@ class ResetPasswordController extends AbstractController
 
             $this->addFlash('success', 'Votre mot de passe a été réinitialisé. Vous pouvez vous connecter.');
 
-            return $this->redirectToRoute('app_login');
+            $estCompteEspacePortail = array_intersect(['ROLE_FAMILLE', 'ROLE_LICENCIE'], $user->getRoles());
+
+            return $this->redirectToRoute($estCompteEspacePortail ? 'portail_login' : 'app_login');
         }
 
         return $this->render('reset_password/reset.html.twig', [

@@ -1,0 +1,73 @@
+{% use 'form_div_layout.html.twig' %}
+
+{% block form_row %}
+    <div class="mb-5">
+        {{ form_label(form) }}
+        {{ form_widget(form) }}
+        {% if form.vars.help %}
+            <p class="mt-1 text-xs text-admin-text-muted">{{ form.vars.help }}</p>
+        {% endif %}
+        {{ form_errors(form) }}
+    </div>
+{% endblock %}
+
+{% block form_label %}
+    {% if label is not same as(false) %}
+        <label {% if id is not empty %}for="{{ id }}"{% endif %} class="block text-xs font-semibold uppercase tracking-wide text-admin-text-muted mb-1.5">
+            {{ label is not empty ? label|trans : name|humanize }}
+        </label>
+    {% endif %}
+{% endblock %}
+
+{% block form_errors %}
+    {% if errors|length > 0 %}
+        <ul class="mt-1 text-xs text-admin-danger">
+            {% for error in errors %}
+                <li>{{ error.message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+{% endblock %}
+
+{% block form_widget_simple %}
+    {% set attr = attr|merge({class: (attr.class|default('') ~ ' w-full rounded-lg border border-admin-border bg-admin-bg px-3 py-2 text-sm text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-primary-to')|trim}) %}
+    {{ parent() }}
+{% endblock %}
+
+{% block textarea_widget %}
+    {% set attr = attr|merge({class: (attr.class|default('') ~ ' w-full rounded-lg border border-admin-border bg-admin-bg px-3 py-2 text-sm text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-primary-to')|trim, rows: attr.rows|default(4)}) %}
+    {{ parent() }}
+{% endblock %}
+
+{% block choice_widget_collapsed %}
+    {% set attr = attr|merge({class: (attr.class|default('') ~ ' w-full rounded-lg border border-admin-border bg-admin-bg px-3 py-2 text-sm text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-primary-to')|trim}) %}
+    {{ parent() }}
+{% endblock %}
+
+{% block checkbox_row %}
+    <div class="mb-5">
+        <label class="flex items-center justify-between gap-4 rounded-xl border border-admin-border px-4 py-3 cursor-pointer admin-surface-hover">
+            <span class="text-sm text-admin-text">{{ label is not empty ? label|trans : name|humanize }}</span>
+            {{ form_widget(form, {attr: {class: 'admin-switch'}}) }}
+        </label>
+        {% if form.vars.help %}<p class="mt-1 text-xs text-admin-text-muted">{{ form.vars.help }}</p>{% endif %}
+        {{ form_errors(form) }}
+    </div>
+{% endblock %}
+
+{% block choice_widget_expanded %}
+    <div class="flex flex-wrap gap-2">
+        {% for child in form %}
+            <label class="admin-chip">
+                {{ form_widget(child, {attr: {class: 'sr-only'}}) }}
+                <span>{{ child.vars.label|trans }}</span>
+            </label>
+        {% endfor %}
+    </div>
+{% endblock %}
+
+{% block submit_widget %}
+    {% set attr = attr|merge({class: (attr.class|default('') ~ ' rounded-lg admin-gradient px-5 py-2 text-sm font-semibold text-white')|trim}) %}
+    {{ parent() }}
+{% endblock %}
+

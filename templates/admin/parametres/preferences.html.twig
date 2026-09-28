@@ -1,0 +1,30 @@
+{% extends 'admin/parametres/_layout.html.twig' %}
+
+{% block tab_content %}
+    {% set details = {
+        new_famille: { title: 'Nouvelles familles', desc: "Être averti quand une nouvelle famille est inscrite au club" },
+        weekly_summary: { title: 'Résumé hebdomadaire', desc: "Recevoir chaque semaine un récapitulatif de l'activité du club" },
+    } %}
+
+    {{ form_start(form) }}
+        <h2 class="text-lg font-bold">Préférences</h2>
+        <p class="text-sm text-admin-text-muted mb-4">Gérez vos préférences de notification et de communication</p>
+
+        <div class="divide-y divide-admin-border">
+            {% for child in form.notificationPreferences %}
+                <label class="flex items-center justify-between gap-6 py-4 cursor-pointer">
+                    <span>
+                        <span class="block text-sm font-semibold">{{ details[child.vars.value].title }}</span>
+                        <span class="block text-xs text-admin-text-muted mt-0.5">{{ details[child.vars.value].desc }}</span>
+                    </span>
+                    {{ form_widget(child, {attr: {class: 'admin-switch'}}) }}
+                </label>
+            {% endfor %}
+        </div>
+
+        <div class="flex items-center justify-between mt-4">
+            <p class="text-xs text-admin-text-muted">Ces préférences seront appliquées au fur et à mesure de la mise en place des envois automatiques correspondants.</p>
+            <button type="submit" class="rounded-lg admin-gradient px-5 py-2 text-sm font-semibold text-white shrink-0 ml-4">Enregistrer</button>
+        </div>
+    {{ form_end(form) }}
+{% endblock %}

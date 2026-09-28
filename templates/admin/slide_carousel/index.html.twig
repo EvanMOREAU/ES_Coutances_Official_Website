@@ -1,0 +1,55 @@
+{% extends 'admin/_layout.html.twig' %}
+
+{% block title %}Carousel{% endblock %}
+
+{% block body %}
+    <div class="flex items-center justify-between mb-6">
+        <h1 class="text-2xl font-black" style="font-family:'Barlow Condensed',sans-serif;">Slides du carousel</h1>
+        {% if can_url(path('admin_slide_carousel_new')) %}<a href="{{ path('admin_slide_carousel_new') }}" class="rounded-lg admin-gradient px-4 py-2 text-sm font-semibold text-white">+ Nouvelle slide</a>{% endif %}
+    </div>
+
+    {% embed 'admin/_components/data_table.html.twig' with {
+        key: 'slide_carousel',
+        plural: 'slides',
+        search_placeholder: 'Rechercher une slide…',
+        empty_message: 'Aucune slide ne correspond à votre recherche.',
+        statuses: true,
+        status_tabs: {all: 'Tous', active: 'Actifs', inactive: 'Inactifs'},
+        status_actions: false,
+        bulk_type: 'slide_carousel',
+        default_per_page: 100,
+        reorder_url: can_url(path('admin_slide_carousel_reorder'), 'POST') ? path('admin_slide_carousel_reorder') : null,
+        reorder_token: 'reorder-slide_carousel',
+        columns: [
+            {key: 'drag', label: 'Ordre', sortable: false},
+            {key: 'apercu', label: 'Aperçu', sortable: false},
+            {key: 'titre', label: 'Titre'},
+            {key: 'statut', label: 'Statut'},
+        ],
+    } %}
+        {% block rows %}
+            {% for slide in slides %}
+                <tr data-data-table-target="row" data-reorder-target="row" data-action="dragover->reorder#over drop->reorder#drop" data-id="{{ slide.id }}" data-status="{{ slide.actif ? 'active' : 'inactive' }}">
+                    {% if bulk %}<td class="dt-check-col"><input type="checkbox" data-row-check value="{{ slide.id }}" data-action="change->data-table#toggleRow" aria-label="Sélectionner {{ slide.titre }}"></td>{% endif %}
+                    <td data-col="drag" class="dt-drag-handle" draggable="true" data-action="dragstart->reorder#start dragend->reorder#end" title="Glisser pour réordonner"><i class="fa-solid fa-grip-vertical"></i></td>
+                    <td data-col="apercu"><img src="{{ asset('uploads/slides/' ~ slide.imageName) }}" alt="" class="h-10 w-16 rounded object-cover bg-white/10"></td>
+                    <td data-col="titre" data-sort="{{ slide.titre|lower }}" class="font-medium">{{ slide.titre }} {% if slide.titreMot %}<span class="text-admin-danger">{{ slide.titreMot }}</span>{% endif %}</td>
+                    <td data-col="statut" data-sort="{{ slide.actif ? 1 : 0 }}"><span class="badge {{ slide.actif ? 'badge-active' : 'badge-archived' }}">{{ slide.actif ? 'Actif' : 'Inactif' }}</span></td>
+                    {% include 'admin/_components/row_menu.html.twig' with {
+                        actions: [{
+                            url: path('admin_toggle_actif', {type: 'slide_carousel', id: slide.id}),
+                            token: csrf_token('toggle-slide_carousel-' ~ slide.id),
+                            label: slide.actif ? 'Désactiver' : 'Activer',
+                            icon: slide.actif ? 'fa-eye-slash' : 'fa-eye',
+                        }],
+                        edit_url: path('admin_slide_carousel_edit', {id: slide.id}),
+                        delete_url: path('admin_slide_carousel_delete', {id: slide.id}),
+                        delete_token: csrf_token('delete-slide-' ~ slide.id),
+                        delete_title: 'Supprimer cette slide ?',
+                        delete_message: 'La slide sera supprimée définitivement.',
+                    } %}
+                </tr>
+            {% endfor %}
+        {% endblock %}
+    {% endembed %}
+{% endblock %}

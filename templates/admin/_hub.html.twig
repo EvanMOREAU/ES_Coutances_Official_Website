@@ -1,0 +1,152 @@
+{#
+ Corps commun des pages « hub » (Site vitrine, Gestion des licenciés) :
+ panneau de conseils + cartes de rubriques.
+ Variables : sections, advice, groups (nom => libellé), open, openView.
+#}
+{% set byKey = {} %}
+{% for s in sections %}{% set byKey = byKey|merge({(s.key): s}) %}{% endfor %}
+
+{% if hide_advice|default(false) %}
+{% elseif advice is not empty %}
+    {% set required = advice|filter(a => not a.optional)|length %}
+    <details class="vt-advice" open>
+        <summary>
+            <span class="vt-advice-icon"><i class="fa-solid fa-lightbulb"></i></span>
+            <span class="vt-advice-head">
+                <strong>Conseils de configuration</strong>
+                <span>{{ advice|length }} suggestion{{ advice|length > 1 ? 's' }}{{ required > 0 ? ' · ' ~ required ~ ' à compléter' }} — rien n'est obligatoire</span>
+            </span>
+            <i class="fa-solid fa-chevron-down vt-advice-chevron"></i>
+        </summary>
+        <ul class="vt-advice-list">
+            {% for a in advice %}
+                {% set sec = byKey[a.section] %}
+                {% set wants_new = a.target == 'new' and sec.new %}
+                <li>
+                    <button type="button" class="vt-advice-item {{ a.optional ? 'is-optional' }}"
+                            data-controller="section-modal"
+                            data-section-modal-url-value="{{ wants_new ? sec.new : sec.url }}"
+                            data-section-modal-title-value="{{ sec.title }}{{ wants_new ? ' — Nouveau' }}"
+                            data-action="click->section-modal#open pointerenter->section-modal#warm focusin->section-modal#warm">
+                        <span class="vt-icon vt-icon-sm"><i class="fa-solid {{ a.icon }}"></i></span>
+                        <span class="vt-advice-text">
+                            <span class="vt-advice-label">{{ a.label }}{% if a.optional %} <em>optionnel</em>{% endif %}</span>
+                            <span class="vt-advice-detail">{{ a.detail }}</span>
+                        </span>
+                        <i class="fa-solid fa-arrow-right vt-advice-go"></i>
+                    </button>
+                </li>
+            {% endfor %}
+        </ul>
+    </details>
+{% else %}
+    <p class="vt-allgood"><i class="fa-solid fa-circle-check"></i> Tout est renseigné : il n'y a rien à compléter pour le moment.</p>
+{% endif %}
+
+    {% for group, group_label in groups %}
+        <h2 class="text-[11px] font-semibold uppercase tracking-widest text-admin-text-muted mb-3 {{ not loop.first ? 'mt-8' }}">{{ group_label }}</h2>
+        <div class="grid sm:grid-cols-2 xl:grid-cols-3 gap-5">
+            {% for s in sections|filter(s => s.group == group and can_url(s.url)) %}
+                <article class="vt-card"
+                         data-controller="section-modal"
+                         data-section-modal-title-value="{{ s.title }}"
+                         data-section-modal-url-value="{{ s.url }}"
+                         data-section-modal-new-url-value="{{ s.new }}"
+                         data-section-modal-autoopen-value="{{ s.key == open ? openView : '' }}"
+                         data-action="click->section-modal#openCard pointerenter->section-modal#warm focusin->section-modal#warm touchstart->section-modal#warm">
+                    <div class="vt-card-head">
+                        <span class="vt-icon"><i class="fa-solid {{ s.icon }}"></i></span>
+                        <h3 class="vt-title">
+                            <button type="button" class="vt-open" data-action="click->section-modal#open">{{ s.title }}</button>
+                        </h3>
+                        {% set todo = advice|filter(a => a.section == s.key) %}
+                        {% if todo is not empty %}
+                            {% set todo_required = todo|filter(a => not a.optional)|length > 0 %}
+                            <span class="vt-pill {{ todo_required ? 'is-todo' : 'is-hint' }}" title="{{ (todo|first).label }}">{{ todo_required ? 'À compléter' : 'Suggestion' }}</span>
+                        {% endif %}
+                        {% if s.new and can_url(s.new) %}
+                            <button type="button" class="vt-add" title="Ajouter" aria-label="Ajouter : {{ s.title }}"
+                                    data-action="click->section-modal#open pointerenter->section-modal#warm"
+                                    data-section-modal-url-param="{{ s.new }}"
+                                    data-section-modal-title-param="{{ s.title }} — Nouveau"><i class="fa-solid fa-plus"></i></button>
+                        {% endif %}
+                    </div>
+
+                    {% if s.value is not null %}
+                        <p class="vt-value">{{ s.value }} <span>{{ s.value is same as(1) ? s.label|replace({'actives': 'active', 'actifs': 'actif', 'membres actifs': 'membre actif', 'pages': 'page', 'jours renseignés': 'jour renseigné'}) : s.label }}</span></p>
+                        <p class="vt-sub">{{ s.sub }}</p>
+                    {% endif %}
+
+                    <div class="vt-visual">
+                        {% set v = s.visual %}
+                        {% if v.type == 'line' %}
+                            <div class="chart"
+                                 data-controller="line-chart"
+                                 data-line-chart-compact-value="true"
+                                 data-line-chart-height-value="84"
+                                 data-line-chart-unit-value="{{ v.unit }}"
+                                 data-line-chart-points-value="{{ v.points|json_encode|e('html_attr') }}">
+                                <div data-line-chart-target="plot"></div>
+                                <div class="chart-tooltip" data-line-chart-target="tooltip" hidden></div>
+                            </div>
+                            <p class="vt-caption">Évolution sur 12 mois</p>
+
+                        {% elseif v.type == 'split' %}
+                            {% set total = v.active + v.inactive %}
+                            <div class="vt-split" role="img" aria-label="{{ v.active }} actives, {{ v.inactive }} inactives">
+                                {% if total > 0 %}
+                                    <span class="vt-split-on" style="width: {{ (v.active / total * 100)|round(1) }}%"></span>
+                                {% endif %}
+                            </div>
+                            <p class="vt-caption">
+                                {% if total > 0 %}
+                                    <span class="vt-dot vt-dot-on"></span>{{ v.active }} active{{ v.active > 1 ? 's' }}
+                                    <span class="vt-dot vt-dot-off"></span>{{ v.inactive }} inactive{{ v.inactive > 1 ? 's' }}
+                                {% else %}
+                                    Aucun élément pour le moment
+                                {% endif %}
+                            </p>
+
+                        {% elseif v.type == 'bars' %}
+                            {% if v.items is empty %}
+                                <p class="vt-caption">Aucune donnée pour le moment</p>
+                            {% else %}
+                                {% if v.caption is defined %}<p class="vt-caption vt-bars-caption">{{ v.caption }}</p>{% endif %}
+                                <ul class="vt-bars">
+                                    {% for item in v.items %}
+                                        <li>
+                                            <span class="vt-bar-label">{{ item.label }}</span>
+                                            <span class="vt-bar-track"><span class="vt-bar-fill" style="width: {{ (item.value / v.max * 100)|round }}%"></span></span>
+                                            <span class="vt-bar-value">{{ item.value }}</span>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            {% endif %}
+
+                        {% elseif v.type == 'list' %}
+                            {% if v.items is empty %}
+                                <p class="vt-caption">Aucune page pour le moment</p>
+                            {% else %}
+                                <ul class="vt-list">
+                                    {% for item in v.items %}
+                                        <li><span>{{ item.title }}</span><span class="vt-caption">{{ item.meta }}</span></li>
+                                    {% endfor %}
+                                </ul>
+                            {% endif %}
+
+                        {% elseif v.type == 'days' %}
+                            <div class="vt-days" role="img" aria-label="Jours avec des horaires renseignés">
+                                {% for day in v.days %}
+                                    <span class="vt-day {{ day.set ? 'is-set' }}">{{ day.letter }}</span>
+                                {% endfor %}
+                            </div>
+
+                        {% elseif v.type == 'status' %}
+                            <p class="vt-status {{ v.on ? 'is-on' }}"><span class="vt-dot {{ v.on ? 'vt-dot-on' : 'vt-dot-off' }}"></span>{{ v.on ? v.onLabel : v.offLabel }}</p>
+                            <p class="vt-caption vt-truncate">{{ v.detail }}</p>
+                        {% endif %}
+                    </div>
+                </article>
+            {% endfor %}
+        </div>
+    {% endfor %}

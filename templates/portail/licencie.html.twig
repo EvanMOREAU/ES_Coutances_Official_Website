@@ -1,0 +1,19 @@
+{% extends 'portail/_layout.html.twig' %}
+
+{% block title %}{{ licencie.prenom }} {{ licencie.nom }}{% endblock %}
+
+{% block body %}
+    <p><a class="lien-retour" href="{{ path('portail_index') }}">&larr; Retour à mon espace</a></p>
+    <h1>{{ licencie.prenom }} {{ licencie.nom }}</h1>
+
+    <div class="card">
+        <h2>Informations</h2>
+        <table>
+            <tr><th>Date de naissance</th><td>{{ licencie.dateNaissance|date('d/m/Y') }}</td></tr>
+            <tr><th>Famille</th><td>{{ licencie.famille }}</td></tr>
+            <tr><th>Catégorie(s)</th><td>{{ licencie.categorie ~ (licencie.equipes|length ? ' — ' ~ licencie.equipes|map(e => e.nom)|join(', ') : '') }}</td></tr>
+            <tr><th>Saison</th><td>{{ licencie.saison }}</td></tr>
+            <tr><th>Statut</th><td>{{ licencie.actif ? 'Actif' : 'Inactif' }}</td></tr>
+        </table>
+    </div>
+{% endblock %}

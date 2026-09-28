@@ -1,0 +1,33 @@
+{% extends 'portail/_layout.html.twig' %}
+
+{% block title %}Mes commandes{% endblock %}
+
+{% block body %}
+    <h1>Mes commandes</h1>
+
+    <div class="card">
+        <h2>Boutique du club</h2>
+        {% if commandes is empty %}
+            <p>Vous n'avez pas encore passé de commande depuis ce compte.</p>
+        {% else %}
+            <table>
+                <thead>
+                    <tr><th>Commande</th><th>Date</th><th>Total</th><th>Règlement</th><th>Statut</th><th></th></tr>
+                </thead>
+                <tbody>
+                    {% for commande in commandes %}
+                        <tr>
+                            <td>{{ commande.reference }}</td>
+                            <td>{{ commande.createdAt|date('d/m/Y') }}</td>
+                            <td>{{ commande.totalCentimes|money }}</td>
+                            <td>{% if commande.statut == 'annulee' %}—{% elseif commande.payee %}<span class="badge-ok">Payée</span>{% else %}<span class="badge-ko">À régler</span>{% endif %}</td>
+                            <td>{{ commande.statutLabel }}</td>
+                            <td><a class="bouton" href="{{ path('boutique_commande_suivi', {reference: commande.reference, token: commande.token}) }}">Voir</a></td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+        <p style="margin-top:16px;"><a class="bouton" href="{{ path('boutique_index') }}">Aller à la boutique</a></p>
+    </div>
+{% endblock %}

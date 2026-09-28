@@ -1,0 +1,77 @@
+{#
+ Interface de messagerie (admin et espace familles). Variables : chat_base, chat_staff, chat_open.
+ Toute la mécanique « en direct » est dans le contrôleur Stimulus « chat ».
+#}
+<div class="ch" data-controller="chat"
+     data-chat-base-value="{{ chat_base }}"
+     data-chat-token-value="{{ csrf_token('chat') }}"
+     data-chat-staff-value="{{ chat_staff ? 'true' : 'false' }}"
+     data-chat-open-value="{{ chat_open|default(0) }}"
+     data-chat-me-value="{{ app.user.id }}">
+
+    <aside class="ch-side" data-chat-target="side">
+        <div class="ch-side-head">
+            <label class="ch-search">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="search" placeholder="Rechercher une discussion…" data-chat-target="search" data-action="input->chat#filter" autocomplete="off">
+            </label>
+            <button type="button" class="ch-icon-btn" data-action="click->chat#openNew" aria-label="Nouvelle discussion" title="Nouvelle discussion"><i class="fa-solid fa-pen-to-square"></i></button>
+        </div>
+        <div class="ch-list" data-chat-target="list" role="list"></div>
+    </aside>
+
+    <section class="ch-thread" data-chat-target="thread">
+        <div class="ch-empty" data-chat-target="placeholder">
+            <i class="fa-regular fa-comments"></i>
+            <strong>Vos messages</strong>
+            <span>Choisissez une discussion ou{% if chat_staff %} démarrez-en une nouvelle.{% else %} écrivez à un membre du club.{% endif %}</span>
+            <button type="button" class="ch-btn" data-action="click->chat#openNew"><i class="fa-solid fa-plus"></i> Nouvelle discussion</button>
+        </div>
+
+        <div class="ch-conversation" data-chat-target="conversation" hidden>
+            <div class="ch-header">
+                <button type="button" class="ch-icon-btn ch-back" data-action="click->chat#closeConversation" aria-label="Retour aux discussions"><i class="fa-solid fa-arrow-left"></i></button>
+                <span class="ch-avatar" data-chat-target="headAvatar"></span>
+                <div class="ch-header-text" data-action="click->chat#showMembers">
+                    <strong data-chat-target="headTitle"></strong>
+                    <span data-chat-target="headStatus"></span>
+                </div>
+            </div>
+
+            <div class="ch-messages" data-chat-target="messages" data-action="scroll->chat#onScroll" role="log" aria-live="polite"></div>
+
+            <button type="button" class="ch-jump" data-chat-target="jump" data-action="click->chat#jumpToEnd" hidden><i class="fa-solid fa-arrow-down"></i> Nouveaux messages</button>
+
+            <form class="ch-composer" data-action="submit->chat#submit">
+                <textarea rows="1" maxlength="2000" placeholder="Écrire un message…" data-chat-target="input" data-action="keydown->chat#composerKey input->chat#autosize" aria-label="Votre message"></textarea>
+                <button type="submit" class="ch-send" data-chat-target="send" aria-label="Envoyer" disabled><i class="fa-solid fa-paper-plane"></i></button>
+            </form>
+        </div>
+    </section>
+
+    <dialog class="admin-modal ch-modal" data-chat-target="newDialog" data-action="click->chat#dialogBackdrop">
+        <form class="admin-modal-body" data-action="submit->chat#createConversation" novalidate>
+            <h2 class="admin-modal-title">Nouvelle discussion</h2>
+            <p class="admin-modal-text" data-chat-target="newHelp"></p>
+
+            <label class="admin-modal-field">
+                <span class="admin-modal-label" data-chat-target="newLabel">Destinataire</span>
+                <select data-chat-target="newSelect" {{ chat_staff ? 'multiple' : '' }} data-placeholder="Choisir un destinataire…"></select>
+            </label>
+            <label class="admin-modal-field" data-chat-target="subjectField" hidden>
+                <span class="admin-modal-label">Titre du groupe (facultatif)</span>
+                <input type="text" class="admin-modal-input" maxlength="120" data-chat-target="newSubject" placeholder="Ex. Encadrants U13">
+            </label>
+            <label class="admin-modal-field">
+                <span class="admin-modal-label">Premier message (facultatif)</span>
+                <textarea class="admin-modal-input" rows="3" maxlength="2000" data-chat-target="newMessage" placeholder="Bonjour…"></textarea>
+            </label>
+            <p class="ch-form-error" data-chat-target="newError" hidden></p>
+
+            <div class="admin-modal-actions">
+                <button type="button" class="admin-btn admin-btn-ghost" data-action="click->chat#closeNew">Annuler</button>
+                <button type="submit" class="admin-btn admin-btn-primary" data-chat-target="newSubmit">Ouvrir la discussion</button>
+            </div>
+        </form>
+    </dialog>
+</div>

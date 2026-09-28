@@ -1,0 +1,12 @@
+{# Attend : { field: FormView } — champ texte riche (Trix) avec upload d'image inline #}
+{% do field.setRendered %}
+<div class="mb-5">
+    <label class="block text-xs font-semibold uppercase tracking-wide text-admin-text-muted mb-1.5">
+        {{ field.vars.label|trans }}
+    </label>
+    <input type="hidden" id="{{ field.vars.id }}" name="{{ field.vars.full_name }}" value="{{ field.vars.value|escape('html_attr') }}">
+    <trix-editor input="{{ field.vars.id }}" class="trix-content"></trix-editor>
+    {% if field.vars.help %}
+        <p class="mt-1 text-xs text-admin-text-muted">{{ field.vars.help }}</p>
+    {% endif %}
+</div>

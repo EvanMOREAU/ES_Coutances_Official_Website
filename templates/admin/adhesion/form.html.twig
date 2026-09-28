@@ -1,0 +1,135 @@
+{% extends 'admin/_layout.html.twig' %}
+{% form_theme form 'admin/_form_theme.html.twig' %}
+
+{% block title %}{{ adhesion.id ? 'Licence ' ~ adhesion.saison : 'Nouvelle licence' }}{% endblock %}
+
+{% macro reglement_row(row) %}
+    <div class="ad-row" data-adhesion-form-target="reglement">
+        <div class="ad-cell">{{ form_label(row.mode) }}{{ form_widget(row.mode) }}{{ form_errors(row.mode) }}</div>
+        <div class="ad-cell">{{ form_label(row.montantCentimes) }}{{ form_widget(row.montantCentimes) }}{{ form_errors(row.montantCentimes) }}</div>
+        <div class="ad-cell">{{ form_label(row.dateEcheance) }}{{ form_widget(row.dateEcheance) }}</div>
+        <div class="ad-cell ad-check"><label class="sv-toggle">{{ form_widget(row.recu) }}<span class="sv-switch"></span><span>Encaissé</span></label></div>
+        <div class="ad-cell">{{ form_label(row.dateRemise) }}{{ form_widget(row.dateRemise) }}</div>
+        <div class="ad-cell">{{ form_label(row.reference) }}{{ form_widget(row.reference) }}</div>
+        {{ form_widget(row.ordre) }}
+        <button type="button" class="var-remove" data-action="adhesion-form#remove" title="Retirer" aria-label="Retirer ce règlement"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+{% endmacro %}
+
+{% macro aide_row(row) %}
+    <div class="ad-row" data-adhesion-form-target="aide">
+        <div class="ad-cell">{{ form_label(row.type) }}{{ form_widget(row.type) }}{{ form_errors(row.type) }}</div>
+        <div class="ad-cell">{{ form_label(row.montantCentimes) }}{{ form_widget(row.montantCentimes) }}{{ form_errors(row.montantCentimes) }}</div>
+        <div class="ad-cell">{{ form_label(row.statut) }}{{ form_widget(row.statut) }}</div>
+        <div class="ad-cell">{{ form_label(row.dateReception) }}{{ form_widget(row.dateReception) }}</div>
+        <div class="ad-cell ad-wide">{{ form_label(row.note) }}{{ form_widget(row.note) }}</div>
+        <button type="button" class="var-remove" data-action="adhesion-form#remove" title="Retirer" aria-label="Retirer cette aide"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+{% endmacro %}
+
+{% block body %}
+    <a href="{{ path('admin_adhesion_index') }}" class="text-sm text-admin-text-muted hover:text-admin-text"><i class="fa-solid fa-arrow-left"></i> Paiements des licences</a>
+    <div class="flex flex-wrap items-center gap-3 mt-3 mb-5">
+        <h1 class="text-2xl font-black" style="font-family:'Barlow Condensed',sans-serif;">
+            {% if adhesion.id %}Licence {{ adhesion.saison }} — {{ adhesion.licencie }}{% else %}Nouvelle licence{% endif %}
+        </h1>
+        {% if adhesion.id %}<span class="badge badge-pay-{{ adhesion.statutPaiement }}">{{ adhesion.statutPaiementLabel }}</span>{% endif %}
+    </div>
+
+    {% if adhesion.id %}
+        <div class="ad-tiles">
+            <div class="ad-tile"><span>Montant dû</span><strong>{{ adhesion.montantDuCentimes|money }}</strong></div>
+            <div class="ad-tile"><span>Encaissé</span><strong>{{ adhesion.recuCentimes|money }}</strong></div>
+            <div class="ad-tile"><span>Reste à encaisser</span><strong>{{ adhesion.resteCentimes|money }}</strong></div>
+            <div class="ad-tile"><span>Aides attendues</span><strong>{{ adhesion.aidesAttenduesCentimes|money }}</strong></div>
+        </div>
+    {% endif %}
+
+    {% set next_reglement = 0 %}{% for key, row in form.reglements %}{% set next_reglement = max(next_reglement, key + 1) %}{% endfor %}
+    {% set next_aide = 0 %}{% for key, row in form.aides %}{% set next_aide = max(next_aide, key + 1) %}{% endfor %}
+    {{ form_start(form, {attr: {novalidate: 'novalidate'}}) }}
+    <div data-controller="adhesion-form" data-action="change->adhesion-form#received"
+         data-adhesion-form-reglement-prototype-value="{{ _self.reglement_row(form.reglements.vars.prototype)|e('html_attr') }}"
+         data-adhesion-form-aide-prototype-value="{{ _self.aide_row(form.aides.vars.prototype)|e('html_attr') }}"
+         data-adhesion-form-reglement-index-value="{{ next_reglement }}"
+         data-adhesion-form-aide-index-value="{{ next_aide }}">
+        <div class="grid gap-6 lg:grid-cols-3 items-start">
+            <div class="lg:col-span-2 space-y-6">
+                <section class="admin-card rounded-2xl p-6">
+                    <h2 class="font-semibold mb-5">Licence et montant</h2>
+                    {% if form.licencie is defined %}{{ form_row(form.licencie) }}{% endif %}
+                    {{ form_row(form.saison) }}
+                    <div class="grid sm:grid-cols-2 gap-4">
+                        {{ form_row(form.montantBaseCentimes) }}
+                        {{ form_row(form.reductionCentimes) }}
+                    </div>
+                    {{ form_row(form.reductionMotif) }}
+                </section>
+
+                <section class="admin-card rounded-2xl p-6">
+                    <h2 class="font-semibold mb-1">Aides</h2>
+                    <p class="text-xs text-admin-text-muted mb-4">Pass'Sport, Sport 50, Atout Normandie, Bourse Évasion, chèques vacances, coupons sport… Une aide reste « attendue » jusqu'à sa réception : notez la date quand elle arrive.</p>
+                    <div data-adhesion-form-target="aides">
+                        {% for row in form.aides %}{{ _self.aide_row(row) }}{% endfor %}
+                    </div>
+                    <p class="ad-empty" data-adhesion-form-target="aidesEmpty" {{ form.aides|length > 0 ? 'hidden' }}>Aucune aide enregistrée.</p>
+                    <button type="button" class="admin-btn admin-btn-ghost admin-btn-sm mt-3" data-action="adhesion-form#addAide"><i class="fa-solid fa-plus"></i> Ajouter une aide</button>
+                    {% do form.aides.setRendered %}
+                </section>
+
+                <section class="admin-card rounded-2xl p-6">
+                    <div class="flex flex-wrap items-center justify-between gap-3 mb-1">
+                        <h2 class="font-semibold">Règlements</h2>
+                        <div class="ad-split">
+                            <span>Échelonner le reste en</span>
+                            <button type="button" class="admin-btn admin-btn-ghost admin-btn-sm" data-action="adhesion-form#split" data-adhesion-form-parts-param="1">1 fois</button>
+                            <button type="button" class="admin-btn admin-btn-ghost admin-btn-sm" data-action="adhesion-form#split" data-adhesion-form-parts-param="2">2 fois</button>
+                            <button type="button" class="admin-btn admin-btn-ghost admin-btn-sm" data-action="adhesion-form#split" data-adhesion-form-parts-param="3">3 fois</button>
+                        </div>
+                    </div>
+                    <p class="text-xs text-admin-text-muted mb-4">Une ligne par échéance. Cochez « Encaissé » à la réception, et indiquez la date de remise en banque (chèques, espèces) ou de paiement (carte).</p>
+                    <div data-adhesion-form-target="reglements">
+                        {% for row in form.reglements %}{{ _self.reglement_row(row) }}{% endfor %}
+                    </div>
+                    <p class="ad-empty" data-adhesion-form-target="reglementsEmpty" {{ form.reglements|length > 0 ? 'hidden' }}>Aucun règlement enregistré.</p>
+                    <button type="button" class="admin-btn admin-btn-ghost admin-btn-sm mt-3" data-action="adhesion-form#addReglement"><i class="fa-solid fa-plus"></i> Ajouter un règlement</button>
+                    {% do form.reglements.setRendered %}
+                </section>
+
+                <section class="admin-card rounded-2xl p-6">
+                    <h2 class="font-semibold mb-5">Observations</h2>
+                    {{ form_row(form.observation) }}
+                </section>
+            </div>
+
+            <aside class="space-y-6">
+                {% if adhesion.licencie %}
+                    <section class="admin-card rounded-2xl p-6">
+                        <h2 class="font-semibold mb-3">Famille</h2>
+                        <p class="text-sm">{{ adhesion.licencie.famille }}</p>
+                        <p class="text-xs text-admin-text-muted mt-1">{{ adhesion.licencie.famille.licencies|length }} licencié{{ adhesion.licencie.famille.licencies|length > 1 ? 's' }}</p>
+                    </section>
+                {% endif %}
+                {% if history is defined and history|length > 1 %}
+                    <section class="admin-card rounded-2xl p-6">
+                        <h2 class="font-semibold mb-3">Historique des licences</h2>
+                        <ul class="space-y-2 text-sm">
+                            {% for h in history %}
+                                <li class="flex items-center justify-between gap-3">
+                                    <a href="{{ path('admin_adhesion_edit', {id: h.id}) }}" class="hover:underline {{ h.id == adhesion.id ? 'font-semibold' }}">{{ h.saison }}</a>
+                                    <span class="badge badge-pay-{{ h.statutPaiement }}">{{ h.statutPaiementLabel }}</span>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </section>
+                {% endif %}
+            </aside>
+        </div>
+
+        <div class="flex items-center gap-3 mt-6">
+            <button type="submit" class="rounded-lg admin-gradient px-5 py-2 text-sm font-semibold text-white">Enregistrer</button>
+            <a href="{{ path('admin_adhesion_index') }}" class="text-sm text-admin-text-muted hover:text-admin-text">Annuler</a>
+        </div>
+    </div>
+    {{ form_end(form) }}
+{% endblock %}

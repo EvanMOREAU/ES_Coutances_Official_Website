@@ -1,0 +1,66 @@
+{% extends 'admin/parametres/_layout.html.twig' %}
+
+{% block tab_content %}
+    {% set theme_icons = { light: 'fa-sun', dark: 'fa-moon', system: 'fa-display' } %}
+    {% set density_icons = { compact: 'fa-bars', comfortable: 'fa-table-cells-large', spacious: 'fa-expand' } %}
+    {% set scheme_colors = { rouge: '#C8102E', violet: '#7c3aed', blue: '#2563eb', emerald: '#059669', rose: '#e11d48', orange: '#ea580c', slate: '#64748b' } %}
+
+    {{ form_start(form, {attr: {'data-controller': 'appearance'}}) }}
+        <h2 class="text-lg font-bold">Apparence</h2>
+        <p class="text-sm text-admin-text-muted mb-6">Personnalisez l'aspect de l'application — l'aperçu est immédiat, pensez à enregistrer.</p>
+
+        <h3 class="text-xs font-semibold uppercase tracking-wide text-admin-text-muted mb-3">Thème</h3>
+        <div class="grid grid-cols-3 gap-3 mb-8">
+            {% for child in form.theme %}
+                <label class="choice-card p-4">
+                    {{ form_widget(child, {attr: {class: 'sr-only', 'data-action': 'change->appearance#apply'}}) }}
+                    <i class="choice-card-icon fa-solid {{ theme_icons[child.vars.value] }} text-lg mb-2 block"></i>
+                    <span class="text-sm">{{ child.vars.label }}</span>
+                </label>
+            {% endfor %}
+        </div>
+
+        <h3 class="text-xs font-semibold uppercase tracking-wide text-admin-text-muted mb-3">Couleur d'accent</h3>
+        <div class="grid grid-cols-3 sm:grid-cols-6 gap-3 mb-8">
+            {% for child in form.colorScheme %}
+                <label class="choice-card p-3">
+                    {{ form_widget(child, {attr: {class: 'sr-only', 'data-action': 'change->appearance#apply'}}) }}
+                    <span class="block h-5 w-5 rounded-full mx-auto mb-2" style="background-color: {{ scheme_colors[child.vars.value] }};"></span>
+                    <span class="text-xs">{{ child.vars.label }}</span>
+                </label>
+            {% endfor %}
+        </div>
+
+        <h3 class="text-xs font-semibold uppercase tracking-wide text-admin-text-muted mb-3">Densité</h3>
+        <div class="grid grid-cols-3 gap-3 mb-8">
+            {% for child in form.density %}
+                <label class="choice-card p-4">
+                    {{ form_widget(child, {attr: {class: 'sr-only', 'data-action': 'change->appearance#apply'}}) }}
+                    <i class="choice-card-icon fa-solid {{ density_icons[child.vars.value] }} text-lg mb-2 block"></i>
+                    <span class="text-sm">{{ child.vars.label }}</span>
+                </label>
+            {% endfor %}
+        </div>
+
+        <h3 class="text-xs font-semibold uppercase tracking-wide text-admin-text-muted mb-3">Langue</h3>
+        <div class="grid grid-cols-3 gap-3 mb-2">
+            <div class="rounded-xl border-2 border-admin-primary-to bg-admin-primary-to/10 p-4 text-center">
+                <i class="fa-solid fa-globe text-lg mb-2 block text-admin-primary-to"></i>
+                <span class="text-sm font-medium">Français</span>
+            </div>
+            <div class="rounded-xl border-2 border-admin-border p-4 text-center opacity-40 cursor-not-allowed">
+                <i class="fa-solid fa-globe text-lg mb-2 block text-admin-text-muted"></i>
+                <span class="text-sm text-admin-text-muted">English</span>
+            </div>
+            <div class="rounded-xl border-2 border-admin-border p-4 text-center opacity-40 cursor-not-allowed">
+                <i class="fa-solid fa-globe text-lg mb-2 block text-admin-text-muted"></i>
+                <span class="text-sm text-admin-text-muted">Deutsch</span>
+            </div>
+        </div>
+        <p class="text-xs text-admin-text-muted mb-8">Seul le français est disponible pour le moment.</p>
+
+        <div class="flex justify-end">
+            <button type="submit" class="rounded-lg admin-gradient px-5 py-2 text-sm font-semibold text-white">Enregistrer</button>
+        </div>
+    {{ form_end(form) }}
+{% endblock %}

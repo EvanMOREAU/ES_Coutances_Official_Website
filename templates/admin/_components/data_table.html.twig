@@ -1,0 +1,146 @@
+{#
+ Tableau de données du back-office (voir assets/controllers/data_table_controller.js).
+
+ Utilisation :
+   {% embed 'admin/_components/data_table.html.twig' with {
+       key: 'famille',
+       plural: 'familles',
+       columns: [{key: 'nom', label: 'Nom'}, {key: 'nb', label: 'Licenciés', type: 'number'}],
+       statuses: true,
+       bulk: true,
+       bulk_type: 'famille',
+   } %}
+       {% block rows %}<tr data-data-table-target="row" data-id="…" data-status="…">…</tr>{% endblock %}
+   {% endembed %}
+
+ - key : identifiant du tableau (sert à mémoriser l'affichage par utilisateur)
+ - statuses : onglets de filtre par statut (status_tabs pour les personnaliser, ex. Tous / Actifs / Inactifs)
+ - status_actions : boutons Activer / Brouillon / Archiver dans la barre d'actions groupées (défaut : = statuses)
+ - bulk : cases à cocher + actions groupées (bulk_type = clé de BulkActionController, défaut : key)
+ Chaque <td> de colonne porte data-col="<clé>" (et data-sort="…" pour trier sur
+ une autre valeur que le texte affiché).
+#}
+{% set prefs = app.user ? app.user.tablePreferences[key]|default({}) : {} %}
+{% set hidden_columns = prefs.hidden|default([]) %}
+{% set per_page = prefs.perPage|default(default_per_page|default(10)) %}
+{# `is defined` et non |default() : default() traiterait `false` comme « non défini » #}
+{% set statuses = statuses is defined ? statuses : false %}
+{% set status_tabs = status_tabs|default({all: 'Tous', active: 'Actifs', draft: 'Brouillons', archived: 'Archivés'}) %}
+{% set status_actions = status_actions is defined ? status_actions : statuses %}
+{% set bulk = bulk is defined ? bulk : true %}
+{% set bulk_type = bulk_type|default(key) %}
+{# Actions groupées (statut, suppression) : réservées à ceux qui peuvent modifier ce type d'élément. #}
+{% set bulk = bulk and can_url(path('admin_bulk_action', {type: bulk_type}), 'POST') %}
+{# reorder_url : active le glisser-déposer des lignes (poignée .dt-drag-handle dans le gabarit appelant, voir assets/controllers/reorder_controller.js). #}
+{% set reorder = reorder_url is defined and reorder_url %}
+
+<div data-controller="data-table{{ reorder ? ' reorder' }}"
+     data-data-table-key-value="{{ key }}"
+     data-data-table-plural-value="{{ plural|default('éléments') }}"
+     data-data-table-hidden-value="{{ hidden_columns|json_encode|e('html_attr') }}"
+     data-data-table-per-page-value="{{ per_page }}"
+     data-data-table-prefs-url-value="{{ path('admin_table_preferences', {key: key}) }}"
+     data-data-table-prefs-token-value="{{ csrf_token('admin-table-preferences') }}"
+     {% if bulk %}
+     data-data-table-bulk-url-value="{{ path('admin_bulk_action', {type: bulk_type}) }}"
+     data-data-table-bulk-token-value="{{ csrf_token('bulk-' ~ bulk_type) }}"
+     {% endif %}
+     {% if reorder %}
+     data-reorder-url-value="{{ reorder_url }}"
+     data-reorder-token-value="{{ csrf_token(reorder_token) }}"
+     {% endif %}>
+
+    <div class="dt-toolbar">
+        {% if statuses %}
+            <div class="dt-tabs" role="group" aria-label="Filtrer par statut">
+                {% for status, label in status_tabs %}
+                    <button type="button" class="dt-tab" data-data-table-target="tab" data-status="{{ status }}" data-action="click->data-table#filterStatus">{{ label }}<span data-count></span></button>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <label class="dt-search">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="search" placeholder="{{ search_placeholder|default('Rechercher…') }}" aria-label="Rechercher dans le tableau"
+                   data-data-table-target="search" data-action="input->data-table#search">
+        </label>
+
+        <div class="dt-toolbar-end">
+            <div data-controller="menu" class="relative">
+                <button type="button" class="admin-btn admin-btn-ghost" data-menu-target="button" data-action="click->menu#toggle" aria-haspopup="true" aria-expanded="false">
+                    <i class="fa-solid fa-sliders"></i> Colonnes
+                </button>
+                <div data-menu-target="panel" class="admin-menu-panel hidden">
+                    <p class="admin-menu-title">Afficher les colonnes</p>
+                    {% for column in columns %}
+                        <label class="admin-menu-item admin-menu-check">
+                            <input type="checkbox" checked data-col="{{ column.key }}"
+                                   data-data-table-target="columnToggle" data-action="change->data-table#toggleColumn">
+                            <span>{{ column.label }}</span>
+                        </label>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if bulk %}
+        <div class="dt-bulk" hidden data-data-table-target="bulkBar">
+            <span class="dt-bulk-count" data-data-table-target="bulkCount"></span>
+            {% if status_actions %}
+                <button type="button" class="admin-btn admin-btn-ghost admin-btn-sm" data-action="click->data-table#bulk" data-bulk-action="statut:active"><i class="fa-solid fa-circle-check"></i> Activer</button>
+                <button type="button" class="admin-btn admin-btn-ghost admin-btn-sm" data-action="click->data-table#bulk" data-bulk-action="statut:draft"><i class="fa-solid fa-pen-ruler"></i> Brouillon</button>
+                <button type="button" class="admin-btn admin-btn-ghost admin-btn-sm" data-action="click->data-table#bulk" data-bulk-action="statut:archived"><i class="fa-solid fa-box-archive"></i> Archiver</button>
+            {% endif %}
+            <button type="button" class="admin-btn admin-btn-danger admin-btn-sm" data-action="click->data-table#bulk" data-bulk-action="delete"><i class="fa-solid fa-trash"></i> Supprimer</button>
+            <button type="button" class="admin-btn admin-btn-ghost admin-btn-sm" data-action="click->data-table#clearSelection">Désélectionner</button>
+        </div>
+    {% endif %}
+
+    <div class="dt-card">
+        <div class="dt-scroll">
+            <table class="dt-table" data-data-table-target="table">
+                <thead>
+                    <tr>
+                        {% if bulk %}
+                            <th class="dt-check-col"><input type="checkbox" aria-label="Tout sélectionner" data-data-table-target="selectAll" data-action="change->data-table#toggleAll"></th>
+                        {% endif %}
+                        {% for column in columns %}
+                            {% if column.sortable|default(true) %}
+                                <th data-col="{{ column.key }}" data-type="{{ column.type|default('text') }}" aria-sort="none" data-data-table-target="sortHeader">
+                                    <button type="button" class="dt-sort" data-col="{{ column.key }}" data-action="click->data-table#sort">
+                                        {{ column.label }} <i class="fa-solid fa-arrows-up-down dt-sort-icon" data-sort-icon></i>
+                                    </button>
+                                </th>
+                            {% else %}
+                                <th data-col="{{ column.key }}">{{ column.label }}</th>
+                            {% endif %}
+                        {% endfor %}
+                        <th class="dt-actions-col"><span class="sr-only">Actions</span></th>
+                    </tr>
+                </thead>
+                <tbody data-data-table-target="body">
+                    {% block rows %}{% endblock %}
+                    <tr class="dt-empty" data-data-table-target="empty" hidden>
+                        <td colspan="99">{{ empty_message|default('Aucun résultat.') }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="dt-footer">
+        <span data-data-table-target="info"></span>
+        <div class="dt-footer-end">
+            <label class="dt-rows">
+                <span>Lignes</span>
+                <select data-compact data-data-table-target="perPage" data-action="change->data-table#changePerPage">
+                    {% for n in [10, 25, 50, 100] %}
+                        <option value="{{ n }}" {{ n == per_page ? 'selected' }}>{{ n }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+            <div class="dt-pager" data-data-table-target="pager"></div>
+        </div>
+    </div>
+</div>

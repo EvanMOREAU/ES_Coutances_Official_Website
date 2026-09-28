@@ -1,0 +1,65 @@
+{% extends 'admin/_layout.html.twig' %}
+
+{% block title %}Familles{% endblock %}
+
+{% block body %}
+    <div class="flex items-center justify-between mb-6">
+        <h1 class="text-2xl font-black" style="font-family:'Barlow Condensed',sans-serif;">Familles</h1>
+        {% if can_url(path('admin_famille_new')) %}<a href="{{ path('admin_famille_new') }}" class="rounded-lg admin-gradient px-4 py-2 text-sm font-semibold text-white">+ Nouvelle famille</a>{% endif %}
+    </div>
+
+    {% embed 'admin/_components/data_table.html.twig' with {
+        key: 'famille',
+        plural: 'familles',
+        statuses: true,
+        search_placeholder: 'Rechercher une famille…',
+        empty_message: 'Aucune famille ne correspond à votre recherche.',
+        columns: [
+            {key: 'nom', label: 'Nom'},
+            {key: 'compte', label: 'Compte'},
+            {key: 'ville', label: 'Ville'},
+            {key: 'licencies', label: 'Licenciés', type: 'number'},
+            {key: 'statut', label: 'Statut'},
+            {key: 'cree', label: 'Créée le'},
+        ],
+    } %}
+        {% block rows %}
+            {% for famille in familles %}
+                {% set famille_delete = null %}
+                {% if famille.licencies|length > 0 %}
+                    {% set items = [] %}
+                    {% for licencie in famille.licencies %}
+                        {% set items = items|merge([{
+                            id: licencie.id,
+                            name: licencie.prenom ~ ' ' ~ licencie.nom,
+                            meta: licencie.categorie ~ ' · ' ~ licencie.saison,
+                            url: path('admin_licencie_delete', {id: licencie.id}),
+                            token: csrf_token('delete-licencie-' ~ licencie.id),
+                        }]) %}
+                    {% endfor %}
+                    {% set famille_delete = {name: famille.nom, licencies: items} %}
+                {% endif %}
+                <tr data-data-table-target="row" data-id="{{ famille.id }}" data-status="{{ famille.statut }}">
+                    {% if bulk %}<td class="dt-check-col"><input type="checkbox" data-row-check value="{{ famille.id }}" data-action="change->data-table#toggleRow" aria-label="Sélectionner {{ famille.nom }}"></td>{% endif %}
+                    <td data-col="nom" data-sort="{{ famille.nom|lower }}" class="font-medium">
+                        <a href="{{ path('admin_famille_show', {id: famille.id}) }}" class="hover:underline">{{ famille.nom }}</a>
+                    </td>
+                    <td data-col="compte" class="dt-muted">{{ famille.user }}</td>
+                    <td data-col="ville" class="dt-muted">{{ famille.ville ?? '—' }}</td>
+                    <td data-col="licencies" data-sort="{{ famille.licencies|length }}">{{ famille.licencies|length }}</td>
+                    <td data-col="statut"><span class="badge badge-{{ famille.statut }}">{{ famille.statutLabel }}</span></td>
+                    <td data-col="cree" data-sort="{{ famille.createdAt ? famille.createdAt|date('Y-m-d H:i') : '' }}" class="dt-muted">{{ famille.createdAt ? famille.createdAt|date('d/m/Y') : '—' }}</td>
+                    {% include 'admin/_components/row_menu.html.twig' with {
+                        show_url: path('admin_famille_show', {id: famille.id}),
+                        edit_url: path('admin_famille_edit', {id: famille.id}),
+                        delete_url: path('admin_famille_delete', {id: famille.id}),
+                        delete_token: csrf_token('delete-famille-' ~ famille.id),
+                        delete_title: 'Supprimer cette famille ?',
+                        delete_message: 'La famille « ' ~ famille.nom ~ ' » et son compte seront supprimés définitivement.',
+                        famille_delete: famille_delete,
+                    } %}
+                </tr>
+            {% endfor %}
+        {% endblock %}
+    {% endembed %}
+{% endblock %}

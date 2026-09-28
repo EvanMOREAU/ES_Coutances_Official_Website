@@ -1,0 +1,376 @@
+@import "tailwindcss";
+@import "./custom-select.css";
+@import "./admin-components.css";
+@import "./admin-modules.css";
+@import "./admin-files.css";
+@import "./chat.css";
+@import "./admin-notifications.css";
+@import "./planning.css";
+@import "./boutique-admin.css";
+@import "./admin-horaires.css";
+
+/*
+ * Design system du back-office (Phase 1bis) : thème sombre, dégradé signature
+ * violet -> bleu, cartes "verre dépoli". Ce fichier n'est chargé que sur les
+ * pages /admin (nouveau layout) : il ne doit jamais être importé sur le site
+ * public.
+ */
+@theme {
+    --color-admin-bg: #0a0a0f;
+    --color-admin-surface: #111116;
+    --color-admin-surface-hover: #17171e;
+    --color-admin-border: rgba(255, 255, 255, 0.08);
+    --color-admin-text: #f4f4f5;
+    --color-admin-text-muted: #9797a3;
+    --color-admin-primary-from: #C8102E;
+    --color-admin-primary-to: #9E0C23;
+    --color-admin-success: #22c55e;
+    --color-admin-danger: #ef4444;
+}
+
+/*
+ * Thème clair/sombre : les tokens ci-dessus servent de valeurs sombres par
+ * défaut ; on les redéclare (hors @theme, en CSS classique) pour le clair.
+ * Tailwind v4 garde les couleurs comme variables CSS "live", donc toute classe
+ * utilitaire (bg-admin-bg, text-admin-text...) suit ces surcharges.
+ */
+:root[data-theme="light"] {
+    --color-admin-bg: #f4f4f6;
+    --color-admin-surface: #ffffff;
+    --color-admin-surface-hover: #f0f0f3;
+    --color-admin-border: rgba(10, 10, 15, 0.1);
+    --color-admin-text: #0a0a0f;
+    --color-admin-text-muted: #6b7280;
+}
+
+/* Thème "système" (pas de data-theme explicite) : suit les préférences OS */
+@media (prefers-color-scheme: light) {
+    :root:not([data-theme]) {
+        --color-admin-bg: #f4f4f6;
+        --color-admin-surface: #ffffff;
+        --color-admin-surface-hover: #f0f0f3;
+        --color-admin-border: rgba(10, 10, 15, 0.1);
+        --color-admin-text: #0a0a0f;
+        --color-admin-text-muted: #6b7280;
+    }
+}
+
+/* Déclinaisons de couleur d'accent (dégradé signature) */
+:root[data-scheme="violet"]  { --color-admin-primary-from: #7c3aed; --color-admin-primary-to: #2563eb; }
+:root[data-scheme="rouge"]   { --color-admin-primary-from: #C8102E; --color-admin-primary-to: #9E0C23; }
+:root[data-scheme="blue"]    { --color-admin-primary-from: #2563eb; --color-admin-primary-to: #0ea5e9; }
+:root[data-scheme="emerald"] { --color-admin-primary-from: #059669; --color-admin-primary-to: #10b981; }
+:root[data-scheme="rose"]    { --color-admin-primary-from: #e11d48; --color-admin-primary-to: #ec4899; }
+:root[data-scheme="orange"]  { --color-admin-primary-from: #ea580c; --color-admin-primary-to: #f59e0b; }
+:root[data-scheme="slate"]   { --color-admin-primary-from: #475569; --color-admin-primary-to: #64748b; }
+
+/*
+ * Densité : Tailwind exprime ses espacements en rem (relatifs à la taille de
+ * police racine). Faire varier cette taille racine réduit/augmente donc
+ * proportionnellement tous les paddings/marges/gaps existants, sans avoir à
+ * retoucher chaque template.
+ */
+:root[data-density="compact"]     { font-size: 14px; }
+:root[data-density="comfortable"] { font-size: 16px; }
+:root[data-density="spacious"]    { font-size: 18px; }
+
+body.admin-shell {
+    background-color: var(--color-admin-bg);
+    color: var(--color-admin-text);
+}
+
+.admin-gradient {
+    background-image: linear-gradient(135deg, var(--color-admin-primary-from), var(--color-admin-primary-to));
+}
+
+.admin-card {
+    background-color: var(--color-admin-surface);
+    border: 1px solid var(--color-admin-border);
+}
+
+.admin-hero {
+    background-image: linear-gradient(120deg,
+        color-mix(in srgb, var(--color-admin-primary-from) 78%, black) 0%,
+        color-mix(in srgb, var(--color-admin-primary-to) 78%, black) 100%);
+    box-shadow: 0 16px 35px -18px color-mix(in srgb, var(--color-admin-primary-from) 35%, transparent);
+}
+
+.admin-hero-glow {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+        radial-gradient(circle at 15% 20%, rgba(255, 255, 255, 0.10) 0, transparent 45%),
+        radial-gradient(circle at 85% 85%, rgba(255, 255, 255, 0.08) 0, transparent 50%),
+        radial-gradient(rgba(255, 255, 255, 0.12) 1px, transparent 1px);
+    background-size: auto, auto, 18px 18px;
+}
+
+/*
+ * Sidebar en mode rail (icônes seules, .lg\:w-20 basculée par
+ * admin_sidebar_controller.js) : les liens d'une section restent visibles
+ * même si l'utilisateur l'avait repliée en mode large, sinon plus aucune
+ * icône n'y est cliquable.
+ */
+.lg\:w-20 [data-nav-section-target="links"] {
+    display: flex !important;
+    flex-direction: column;
+}
+
+.admin-scrollbar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.admin-scrollbar::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.15);
+    border-radius: 9999px;
+}
+
+/*
+ * Filet de sécurité : toute zone défilante du back-office (modales, listes,
+ * panneaux…) hérite d'une barre de défilement discrète plutôt que la barre
+ * blanche par défaut du navigateur. .admin-shell est sur <body>, donc ça
+ * couvre aussi les éléments ajoutés dynamiquement (dialog, panneaux JS).
+ */
+.admin-shell *::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+.admin-shell *::-webkit-scrollbar-thumb {
+    background-color: color-mix(in srgb, var(--color-admin-text-muted) 40%, transparent);
+    border-radius: 9999px;
+}
+
+.admin-shell *::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.admin-shell * {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in srgb, var(--color-admin-text-muted) 40%, transparent) transparent;
+}
+
+/* Survol/état actif neutres qui s'adaptent au thème clair ou sombre */
+.admin-surface-hover:hover {
+    background-color: color-mix(in srgb, var(--color-admin-text) 6%, transparent);
+}
+
+.admin-surface-active {
+    background-color: color-mix(in srgb, var(--color-admin-text) 10%, transparent);
+    color: var(--color-admin-text);
+}
+
+.vich-image img {
+    margin-top: 0.5rem;
+    height: 5rem;
+    border-radius: 0.5rem;
+    border: 1px solid var(--color-admin-border);
+    object-fit: cover;
+}
+
+.vich-file a,
+.vich-image a[download] {
+    display: inline-block;
+    margin-top: 0.5rem;
+    font-size: 0.75rem;
+    color: var(--color-admin-primary-to);
+}
+
+/* ------------------------------------------------------------------ */
+/* Cases à cocher, boutons radio, interrupteurs, "chips" de sélection  */
+/* ------------------------------------------------------------------ */
+.admin-shell input[type="checkbox"],
+.admin-shell input[type="radio"] {
+    appearance: none;
+    -webkit-appearance: none;
+    display: inline-grid;
+    place-content: center;
+    flex-shrink: 0;
+    width: 1.15rem;
+    height: 1.15rem;
+    margin: 0;
+    cursor: pointer;
+    border: 1.5px solid color-mix(in srgb, var(--color-admin-text) 30%, transparent);
+    background-color: var(--color-admin-bg);
+    transition: background-color .15s, border-color .15s, box-shadow .15s, transform .15s;
+}
+
+.admin-shell input[type="checkbox"] { border-radius: 0.35rem; }
+.admin-shell input[type="radio"] { border-radius: 9999px; }
+
+.admin-shell input[type="checkbox"]:hover,
+.admin-shell input[type="radio"]:hover {
+    border-color: var(--color-admin-primary-to);
+}
+
+.admin-shell input[type="checkbox"]:checked,
+.admin-shell input[type="radio"]:checked {
+    border-color: transparent;
+    background-image: linear-gradient(135deg, var(--color-admin-primary-from), var(--color-admin-primary-to));
+}
+
+.admin-shell input[type="checkbox"]::after {
+    content: "";
+    width: 0.65rem;
+    height: 0.65rem;
+    transform: scale(0);
+    transition: transform .15s ease-out;
+    background: #fff;
+    clip-path: polygon(14% 52%, 0 66%, 38% 100%, 100% 22%, 86% 8%, 38% 72%);
+}
+
+.admin-shell input[type="checkbox"]:checked::after { transform: scale(1); }
+
+.admin-shell input[type="radio"]::after {
+    content: "";
+    width: 0.45rem;
+    height: 0.45rem;
+    border-radius: 9999px;
+    background: #fff;
+    transform: scale(0);
+    transition: transform .15s ease-out;
+}
+
+.admin-shell input[type="radio"]:checked::after { transform: scale(1); }
+
+.admin-shell input:focus-visible {
+    outline: 2px solid var(--color-admin-primary-to);
+    outline-offset: 2px;
+}
+
+/* Interrupteur (toggle) */
+.admin-shell input[type="checkbox"].admin-switch {
+    width: 2.6rem;
+    height: 1.45rem;
+    border-radius: 9999px;
+    place-content: unset;
+    display: inline-block;
+    position: relative;
+    border-color: transparent;
+    background-color: color-mix(in srgb, var(--color-admin-text) 18%, transparent);
+}
+
+.admin-shell input[type="checkbox"].admin-switch::after {
+    position: absolute;
+    top: 50%;
+    left: 0.2rem;
+    width: 1.05rem;
+    height: 1.05rem;
+    clip-path: none;
+    border-radius: 9999px;
+    background: #fff;
+    transform: translateY(-50%);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, .35);
+    transition: left .18s ease-out;
+}
+
+.admin-shell input[type="checkbox"].admin-switch:checked {
+    background-color: transparent;
+    background-image: linear-gradient(135deg, var(--color-admin-primary-from), var(--color-admin-primary-to));
+}
+
+.admin-shell input[type="checkbox"].admin-switch:checked::after {
+    left: calc(100% - 1.25rem);
+    transform: translateY(-50%);
+}
+
+/* "Chips" : choix multiples présentés en pastilles cliquables */
+.admin-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    cursor: pointer;
+    user-select: none;
+    padding: .4rem .85rem;
+    font-size: .8125rem;
+    border-radius: 9999px;
+    border: 1px solid var(--color-admin-border);
+    color: var(--color-admin-text-muted);
+    background-color: var(--color-admin-bg);
+    transition: background-color .15s, color .15s, border-color .15s, transform .15s, opacity .15s;
+}
+
+.admin-chip:hover {
+    color: var(--color-admin-text);
+    border-color: color-mix(in srgb, var(--color-admin-primary-to) 60%, transparent);
+    transform: translateY(-1px);
+}
+
+.admin-chip:has(input:checked) {
+    color: #fff;
+    border-color: transparent;
+    background-image: linear-gradient(135deg, var(--color-admin-primary-from), var(--color-admin-primary-to));
+}
+
+.admin-chip:has(input:focus-visible) {
+    outline: 2px solid var(--color-admin-primary-to);
+    outline-offset: 2px;
+}
+
+/* Cartes de choix (thème, couleur, densité) : l'état sélectionné suit le clic en direct */
+.choice-card {
+    cursor: pointer;
+    border: 2px solid var(--color-admin-border);
+    border-radius: 0.85rem;
+    text-align: center;
+    color: var(--color-admin-text-muted);
+    transition: border-color .15s, background-color .15s, color .15s, transform .15s;
+}
+
+.choice-card:hover {
+    border-color: color-mix(in srgb, var(--color-admin-text-muted) 55%, transparent);
+    transform: translateY(-1px);
+}
+
+.choice-card:has(input:checked) {
+    border-color: var(--color-admin-primary-to);
+    background-color: color-mix(in srgb, var(--color-admin-primary-to) 10%, transparent);
+    color: var(--color-admin-text);
+}
+
+.choice-card:has(input:checked) .choice-card-icon { color: var(--color-admin-primary-to); }
+
+/* ------------------------------------------------------------------ */
+/* Animations des boutons et liens                                     */
+/* ------------------------------------------------------------------ */
+.admin-shell button,
+.admin-shell a {
+    transition: color .12s, background-color .12s, border-color .12s, opacity .12s;
+}
+
+.admin-shell :is(button, a, input[type="submit"]).admin-gradient:hover {
+    filter: brightness(1.1);
+}
+
+.admin-shell :is(button, a, input[type="submit"]).admin-gradient:active {
+    filter: brightness(0.94);
+}
+
+.admin-shell .is-loading {
+    pointer-events: none;
+    opacity: .8;
+}
+
+.admin-shell .is-loading::after {
+    content: "";
+    display: inline-block;
+    width: .9em;
+    height: .9em;
+    margin-left: .5rem;
+    vertical-align: -.1em;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 9999px;
+    animation: admin-spin .6s linear infinite;
+}
+
+@keyframes admin-spin { to { transform: rotate(360deg); } }
+
+/*
+ * Apparition douce du contenu. Pas de fill-mode "forwards" : une animation de
+ * transform qui reste appliquée devient le repère des éléments position: fixed
+ * (menus, listes déroulantes) qu'elle contient et les décale.
+ */
+@keyframes admin-fade-up { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.admin-shell main > * { animation: admin-fade-up .25s ease-out backwards; }

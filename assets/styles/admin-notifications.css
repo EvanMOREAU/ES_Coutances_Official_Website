@@ -1,0 +1,65 @@
+/*
+ * Notifications du back-office : liste de la clochette et page « Notifications ».
+ * Chaque notification a un lien (ouvre l'élément concerné), une pastille « non lue »
+ * et deux actions au survol : marquer comme lue (✓) et supprimer (×).
+ */
+.notif-menu [hidden],
+.notif-page-head [hidden],
+.notif-empty[hidden],
+.notif-count[hidden],
+.notif-dot[hidden] { display: none !important; }
+
+.notif-menu-head { display: flex; align-items: center; justify-content: space-between; gap: .75rem; padding: .75rem 1rem; border-bottom: 1px solid var(--color-admin-border); }
+.notif-count {
+    display: inline-flex; align-items: center; gap: .25em; margin-left: .35rem; padding: 0 .5rem; border-radius: 9999px;
+    font-size: .6875rem; font-weight: 700; line-height: 1.25rem; vertical-align: middle;
+    color: var(--color-admin-success); background: color-mix(in srgb, var(--color-admin-success) 16%, transparent);
+}
+.notif-link-btn { font-size: .75rem; color: var(--color-admin-text-muted); white-space: nowrap; border-radius: .375rem; padding: .2rem .4rem; }
+.notif-link-btn:hover { color: var(--color-admin-text); background-color: var(--color-admin-surface-hover); }
+
+.notif-list { max-height: 24rem; overflow-y: auto; }
+.notif-list.is-page { max-height: none; overflow: visible; display: flex; flex-direction: column; gap: .25rem; }
+
+.notif-item { position: relative; display: flex; align-items: stretch; transition: opacity .18s, transform .18s, background-color .15s; }
+.notif-item:hover, .notif-item:focus-within { background-color: var(--color-admin-surface-hover); }
+.notif-item.is-leaving { opacity: 0; transform: translateX(.75rem); pointer-events: none; }
+.notif-list.is-page .notif-item { border-radius: .75rem; }
+
+.notif-link { flex: 1; min-width: 0; display: flex; align-items: flex-start; gap: .75rem; padding: .7rem 1rem; }
+.notif-list.is-page .notif-link { padding: .9rem 1rem; align-items: center; }
+.notif-icon {
+    display: flex; height: 2rem; width: 2rem; flex-shrink: 0; align-items: center; justify-content: center;
+    border-radius: .5rem; font-size: .75rem; color: #fff;
+    background-image: linear-gradient(135deg, var(--color-admin-primary-from), var(--color-admin-primary-to));
+}
+.notif-body { min-width: 0; flex: 1; display: flex; flex-direction: column; }
+.notif-text { font-weight: 600; color: var(--color-admin-text); }
+.notif-meta { font-size: .75rem; color: var(--color-admin-text-muted); }
+.notif-dot { height: .5rem; width: .5rem; flex-shrink: 0; margin-top: .45rem; border-radius: 9999px; background-color: var(--color-admin-success); }
+
+/* Notification lue : discrète, sans pastille, plus de bouton « lue ». */
+.notif-item.is-read .notif-dot { display: none; }
+.notif-item.is-read .notif-icon { background-image: none; background-color: color-mix(in srgb, var(--color-admin-text) 12%, transparent); color: var(--color-admin-text-muted); }
+.notif-item.is-read .notif-text { font-weight: 500; color: var(--color-admin-text-muted); }
+.notif-item.is-read [data-role="read"] { display: none; }
+
+/* Actions : visibles au survol / au focus, toujours visibles sur écran tactile. */
+.notif-actions { display: flex; align-items: center; gap: .15rem; padding-right: .6rem; opacity: 0; transition: opacity .15s; }
+.notif-item:hover .notif-actions, .notif-item:focus-within .notif-actions { opacity: 1; }
+@media (hover: none) { .notif-actions { opacity: 1; } }
+.notif-btn {
+    display: flex; height: 1.75rem; width: 1.75rem; align-items: center; justify-content: center;
+    border-radius: 9999px; font-size: .75rem; color: var(--color-admin-text-muted);
+}
+.notif-btn:hover { color: var(--color-admin-text); background-color: color-mix(in srgb, var(--color-admin-text) 12%, transparent); }
+.notif-btn[data-role="read"]:hover { color: var(--color-admin-success); }
+.notif-btn:not([data-role="read"]):hover { color: var(--color-admin-danger); }
+
+.notif-empty { padding: 2rem 1rem; text-align: center; color: var(--color-admin-text-muted); }
+.notif-empty i { display: block; margin-bottom: .5rem; font-size: 1.5rem; opacity: .6; }
+.notif-menu-foot { display: block; padding: .65rem 1rem; text-align: center; font-size: .8125rem; font-weight: 600; border-top: 1px solid var(--color-admin-border); color: var(--color-admin-primary-to); }
+.notif-menu-foot:hover { background-color: var(--color-admin-surface-hover); }
+
+.notif-page-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .75rem; padding: .75rem 1rem 1rem; }
+.notif-page-actions { display: flex; flex-wrap: wrap; gap: .5rem; }

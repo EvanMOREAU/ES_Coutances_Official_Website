@@ -1,0 +1,59 @@
+{% extends 'admin/parametres/_layout.html.twig' %}
+{% form_theme passwordForm 'admin/_form_theme.html.twig' %}
+
+{% block tab_content %}
+    {{ form_start(form) }}
+        <h2 class="text-lg font-bold">Profil</h2>
+        <p class="text-sm text-admin-text-muted mb-6">Mettez à jour vos informations personnelles</p>
+
+        {% do form.avatarFile.setRendered %}
+        <div class="flex items-center gap-4 pb-6 mb-6 border-b border-admin-border" data-controller="avatar-upload">
+            <div class="h-16 w-16 shrink-0 overflow-hidden rounded-full">
+                <img data-avatar-upload-target="image"
+                     src="{{ app.user.avatarName ? asset('uploads/avatars/' ~ app.user.avatarName) : '' }}"
+                     class="h-16 w-16 object-cover {{ app.user.avatarName ? '' : 'hidden' }}" alt="">
+                {% if not app.user.avatarName %}
+                    <span data-avatar-upload-target="initial" class="flex h-16 w-16 items-center justify-center admin-gradient text-xl font-bold text-white">{{ app.user.initiale }}</span>
+                {% endif %}
+            </div>
+            <div>
+                <label for="{{ form.avatarFile.vars.id }}"
+                       class="inline-block cursor-pointer rounded-lg border border-admin-border bg-admin-bg px-3.5 py-1.5 text-sm font-medium admin-surface-hover">
+                    Changer d'avatar
+                </label>
+                <input type="file" id="{{ form.avatarFile.vars.id }}" name="{{ form.avatarFile.vars.full_name }}"
+                       accept="image/png,image/jpeg,image/gif" class="sr-only"
+                       data-avatar-upload-target="input" data-action="change->avatar-upload#preview">
+                <p data-avatar-upload-target="hint" class="mt-1.5 text-xs text-admin-text-muted">JPG, PNG ou GIF. 2 Mo max.</p>
+                <div class="text-xs text-admin-danger">{{ form_errors(form.avatarFile) }}</div>
+            </div>
+        </div>
+
+        <div class="grid sm:grid-cols-2 gap-4">
+            {{ form_row(form.prenom) }}
+            {{ form_row(form.nom) }}
+        </div>
+        {{ form_row(form.email) }}
+        {{ form_row(form.bio) }}
+
+        <div class="flex justify-end">
+            <button type="submit" class="rounded-lg admin-gradient px-5 py-2 text-sm font-semibold text-white">Enregistrer</button>
+        </div>
+    {{ form_end(form) }}
+
+    <div class="mt-10 pt-8 border-t border-admin-border">
+        {{ form_start(passwordForm) }}
+            <h2 class="text-lg font-bold">Mot de passe</h2>
+            <p class="text-sm text-admin-text-muted mb-6">Modifiez le mot de passe de votre compte</p>
+
+            {{ form_row(passwordForm.currentPassword) }}
+            <div class="grid sm:grid-cols-2 gap-4">
+                {{ form_row(passwordForm.newPassword.first) }}
+                {{ form_row(passwordForm.newPassword.second) }}
+            </div>
+            <div class="flex justify-end">
+                {{ form_widget(passwordForm.save) }}
+            </div>
+        {{ form_end(passwordForm) }}
+    </div>
+{% endblock %}

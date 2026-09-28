@@ -1,0 +1,80 @@
+# Journal des modifications du site (page « Changelog » de l'administration, réservée aux développeurs).
+#
+# Ce fichier est versionné avec le code : à chaque mise à jour, ajoutez une entrée EN HAUT de la liste.
+# Au déploiement, la page se met à jour toute seule, rien à saisir en base de données.
+#
+# Chaque version :
+#   version : numéro (ex. 1.2.0)      date : AAAA-MM-JJ      titre : résumé court (facultatif)
+#   added / improved / fixed / removed : listes de phrases (Ajouté / Amélioré / Corrigé / Retiré)
+
+- version: "1.0.3"
+  date: "2026-09-28"
+  titre: "Réorganisation par glisser-déposer et menu repliable"
+  added:
+    - "Partenaires/sponsors, slides du carousel et catégories d'encadrement : l'ordre d'affichage se règle désormais en glissant-déposant les lignes du tableau, plus besoin de saisir un numéro d'ordre."
+    - "Menu latéral de l'administration : chaque catégorie (Licenciés, Boutique, Site vitrine…) peut être repliée ou dépliée ; le réglage est mémorisé dans le navigateur."
+    - "Création d'un article : boutons « Enregistrer en brouillon » et « Publier » à la place du menu déroulant de statut (l'archivage reste réservé à la modification)."
+    - "Catégories de la boutique (ex. T-shirts, Joggings) : se choisissent ou se créent à la volée directement depuis la fiche d'un article, avec détection des doublons (casse et accents ignorés)."
+    - "Filtre par catégorie dans la boutique du site."
+    - "Gestion des stocks : réassort en une fois, taille par taille, depuis le menu « … » d'un article (la quantité saisie s'ajoute au stock déjà en place)."
+    - "Mise en maintenance de la boutique (rubrique Développeur) : masque la boutique aux visiteurs tout en restant visible pour les comptes développeur, avec un bandeau d'avertissement."
+  improved:
+    - "Fiche d'un article : l'affichage des tailles et du stock n'a plus de cases superflues autour des chiffres."
+    - "Bandeau d'accueil de l'administration moins lumineux."
+    - "Menu de l'administration : « Messagerie » repositionnée après la rubrique « Licenciés »."
+    - "Boutique du site : présentation des articles modernisée (cartes, ombres, mise en avant du prix et de la catégorie)."
+    - "Barres de défilement et flèches des champs numériques harmonisées dans toute l'administration, à la place de celles du navigateur."
+  fixed:
+    - "Formulaire d'un article : le champ stock de chaque taille était trop étroit pour être lisible ou modifiable ; il se saisit à nouveau au clavier ou avec les boutons −/+."
+    - "Avertissements de dépréciation Symfony/VichUploaderBundle nettoyés (bascule des annotations obsolètes vers les attributs PHP)."
+
+- version: "1.0.2"
+  date: "2026-09-25"
+  titre: "Autorisations, journal d'activité et paramètres e-mail"
+  added:
+    - "Système d'autorisations : plus de 60 autorisations (voir, créer, modifier, supprimer et actions particulières) sur les familles, licenciés, équipes, saisons, paiements, planning, boutique, site vitrine, fichiers, utilisateurs…"
+    - "Profils d'autorisation prêts à attribuer (Secrétariat, Éducateur, Responsable boutique, Communication, Lecture seule…), ajustables utilisateur par utilisateur."
+    - "Page « Utilisateurs et autorisations » avec une carte Utilisateurs et une carte Autorisations."
+    - "Journal d'activité (développeurs) : chaque action et chaque modification avec l'utilisateur, l'adresse IP, le navigateur et les valeurs avant / après ; filtres, détail, historique d'un élément et export CSV."
+    - "Paramètres e-mail : serveur SMTP, identifiants (mot de passe chiffré) et expéditeur réglables depuis l'administration, avec e-mail de test."
+    - "Suivi du paiement d'une licence en fenêtre, étape par étape (règlements, aides, récapitulatif), depuis le menu « … » de la liste."
+    - "Fiche de lecture d'un article, avec accès direct à la modification."
+    - "Planning : affichage par mois, par semaine ou par jour."
+    - "Activer / désactiver un article en un clic."
+  improved:
+    - "Règlements des licences : « Encaissé » devient un interrupteur, utilisable dès la création ; les aides passent avant les règlements."
+    - "Autorisations : un interrupteur « Toutes les autorisations » (et un par rubrique) remplace les boutons de sélection."
+    - "Photo d'un article : une croix sur l'aperçu remplace la case « Supprimer la photo »."
+    - "Menus, boutons et cases d'actions groupées masqués quand l'utilisateur n'a pas l'autorisation correspondante."
+  fixed:
+    - "Échelonnement du paiement d'une licence : message explicite quand le prix est absent ou que tout est déjà couvert."
+    - "Une erreur de syntaxe dans un script empêchait le chargement des contrôleurs de l'administration."
+
+- version: "1.0.1"
+  date: "2026-09-25"
+  titre: "Paiement des licences, planning avancé et gestion des accès"
+  added:
+    - "Suivi des paiements des licences : montant dû, règlements échelonnés (espèces, carte, chèques), remises en banque et aides (Pass'Sport, Sport 50, Atout Normandie, Bourse Évasion, chèques vacances, coupons sport)."
+    - "Planning : équipes par catégorie et rencontres internes entre deux équipes du club."
+    - "Fiche licencié en lecture seule, ouverte d'un clic sur la ligne ou depuis le menu « … »."
+    - "Renvoi de l'e-mail de création de mot de passe depuis la liste des licenciés."
+    - "Import : page dédiée dans l'administration."
+    - "Couleur rouge du club, désormais la couleur par défaut."
+  improved:
+    - "Sélecteurs d'heure et de date plus fluides, animations des boutons allégées."
+    - "Horaires d'ouverture : sélection guidée au lieu d'une saisie de texte."
+    - "Messagerie : liste des participants d'un groupe en cliquant sur son nom."
+    - "Activation et désactivation en un clic (sponsors, offres d'emploi, carousel, cartes « Nous rejoindre »)."
+  fixed:
+    - "Suppression d'une famille : plus d'erreur due aux demandes de mot de passe."
+    - "Un seul menu ouvert à la fois dans la barre du haut."
+  removed:
+    - "Certificat médical et autorisation parentale : ne sont plus gérés dans l'application."
+
+- version: "1.0.0"
+  date: "2026-09-25"
+  titre: "Boutique, planning et notifications"
+  added:
+    - "Boutique du club : articles avec tailles et stock, panier, commande avec retrait au club, suivi et paiement carte simulé."
+    - "Planning des entraînements par catégorie, visible dans l'espace licencié."
+    - "Notifications : marquer comme lue, supprimer, page dédiée."

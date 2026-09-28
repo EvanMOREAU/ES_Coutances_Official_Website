@@ -2,19 +2,26 @@
 
 {% block tab_content %}
     {{ form_start(form) }}
-        {{ form_row(form.email) }}
-        {{ form_row(form.adresse) }}
-        {{ form_row(form.telephone) }}
-        {{ form_row(form.horaireLundi) }}
-        {{ form_row(form.horaireMardi) }}
-        {{ form_row(form.horaireMercredi) }}
-        {{ form_row(form.horaireJeudi) }}
-        {{ form_row(form.horaireVendredi) }}
-        {{ form_row(form.horaireSamedi) }}
-        {{ form_row(form.horaireDimanche) }}
+        <p class="reglage-section">Coordonnées</p>
+        <div class="grid gap-x-4 reglage-auto">
+            {{ form_row(form.email) }}
+            {{ form_row(form.adresse) }}
+            {{ form_row(form.telephone) }}
+        </div>
 
-        <div class="form-actions">
-            {{ form_widget(form.save, { attr: { class: 'btn btn-primary action-save' } }) }}
+        <p class="reglage-section">Horaires d'ouverture</p>
+        <div class="hr-grid">
+            {{ form_row(form.horaireLundi) }}
+            {{ form_row(form.horaireMardi) }}
+            {{ form_row(form.horaireMercredi) }}
+            {{ form_row(form.horaireJeudi) }}
+            {{ form_row(form.horaireVendredi) }}
+            {{ form_row(form.horaireSamedi) }}
+            {{ form_row(form.horaireDimanche) }}
+        </div>
+
+        <div class="mt-4">
+            {{ form_widget(form.save) }}
         </div>
     {{ form_end(form) }}
 {% endblock %}

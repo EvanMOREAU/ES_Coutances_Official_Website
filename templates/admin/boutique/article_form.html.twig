@@ -1,0 +1,102 @@
+{% extends 'admin/_layout.html.twig' %}
+{% form_theme form 'admin/_form_theme.html.twig' %}
+
+{% block title %}{{ article.id ? "Modifier l'article" : 'Nouvel article' }}{% endblock %}
+
+{% macro variante_row(row) %}
+    <div class="var-row" data-article-variantes-target="item">
+        <div class="var-field">
+            <label class="var-label">Taille</label>
+            {{ form_widget(row.libelle) }}
+            {{ form_errors(row.libelle) }}
+        </div>
+        <div class="var-field var-stock">
+            <label class="var-label">Stock</label>
+            {{ form_widget(row.stock) }}
+            {{ form_errors(row.stock) }}
+        </div>
+        <button type="button" class="var-remove" data-action="article-variantes#remove" title="Retirer cette taille" aria-label="Retirer cette taille"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+{% endmacro %}
+
+{% block body %}
+    <a href="{{ path('admin_article_index') }}" class="text-sm text-admin-text-muted hover:text-admin-text"><i class="fa-solid fa-arrow-left"></i> Tous les articles</a>
+    <h1 class="text-2xl font-black mt-3 mb-6" style="font-family:'Barlow Condensed',sans-serif;">
+        {{ article.id ? "Modifier l'article" : 'Nouvel article' }}
+    </h1>
+
+    {{ form_start(form, {attr: {novalidate: 'novalidate'}}) }}
+        <div class="grid gap-6 lg:grid-cols-5 items-start">
+            <div class="admin-card rounded-2xl p-6 lg:col-span-3">
+                <h2 class="font-semibold mb-5">L'article</h2>
+                {{ form_row(form.nom) }}
+                {{ form_row(form.description) }}
+                {{ form_row(form.prixCentimes) }}
+                {{ form_row(form.categorieNom) }}
+                <datalist id="categories-datalist">
+                    {% for categorie in categories %}<option value="{{ categorie.nom }}">{% endfor %}
+                </datalist>
+                <div class="mb-5" data-controller="image-remove">
+                    {{ form_label(form.imageFile) }}
+                    {% if article.imageName %}
+                        <div class="art-preview-wrap" data-image-remove-target="preview">
+                            <img src="{{ asset('uploads/articles/' ~ article.imageName) }}" alt="" class="art-preview">
+                            <button type="button" class="art-preview-x" data-action="image-remove#remove" title="Retirer la photo" aria-label="Retirer la photo"><i class="fa-solid fa-xmark"></i></button>
+                        </div>
+                        <p class="text-xs text-admin-text-muted mb-2" data-image-remove-target="notice" hidden>La photo sera retirée à l'enregistrement. <button type="button" class="underline" data-action="image-remove#undo">Annuler</button></p>
+                    {% endif %}
+                    {{ form_widget(form.imageFile.file) }}
+                    {% if form.imageFile.delete is defined %}
+                        <div hidden>{{ form_widget(form.imageFile.delete, {attr: {'data-image-remove-target': 'checkbox'}}) }}</div>
+                    {% endif %}
+                    {% if form.imageFile.vars.help %}<p class="mt-1 text-xs text-admin-text-muted">{{ form.imageFile.vars.help }}</p>{% endif %}
+                    {{ form_errors(form.imageFile) }}
+                    {% do form.imageFile.setRendered %}
+                </div>
+                {% if article.id %}
+                    {{ form_row(form.statut) }}
+                {% else %}
+                    {% do form.statut.setRendered %}
+                {% endif %}
+            </div>
+
+            {# Prochain numéro de ligne libre : les clés existantes peuvent avoir des trous (ligne retirée puis erreur de validation). #}
+            {% set next_index = 0 %}
+            {% for key, row in form.variantes %}{% set next_index = max(next_index, key + 1) %}{% endfor %}
+            <div class="admin-card rounded-2xl p-6 lg:col-span-2"
+                 data-controller="article-variantes"
+                 data-article-variantes-prototype-value="{{ _self.variante_row(form.variantes.vars.prototype)|e('html_attr') }}"
+                 data-article-variantes-index-value="{{ next_index }}">
+                <h2 class="font-semibold">Tailles et stock</h2>
+                <p class="text-xs text-admin-text-muted mt-1 mb-4">Chaque taille a son propre stock, mis à jour à chaque commande. Pour un article sans taille, utilisez « Taille unique ».</p>
+
+                <div class="var-presets">
+                    <button type="button" class="admin-btn admin-btn-ghost admin-btn-sm" data-action="article-variantes#preset" data-article-variantes-sizes-param="{{ constant('App\\Entity\\Article::TAILLES_VETEMENT')|json_encode|e('html_attr') }}">S → XXXL</button>
+                    <button type="button" class="admin-btn admin-btn-ghost admin-btn-sm" data-action="article-variantes#preset" data-article-variantes-sizes-param="{{ constant('App\\Entity\\Article::TAILLES_ENFANT')|json_encode|e('html_attr') }}">Tailles enfant</button>
+                    <button type="button" class="admin-btn admin-btn-ghost admin-btn-sm" data-action="article-variantes#preset" data-article-variantes-sizes-param="{{ [constant('App\\Entity\\ArticleVariante::LIBELLE_UNIQUE')]|json_encode|e('html_attr') }}">Taille unique</button>
+                </div>
+
+                <div class="var-list" data-article-variantes-target="list">
+                    {% for row in form.variantes %}
+                        {{ _self.variante_row(row) }}
+                    {% endfor %}
+                </div>
+                <p class="var-empty" data-article-variantes-target="empty" {{ form.variantes|length > 0 ? 'hidden' }}>Aucune taille pour le moment.</p>
+
+                <button type="button" class="admin-btn admin-btn-ghost admin-btn-sm mt-3" data-action="article-variantes#add"><i class="fa-solid fa-plus"></i> Ajouter une taille</button>
+                {{ form_errors(form.variantes) }}
+                {% do form.variantes.setRendered %}
+            </div>
+        </div>
+
+        <div class="flex items-center gap-3 mt-6">
+            {% if article.id %}
+                <button type="submit" class="rounded-lg admin-gradient px-5 py-2 text-sm font-semibold text-white">Enregistrer</button>
+            {% else %}
+                <button type="submit" name="{{ form.statut.vars.full_name }}" value="draft" class="admin-btn admin-btn-ghost">Enregistrer en brouillon</button>
+                <button type="submit" name="{{ form.statut.vars.full_name }}" value="active" class="rounded-lg admin-gradient px-5 py-2 text-sm font-semibold text-white">Publier</button>
+            {% endif %}
+            <a href="{{ path('admin_article_index') }}" class="text-sm text-admin-text-muted hover:text-admin-text">Annuler</a>
+        </div>
+    {{ form_end(form) }}
+{% endblock %}

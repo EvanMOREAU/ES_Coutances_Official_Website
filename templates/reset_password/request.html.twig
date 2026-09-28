@@ -1,129 +1,43 @@
-{# {% block title %}Mot de passe oublié{% endblock %} #}
-
 {% block body %}
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" class="h-full">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" type="image/png" href="{{ asset('images/favicon.png') }}">
-    <title>Mot de passe oublié — ES Coutances Admin</title>
-    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-    <style>
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            font-family: 'Inter', sans-serif;
-            background: #0D0D0D;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .login-box {
-            background: #fff;
-            width: 100%;
-            max-width: 400px;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 24px 64px rgba(0,0,0,.4);
-        }
-        .login-header {
-            background: #C8102E;
-            padding: 32px;
-            text-align: center;
-        }
-        .login-header img { height: 56px; margin-bottom: 12px; }
-        .login-header h1 {
-            font-family: 'Barlow Condensed', sans-serif;
-            font-weight: 900;
-            font-size: 20px;
-            letter-spacing: .06em;
-            text-transform: uppercase;
-            color: #fff;
-        }
-        .login-body { padding: 32px; }
-        .login-body p.hint {
-            font-size: 13px;
-            color: #666;
-            margin-bottom: 20px;
-            line-height: 1.5;
-        }
-        .alert-error {
-            background: #fef2f2;
-            border: 1px solid #fca5a5;
-            color: #991b1b;
-            padding: 10px 14px;
-            border-radius: 4px;
-            font-size: 13px;
-            margin-bottom: 20px;
-        }
-        label {
-            display: block;
-            font-size: 11px;
-            font-weight: 600;
-            letter-spacing: .08em;
-            text-transform: uppercase;
-            color: #555;
-            margin-bottom: 6px;
-        }
-        input[type="email"] {
-            width: 100%;
-            padding: 11px 14px;
-            border: 1px solid #e5e7eb;
-            border-radius: 4px;
-            font-size: 14px;
-            margin-bottom: 16px;
-            outline: none;
-        }
-        input:focus { border-color: #C8102E; }
-        button[type="submit"] {
-            width: 100%;
-            background: #C8102E;
-            color: #fff;
-            border: none;
-            padding: 13px;
-            border-radius: 4px;
-            font-family: 'Barlow Condensed', sans-serif;
-            font-weight: 800;
-            font-size: 15px;
-            letter-spacing: .1em;
-            text-transform: uppercase;
-            cursor: pointer;
-            transition: background .2s;
-        }
-        button:hover { background: #9E0C23; }
-        .back-link {
-            display: block;
-            text-align: center;
-            margin-top: 16px;
-            font-size: 13px;
-            color: #666;
-            text-decoration: none;
-        }
-        .back-link:hover { color: #C8102E; }
-    </style>
+    <title>Mot de passe oublié — ES Coutances</title>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('styles/admin.css') }}">
+    <style>body { font-family: 'Inter', sans-serif; }</style>
 </head>
-<body>
-    <div class="login-box">
-        <div class="login-header">
-            <img src="https://raw.githubusercontent.com/CylaosICT/escoutances-images/refs/heads/main/logo_hd_trans3_gt.png" alt="ES Coutances">
-            <h1>Mot de passe oublié</h1>
+<body class="admin-shell h-full bg-admin-bg text-admin-text flex items-center justify-center p-4">
+    <div class="w-full max-w-md">
+        <div class="admin-hero relative overflow-hidden rounded-2xl p-8 mb-6 text-center">
+            <div class="admin-hero-glow"></div>
+            <div class="relative">
+                <img src="https://raw.githubusercontent.com/CylaosICT/escoutances-images/refs/heads/main/logo_hd_trans3_gt.png" alt="ES Coutances" class="h-14 mx-auto mb-3">
+                <h1 class="text-xl font-black text-white uppercase tracking-wide" style="font-family:'Barlow Condensed',sans-serif;">Mot de passe oublié</h1>
+            </div>
         </div>
-        <div class="login-body">
+
+        <div class="admin-card rounded-2xl p-8">
             {% for flash_error in app.flashes('reset_password_error') %}
-                <div class="alert-error">{{ flash_error }}</div>
+                <div class="mb-4 rounded-lg border border-admin-danger/30 bg-admin-danger/10 text-admin-danger px-4 py-3 text-sm">{{ flash_error }}</div>
             {% endfor %}
 
-            <p class="hint">Indiquez votre adresse e-mail. Si un compte lui correspond, vous recevrez un lien pour réinitialiser votre mot de passe.</p>
+            <p class="text-sm text-admin-text-muted mb-5">Indiquez votre adresse e-mail. Si un compte lui correspond, vous recevrez un lien pour définir un nouveau mot de passe.</p>
 
             {{ form_start(requestForm) }}
-                <label for="{{ requestForm.email.vars.id }}">Adresse e-mail</label>
-                {{ form_widget(requestForm.email, { attr: { autocomplete: 'email', autofocus: true } }) }}
+                <label for="{{ requestForm.email.vars.id }}" class="block text-xs font-semibold uppercase tracking-wide text-admin-text-muted mb-1.5">Adresse e-mail</label>
+                {{ form_widget(requestForm.email, { attr: { autocomplete: 'email', autofocus: true, class: 'w-full rounded-lg border border-admin-border bg-admin-bg px-3 py-2 text-sm text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-primary-to mb-5' } }) }}
 
-                <button type="submit">Envoyer le lien</button>
+                <button type="submit" class="w-full rounded-lg admin-gradient px-5 py-2.5 text-sm font-semibold text-white">Envoyer le lien</button>
             {{ form_end(requestForm) }}
 
-            <a class="back-link" href="{{ path('app_login') }}">&larr; Retour à la connexion</a>
+            <div class="flex flex-col items-center gap-1 mt-5 text-sm text-admin-text-muted">
+                <a href="{{ path('app_login') }}" class="hover:text-white">&larr; Connexion espace administration</a>
+                <a href="{{ path('portail_login') }}" class="hover:text-white">&larr; Connexion espace familles &amp; licenciés</a>
+            </div>
         </div>
     </div>
 </body>

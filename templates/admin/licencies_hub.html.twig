@@ -1,0 +1,12 @@
+{% extends 'admin/_layout.html.twig' %}
+
+{% block title %}Gestion des licenciés{% endblock %}
+
+{% block body %}
+    <div class="mb-6">
+        <h1 class="text-2xl font-black" style="font-family:'Barlow Condensed',sans-serif;">Gestion des licenciés</h1>
+        <p class="text-sm text-admin-text-muted">Familles, licenciés, équipes et saisons au même endroit. Cliquez sur une rubrique pour la gérer.</p>
+    </div>
+
+    {{ include('admin/_hub.html.twig', {groups: {'Gestion': 'Rubriques'}}) }}
+{% endblock %}

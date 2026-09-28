@@ -1,0 +1,21 @@
+{% extends 'boutique/_layout.html.twig' %}
+
+{% block boutique_title %}Boutique indisponible{% endblock %}
+
+{% block hero_lead %}<p class="lead">La boutique n'est pas ouverte pour le moment.</p>{% endblock %}
+
+{% block boutique_styles %}
+<style>
+.shop-empty { text-align: center; padding: 72px 0; color: #777; }
+.shop-empty i { font-size: 44px; color: #cfcac5; margin-bottom: 16px; }
+.shop-empty h2 { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 26px; text-transform: uppercase; color: var(--dark); margin-bottom: 6px; }
+</style>
+{% endblock %}
+
+{% block shop_body %}
+    <div class="shop-empty">
+        <i class="fa-solid fa-shop-slash"></i>
+        <h2>Boutique en maintenance</h2>
+        <p>Nous préparons la boutique. Revenez un peu plus tard !</p>
+    </div>
+{% endblock %}

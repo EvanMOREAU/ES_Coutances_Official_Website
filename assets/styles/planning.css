@@ -1,0 +1,202 @@
+/*
+ * Planning des entraînements (calendrier mensuel, panneau du jour, prochaines
+ * séances). Partagé par l'admin (thème sombre / clair) et l'espace licencié
+ * (thème clair, rouge du club) : tout passe par les variables --color-admin-*.
+ */
+:where(.pl-layout, .pl-modal) button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; text-align: inherit; }
+:where(.pl-layout) { font-family: 'Inter', sans-serif; color: var(--color-admin-text); }
+.pl-layout *, .pl-modal * { box-sizing: border-box; }
+.pl-layout [hidden], .pl-modal [hidden] { display: none !important; }
+
+/* Couleur d'une catégorie : --tone alimente puces, badges et bordures. */
+.pl-tone-0 { --tone: #3b82f6; }
+.pl-tone-1 { --tone: #22c55e; }
+.pl-tone-2 { --tone: #f59e0b; }
+.pl-tone-3 { --tone: #8b5cf6; }
+.pl-tone-4 { --tone: #06b6d4; }
+.pl-tone-5 { --tone: #ec4899; }
+.pl-tone-6 { --tone: #f97316; }
+.pl-tone-7 { --tone: #ef4444; }
+.pl-tone-match { --tone: #0d9488; }
+
+.pl-layout { display: grid; grid-template-columns: minmax(0, 1fr) 20rem; gap: 1.25rem; align-items: start; }
+@media (max-width: 1100px) { .pl-layout { grid-template-columns: minmax(0, 1fr); } }
+
+.pl-card {
+    padding: 1.25rem; border-radius: 1rem;
+    background-color: var(--color-admin-surface); border: 1px solid var(--color-admin-border);
+}
+.pl-side { display: flex; flex-direction: column; gap: 1.25rem; }
+.pl-muted { font-size: .8125rem; color: var(--color-admin-text-muted); }
+
+/* --- Barre d'outils ---------------------------------------------------- */
+.pl-toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .75rem; margin-bottom: 1.25rem; }
+.pl-nav { display: flex; align-items: center; gap: .5rem; }
+.pl-month { margin: 0 0 0 .5rem; font-family: 'Inter', sans-serif; font-size: 1.05rem; font-weight: 700; text-transform: none; letter-spacing: 0; color: var(--color-admin-text); }
+.pl-toolbar-end { display: flex; align-items: center; gap: .5rem; }
+
+.pl-icon-btn {
+    display: inline-flex; height: 2rem; width: 2rem; align-items: center; justify-content: center; flex-shrink: 0;
+    border-radius: .6rem; font-size: .75rem; color: var(--color-admin-text-muted);
+    border: 1px solid var(--color-admin-border) !important; transition: background-color .15s, color .15s;
+}
+.pl-icon-btn:hover { color: var(--color-admin-text); background-color: var(--color-admin-surface-hover) !important; }
+.pl-icon-btn.is-danger:hover { color: var(--color-admin-danger); }
+.pl-btn {
+    display: inline-flex; align-items: center; gap: .4rem; padding: .4rem .8rem; border-radius: .6rem;
+    font-size: .8125rem; font-weight: 600; color: var(--color-admin-text);
+    border: 1px solid var(--color-admin-border) !important; transition: background-color .15s;
+}
+.pl-btn:hover { background-color: var(--color-admin-surface-hover) !important; }
+.pl-btn.is-primary { color: #fff; border: 0 !important; background-image: linear-gradient(135deg, var(--color-admin-primary-from), var(--color-admin-primary-to)); }
+.pl-filter { display: inline-flex; align-items: center; gap: .5rem; color: var(--color-admin-text-muted); }
+.pl-filter .cs { width: 15rem; }
+.pl-filter .cs-trigger { height: 2rem; padding-top: 0; padding-bottom: 0; font-size: .8125rem; }
+
+/* --- Grille du mois -------------------------------------------------------- */
+.pl-weekdays { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); padding-bottom: .5rem; }
+.pl-weekdays span { text-align: center; font-size: .75rem; font-weight: 500; color: var(--color-admin-text-muted); }
+.pl-grid {
+    display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 1px;
+    background-color: var(--color-admin-border); border: 1px solid var(--color-admin-border); border-radius: .75rem; overflow: hidden;
+    transition: opacity .15s;
+}
+.pl-grid.is-loading { opacity: .6; }
+.pl-cell {
+    position: relative; display: flex; min-height: 5.75rem; flex-direction: column; align-items: stretch; gap: .3rem;
+    padding: .45rem .4rem; background-color: var(--color-admin-surface); transition: background-color .12s;
+}
+.pl-cell:hover { background-color: var(--color-admin-surface-hover); }
+.pl-cell.is-other { opacity: .5; }
+.pl-cell.is-selected { z-index: 1; box-shadow: inset 0 0 0 2px var(--color-admin-text); }
+.pl-daynum {
+    display: inline-flex; height: 1.5rem; min-width: 1.5rem; align-items: center; justify-content: center; align-self: flex-start;
+    padding: 0 .2rem; border-radius: 9999px; font-size: .8125rem; font-weight: 600;
+}
+.pl-cell.is-today .pl-daynum { color: #fff; background-image: linear-gradient(135deg, var(--color-admin-primary-from), var(--color-admin-primary-to)); }
+.pl-chips { display: flex; flex-direction: column; gap: .2rem; min-width: 0; }
+.pl-chip {
+    display: block; overflow: hidden; padding: .1rem .35rem; border-radius: .3rem; font-size: .6875rem; font-weight: 600; line-height: 1.2;
+    text-overflow: ellipsis; white-space: nowrap;
+    color: color-mix(in srgb, var(--tone) 72%, var(--color-admin-text)); background-color: color-mix(in srgb, var(--tone) 16%, transparent);
+}
+.pl-more { font-size: .6875rem; font-weight: 600; color: var(--color-admin-text-muted); padding-left: .35rem; }
+
+@media (max-width: 640px) {
+    .pl-cell { min-height: 4rem; padding: .3rem .2rem; align-items: center; }
+    .pl-daynum { align-self: center; font-size: .75rem; }
+    .pl-chips { flex-direction: row; flex-wrap: wrap; justify-content: center; }
+    .pl-chip { font-size: 0; height: .4rem; width: .4rem; padding: 0; border-radius: 9999px; background-color: var(--tone); }
+    .pl-more { display: none; }
+}
+
+/* --- Panneaux latéraux ------------------------------------------------------ */
+.pl-card-head { display: flex; align-items: flex-start; justify-content: space-between; gap: .75rem; margin-bottom: 1rem; }
+.pl-card-head h3 { margin: 0; font-family: 'Inter', sans-serif; font-size: .95rem; font-weight: 700; text-transform: none; letter-spacing: 0; color: var(--color-admin-text); }
+.pl-card-actions { display: flex; align-items: center; gap: .4rem; }
+.pl-events { display: flex; flex-direction: column; gap: .75rem; }
+
+.pl-event {
+    padding: .8rem .9rem; border-radius: .75rem; border: 1px solid var(--color-admin-border); border-left: 3px solid var(--tone);
+    background-color: color-mix(in srgb, var(--tone) 6%, var(--color-admin-surface));
+}
+.pl-event-head { display: flex; align-items: flex-start; justify-content: space-between; gap: .5rem; font-size: .875rem; }
+.pl-event-actions { display: flex; gap: .3rem; flex-shrink: 0; }
+.pl-event-actions .pl-icon-btn { height: 1.7rem; width: 1.7rem; }
+.pl-event-meta { margin-top: .3rem; font-size: .75rem; color: var(--color-admin-text-muted); }
+.pl-event-meta i { width: .9rem; text-align: center; margin-right: .15rem; }
+.pl-event-desc { margin-top: .5rem; font-size: .8125rem; color: var(--color-admin-text-muted); white-space: pre-line; }
+.pl-tag { margin-left: .4rem; padding: .05rem .4rem; border-radius: 9999px; font-size: .6875rem; background-color: color-mix(in srgb, var(--color-admin-text) 9%, transparent); }
+.pl-badges { display: flex; flex-wrap: wrap; gap: .3rem; margin-top: .6rem; }
+.pl-badge {
+    padding: .1rem .55rem; border-radius: 9999px; font-size: .6875rem; font-weight: 700;
+    color: color-mix(in srgb, var(--tone) 75%, var(--color-admin-text)); background-color: color-mix(in srgb, var(--tone) 18%, transparent);
+}
+
+.pl-placeholder { display: flex; flex-direction: column; align-items: center; gap: .4rem; padding: 1rem .5rem; text-align: center; font-size: .8125rem; color: var(--color-admin-text-muted); }
+.pl-placeholder strong { font-size: .9rem; color: var(--color-admin-text); }
+.pl-placeholder .pl-btn { margin-top: .6rem; }
+.pl-placeholder-icon { display: flex; height: 3rem; width: 3rem; align-items: center; justify-content: center; margin-bottom: .3rem; border-radius: 9999px; font-size: 1.1rem; background-color: color-mix(in srgb, var(--color-admin-text) 9%, transparent); }
+
+.pl-upcoming-list { display: flex; flex-direction: column; gap: .25rem; margin: 0 -.4rem; }
+.pl-upcoming-item { display: flex; align-items: center; gap: .75rem; padding: .5rem .4rem; border-radius: .6rem; width: 100%; transition: background-color .12s; }
+.pl-upcoming-item:hover { background-color: var(--color-admin-surface-hover); }
+.pl-date-badge {
+    display: flex; height: 2.75rem; width: 2.75rem; flex-shrink: 0; flex-direction: column; align-items: center; justify-content: center; line-height: 1.1;
+    border-radius: .6rem; color: color-mix(in srgb, var(--tone) 75%, var(--color-admin-text)); background-color: color-mix(in srgb, var(--tone) 16%, transparent);
+}
+.pl-date-badge b { font-size: 1rem; }
+.pl-date-badge small { font-size: .625rem; font-weight: 600; text-transform: uppercase; }
+.pl-upcoming-text { display: flex; min-width: 0; flex-direction: column; }
+.pl-upcoming-text strong { overflow: hidden; font-size: .8125rem; text-overflow: ellipsis; white-space: nowrap; }
+.pl-upcoming-text small { overflow: hidden; font-size: .75rem; color: var(--color-admin-text-muted); text-overflow: ellipsis; white-space: nowrap; }
+
+/* --- Fenêtre d'ajout / modification ------------------------------------------ */
+.pl-modal { max-height: calc(100vh - 2rem); overflow-y: auto; }
+.pl-modal .admin-modal-label em { font-style: normal; color: var(--color-admin-danger); }
+.pl-field { margin-top: 1rem; min-width: 0; }
+.pl-row { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: .75rem; }
+@media (max-width: 520px) { .pl-row { grid-template-columns: 1fr 1fr; } .pl-row .pl-field:first-child { grid-column: 1 / -1; } }
+.pl-modal textarea.admin-modal-input { resize: vertical; min-height: 4.5rem; font-family: inherit; }
+.pl-modal input[type="date"], .pl-modal input[type="time"] { color-scheme: dark light; }
+.pl-error { min-height: 0; margin-top: .3rem; font-size: .75rem; color: var(--color-admin-danger); }
+.pl-error:empty { display: none; }
+.pl-error-global { margin-top: 1rem; }
+
+.pl-checks { display: flex; flex-wrap: wrap; gap: .4rem; }
+.pl-check input { position: absolute; opacity: 0; pointer-events: none; }
+.pl-check span {
+    display: inline-block; padding: .25rem .7rem; border-radius: 9999px; font-size: .8125rem; font-weight: 600; cursor: pointer; user-select: none;
+    color: var(--color-admin-text-muted); border: 1px solid var(--color-admin-border); transition: background-color .12s, color .12s, border-color .12s;
+}
+.pl-check span:hover { border-color: var(--tone); }
+.pl-check input:checked + span { color: #fff; border-color: var(--tone); background-color: var(--tone); }
+.pl-check input:focus-visible + span { outline: 2px solid var(--color-admin-primary-to); outline-offset: 2px; }
+
+.pl-switch { display: inline-flex; align-items: center; gap: .55rem; font-size: .875rem; cursor: pointer; }
+.pl-repeat-until { margin-top: .75rem; max-width: 12rem; }
+.pl-scope { display: flex; flex-direction: column; gap: .5rem; font-size: .875rem; }
+.pl-scope label { display: flex; align-items: center; gap: .5rem; cursor: pointer; }
+.pl-modal .pl-scope { margin-top: 1rem; }
+.pl-actions { align-items: center; }
+.pl-actions .pl-delete { margin-right: auto; color: var(--color-admin-danger); }
+
+/* Type de séance, équipes visées, rencontre */
+.pl-types { display: flex; gap: .5rem; flex-wrap: wrap; }
+.pl-type input { position: absolute; opacity: 0; pointer-events: none; }
+.pl-type span { display: inline-flex; align-items: center; gap: .45rem; padding: .45rem .9rem; border-radius: .6rem; font-size: .8125rem; font-weight: 600; cursor: pointer; color: var(--color-admin-text-muted); border: 1px solid var(--color-admin-border); transition: background-color .12s, color .12s; }
+.pl-type span:hover { color: var(--color-admin-text); }
+.pl-type input:checked + span { color: #fff; border-color: transparent; background-image: linear-gradient(135deg, var(--color-admin-primary-from), var(--color-admin-primary-to)); }
+.pl-type input:focus-visible + span { outline: 2px solid var(--color-admin-primary-to); outline-offset: 2px; }
+.pl-row-2 { grid-template-columns: 1fr 1fr; }
+.pl-teams .pl-team-row { display: flex; align-items: center; gap: .6rem; margin-top: .5rem; }
+.pl-team-row .pl-badge { min-width: 3.2rem; text-align: center; }
+.pl-team-row select, .pl-row-2 select { width: 100%; }
+.pl-badge.is-team { background-color: transparent; border: 1px solid color-mix(in srgb, var(--tone) 50%, transparent); }
+
+/* Choix de l'affichage : mois, semaine, jour */
+.pl-views { display: inline-flex; padding: .15rem; border-radius: .7rem; border: 1px solid var(--color-admin-border); }
+.pl-views button { padding: .25rem .7rem; border-radius: .5rem; font-size: .8125rem; font-weight: 600; color: var(--color-admin-text-muted); }
+.pl-views button:hover { color: var(--color-admin-text); }
+.pl-views button.is-active { color: #fff; background-image: linear-gradient(135deg, var(--color-admin-primary-from), var(--color-admin-primary-to)); }
+
+/* Vue semaine : une colonne par jour */
+.pl-weekview { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 1px; overflow: hidden; border: 1px solid var(--color-admin-border); border-radius: .75rem; background-color: var(--color-admin-border); }
+.pl-wcol { display: flex; min-height: 18rem; flex-direction: column; background-color: var(--color-admin-surface); }
+.pl-wcol.is-selected { box-shadow: inset 0 0 0 2px var(--color-admin-text); }
+.pl-whead { display: flex; flex-direction: column; align-items: center; gap: .1rem; padding: .6rem .3rem; border-bottom: 1px solid var(--color-admin-border); }
+.pl-whead small { font-size: .6875rem; font-weight: 500; text-transform: uppercase; color: var(--color-admin-text-muted); }
+.pl-whead b { display: inline-flex; height: 1.7rem; min-width: 1.7rem; align-items: center; justify-content: center; border-radius: 9999px; font-size: .9rem; }
+.pl-wcol.is-today .pl-whead b { color: #fff; background-image: linear-gradient(135deg, var(--color-admin-primary-from), var(--color-admin-primary-to)); }
+.pl-wbody { display: flex; flex: 1; flex-direction: column; gap: .35rem; padding: .4rem; }
+.pl-wcard { display: flex; flex-direction: column; gap: .1rem; padding: .4rem .5rem; border-radius: .5rem; border-left: 3px solid var(--tone); text-align: left; background-color: color-mix(in srgb, var(--tone) 14%, transparent); }
+.pl-wcard b { font-size: .75rem; }
+.pl-wcard span { overflow: hidden; font-size: .75rem; font-weight: 600; text-overflow: ellipsis; color: color-mix(in srgb, var(--tone) 70%, var(--color-admin-text)); }
+.pl-wcard small { overflow: hidden; font-size: .6875rem; text-overflow: ellipsis; white-space: nowrap; color: var(--color-admin-text-muted); }
+.pl-wnone { text-align: center; color: var(--color-admin-text-muted); opacity: .4; }
+@media (max-width: 800px) { .pl-weekview { grid-template-columns: minmax(0, 1fr); } .pl-wcol { min-height: 0; flex-direction: row; } .pl-whead { min-width: 4rem; border-bottom: 0; border-right: 1px solid var(--color-admin-border); } }
+
+/* Vue jour : la liste des séances occupe toute la carte, le panneau du jour devient inutile */
+.pl-dayview { display: flex; flex-direction: column; gap: .75rem; }
+.pl-day-empty { padding: 2rem 0; text-align: center; }
+.pl-layout.is-day .pl-day { display: none; }

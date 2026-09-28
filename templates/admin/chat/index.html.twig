@@ -1,0 +1,12 @@
+{% extends 'admin/_layout.html.twig' %}
+
+{% block title %}Messagerie{% endblock %}
+
+{% block body %}
+    <div class="mb-5">
+        <h1 class="text-2xl font-black" style="font-family:'Barlow Condensed',sans-serif;">Messagerie</h1>
+        <p class="text-sm text-admin-text-muted">Discutez en direct avec les joueurs, les familles et l'équipe du club.</p>
+    </div>
+
+    {% include 'chat/_chat.html.twig' %}
+{% endblock %}

@@ -1,0 +1,68 @@
+{% extends 'admin/_layout.html.twig' %}
+
+{% block title %}Changelog{% endblock %}
+
+{% set type_icons = {added: 'fa-plus', improved: 'fa-bolt', fixed: 'fa-bug', removed: 'fa-minus'} %}
+
+{% block body %}
+    <div class="flex flex-wrap items-start justify-between gap-4 mb-5">
+        <div>
+            <h1 class="text-2xl font-black" style="font-family:'Barlow Condensed',sans-serif;">Changelog</h1>
+            <p class="text-sm text-admin-text-muted">Chaque amélioration, correction et nouveauté du site, version après version. Le journal vient du fichier <code>changelog/releases.yaml</code> : il se met à jour à chaque déploiement.</p>
+        </div>
+        <a href="{{ path('admin_deploy_index') }}" class="admin-btn admin-btn-ghost"><i class="fa-solid fa-rocket"></i> Déploiement</a>
+    </div>
+
+    <div class="cl-stats">
+        <span><i class="fa-solid fa-tag"></i> <strong>{{ releases|length }}</strong> version{{ releases|length > 1 ? 's' }}</span>
+        <span><i class="fa-solid fa-bolt"></i> <strong>{{ changes }}</strong> changement{{ changes > 1 ? 's' }}</span>
+        {% if latest %}
+            <span><i class="fa-regular fa-calendar"></i> Dernière : <strong>{{ latest.label }}</strong> · {{ latest.date|date_fr }}</span>
+        {% endif %}
+    </div>
+
+    {% if releases is empty %}
+        <div class="admin-card rounded-2xl p-10 text-center text-admin-text-muted">
+            <i class="fa-solid fa-clock-rotate-left text-3xl mb-3"></i>
+            <p class="font-semibold text-admin-text">Aucune version pour le moment</p>
+            <p class="text-sm mt-1">Ajoutez une entrée dans <code>changelog/releases.yaml</code>.</p>
+        </div>
+    {% else %}
+        <ol class="cl-timeline">
+            {% for release in releases %}
+                <li class="cl-item {{ loop.first ? 'is-latest' }}">
+                    <span class="cl-node"><i class="fa-solid fa-tag"></i></span>
+                    <article class="cl-card">
+                        <header class="cl-head">
+                            <div class="min-w-0">
+                                <div class="flex flex-wrap items-center gap-3">
+                                    <h2 class="cl-version">{{ release.label }}</h2>
+                                    {% if loop.first %}<span class="cl-status is-published">Version actuelle</span>{% endif %}
+                                </div>
+                                {% if release.titre %}<p class="cl-title">{{ release.titre }}</p>{% endif %}
+                            </div>
+                            <span class="cl-date"><i class="fa-regular fa-calendar"></i> {{ release.date|date_fr }}</span>
+                        </header>
+
+                        <div class="cl-chips">
+                            {% for type, lines in release.groups %}
+                                <span class="cl-chip is-{{ type }}"><i class="fa-solid {{ type_icons[type] }}"></i> {{ lines|length }} {{ types[type] }}</span>
+                            {% endfor %}
+                        </div>
+
+                        <div class="cl-body">
+                            {% for type, lines in release.groups %}
+                                <section class="cl-group is-{{ type }}">
+                                    <h3><span class="cl-group-icon"><i class="fa-solid {{ type_icons[type] }}"></i></span> {{ types[type] }}</h3>
+                                    <ul>
+                                        {% for line in lines %}<li>{{ line }}</li>{% endfor %}
+                                    </ul>
+                                </section>
+                            {% endfor %}
+                        </div>
+                    </article>
+                </li>
+            {% endfor %}
+        </ol>
+    {% endif %}
+{% endblock %}

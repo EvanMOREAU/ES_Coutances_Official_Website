@@ -1,0 +1,20 @@
+{#
+ Une notification, avec ses actions : marquer comme lue (✓) et supprimer (×).
+ Variable : n (clé, icône, texte, meta, url, lue). Piloté par notifications_controller.js.
+#}
+<div class="notif-item {{ n.read ? 'is-read' }}" data-notifications-target="item" data-key="{{ n.key }}" data-read="{{ n.read ? 1 : 0 }}">
+    <a href="{{ n.url }}" class="notif-link" data-action="click->notifications#open">
+        <span class="notif-icon"><i class="fa-solid {{ n.icon }}"></i></span>
+        <span class="notif-body">
+            <span class="notif-text">{{ n.text }}</span>
+            <span class="notif-meta">{{ n.meta }}</span>
+        </span>
+        <span class="notif-dot" aria-label="Non lue"></span>
+    </a>
+    <span class="notif-actions">
+        <button type="button" class="notif-btn" data-role="read" data-action="notifications#read"
+                title="Marquer comme lue" aria-label="Marquer comme lue"><i class="fa-solid fa-check"></i></button>
+        <button type="button" class="notif-btn" data-action="notifications#dismiss"
+                title="Supprimer la notification" aria-label="Supprimer la notification"><i class="fa-solid fa-xmark"></i></button>
+    </span>
+</div>

@@ -3,6 +3,10 @@ security:
         ROLE_DEV:    [ROLE_ADMIN, ROLE_EDITOR, ROLE_USER]
         ROLE_ADMIN:  [ROLE_EDITOR, ROLE_USER]
         ROLE_EDITOR: ROLE_USER
+        # Comptes du portail familles/licenciés (espace /mon-compte), distincts
+        # des comptes de gestion du site (ROLE_EDITOR/ROLE_ADMIN/ROLE_DEV).
+        ROLE_FAMILLE:  ROLE_USER
+        ROLE_LICENCIE: ROLE_USER
 
     password_hashers:
         App\Entity\User:
@@ -21,8 +25,10 @@ security:
 
         admin:
             pattern: ^/admin
+            context: app_user_context
             lazy: true
             provider: app_user_provider
+            user_checker: App\Security\UserChecker
             form_login:
                 login_path: app_login
                 check_path: app_login
@@ -34,9 +40,22 @@ security:
                 target: app_login
 
         main:
+            context: app_user_context
             lazy: true
             provider: app_user_provider
+            user_checker: App\Security\UserChecker
+            form_login:
+                login_path: portail_login
+                check_path: portail_login
+                default_target_path: portail_index
+                username_parameter: email
+                password_parameter: password
+            logout:
+                path: portail_logout
+                target: portail_login
 
     access_control:
         - { path: ^/admin/login, roles: PUBLIC_ACCESS }
         - { path: ^/admin, roles: ROLE_EDITOR }
+        - { path: ^/mon-compte/connexion, roles: PUBLIC_ACCESS }
+        - { path: ^/mon-compte, roles: ROLE_USER }
