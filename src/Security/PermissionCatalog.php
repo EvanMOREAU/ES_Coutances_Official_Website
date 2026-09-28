@@ -68,11 +68,16 @@ final class PermissionCatalog
             'Administration' => [
                 'utilisateur'  => ['label' => 'Utilisateurs', 'actions' => $crud],
                 'autorisation' => ['label' => 'Profils d\'autorisation', 'actions' => $crud],
+                'categorie'    => ['label' => 'Catégories d\'encadrement', 'actions' => $crud],
                 'fichiers'     => ['label' => 'Fichiers', 'actions' => [
                     self::VOIR => 'Voir et télécharger', 'televerser' => 'Envoyer, créer un dossier', self::MODIFIER => 'Renommer', self::SUPPRIMER => 'Supprimer',
                 ]],
                 'mail'         => ['label' => 'Paramètres e-mail (serveur SMTP)', 'actions' => [self::VOIR => 'Voir', self::MODIFIER => 'Modifier', 'tester' => 'Envoyer un e-mail de test']],
                 'messagerie'   => ['label' => 'Messagerie', 'actions' => ['utiliser' => 'Utiliser la messagerie']],
+                'boutique_maintenance' => ['label' => 'Maintenance de la boutique', 'actions' => [self::VOIR => 'Voir', self::MODIFIER => 'Modifier']],
+                'deploiement'  => ['label' => 'Déploiement', 'actions' => [self::VOIR => 'Voir', 'lancer' => 'Lancer un déploiement']],
+                'journal'      => ['label' => 'Journal d\'activité', 'actions' => [self::VOIR => 'Voir', 'exporter' => 'Exporter en CSV']],
+                'changelog'    => ['label' => 'Changelog', 'actions' => [self::VOIR => 'Voir']],
             ],
         ];
     }

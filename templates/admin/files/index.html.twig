@@ -45,7 +45,7 @@
                     <button type="button" class="is-active" data-files-target="modeButton" data-mode="grid" data-action="click->files#setMode" aria-label="Grille"><i class="fa-solid fa-table-cells-large"></i></button>
                     <button type="button" data-files-target="modeButton" data-mode="list" data-action="click->files#setMode" aria-label="Liste"><i class="fa-solid fa-list"></i></button>
                 </div>
-                <button type="button" class="admin-btn admin-btn-ghost" data-files-target="newFolder" data-action="click->files#createFolder"><i class="fa-regular fa-folder-plus"></i> <span class="fm-btn-label">Nouveau dossier</span></button>
+                <button type="button" class="admin-btn admin-btn-ghost" data-files-target="newFolder" data-action="click->files#createFolder"><i class="fa-solid fa-folder-plus"></i> <span class="fm-btn-label">Nouveau dossier</span></button>
                 <button type="button" class="admin-btn admin-btn-primary" data-files-target="upload" data-action="click->files#pick"><i class="fa-solid fa-arrow-up-from-bracket"></i> <span class="fm-btn-label">Envoyer</span></button>
                 <input type="file" multiple hidden data-files-target="picker" data-action="change->files#picked" accept="{{ allowed_extensions|map(e => '.' ~ e)|join(',') }}">
             </div>

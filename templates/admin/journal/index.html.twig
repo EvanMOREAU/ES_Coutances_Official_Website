@@ -7,9 +7,9 @@
     <div class="flex flex-wrap items-start justify-between gap-3 mb-4">
         <div>
             <h1 class="text-2xl font-black" style="font-family:'Barlow Condensed',sans-serif;">Journal d'activité</h1>
-            <p class="text-sm text-admin-text-muted">Trace de chaque action : qui, quand, depuis quelle adresse IP, et ce qui a changé. Lecture seule, réservé aux développeurs.</p>
+            <p class="text-sm text-admin-text-muted">Trace de chaque action : qui, quand, depuis quelle adresse IP, et ce qui a changé. Lecture seule.</p>
         </div>
-        <a href="{{ path('admin_journal_export', active) }}" class="admin-btn admin-btn-ghost"><i class="fa-solid fa-file-csv"></i> Exporter en CSV</a>
+        {% if can('journal.exporter') %}<a href="{{ path('admin_journal_export', active) }}" class="admin-btn admin-btn-ghost"><i class="fa-solid fa-file-csv"></i> Exporter en CSV</a>{% endif %}
     </div>
 
     <form method="get" class="jr-filters admin-card rounded-2xl p-4 mb-4">

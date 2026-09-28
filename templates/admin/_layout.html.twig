@@ -110,20 +110,7 @@
                 </div>
                 {% endif %}
 
-                {% if is_granted('ROLE_DEV') %}
-                <div data-controller="nav-section" data-nav-section-id-value="developpeur">
-                    {{ _self.nav_section_label('Développeur') }}
-                    <div class="space-y-1" data-nav-section-target="links">
-                        {{ _self.nav_link('admin_categorie_index', 'admin_categorie', 'fa-tags', 'Catégories encadrement') }}
-                        {{ _self.nav_link('admin_boutique_maintenance', 'admin_boutique_maintenance', 'fa-shop-slash', 'Maintenance boutique') }}
-                        {{ _self.nav_link('admin_deploy_index', 'admin_deploy', 'fa-rocket', 'Déploiement') }}
-                        {{ _self.nav_link('admin_journal_index', 'admin_journal', 'fa-scroll', "Journal d'activité") }}
-                        {{ _self.nav_link('admin_changelog_index', 'admin_changelog', 'fa-clock-rotate-left', 'Changelog') }}
-                    </div>
-                </div>
-                {% endif %}
-
-                {% if can('utilisateur.voir,autorisation.voir,import.voir,fichiers.voir,mail.voir') %}
+                {% if can('utilisateur.voir,autorisation.voir,import.voir,fichiers.voir,mail.voir,categorie.voir,boutique_maintenance.voir,deploiement.voir,journal.voir,changelog.voir') %}
                 <div data-controller="nav-section" data-nav-section-id-value="administration">
                     {{ _self.nav_section_label('Administration') }}
                     <div class="space-y-1" data-nav-section-target="links">
@@ -131,6 +118,11 @@
                         {% if can('import.voir') %}{{ _self.nav_link('admin_import_hub', 'admin_import', 'fa-file-import', 'Import') }}{% endif %}
                         {% if can('fichiers.voir') %}{{ _self.nav_link('admin_files_index', 'admin_files', 'fa-folder-tree', 'Fichiers') }}{% endif %}
                         {% if can('mail.voir') %}{{ _self.nav_link('admin_mail_settings', 'admin_mail', 'fa-envelope-circle-check', 'Paramètres e-mail') }}{% endif %}
+                        {% if can('categorie.voir') %}{{ _self.nav_link('admin_categorie_index', 'admin_categorie', 'fa-tags', 'Catégories encadrement') }}{% endif %}
+                        {% if can('boutique_maintenance.voir') %}{{ _self.nav_link('admin_boutique_maintenance', 'admin_boutique_maintenance', 'fa-shop-slash', 'Maintenance boutique') }}{% endif %}
+                        {% if can('deploiement.voir') %}{{ _self.nav_link('admin_deploy_index', 'admin_deploy', 'fa-rocket', 'Déploiement') }}{% endif %}
+                        {% if can('journal.voir') %}{{ _self.nav_link('admin_journal_index', 'admin_journal', 'fa-scroll', "Journal d'activité") }}{% endif %}
+                        {% if can('changelog.voir') %}{{ _self.nav_link('admin_changelog_index', 'admin_changelog', 'fa-clock-rotate-left', 'Changelog') }}{% endif %}
                     </div>
                 </div>
                 {% endif %}

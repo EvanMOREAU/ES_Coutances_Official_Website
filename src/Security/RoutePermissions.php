@@ -21,7 +21,7 @@ final class RoutePermissions
     ];
 
     /** Routes déjà réservées aux développeurs par leur contrôleur. */
-    private const DEV_PREFIXES = ['admin_deploy', 'admin_changelog', 'admin_categorie', 'admin_journal', 'admin_boutique_maintenance'];
+    private const DEV_PREFIXES = [];
 
     /** Préfixe de route => ressource du catalogue. */
     private const RESOURCES = [
@@ -39,6 +39,7 @@ final class RoutePermissions
         'admin_slide_carousel'  => 'slide_carousel',
         'admin_page_contenu'    => 'page_contenu',
         'admin_membre'          => 'membre',
+        'admin_categorie'       => 'categorie',
         'admin_user'            => 'utilisateur',
         'admin_profil'          => 'autorisation',
     ];
@@ -79,6 +80,15 @@ final class RoutePermissions
         'admin_files_upload'           => 'fichiers.televerser',
         'admin_files_rename'           => 'fichiers.modifier',
         'admin_files_delete'           => 'fichiers.supprimer',
+        'admin_categorie_reorder'      => 'categorie.modifier',
+        'admin_deploy_index'           => 'deploiement.voir',
+        'admin_deploy_check'           => 'deploiement.voir',
+        'admin_deploy_status'          => 'deploiement.voir',
+        'admin_deploy_start'           => 'deploiement.lancer',
+        'admin_journal_index'          => 'journal.voir',
+        'admin_journal_show'           => 'journal.voir',
+        'admin_journal_export'         => 'journal.exporter',
+        'admin_changelog_index'        => 'changelog.voir',
     ];
 
     /** Ressource d'une action groupée / d'une bascule d'activation, d'après son type. */
@@ -123,6 +133,9 @@ final class RoutePermissions
         }
         if (str_starts_with($route, 'admin_reglages_')) {
             return 'GET' === $method || 'HEAD' === $method ? 'reglages.voir' : 'reglages.modifier';
+        }
+        if ('admin_boutique_maintenance' === $route) {
+            return 'GET' === $method || 'HEAD' === $method ? 'boutique_maintenance.voir' : 'boutique_maintenance.modifier';
         }
         if ('admin_bulk_action' === $route || 'admin_toggle_actif' === $route) {
             $resource = self::TYPES[$params['type'] ?? ''] ?? null;

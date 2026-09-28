@@ -11,11 +11,9 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-/** Mise à jour du site depuis le dépôt GitHub (réservée aux comptes développeur). */
+/** Mise à jour du site depuis le dépôt GitHub. */
 #[Route('/admin/deploiement')]
-#[IsGranted('ROLE_DEV')]
 class DeployController extends AbstractController
 {
     #[Route('', name: 'admin_deploy_index', methods: ['GET'])]

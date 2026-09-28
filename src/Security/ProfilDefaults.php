@@ -63,7 +63,7 @@ class ProfilDefaults
             )],
             'Responsable boutique' => ['Articles, stock et commandes.', array_merge($crud('article'), $crud('commande', ['voir', 'traiter', 'annuler']))],
             'Communication' => ['Site vitrine et fichiers.', array_merge(
-                $crud('partenaire'), $crud('rejoindre_card'), $crud('offre_emploi'), $crud('slide_carousel'), $crud('page_contenu'), $crud('membre'),
+                $crud('partenaire'), $crud('rejoindre_card'), $crud('offre_emploi'), $crud('slide_carousel'), $crud('page_contenu'), $crud('membre'), $crud('categorie'),
                 $crud('reglages', ['voir', 'modifier']), $crud('fichiers', ['voir', 'televerser', 'modifier']),
             )],
             'Lecture seule' => ['Peut tout consulter, sans rien modifier.', $voir],

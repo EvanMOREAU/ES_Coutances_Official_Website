@@ -6,11 +6,9 @@ use App\Service\ChangelogFile;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-/** Journal des modifications, lu depuis changelog/releases.yaml (réservé aux développeurs). */
+/** Journal des modifications, lu depuis changelog/releases.yaml. */
 #[Route('/admin/changelog', name: 'admin_changelog_index', methods: ['GET'])]
-#[IsGranted('ROLE_DEV')]
 class ChangelogController extends AbstractController
 {
     public function __invoke(ChangelogFile $changelog): Response

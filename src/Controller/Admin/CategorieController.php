@@ -13,10 +13,9 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Security\Http\Attribute\IsGranted;
 
+/** Catégories d'encadrement (rattachées aux membres du staff présentés sur le site). */
 #[Route('/admin/categories')]
-#[IsGranted('ROLE_DEV')]
 class CategorieController extends AbstractController
 {
     #[Route('', name: 'admin_categorie_index', methods: ['GET'])]

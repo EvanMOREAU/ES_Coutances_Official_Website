@@ -11,15 +11,13 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 /**
- * Journal d'activité, réservé aux développeurs : qui a fait quoi, quand, depuis quelle adresse IP,
- * avec les valeurs avant / après. En lecture seule : aucune ligne ne peut être modifiée ni supprimée
- * depuis l'application. L'export CSV (lui-même journalisé) sert de pièce en cas de litige.
+ * Journal d'activité : qui a fait quoi, quand, depuis quelle adresse IP, avec les valeurs avant / après.
+ * En lecture seule : aucune ligne ne peut être modifiée ni supprimée depuis l'application. L'export CSV
+ * (lui-même journalisé) sert de pièce en cas de litige.
  */
 #[Route('/admin/journal')]
-#[IsGranted('ROLE_DEV')]
 class JournalController extends AbstractController
 {
     private const FILTERS = ['q', 'user', 'type', 'operation', 'category', 'ip', 'entity', 'entityId', 'from', 'to', 'errors', 'request'];

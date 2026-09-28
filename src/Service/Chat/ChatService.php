@@ -7,15 +7,19 @@ use App\Entity\Message;
 use App\Entity\User;
 use App\Repository\ConversationRepository;
 use App\Repository\MessageRepository;
+use App\Security\PermissionChecker;
 use Doctrine\ORM\EntityManagerInterface;
 
 /**
- * Messagerie du club : les joueurs / familles écrivent aux gérants, les gérants
- * écrivent à qui ils veulent, en direct ou en groupe.
+ * Messagerie du club : les joueurs / familles écrivent aux administrateurs, les
+ * membres de l'équipe écrivent à qui ils veulent, en direct ou en groupe.
  *
  * Règles d'accès : un compte « famille / licencié » ne peut ouvrir une
- * discussion qu'avec un membre de l'équipe du club ; un compte de l'équipe peut
- * écrire à tout le monde. Une discussion n'est visible que de ses participants.
+ * discussion qu'avec un administrateur, jamais avec un autre licencié ou une
+ * autre famille ; un compte de l'équipe peut écrire à tout le monde. Un membre
+ * de l'équipe qui n'a pas l'autorisation « messagerie.utiliser » (profil
+ * d'autorisation) n'apparaît dans la liste de personne, et ne peut être ajouté à
+ * aucune discussion. Une discussion n'est visible que de ses participants.
  */
 class ChatService
 {
@@ -31,6 +35,7 @@ class ChatService
         private readonly EntityManagerInterface $em,
         private readonly ConversationRepository $conversations,
         private readonly MessageRepository $messages,
+        private readonly PermissionChecker $permissions,
     ) {
     }
 
@@ -202,8 +207,13 @@ class ChatService
             throw new ChatException(sprintf('Une discussion est limitée à %d personnes.', self::MAX_GROUP_SIZE));
         }
         if (!$me->isStaff()) {
-            if (count($others) !== 1 || !$others[0]->isStaff()) {
-                throw new ChatException("Vous pouvez uniquement écrire à un membre de l'équipe du club.");
+            if (count($others) !== 1 || !$this->isContactableStaff($others[0])) {
+                throw new ChatException('Vous pouvez uniquement écrire à un administrateur du club.');
+            }
+        }
+        foreach ($others as $other) {
+            if ($other->isStaff() && !$this->canUseMessaging($other)) {
+                throw new ChatException(sprintf('%s n\'a pas accès à la messagerie.', $other->getNomComplet() ?: 'Ce compte'));
             }
         }
 
@@ -241,7 +251,15 @@ class ChatService
     {
         $contacts = [];
         foreach ($this->em->getRepository(User::class)->findBy([], ['nom' => 'ASC', 'prenom' => 'ASC']) as $user) {
-            if ($user->getId() === $me->getId() || (!$me->isStaff() && !$this->isContactableStaff($user))) {
+            if ($user->getId() === $me->getId()) {
+                continue;
+            }
+            // Un compte de l'équipe sans l'autorisation « messagerie.utiliser » est invisible pour tout le monde.
+            if ($user->isStaff() && !$this->canUseMessaging($user)) {
+                continue;
+            }
+            // Un joueur / une famille ne voit que les administrateurs, jamais un autre joueur ni une autre famille.
+            if (!$me->isStaff() && !$this->isContactableStaff($user)) {
                 continue;
             }
             $contacts[] = [
@@ -256,10 +274,16 @@ class ChatService
         return $contacts;
     }
 
-    /** Pour un joueur : uniquement les gérants (administrateurs, éditeurs), pas un compte purement technique. */
+    /** Pour un joueur / une famille : uniquement les administrateurs, jamais un simple encadrant ni un autre licencié. */
     private function isContactableStaff(User $user): bool
     {
-        return (bool) array_intersect($user->getRoles(), ['ROLE_EDITOR', 'ROLE_ADMIN']);
+        return (bool) array_intersect($user->getRoles(), ['ROLE_ADMIN', 'ROLE_DEV']);
+    }
+
+    /** Un compte de l'équipe doit avoir l'autorisation « messagerie.utiliser » pour être contacté ou contacter quelqu'un. */
+    private function canUseMessaging(User $user): bool
+    {
+        return !$user->isStaff() || $this->permissions->can('messagerie.utiliser', $user);
     }
 
     public function roleLabel(User $user): string

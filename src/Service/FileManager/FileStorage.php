@@ -59,6 +59,7 @@ class FileStorage
                 'real'     => $root.'/var/documents',
                 'readOnly' => false,
                 'private'  => true,
+                'mounts'   => [],
             ],
             'images' => [
                 'label'    => 'Images',
