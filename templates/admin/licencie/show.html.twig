@@ -1,0 +1,91 @@
+{% extends 'admin/_layout.html.twig' %}
+
+{% block title %}{{ licencie }}{% endblock %}
+
+{% macro row(label, value) %}
+    <div class="flex justify-between gap-4"><dt class="text-admin-text-muted">{{ label }}</dt><dd class="text-right">{{ value is empty ? '—' : value }}</dd></div>
+{% endmacro %}
+
+{% block body %}
+    <p class="mb-4"><a href="{{ path('admin_licencie_index') }}" class="text-sm text-admin-text-muted hover:text-admin-text">&larr; Retour aux licenciés</a></p>
+
+    <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
+        <div class="flex flex-wrap items-center gap-3">
+            <h1 class="text-2xl font-black" style="font-family:'Barlow Condensed',sans-serif;">{{ licencie }}</h1>
+            <span class="rounded-full admin-gradient px-2.5 py-0.5 text-xs font-semibold text-white">{{ licencie.categorie }}</span>
+            <span class="badge badge-{{ licencie.statut }}">{{ licencie.statutLabel }}</span>
+            {% if licencie.autonome %}<span class="badge badge-neutral">Gère lui-même son compte</span>{% endif %}
+            {% if licencie.saisonTerminee %}<span class="badge badge-archived">Saison terminée</span>{% endif %}
+        </div>
+        <a href="{{ path('admin_licencie_edit', {id: licencie.id}) }}" class="rounded-lg admin-gradient px-4 py-2 text-sm font-semibold text-white">Modifier</a>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-6">
+        <section class="admin-card rounded-2xl p-6">
+            <h2 class="font-bold mb-4">Identité</h2>
+            <dl class="text-sm space-y-2">
+                {{ _self.row('Civilité', licencie.civilite) }}
+                {{ _self.row('Nom', licencie.nom) }}
+                {{ _self.row('Prénom', licencie.prenom) }}
+                {{ _self.row('Né(e) le', licencie.dateNaissance|date('d/m/Y')) }}
+                {{ _self.row('Lieu de naissance', licencie.lieuNaissance) }}
+                {{ _self.row('Sexe', licencie.sexe) }}
+                {{ _self.row('Nationalité', licencie.nationalite) }}
+            </dl>
+        </section>
+
+        <section class="admin-card rounded-2xl p-6">
+            <h2 class="font-bold mb-4">Licence</h2>
+            <dl class="text-sm space-y-2">
+                {{ _self.row('Saison', licencie.saison) }}
+                {{ _self.row('Catégorie', licencie.categorie ~ (licencie.decalageCategorie > 0 ? ' (surclassé)' : (licencie.decalageCategorie < 0 ? ' (sous-classé)'))) }}
+                {{ _self.row('Équipes', licencie.equipes|map(e => e.nom)|join(', ')) }}
+                {{ _self.row('Numéro de licence', licencie.numeroLicence) }}
+                {{ _self.row('Type de licence', licencie.typeLicence) }}
+                {{ _self.row('Code catégorie FFF', licencie.codeCategorie) }}
+            </dl>
+        </section>
+
+        <section class="admin-card rounded-2xl p-6">
+            <h2 class="font-bold mb-4">Compte et famille</h2>
+            <dl class="text-sm space-y-2">
+                {{ _self.row('E-mail du compte', licencie.user.email) }}
+                <div class="flex justify-between gap-4"><dt class="text-admin-text-muted">Famille</dt><dd class="text-right"><a href="{{ path('admin_famille_show', {id: licencie.famille.id}) }}" class="hover:underline">{{ licencie.famille }}</a></dd></div>
+                {{ _self.row('Accès', licencie.autonome ? 'Planning et factures (compte autonome)' : 'Planning et informations (les factures sont sur le compte famille)') }}
+            </dl>
+            {% if licencie.user.email ends with '@import.local' %}
+                <p class="text-xs text-admin-text-muted mt-3">Adresse provisoire créée par l'import : aucune e-mail réelle n'est connue pour ce compte.</p>
+            {% endif %}
+        </section>
+
+        <section class="admin-card rounded-2xl p-6">
+            <h2 class="font-bold mb-4">Coordonnées</h2>
+            <dl class="text-sm space-y-2">
+                {{ _self.row('Téléphone', licencie.telephone) }}
+                {{ _self.row('E-mail individuel', licencie.emailIndividuel) }}
+                {{ _self.row('Adresse de la famille', [licencie.famille.adresse, licencie.famille.codePostal, licencie.famille.ville]|filter(v => v)|join(', ')) }}
+                {{ _self.row('Téléphone de la famille', licencie.famille.telephone) }}
+            </dl>
+        </section>
+    </div>
+
+    <section class="admin-card rounded-2xl p-6 mt-6">
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="font-bold">Licences et paiements</h2>
+            {% if can_url(path('admin_adhesion_new', {licencie: licencie.id})) %}<a href="{{ path('admin_adhesion_new', {licencie: licencie.id}) }}" class="admin-btn admin-btn-ghost admin-btn-sm"><i class="fa-solid fa-plus"></i> Nouvelle licence</a>{% endif %}
+        </div>
+        {% if adhesions is empty %}
+            <p class="text-sm text-admin-text-muted">Aucune licence enregistrée pour le suivi des paiements.</p>
+        {% else %}
+            <ul class="text-sm space-y-2">
+                {% for a in adhesions %}
+                    <li class="flex flex-wrap items-center justify-between gap-3">
+                        <a href="{{ path('admin_adhesion_edit', {id: a.id}) }}" class="hover:underline font-medium">{{ a.saison }}</a>
+                        <span class="text-admin-text-muted">{{ a.recuCentimes|money }} encaissés sur {{ a.montantDuCentimes|money }}</span>
+                        <span class="badge badge-pay-{{ a.statutPaiement }}">{{ a.statutPaiementLabel }}</span>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </section>
+{% endblock %}

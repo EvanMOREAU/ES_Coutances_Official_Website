@@ -1,0 +1,55 @@
+{% extends 'admin/_layout.html.twig' %}
+
+{% block title %}Utilisateurs{% endblock %}
+
+{% block body %}
+    <div class="flex items-center justify-between mb-6">
+        <h1 class="text-2xl font-black" style="font-family:'Barlow Condensed',sans-serif;">Utilisateurs</h1>
+        {% if can('utilisateur.creer') %}{% if can_url(path('admin_user_new')) %}<a href="{{ path('admin_user_new') }}" class="rounded-lg admin-gradient px-4 py-2 text-sm font-semibold text-white">+ Nouvel utilisateur</a>{% endif %}{% endif %}
+    </div>
+
+    {# Pas d'actions groupées ici : un compte ne se supprime qu'individuellement (règles du UserVoter). #}
+    {% embed 'admin/_components/data_table.html.twig' with {
+        key: 'user',
+        plural: 'utilisateurs',
+        bulk: false,
+        search_placeholder: 'Rechercher un utilisateur…',
+        empty_message: 'Aucun utilisateur ne correspond à votre recherche.',
+        columns: [
+            {key: 'nom', label: 'Nom'},
+            {key: 'email', label: 'Email'},
+            {key: 'roles', label: 'Rôle(s)'},
+            {key: 'acces', label: 'Autorisations'},
+        ],
+    } %}
+        {% block rows %}
+            {% for user in users %}
+                <tr data-data-table-target="row" data-id="{{ user.id }}">
+                    <td data-col="nom" data-sort="{{ user.nomComplet|lower }}" class="font-medium">{{ user.nomComplet }}</td>
+                    <td data-col="email" class="dt-muted">{{ user.email }}</td>
+                    <td data-col="roles">
+                        {% for role in user.roles %}
+                            {% if role != 'ROLE_USER' %}
+                                <span class="badge badge-neutral mr-1">{{ role|replace({'ROLE_': ''})|lower }}</span>
+                            {% endif %}
+                        {% endfor %}
+                    </td>
+                    <td data-col="acces" class="dt-muted">
+                        {% if 'ROLE_DEV' in user.roles %}Toutes (développeur)
+                        {% elseif user.profil %}<span class="badge badge-neutral">{{ user.profil.nom }}</span>{{ user.permissionsAjoutees or user.permissionsRetirees ? ' + ajustements' }}
+                        {% elseif user.accesRestreint %}Sur mesure
+                        {% elseif 'ROLE_ADMIN' in user.roles %}Accès complet
+                        {% else %}Aucune{% endif %}
+                    </td>
+                    {% include 'admin/_components/row_menu.html.twig' with {
+                        edit_url: is_granted('USER_EDIT', user) ? path('admin_user_edit', {id: user.id}) : null,
+                        delete_url: is_granted('USER_DELETE', user) ? path('admin_user_delete', {id: user.id}) : null,
+                        delete_token: csrf_token('delete-user-' ~ user.id),
+                        delete_title: 'Supprimer cet utilisateur ?',
+                        delete_message: user.nomComplet ~ ' ne pourra plus se connecter.',
+                    } %}
+                </tr>
+            {% endfor %}
+        {% endblock %}
+    {% endembed %}
+{% endblock %}

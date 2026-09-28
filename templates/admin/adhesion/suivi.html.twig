@@ -1,0 +1,86 @@
+{% extends 'admin/_layout.html.twig' %}
+
+{% block title %}Suivi du paiement{% endblock %}
+
+{% block body %}
+    {% set steps = ['Règlements', 'Aides', 'Récapitulatif'] %}
+    <form method="post" data-controller="suivi"
+          data-suivi-du-value="{{ adhesion.montantDuCentimes }}"
+          data-suivi-modal-value="1">
+        <input type="hidden" name="_token" value="{{ csrf_token('suivi-adhesion-' ~ adhesion.id) }}">
+
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-1">
+            <div>
+                <h1 class="text-xl font-black" style="font-family:'Barlow Condensed',sans-serif;">{{ adhesion.licencie }} — {{ adhesion.saison }}</h1>
+                <p class="text-sm text-admin-text-muted">Montant dû : <strong>{{ adhesion.montantDuCentimes|money }}</strong>{% if adhesion.reductionCentimes > 0 %} (après {{ adhesion.reductionCentimes|money }} de réduction){% endif %}</p>
+            </div>
+            <span class="badge badge-pay-{{ adhesion.statutPaiement }}">{{ adhesion.statutPaiementLabel }}</span>
+        </div>
+
+        <ol class="sv-steps">
+            {% for label in steps %}
+                <li data-suivi-target="indicator"><span class="sv-n">{{ loop.index }}</span> {{ label }}</li>
+            {% endfor %}
+        </ol>
+
+        {# Étape 1 : règlements #}
+        <section data-suivi-target="step">
+            <p class="text-sm text-admin-text-muted mb-3">Cochez chaque règlement à sa réception et indiquez la date de remise en banque (chèques, espèces) ou de paiement (carte).</p>
+            {% for r in adhesion.reglements %}
+                <div class="sv-card {{ r.recu ? 'is-done' }}" data-suivi-target="reglement" data-amount="{{ r.montantCentimes }}">
+                    <label class="sv-toggle">
+                        <input type="checkbox" name="reglements[{{ r.id }}][recu]" value="1" {{ r.recu ? 'checked' }} data-action="change->suivi#toggle">
+                        <span class="sv-switch"></span>
+                        <span><strong>{{ r.ordre }}/{{ adhesion.reglements|length }} · {{ r.modeLabel }} · {{ r.montantCentimes|money }}</strong>
+                            <small>{{ r.dateEcheance ? 'À encaisser le ' ~ r.dateEcheance|date('d/m/Y') : 'Sans date d\'échéance' }}</small></span>
+                    </label>
+                    <div class="sv-fields">
+                        <label>Remise en banque / paiement le<input type="date" name="reglements[{{ r.id }}][dateRemise]" value="{{ r.dateRemise ? r.dateRemise|date('Y-m-d') }}"></label>
+                        <label>Référence<input type="text" name="reglements[{{ r.id }}][reference]" maxlength="100" value="{{ r.reference }}" placeholder="N° de chèque…"></label>
+                    </div>
+                </div>
+            {% else %}
+                <p class="sv-empty">Aucun règlement prévu. <a href="{{ path('admin_adhesion_edit', {id: adhesion.id}) }}" target="_top" class="underline">Ajoutez-en depuis la fiche de la licence</a>.</p>
+            {% endfor %}
+        </section>
+
+        {# Étape 2 : aides #}
+        <section data-suivi-target="step" hidden>
+            <p class="text-sm text-admin-text-muted mb-3">Une aide reste « attendue » jusqu'à sa réception. Cochez-la quand elle arrive, avec la date.</p>
+            {% for a in adhesion.aides %}
+                <div class="sv-card {{ a.recue ? 'is-done' }}" data-suivi-target="aide" data-amount="{{ a.montantCentimes }}">
+                    <label class="sv-toggle">
+                        <input type="checkbox" name="aides[{{ a.id }}][recue]" value="1" {{ a.recue ? 'checked' }} data-action="change->suivi#toggle">
+                        <span class="sv-switch"></span>
+                        <span><strong>{{ a.typeLabel }} · {{ a.montantCentimes|money }}</strong><small>{{ a.recue ? 'Reçue' : 'Attendue' }}</small></span>
+                    </label>
+                    <div class="sv-fields">
+                        <label>Reçue le<input type="date" name="aides[{{ a.id }}][dateReception]" value="{{ a.dateReception ? a.dateReception|date('Y-m-d') }}"></label>
+                        <label>Note<input type="text" name="aides[{{ a.id }}][note]" maxlength="255" value="{{ a.note }}" placeholder="N° de dossier, relance…"></label>
+                    </div>
+                </div>
+            {% else %}
+                <p class="sv-empty">Aucune aide enregistrée pour cette licence.</p>
+            {% endfor %}
+        </section>
+
+        {# Étape 3 : récapitulatif #}
+        <section data-suivi-target="step" hidden>
+            <div class="ad-tiles">
+                <div class="ad-tile"><span>Montant dû</span><strong>{{ adhesion.montantDuCentimes|money }}</strong></div>
+                <div class="ad-tile"><span>Règlements encaissés</span><strong data-suivi-target="sumReglements">—</strong></div>
+                <div class="ad-tile"><span>Aides reçues</span><strong data-suivi-target="sumAides">—</strong></div>
+                <div class="ad-tile"><span>Reste à encaisser</span><strong data-suivi-target="sumReste">—</strong></div>
+            </div>
+            <label class="sv-obs">Observations
+                <textarea name="observation" rows="4" placeholder="Notes libres : relances, arrangement avec la famille…">{{ adhesion.observation }}</textarea>
+            </label>
+        </section>
+
+        <div class="sv-actions">
+            <button type="button" class="admin-btn admin-btn-ghost" data-suivi-target="back" data-action="suivi#back">Précédent</button>
+            <button type="button" class="admin-btn admin-btn-primary" data-suivi-target="next" data-action="suivi#next">Suivant</button>
+            <button type="submit" class="admin-btn admin-btn-primary" data-suivi-target="save" hidden>Enregistrer le suivi</button>
+        </div>
+    </form>
+{% endblock %}

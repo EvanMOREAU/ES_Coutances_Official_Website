@@ -73,6 +73,8 @@ ul { list-style: none; }
 .dd-col a:hover { color: var(--dark); gap: 6px; padding-left: 4px; }
 .dd-col a:hover::before { opacity: 1; }
 
+.cart-badge { display: inline-flex; min-width: 18px; height: 18px; align-items: center; justify-content: center; padding: 0 5px; border-radius: 9px; background: var(--red); color: var(--white); font-family: 'Inter', sans-serif; font-weight: 700; font-size: 11px; letter-spacing: 0; }
+
 /* MOBILE NAV */
 .mobile-nav { display: none; flex-direction: column; background: var(--white); border-top: 1px solid var(--border); overflow-y: auto; max-height: calc(100vh - var(--nav-h)); }
 .mobile-nav.open { display: flex; }
@@ -242,8 +244,19 @@ ul { list-style: none; }
     </div>
 
     <div class="nav-item">
+      <a href="{{ path('boutique_index') }}">Boutique</a>
+    </div>
+
+    <div class="nav-item">
       <a href="{{ path('app_contact') }}">Contact</a>
     </div>
+
+    {% set panier_n = panier_count() %}
+    {% if panier_n > 0 %}
+    <div class="nav-item">
+      <a href="{{ path('boutique_panier') }}" aria-label="Mon panier ({{ panier_n }} article{{ panier_n > 1 ? 's' }})"><i class="fa-solid fa-bag-shopping" style="opacity:1; font-size:14px;"></i> <span class="cart-badge">{{ panier_n }}</span></a>
+    </div>
+    {% endif %}
 
   </nav>
 
@@ -280,7 +293,13 @@ ul { list-style: none; }
       {% endif %}
     </a>
 
+    <a href="{{ path('boutique_index') }}" class="mob-direct">Boutique</a>
+
     <a href="{{ path('app_contact') }}" class="mob-direct">Contact</a>
+
+    {% if panier_n > 0 %}
+    <a href="{{ path('boutique_panier') }}" class="mob-direct"><i class="fa-solid fa-bag-shopping"></i> Mon panier <span class="cart-badge">{{ panier_n }}</span></a>
+    {% endif %}
 
   </div>
 </header>
@@ -310,6 +329,7 @@ ul { list-style: none; }
           <li><a href="#">Actualités</a></li>
           #}
           <li><a href="{{ match_live and match_live.url ? match_live.url : '#' }}"{{ match_live and match_live.url ? ' target="_blank" rel="noopener"' : '' }}>Match en Live</a></li>
+          <li><a href="{{ path('boutique_index') }}">Boutique</a></li>
           <li><a href="{{ path('app_contact') }}">Contact</a></li>
           <li><a href="{{ path('app_login') }}">Administration</a></li>
         </ul>

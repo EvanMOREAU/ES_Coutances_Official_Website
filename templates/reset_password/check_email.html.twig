@@ -1,78 +1,36 @@
-{# {% block title %}Vérifiez vos e-mails{% endblock %} #}
-
 {% block body %}
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" class="h-full">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" type="image/png" href="{{ asset('images/favicon.png') }}">
-    <title>Vérifiez vos e-mails — ES Coutances Admin</title>
-    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-    <style>
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            font-family: 'Inter', sans-serif;
-            background: #0D0D0D;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .login-box {
-            background: #fff;
-            width: 100%;
-            max-width: 420px;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 24px 64px rgba(0,0,0,.4);
-        }
-        .login-header {
-            background: #C8102E;
-            padding: 32px;
-            text-align: center;
-        }
-        .login-header img { height: 56px; margin-bottom: 12px; }
-        .login-header h1 {
-            font-family: 'Barlow Condensed', sans-serif;
-            font-weight: 900;
-            font-size: 20px;
-            letter-spacing: .06em;
-            text-transform: uppercase;
-            color: #fff;
-        }
-        .login-body { padding: 32px; }
-        .login-body p {
-            font-size: 14px;
-            color: #333;
-            line-height: 1.6;
-            margin-bottom: 16px;
-        }
-        .back-link {
-            display: block;
-            text-align: center;
-            margin-top: 8px;
-            font-size: 13px;
-            color: #666;
-            text-decoration: none;
-        }
-        .back-link:hover { color: #C8102E; }
-    </style>
+    <title>Vérifiez vos e-mails — ES Coutances</title>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('styles/admin.css') }}">
+    <style>body { font-family: 'Inter', sans-serif; }</style>
 </head>
-<body>
-    <div class="login-box">
-        <div class="login-header">
-            <img src="https://raw.githubusercontent.com/CylaosICT/escoutances-images/refs/heads/main/logo_hd_trans3_gt.png" alt="ES Coutances">
-            <h1>Vérifiez vos e-mails</h1>
+<body class="admin-shell h-full bg-admin-bg text-admin-text flex items-center justify-center p-4">
+    <div class="w-full max-w-md">
+        <div class="admin-hero relative overflow-hidden rounded-2xl p-8 mb-6 text-center">
+            <div class="admin-hero-glow"></div>
+            <div class="relative">
+                <img src="https://raw.githubusercontent.com/CylaosICT/escoutances-images/refs/heads/main/logo_hd_trans3_gt.png" alt="ES Coutances" class="h-14 mx-auto mb-3">
+                <h1 class="text-xl font-black text-white uppercase tracking-wide" style="font-family:'Barlow Condensed',sans-serif;">Vérifiez vos e-mails</h1>
+            </div>
         </div>
-        <div class="login-body">
-            <p>
+
+        <div class="admin-card rounded-2xl p-8 text-sm text-admin-text-muted leading-relaxed">
+            <p class="mb-4">
                 Si un compte correspond à l'adresse indiquée, un e-mail contenant un lien de réinitialisation vient de vous être envoyé.
                 Ce lien expirera dans {{ resetToken.expirationMessageKey|trans(resetToken.expirationMessageData, 'ResetPasswordBundle') }}.
             </p>
-            <p>Si vous ne recevez rien, pensez à vérifier vos courriers indésirables, ou <a href="{{ path('app_forgot_password_request') }}">réessayez</a>.</p>
+            <p class="mb-6">Si vous ne recevez rien, pensez à vérifier vos courriers indésirables, ou <a href="{{ path('app_forgot_password_request') }}" class="text-admin-primary-to hover:underline">réessayez</a>.</p>
 
-            <a class="back-link" href="{{ path('app_login') }}">&larr; Retour à la connexion</a>
+            <div class="flex flex-col items-center gap-1">
+                <a href="{{ path('app_login') }}" class="hover:text-white">&larr; Connexion espace administration</a>
+                <a href="{{ path('portail_login') }}" class="hover:text-white">&larr; Connexion espace familles &amp; licenciés</a>
+            </div>
         </div>
     </div>
 </body>

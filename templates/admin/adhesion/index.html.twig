@@ -1,0 +1,67 @@
+{% extends 'admin/_layout.html.twig' %}
+
+{% block title %}Paiements des licences{% endblock %}
+
+{% block body %}
+    <div class="flex flex-wrap items-center justify-between gap-3 mb-2">
+        <h1 class="text-2xl font-black" style="font-family:'Barlow Condensed',sans-serif;">Paiements des licences</h1>
+        {% if can_url(path('admin_adhesion_new')) %}<a href="{{ path('admin_adhesion_new') }}" class="rounded-lg admin-gradient px-4 py-2 text-sm font-semibold text-white">+ Nouvelle licence</a>{% endif %}
+    </div>
+    <p class="text-sm text-admin-text-muted mb-5">Suivi des règlements (espèces, carte, chèques) et des aides (Pass'Sport, Sport 50…) pour chaque licence, saison après saison.</p>
+
+    <div class="ad-tiles">
+        <div class="ad-tile"><span>À encaisser au total</span><strong>{{ totalDu|money }}</strong></div>
+        <div class="ad-tile"><span>Déjà encaissé</span><strong>{{ totalRecu|money }}</strong></div>
+        <div class="ad-tile"><span>Reste à encaisser</span><strong>{{ (totalDu - totalRecu)|money }}</strong></div>
+        <div class="ad-tile"><span>Dont aides attendues</span><strong>{{ totalAides|money }}</strong></div>
+    </div>
+
+    {% embed 'admin/_components/data_table.html.twig' with {
+        key: 'adhesion',
+        plural: 'licences',
+        statuses: true,
+        bulk: false,
+        status_tabs: {all: 'Toutes', impaye: 'Impayées', partiel: 'Partielles', attente_aides: 'Aides en attente', paye: 'Payées'},
+        search_placeholder: 'Rechercher un licencié, une famille…',
+        empty_message: 'Aucune licence ne correspond à votre recherche.',
+        columns: [
+            {key: 'licencie', label: 'Licencié'},
+            {key: 'famille', label: 'Famille'},
+            {key: 'saison', label: 'Saison'},
+            {key: 'du', label: 'Dû', type: 'number'},
+            {key: 'recu', label: 'Encaissé', type: 'number'},
+            {key: 'reste', label: 'Reste', type: 'number'},
+            {key: 'aides', label: 'Aides attendues', type: 'number'},
+            {key: 'statut', label: 'Paiement'},
+        ],
+    } %}
+        {% block rows %}
+            {% for a in adhesions %}
+                <tr data-data-table-target="row" data-id="{{ a.id }}" data-status="{{ a.statutPaiement }}" data-href="{{ path('admin_adhesion_edit', {id: a.id}) }}">
+                    <td data-col="licencie" data-sort="{{ a.licencie.nom|lower }} {{ a.licencie.prenom|lower }}" class="font-medium">{{ a.licencie.prenom }} {{ a.licencie.nom }}</td>
+                    <td data-col="famille" class="dt-muted">{{ a.licencie.famille }}</td>
+                    <td data-col="saison" class="dt-muted">{{ a.saison }}</td>
+                    <td data-col="du" data-sort="{{ a.montantDuCentimes }}">{{ a.montantDuCentimes|money }}</td>
+                    <td data-col="recu" data-sort="{{ a.recuCentimes }}">{{ a.recuCentimes|money }}</td>
+                    <td data-col="reste" data-sort="{{ a.resteCentimes }}">{{ a.resteCentimes|money }}</td>
+                    <td data-col="aides" data-sort="{{ a.aidesAttenduesCentimes }}" class="dt-muted">{{ a.aidesAttenduesCentimes > 0 ? a.aidesAttenduesCentimes|money : '—' }}</td>
+                    <td data-col="statut"><span class="badge badge-pay-{{ a.statutPaiement }}">{{ a.statutPaiementLabel }}</span></td>
+                    {% include 'admin/_components/row_menu.html.twig' with {
+                        actions: [{
+                            url: path('admin_adhesion_suivi', {id: a.id}),
+                            modal: true,
+                            title: 'Suivi du paiement — ' ~ a.licencie.prenom ~ ' ' ~ a.licencie.nom ~ ' (' ~ a.saison ~ ')',
+                            label: 'Suivi du paiement',
+                            icon: 'fa-list-check',
+                        }],
+                        edit_url: path('admin_adhesion_edit', {id: a.id}),
+                        delete_url: path('admin_adhesion_delete', {id: a.id}),
+                        delete_token: csrf_token('delete-adhesion-' ~ a.id),
+                        delete_title: 'Supprimer cette licence ?',
+                        delete_message: 'La licence ' ~ a.saison ~ ' de ' ~ a.licencie.prenom ~ ' ' ~ a.licencie.nom ~ ' et son suivi de paiement seront supprimés définitivement.',
+                    } %}
+                </tr>
+            {% endfor %}
+        {% endblock %}
+    {% endembed %}
+{% endblock %}

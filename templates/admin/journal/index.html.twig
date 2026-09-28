@@ -1,0 +1,87 @@
+{% extends 'admin/_layout.html.twig' %}
+
+{% block title %}Journal d'activité{% endblock %}
+
+{% block body %}
+    {% set active = filters|filter(v => v != '') %}
+    <div class="flex flex-wrap items-start justify-between gap-3 mb-4">
+        <div>
+            <h1 class="text-2xl font-black" style="font-family:'Barlow Condensed',sans-serif;">Journal d'activité</h1>
+            <p class="text-sm text-admin-text-muted">Trace de chaque action : qui, quand, depuis quelle adresse IP, et ce qui a changé. Lecture seule.</p>
+        </div>
+        {% if can('journal.exporter') %}<a href="{{ path('admin_journal_export', active) }}" class="admin-btn admin-btn-ghost"><i class="fa-solid fa-file-csv"></i> Exporter en CSV</a>{% endif %}
+    </div>
+
+    <form method="get" class="jr-filters admin-card rounded-2xl p-4 mb-4">
+        <label class="jr-f jr-f-wide"><span>Recherche</span><input type="search" name="q" value="{{ filters.q }}" placeholder="Texte, nom, e-mail, adresse, valeur modifiée…"></label>
+        <label class="jr-f"><span>Utilisateur</span>
+            <select name="user">
+                <option value="">Tous</option>
+                {% for u in users %}<option value="{{ u.email }}" {{ filters.user == u.email ? 'selected' }}>{{ u.name ? u.name ~ ' — ' }}{{ u.email }}</option>{% endfor %}
+            </select>
+        </label>
+        <label class="jr-f"><span>Type</span>
+            <select name="type"><option value="">Tous</option>{% for key, label in types %}<option value="{{ key }}" {{ filters.type == key ? 'selected' }}>{{ label }}</option>{% endfor %}</select>
+        </label>
+        <label class="jr-f"><span>Opération</span>
+            <select name="operation"><option value="">Toutes</option>{% for key, label in operations %}<option value="{{ key }}" {{ filters.operation == key ? 'selected' }}>{{ label }}</option>{% endfor %}</select>
+        </label>
+        <label class="jr-f"><span>Rubrique</span>
+            <select name="category"><option value="">Toutes</option>{% for c in categories %}<option value="{{ c }}" {{ filters.category == c ? 'selected' }}>{{ c }}</option>{% endfor %}</select>
+        </label>
+        <label class="jr-f"><span>Adresse IP</span><input type="text" name="ip" value="{{ filters.ip }}" placeholder="192.168…"></label>
+        <label class="jr-f"><span>Du</span><input type="date" name="from" value="{{ filters.from }}"></label>
+        <label class="jr-f"><span>Au</span><input type="date" name="to" value="{{ filters.to }}"></label>
+        <label class="jr-f"><span>Élément</span><input type="text" name="entity" value="{{ filters.entity }}" placeholder="Famille, Article…"></label>
+        <label class="jr-f jr-check"><input type="checkbox" name="errors" value="1" {{ filters.errors ? 'checked' }}> <span>Erreurs et refus seulement</span></label>
+        <div class="jr-actions">
+            <button type="submit" class="admin-btn admin-btn-primary">Filtrer</button>
+            {% if active %}<a href="{{ path('admin_journal_index') }}" class="admin-btn admin-btn-ghost">Réinitialiser</a>{% endif %}
+        </div>
+    </form>
+
+    <p class="text-sm text-admin-text-muted mb-2"><strong>{{ total|number_format(0, ',', ' ') }}</strong> ligne{{ total > 1 ? 's' }}{{ active ? ' correspondant aux filtres' }}</p>
+
+    <div class="dt-card">
+        <div class="dt-scroll">
+            <table class="dt-table jr-table">
+                <thead>
+                    <tr><th>Date</th><th>Utilisateur</th><th>IP</th><th>Rubrique</th><th>Action</th><th>Code</th></tr>
+                </thead>
+                <tbody>
+                    {% for log in rows %}
+                        <tr data-href="{{ path('admin_journal_show', {id: log.id}) }}" class="jr-row">
+                            <td class="dt-muted">{{ log.occurredAt|date('d/m/Y H:i:s') }}</td>
+                            <td>
+                                {% if log.userEmail %}<span class="font-medium">{{ log.userName ?: log.userEmail }}</span>{% if log.userName %}<span class="block text-xs dt-muted">{{ log.userEmail }}</span>{% endif %}
+                                {% else %}<span class="dt-muted">{{ log.source == 'cli' ? 'Ligne de commande' : 'Visiteur non connecté' }}</span>{% endif %}
+                            </td>
+                            <td class="dt-muted">{{ log.ip ?: '—' }}</td>
+                            <td><span class="badge badge-neutral">{{ log.category }}</span></td>
+                            <td class="jr-summary">
+                                <span class="jr-type jr-type-{{ log.type }}">{{ log.operationLabel ?: log.typeLabel }}</span>
+                                {{ log.summary }}
+                            </td>
+                            <td class="dt-muted">{{ log.statusCode ?: '—' }}</td>
+                        </tr>
+                    {% else %}
+                        <tr><td colspan="6" class="dt-muted" style="text-align:center; padding:2rem;">Aucune ligne ne correspond à ces filtres.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {% if pages > 1 %}
+        <nav class="jr-pager" aria-label="Pages">
+            {% if page > 1 %}<a href="{{ path('admin_journal_index', active|merge({page: page - 1})) }}" class="admin-btn admin-btn-ghost admin-btn-sm">← Plus récentes</a>{% endif %}
+            <span>Page {{ page }} sur {{ pages }}</span>
+            {% if page < pages %}<a href="{{ path('admin_journal_index', active|merge({page: page + 1})) }}" class="admin-btn admin-btn-ghost admin-btn-sm">Plus anciennes →</a>{% endif %}
+        </nav>
+    {% endif %}
+    <script>
+        document.querySelectorAll('.jr-row').forEach(function (row) {
+            row.addEventListener('click', function (e) { if (!e.target.closest('a')) window.location.href = row.dataset.href; });
+        });
+    </script>
+{% endblock %}

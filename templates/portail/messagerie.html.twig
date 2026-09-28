@@ -1,0 +1,22 @@
+{% extends 'portail/_layout.html.twig' %}
+
+{% block title %}Messagerie{% endblock %}
+
+{% block head_assets %}
+    {{ importmap('portail') }}
+    <style>
+        main { max-width: 1100px; }
+        .ch { height: clamp(26rem, calc(100vh - 17rem), 50rem); box-shadow: 0 4px 16px rgba(0,0,0,.06); }
+        /* La feuille de style partagée réinitialise les titres du portail : on garde la police du site. */
+        .ch, .admin-modal { font-family: 'Inter', sans-serif; }
+        .admin-modal h2 { font-family: 'Inter', sans-serif; text-transform: none; color: inherit; font-size: 1.05rem; letter-spacing: 0; margin: 0; }
+        dialog { color: #18181b; }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <h1>Messagerie</h1>
+    <p style="margin: -8px 0 20px; color:#71717a; font-size:14px;">Écrivez aux responsables du club : ils vous répondent ici, sans recharger la page.</p>
+
+    {% include 'chat/_chat.html.twig' %}
+{% endblock %}

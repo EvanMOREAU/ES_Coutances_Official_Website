@@ -300,3 +300,5 @@ php bin/console doctrine:migrations:migrate --env=prod
 
 Projet propriétaire — © 2026 Evan MOREAU.  
 Tous droits réservés. Voir le fichier [LICENSE](./LICENSE) pour les détails.
+
+https://chatgpt.com/share/6ab671b1-e414-83ed-9a36-a889fb44e862

@@ -1,0 +1,28 @@
+{% extends 'admin/_layout.html.twig' %}
+
+{% block title %}Planning{% endblock %}
+
+{% block body %}
+    <div data-controller="planning"
+         data-planning-editable-value="true"
+         data-planning-events-url-value="{{ path('admin_planning_events') }}"
+         data-planning-create-url-value="{{ path('admin_planning_create') }}"
+         data-planning-update-url-value="{{ path('admin_planning_update', {id: 0})|replace({'/0': '/__id__'}) }}"
+         data-planning-delete-url-value="{{ path('admin_planning_delete', {id: 0})|replace({'/0/': '/__id__/'}) }}"
+         data-planning-token-value="{{ csrf_token('admin-planning') }}"
+         data-planning-categories-value="{{ categories|json_encode|e('html_attr') }}"
+         data-planning-equipes-value="{{ equipes|json_encode|e('html_attr') }}"
+         data-planning-filter-categories-value="{{ categories|json_encode|e('html_attr') }}">
+        <div class="flex flex-wrap items-start justify-between gap-4 mb-6">
+            <div>
+                <h1 class="text-2xl font-black" style="font-family:'Barlow Condensed',sans-serif;">Planning</h1>
+                <p class="text-sm text-admin-text-muted">Planifiez les entraînements de chaque catégorie. Les licenciés les retrouvent dans leur espace.</p>
+            </div>
+            <button type="button" data-action="planning#add" class="rounded-lg admin-gradient px-4 py-2 text-sm font-semibold text-white">
+                <i class="fa-solid fa-plus mr-1"></i> Ajouter une séance
+            </button>
+        </div>
+
+        <div data-planning-target="root"></div>
+    </div>
+{% endblock %}

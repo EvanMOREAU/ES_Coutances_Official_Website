@@ -1,0 +1,49 @@
+{% extends 'admin/_layout.html.twig' %}
+
+{% block title %}Nous rejoindre{% endblock %}
+
+{% block body %}
+    <div class="flex items-center justify-between mb-6">
+        <h1 class="text-2xl font-black" style="font-family:'Barlow Condensed',sans-serif;">Cartes "Nous rejoindre"</h1>
+        {% if can_url(path('admin_rejoindre_card_new')) %}<a href="{{ path('admin_rejoindre_card_new') }}" class="rounded-lg admin-gradient px-4 py-2 text-sm font-semibold text-white">+ Nouvelle carte</a>{% endif %}
+    </div>
+
+    {% embed 'admin/_components/data_table.html.twig' with {
+        key: 'rejoindre_card',
+        plural: 'cartes',
+        search_placeholder: 'Rechercher une carte…',
+        empty_message: 'Aucune carte ne correspond à votre recherche.',
+        statuses: true,
+        status_tabs: {all: 'Tous', active: 'Actifs', inactive: 'Inactifs'},
+        status_actions: false,
+        columns: [
+            {key: 'titre', label: 'Titre'},
+            {key: 'page', label: 'Page liée'},
+            {key: 'statut', label: 'Statut'},
+        ],
+    } %}
+        {% block rows %}
+            {% for card in cards %}
+                <tr data-data-table-target="row" data-id="{{ card.id }}" data-status="{{ card.actif ? 'active' : 'inactive' }}">
+                    {% if bulk %}<td class="dt-check-col"><input type="checkbox" data-row-check value="{{ card.id }}" data-action="change->data-table#toggleRow" aria-label="Sélectionner {{ card.titre }}"></td>{% endif %}
+                    <td data-col="titre" data-sort="{{ card.titre|lower }}" class="font-medium">{{ card.titre }}</td>
+                    <td data-col="page" class="dt-muted">{{ card.pageDetail ? card.pageDetail.titre : (card.boutonUrl ?? '—') }}</td>
+                    <td data-col="statut" data-sort="{{ card.actif ? 1 : 0 }}"><span class="badge {{ card.actif ? 'badge-active' : 'badge-archived' }}">{{ card.actif ? 'Actif' : 'Inactif' }}</span></td>
+                    {% include 'admin/_components/row_menu.html.twig' with {
+                        actions: [{
+                            url: path('admin_rejoindre_card_toggle', {id: card.id}),
+                            token: csrf_token('toggle-card-' ~ card.id),
+                            label: card.actif ? 'Désactiver' : 'Activer',
+                            icon: card.actif ? 'fa-eye-slash' : 'fa-eye',
+                        }],
+                        edit_url: path('admin_rejoindre_card_edit', {id: card.id}),
+                        delete_url: path('admin_rejoindre_card_delete', {id: card.id}),
+                        delete_token: csrf_token('delete-card-' ~ card.id),
+                        delete_title: 'Supprimer cette carte ?',
+                        delete_message: 'La carte « ' ~ card.titre ~ ' » sera supprimée définitivement.',
+                    } %}
+                </tr>
+            {% endfor %}
+        {% endblock %}
+    {% endembed %}
+{% endblock %}

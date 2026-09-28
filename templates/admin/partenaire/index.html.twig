@@ -1,0 +1,62 @@
+{% extends 'admin/_layout.html.twig' %}
+
+{% block title %}Partenaires{% endblock %}
+
+{% block body %}
+    <div class="flex items-center justify-between mb-6">
+        <h1 class="text-2xl font-black" style="font-family:'Barlow Condensed',sans-serif;">Partenaires &amp; Sponsors</h1>
+        {% if can_url(path('admin_partenaire_new')) %}<a href="{{ path('admin_partenaire_new') }}" class="rounded-lg admin-gradient px-4 py-2 text-sm font-semibold text-white">+ Nouveau partenaire</a>{% endif %}
+    </div>
+
+    {% embed 'admin/_components/data_table.html.twig' with {
+        key: 'partenaire',
+        plural: 'partenaires',
+        statuses: true,
+        search_placeholder: 'Rechercher un partenaire…',
+        empty_message: 'Aucun partenaire ne correspond à votre recherche.',
+        default_per_page: 100,
+        reorder_url: can_url(path('admin_partenaire_reorder'), 'POST') ? path('admin_partenaire_reorder') : null,
+        reorder_token: 'reorder-partenaire',
+        columns: [
+            {key: 'drag', label: 'Ordre', sortable: false},
+            {key: 'logo', label: 'Logo', sortable: false},
+            {key: 'nom', label: 'Nom'},
+            {key: 'site', label: 'Site'},
+            {key: 'statut', label: 'Statut'},
+            {key: 'cree', label: 'Ajouté le'},
+        ],
+    } %}
+        {% block rows %}
+            {% for partenaire in partenaires %}
+                <tr data-data-table-target="row" data-reorder-target="row" data-action="dragover->reorder#over drop->reorder#drop" data-id="{{ partenaire.id }}" data-status="{{ partenaire.statut }}">
+                    {% if bulk %}<td class="dt-check-col"><input type="checkbox" data-row-check value="{{ partenaire.id }}" data-action="change->data-table#toggleRow" aria-label="Sélectionner {{ partenaire.nom }}"></td>{% endif %}
+                    <td data-col="drag" class="dt-drag-handle" draggable="true" data-action="dragstart->reorder#start dragend->reorder#end" title="Glisser pour réordonner"><i class="fa-solid fa-grip-vertical"></i></td>
+                    <td data-col="logo">
+                        {% if partenaire.logoName %}
+                            <img src="{{ asset('uploads/partenaires/' ~ partenaire.logoName) }}" alt="" class="h-8 w-8 rounded object-cover bg-white/10">
+                        {% else %}
+                            <span class="dt-muted">—</span>
+                        {% endif %}
+                    </td>
+                    <td data-col="nom" data-sort="{{ partenaire.nom|lower }}" class="font-medium">{{ partenaire.nom }}</td>
+                    <td data-col="site" class="dt-muted">{{ partenaire.url ?? '—' }}</td>
+                    <td data-col="statut"><span class="badge badge-{{ partenaire.statut }}">{{ partenaire.statutLabel }}</span></td>
+                    <td data-col="cree" data-sort="{{ partenaire.createdAt ? partenaire.createdAt|date('Y-m-d H:i') : '' }}" class="dt-muted">{{ partenaire.createdAt ? partenaire.createdAt|date('d/m/Y') : '—' }}</td>
+                    {% include 'admin/_components/row_menu.html.twig' with {
+                        actions: [{
+                            url: path('admin_toggle_actif', {type: 'partenaire', id: partenaire.id}),
+                            token: csrf_token('toggle-partenaire-' ~ partenaire.id),
+                            label: partenaire.actif ? 'Désactiver' : 'Activer',
+                            icon: partenaire.actif ? 'fa-eye-slash' : 'fa-eye',
+                        }],
+                        edit_url: path('admin_partenaire_edit', {id: partenaire.id}),
+                        delete_url: path('admin_partenaire_delete', {id: partenaire.id}),
+                        delete_token: csrf_token('delete-partenaire-' ~ partenaire.id),
+                        delete_title: 'Supprimer ce partenaire ?',
+                        delete_message: 'Le partenaire « ' ~ partenaire.nom ~ ' » sera supprimé définitivement.',
+                    } %}
+                </tr>
+            {% endfor %}
+        {% endblock %}
+    {% endembed %}
+{% endblock %}

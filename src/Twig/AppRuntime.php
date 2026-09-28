@@ -3,6 +3,7 @@
 namespace App\Twig;
 
 use App\Entity\MatchLive;
+use App\Repository\BoutiqueSettingsRepository;
 use App\Repository\MatchLiveRepository;
 use Twig\Extension\RuntimeExtensionInterface;
 
@@ -14,11 +15,17 @@ class AppRuntime implements RuntimeExtensionInterface
 {
     public function __construct(
         private readonly MatchLiveRepository $matchLiveRepository,
+        private readonly BoutiqueSettingsRepository $boutiqueSettingsRepository,
     ) {
     }
 
     public function getMatchLive(): ?MatchLive
     {
         return $this->matchLiveRepository->getSingleton();
+    }
+
+    public function isBoutiqueEnMaintenance(): bool
+    {
+        return $this->boutiqueSettingsRepository->getSingleton()?->isEnMaintenance() ?? false;
     }
 }

@@ -2,13 +2,20 @@
 
 {% block tab_content %}
     {{ form_start(form) }}
-        {{ form_row(form.titre) }}
-        {{ form_row(form.imageFile) }}
-        {{ form_row(form.url) }}
-        {{ form_row(form.actif) }}
+        {# Dans la grande fenêtre : texte à gauche, image à droite #}
+        <div class="reglage-split">
+            <div>
+                {{ form_row(form.titre) }}
+                {{ form_row(form.url) }}
+                {{ form_row(form.actif) }}
+            </div>
+            <div>
+                {{ form_row(form.imageFile) }}
+            </div>
+        </div>
 
-        <div class="form-actions">
-            {{ form_widget(form.save, { attr: { class: 'btn btn-primary action-save' } }) }}
+        <div class="mt-4">
+            {{ form_widget(form.save) }}
         </div>
     {{ form_end(form) }}
 {% endblock %}

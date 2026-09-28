@@ -1,0 +1,27 @@
+{% extends 'admin/_layout.html.twig' %}
+{% form_theme form 'admin/_form_theme.html.twig' %}
+
+{% block title %}{{ profil.id ? 'Modifier le profil' : 'Nouveau profil' }}{% endblock %}
+
+{% block body %}
+    <a href="{{ path('admin_profil_index') }}" class="text-sm text-admin-text-muted hover:text-admin-text"><i class="fa-solid fa-arrow-left"></i> Profils d'autorisation</a>
+    <h1 class="text-2xl font-black mt-3 mb-6" style="font-family:'Barlow Condensed',sans-serif;">{{ profil.id ? 'Modifier le profil « ' ~ profil.nom ~ ' »' : 'Nouveau profil' }}</h1>
+
+    {{ form_start(form, {attr: {novalidate: 'novalidate'}}) }}
+        <section class="admin-card rounded-2xl p-6 mb-6 max-w-3xl">
+            {{ form_row(form.nom) }}
+            {{ form_row(form.description) }}
+        </section>
+
+        <section class="admin-card rounded-2xl p-6">
+            <h2 class="font-semibold mb-1">Autorisations</h2>
+            <p class="text-xs text-admin-text-muted mb-4">Cochez ce que ce profil peut faire. « Créer », « Modifier » et « Supprimer » supposent de pouvoir « Voir ».</p>
+            {% include 'admin/acces/_matrix.html.twig' with {selected: selected} %}
+        </section>
+
+        <div class="flex items-center gap-3 mt-6">
+            <button type="submit" class="rounded-lg admin-gradient px-5 py-2 text-sm font-semibold text-white">Enregistrer</button>
+            <a href="{{ path('admin_profil_index') }}" class="text-sm text-admin-text-muted hover:text-admin-text">Annuler</a>
+        </div>
+    {{ form_end(form) }}
+{% endblock %}

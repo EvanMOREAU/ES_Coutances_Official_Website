@@ -1,0 +1,70 @@
+{#
+ Cellule d'actions d'une ligne de tableau (le petit menu « … »).
+ Paramètres : show_url?, edit_url?, actions? (liste de {url, label, icon, token? (POST), modal? (ouvre url dans une fenêtre), get? (simple lien), confirm?, confirm_title?, confirm_label?}),
+              delete_url?, delete_token?, delete_message?, delete_title?,
+              famille_delete? (payload de la fenêtre de suppression d'une famille non vide).
+ Chaque entrée n'apparaît que si l'utilisateur a l'autorisation exigée par son adresse (voir RoutePermissions) ;
+ sans aucune entrée autorisée, le menu « … » est masqué.
+#}
+{% set can_show = show_url|default(null) and can_url(show_url) %}
+{% set can_edit = edit_url|default(null) and can_url(edit_url) %}
+{% set can_delete = delete_url|default(null) and can_url(delete_url, 'POST') %}
+{% set allowed_actions = [] %}
+{% for action in actions|default([]) %}
+    {% if can_url(action.url, (action.modal|default(false) or action.get|default(false)) ? 'GET' : 'POST') %}
+        {% set allowed_actions = allowed_actions|merge([action]) %}
+    {% endif %}
+{% endfor %}
+<td class="dt-actions-col">
+    {% if can_show or can_edit or can_delete or allowed_actions is not empty %}
+    <div data-controller="menu" class="inline-block">
+        <button type="button" class="dt-row-button" data-menu-target="button" data-action="click->menu#toggle"
+                aria-label="Actions" aria-haspopup="true" aria-expanded="false"><i class="fa-solid fa-ellipsis"></i></button>
+        <div data-menu-target="panel" class="admin-menu-panel hidden">
+            {% if can_show %}
+                <a href="{{ show_url }}" class="admin-menu-item"><i class="fa-regular fa-eye"></i> Voir</a>
+            {% endif %}
+            {% if can_edit %}
+                <a href="{{ edit_url }}" class="admin-menu-item"><i class="fa-solid fa-pen"></i> Modifier</a>
+            {% endif %}
+            {% for action in allowed_actions %}
+                {% if action.modal|default(false) %}
+                    <button type="button" class="admin-menu-item" data-controller="section-modal"
+                            data-section-modal-url-value="{{ action.url }}" data-section-modal-title-value="{{ action.title|default(action.label) }}"
+                            data-action="click->section-modal#open click->menu#close pointerenter->section-modal#warm">
+                        <i class="fa-solid {{ action.icon }}"></i> {{ action.label }}
+                    </button>
+                {% elseif action.get|default(false) %}
+                    <a href="{{ action.url }}" class="admin-menu-item"><i class="fa-solid {{ action.icon }}"></i> {{ action.label }}</a>
+                {% else %}
+                    <form method="post" action="{{ action.url }}" data-action="submit->menu#close"
+                          {% if action.confirm|default(null) %}data-confirm="{{ action.confirm }}" data-confirm-title="{{ action.confirm_title|default('Confirmer') }}" data-confirm-label="{{ action.confirm_label|default('Confirmer') }}" data-confirm-neutral{% endif %}>
+                        <input type="hidden" name="_token" value="{{ action.token }}">
+                        <button type="submit" class="admin-menu-item"><i class="fa-solid {{ action.icon }}"></i> {{ action.label }}</button>
+                    </form>
+                {% endif %}
+            {% endfor %}
+            {% if can_delete %}
+                {% if famille_delete|default(null) %}
+                    <button type="button" class="admin-menu-item is-danger"
+                            data-controller="famille-delete"
+                            data-famille-delete-famille-name-value="{{ famille_delete.name }}"
+                            data-famille-delete-delete-url-value="{{ delete_url }}"
+                            data-famille-delete-delete-token-value="{{ delete_token }}"
+                            data-famille-delete-licencies-value="{{ famille_delete.licencies|json_encode|e('html_attr') }}"
+                            data-action="click->famille-delete#open click->menu#close">
+                        <i class="fa-solid fa-trash"></i> Supprimer
+                    </button>
+                {% else %}
+                    <form method="post" action="{{ delete_url }}" data-action="submit->menu#close"
+                          data-confirm="{{ delete_message|default('Cette action est irréversible.') }}"
+                          data-confirm-title="{{ delete_title|default('Confirmer la suppression') }}">
+                        <input type="hidden" name="_token" value="{{ delete_token }}">
+                        <button type="submit" class="admin-menu-item is-danger"><i class="fa-solid fa-trash"></i> Supprimer</button>
+                    </form>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+</td>

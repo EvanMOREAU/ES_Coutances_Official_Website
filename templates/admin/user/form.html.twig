@@ -1,0 +1,53 @@
+{% extends 'admin/_layout.html.twig' %}
+{% form_theme form 'admin/_form_theme.html.twig' %}
+
+{% block title %}{{ user.id ? 'Modifier l\'utilisateur' : 'Nouvel utilisateur' }}{% endblock %}
+
+{% block body %}
+    <h1 class="text-2xl font-black mb-6" style="font-family:'Barlow Condensed',sans-serif;">
+        {{ user.id ? 'Modifier l\'utilisateur' : 'Nouvel utilisateur' }}
+    </h1>
+
+    {{ form_start(form, {attr: {novalidate: 'novalidate'}}) }}
+        <div class="admin-card rounded-2xl p-6 max-w-3xl mb-6">
+            <div class="grid grid-cols-2 gap-4">
+                {{ form_row(form.prenom) }}
+                {{ form_row(form.nom) }}
+            </div>
+            {{ form_row(form.email) }}
+            {{ form_row(form.roles) }}
+        </div>
+
+        {% if 'ROLE_DEV' in user.roles %}
+            <div class="admin-card rounded-2xl p-6 max-w-3xl mb-6">
+                <h2 class="font-semibold mb-1">Autorisations</h2>
+                <p class="text-sm text-admin-text-muted">Un développeur a toutes les autorisations : elles ne se restreignent pas.</p>
+                {% do form.profil.setRendered %}
+            </div>
+        {% else %}
+            <section class="admin-card rounded-2xl p-6 mb-6">
+                <h2 class="font-semibold mb-1">Autorisations</h2>
+                <p class="text-xs text-admin-text-muted mb-4">
+                    Ce que cette personne peut faire dans le back-office. Choisissez un profil pour préremplir la matrice, puis ajustez au besoin.
+                    {% if not user.id %}Sans autorisation cochée, elle pourra se connecter mais n'aura accès à aucune rubrique.{% endif %}
+                </p>
+                <div class="max-w-xl">{{ form_row(form.profil) }}</div>
+                {% include 'admin/acces/_matrix.html.twig' with {selected: selected} %}
+            </section>
+        {% endif %}
+
+        <div class="flex items-center gap-3">
+            <button type="submit" class="rounded-lg admin-gradient px-5 py-2 text-sm font-semibold text-white">Enregistrer</button>
+            <a href="{{ path('admin_user_index') }}" class="text-sm text-admin-text-muted hover:text-admin-text">Annuler</a>
+        </div>
+    {{ form_end(form) }}
+
+    {% if user.id %}
+        <form method="post" action="{{ path('admin_user_resend_activation', {id: user.id}) }}" class="mt-6 pt-4 border-t border-admin-border max-w-3xl">
+            <input type="hidden" name="_token" value="{{ csrf_token('resend-activation-' ~ user.id) }}">
+            <button type="submit" class="text-sm text-admin-text-muted hover:text-admin-text">
+                <i class="fa-solid fa-paper-plane mr-1"></i> Renvoyer l'email de définition du mot de passe
+            </button>
+        </form>
+    {% endif %}
+{% endblock %}

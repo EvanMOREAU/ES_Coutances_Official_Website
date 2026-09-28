@@ -1,0 +1,78 @@
+{% extends 'boutique/_layout.html.twig' %}
+
+{% block boutique_title %}Boutique{% endblock %}
+
+{% block hero_lead %}<p class="lead">Les articles officiels de l'ES Coutances. Commandez en ligne et retirez votre commande au club — aucune livraison.</p>{% endblock %}
+
+{% block boutique_styles %}
+<style>
+.shop-filters { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 28px; }
+.shop-filter { display: inline-flex; align-items: center; padding: 8px 18px; border-radius: 999px; border: 1px solid var(--border); background: #fff; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: .03em; color: var(--dark); text-decoration: none; transition: background .15s, color .15s, border-color .15s, transform .15s; }
+.shop-filter:hover { border-color: var(--red); transform: translateY(-1px); }
+.shop-filter.is-active { background: var(--red); border-color: var(--red); color: #fff; }
+
+.product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 28px; }
+.product { display: flex; flex-direction: column; background: #fff; border: 1px solid var(--border); border-radius: 14px; overflow: hidden; transition: box-shadow .25s, transform .25s, border-color .25s; }
+.product:hover { box-shadow: 0 20px 40px rgba(0,0,0,.12); transform: translateY(-5px); border-color: transparent; }
+.product-img { position: relative; aspect-ratio: 1 / 1; background: linear-gradient(135deg, var(--grey), #ececec); overflow: hidden; }
+.product-img img { width: 100%; height: 100%; object-fit: cover; transition: transform .5s ease; }
+.product:hover .product-img img { transform: scale(1.06); }
+.product-img .placeholder { display: flex; width: 100%; height: 100%; align-items: center; justify-content: center; font-size: 56px; color: #c9c5c0; }
+.product-img .tag { position: absolute; top: 12px; left: 12px; box-shadow: 0 4px 10px rgba(0,0,0,.15); }
+.product-body { display: flex; flex: 1; flex-direction: column; gap: 6px; padding: 20px 22px 22px; }
+.product-category { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--red); }
+.product-name { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 21px; letter-spacing: .03em; text-transform: uppercase; line-height: 1.15; color: var(--dark); }
+.product-sizes { font-size: 12px; color: #888; }
+.product-foot { display: flex; align-items: center; justify-content: space-between; margin-top: auto; padding-top: 14px; border-top: 1px solid var(--border); }
+.product-foot .price { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 20px; color: var(--dark); }
+.product.is-out .product-img img { filter: grayscale(1); opacity: .6; }
+.shop-empty { text-align: center; padding: 72px 0; color: #777; }
+.shop-empty i { font-size: 44px; color: #cfcac5; margin-bottom: 16px; }
+.shop-empty h2 { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 26px; text-transform: uppercase; color: var(--dark); margin-bottom: 6px; }
+</style>
+{% endblock %}
+
+{% block shop_body %}
+  {% if categories is not empty %}
+    <div class="shop-filters">
+      <a href="{{ path('boutique_index') }}" class="shop-filter {{ categorieSlug is null ? 'is-active' }}">Tout</a>
+      {% for categorie in categories %}
+        <a href="{{ path('boutique_index', {categorie: categorie.slug}) }}" class="shop-filter {{ categorieSlug == categorie.slug ? 'is-active' }}">{{ categorie.nom }}</a>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  {% if articles is empty %}
+    <div class="shop-empty">
+      <i class="fa-solid fa-shirt"></i>
+      <h2>La boutique arrive bientôt</h2>
+      <p>{{ categorieSlug ? "Aucun article dans cette catégorie pour le moment." : "Aucun article n'est disponible pour le moment. Revenez vite !" }}</p>
+    </div>
+  {% else %}
+    <div class="product-grid">
+      {% for article in articles %}
+        <a href="{{ path('boutique_article', {slug: article.slug}) }}" class="product {{ not article.disponible ? 'is-out' }}">
+          <div class="product-img">
+            {% if article.imageName %}
+              <img src="{{ asset('uploads/articles/' ~ article.imageName) }}" alt="{{ article.nom }}" loading="lazy">
+            {% else %}
+              <span class="placeholder"><i class="fa-solid fa-shirt"></i></span>
+            {% endif %}
+            {% if not article.disponible %}<span class="tag tag-grey">Épuisé</span>{% endif %}
+          </div>
+          <div class="product-body">
+            {% if article.categorie %}<span class="product-category">{{ article.categorie.nom }}</span>{% endif %}
+            <h2 class="product-name">{{ article.nom }}</h2>
+            {% if not article.sansDeclinaison %}
+              <p class="product-sizes">{{ article.variantes|map(v => v.libelle)|join(' · ') }}</p>
+            {% endif %}
+            <div class="product-foot">
+              <span class="price">{{ article.prixCentimes|money }}</span>
+              <span class="btn btn-outline" style="padding:7px 14px; font-size:12px;">Voir</span>
+            </div>
+          </div>
+        </a>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endblock %}

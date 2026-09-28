@@ -1,0 +1,27 @@
+{% extends 'admin/_layout.html.twig' %}
+
+{% block title %}Import Foot Club{% endblock %}
+
+{% block body %}
+    <div class="mb-6">
+        <h1 class="text-2xl font-black" style="font-family:'Barlow Condensed',sans-serif;">Import Foot Club</h1>
+        <p class="text-sm text-admin-text-muted">Déposez l'export .xlsx du logiciel fédéral « Foot Club » pour créer ou mettre à jour les familles et licenciés du site à partir de ses données.</p>
+    </div>
+
+    <div class="admin-card rounded-2xl p-6 max-w-xl">
+        <form method="post" action="{{ path('admin_import_preview') }}" enctype="multipart/form-data" class="space-y-4">
+            <input type="hidden" name="_token" value="{{ csrf_token('import-upload') }}">
+
+            <div>
+                <label for="fichier" class="block text-sm font-medium mb-1">Fichier export (.xlsx)</label>
+                <input type="file" id="fichier" name="fichier" accept=".xlsx" required
+                       class="block w-full text-sm rounded-lg border border-admin-border bg-admin-surface p-2">
+                <p class="text-xs text-admin-text-muted mt-1">Feuille « Feuil1 », une ligne par licencié, en-têtes en première ligne.</p>
+            </div>
+
+            <button type="submit" class="rounded-lg admin-gradient px-5 py-2 text-sm font-semibold text-white">
+                <i class="fa-solid fa-arrow-right"></i> Analyser le fichier
+            </button>
+        </form>
+    </div>
+{% endblock %}

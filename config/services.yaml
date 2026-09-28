@@ -11,6 +11,12 @@ parameters:
     app.maintenance_flag_path: '%env(MAINTENANCE_FLAG_PATH)%'
     app.mailer_from_address: '%env(MAILER_FROM_ADDRESS)%'
     app.mailer_from_name: '%env(MAILER_FROM_NAME)%'
+    # Branche Git suivie par le déploiement automatique (vide = branche actuellement extraite).
+    env(DEPLOY_BRANCH): ''
+    app.deploy_branch: '%env(DEPLOY_BRANCH)%'
+    # Quota affiché par le gestionnaire de fichiers (en Mo).
+    env(FILES_QUOTA_MB): '10240'
+    app.files_quota_mb: '%env(FILES_QUOTA_MB)%'
 
 services:
     # default configuration for services in *this* file
@@ -21,6 +27,11 @@ services:
             string $maintenanceFlagPath: '%app.maintenance_flag_path%'
             string $mailerFromAddress: '%app.mailer_from_address%'
             string $mailerFromName: '%app.mailer_from_name%'
+            string $projectDir: '%kernel.project_dir%'
+            string $deployBranch: '%app.deploy_branch%'
+            string $kernelEnvironment: '%kernel.environment%'
+            string $filesQuotaMb: '%app.files_quota_mb%'
+            string $secret: '%kernel.secret%'
 
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name

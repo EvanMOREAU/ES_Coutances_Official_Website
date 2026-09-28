@@ -1,0 +1,106 @@
+{% extends 'admin/_layout.html.twig' %}
+
+{% block title %}Journal — détail{% endblock %}
+
+{% macro value(v) %}
+    {% if v is null %}<span class="dt-muted">—</span>
+    {% elseif v is iterable %}<code class="jr-json">{{ v|json_encode(constant('JSON_UNESCAPED_UNICODE') b-or constant('JSON_PRETTY_PRINT')) }}</code>
+    {% elseif v is same as(true) %}oui{% elseif v is same as(false) %}non
+    {% else %}{{ v }}{% endif %}
+{% endmacro %}
+
+{% block body %}
+    <a href="{{ path('admin_journal_index') }}" class="text-sm text-admin-text-muted hover:text-admin-text"><i class="fa-solid fa-arrow-left"></i> Journal d'activité</a>
+
+    <div class="flex flex-wrap items-center gap-3 mt-3 mb-5">
+        <span class="jr-type jr-type-{{ log.type }}">{{ log.operationLabel ?: log.typeLabel }}</span>
+        <h1 class="text-xl font-black" style="font-family:'Barlow Condensed',sans-serif;">{{ log.summary }}</h1>
+    </div>
+
+    <div class="grid gap-6 lg:grid-cols-3 items-start">
+        <div class="lg:col-span-2 space-y-6">
+            {% if log.changes %}
+                <section class="admin-card rounded-2xl p-6">
+                    <h2 class="font-semibold mb-4">{{ log.operation == 'creation' ? 'Valeurs enregistrées' : (log.operation == 'suppression' ? 'Valeurs supprimées' : 'Modifications') }}</h2>
+                    <table class="cmd-lines jr-changes">
+                        <thead><tr><th>Champ</th>{% if log.operation != 'creation' %}<th>Avant</th>{% endif %}{% if log.operation != 'suppression' %}<th>Après</th>{% endif %}</tr></thead>
+                        <tbody>
+                            {% for field, change in log.changes %}
+                                <tr>
+                                    <td class="font-medium">{{ field }}</td>
+                                    {% if change is iterable and change|length == 2 and change[0] is defined %}
+                                        {% if log.operation != 'creation' %}<td>{{ _self.value(change[0]) }}</td>{% endif %}
+                                        {% if log.operation != 'suppression' %}<td>{{ _self.value(change[1]) }}</td>{% endif %}
+                                    {% else %}
+                                        <td colspan="2">{{ _self.value(change) }}</td>
+                                    {% endif %}
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </section>
+            {% endif %}
+
+            {% if log.context %}
+                <section class="admin-card rounded-2xl p-6">
+                    <h2 class="font-semibold mb-4">Détails de l'action</h2>
+                    <pre class="jr-pre">{{ log.context|json_encode(constant('JSON_UNESCAPED_UNICODE') b-or constant('JSON_PRETTY_PRINT')) }}</pre>
+                </section>
+            {% endif %}
+
+            {% if related %}
+                <section class="admin-card rounded-2xl p-6">
+                    <h2 class="font-semibold mb-1">Même requête</h2>
+                    <p class="text-xs text-admin-text-muted mb-3">Tout ce que cette action a provoqué.</p>
+                    <ul class="jr-list">
+                        {% for r in related %}
+                            <li><a href="{{ path('admin_journal_show', {id: r.id}) }}"><span class="jr-type jr-type-{{ r.type }}">{{ r.operationLabel ?: r.typeLabel }}</span> {{ r.summary }}</a></li>
+                        {% endfor %}
+                    </ul>
+                </section>
+            {% endif %}
+
+            {% if history %}
+                <section class="admin-card rounded-2xl p-6">
+                    <h2 class="font-semibold mb-1">Historique de cet élément</h2>
+                    <p class="text-xs text-admin-text-muted mb-3">{{ log.entityShort }} #{{ log.entityId }} — les 15 dernières lignes.</p>
+                    <ul class="jr-list">
+                        {% for r in history %}
+                            <li class="{{ r.id == log.id ? 'is-current' }}"><a href="{{ path('admin_journal_show', {id: r.id}) }}"><span class="dt-muted">{{ r.occurredAt|date('d/m/Y H:i') }}</span> · {{ r.userName ?: r.userEmail ?: 'système' }} · <span class="jr-type jr-type-{{ r.type }}">{{ r.operationLabel }}</span></a></li>
+                        {% endfor %}
+                    </ul>
+                </section>
+            {% endif %}
+        </div>
+
+        <aside class="space-y-6">
+            <section class="admin-card rounded-2xl p-6">
+                <h2 class="font-semibold mb-4">Qui et quand</h2>
+                <dl class="cmd-dl">
+                    <dt>Date</dt><dd>{{ log.occurredAt|date('d/m/Y à H:i:s') }}</dd>
+                    <dt>Compte</dt><dd>{{ log.userName ?: '—' }}</dd>
+                    <dt>E-mail</dt><dd>{{ log.userEmail ?: '—' }}</dd>
+                    <dt>Identifiant</dt><dd>{{ log.userId ?: '—' }}</dd>
+                    <dt>Rôles</dt><dd>{{ log.userRoles ?: '—' }}</dd>
+                    <dt>Adresse IP</dt><dd><strong>{{ log.ip ?: '—' }}</strong></dd>
+                    {% if log.forwardedFor %}<dt>Transmise par</dt><dd>{{ log.forwardedFor }}</dd>{% endif %}
+                    <dt>Navigateur</dt><dd>{{ log.userAgent ?: '—' }}</dd>
+                </dl>
+            </section>
+
+            <section class="admin-card rounded-2xl p-6">
+                <h2 class="font-semibold mb-4">Requête</h2>
+                <dl class="cmd-dl">
+                    <dt>Rubrique</dt><dd>{{ log.category }}</dd>
+                    <dt>Origine</dt><dd>{{ log.source == 'cli' ? 'Ligne de commande' : 'Navigateur' }}</dd>
+                    <dt>Méthode</dt><dd>{{ log.method ?: '—' }}</dd>
+                    <dt>Route</dt><dd>{{ log.route ?: '—' }}</dd>
+                    <dt>Adresse</dt><dd>{{ log.path ?: '—' }}</dd>
+                    <dt>Code HTTP</dt><dd>{{ log.statusCode ?: '—' }}</dd>
+                    {% if log.entityClass %}<dt>Élément</dt><dd>{{ log.entityShort }} #{{ log.entityId }}{{ log.entityLabel ? ' — ' ~ log.entityLabel }}</dd>{% endif %}
+                    <dt>N° de requête</dt><dd><a href="{{ path('admin_journal_index', {request: log.requestId}) }}" class="underline">{{ log.requestId }}</a></dd>
+                </dl>
+            </section>
+        </aside>
+    </div>
+{% endblock %}

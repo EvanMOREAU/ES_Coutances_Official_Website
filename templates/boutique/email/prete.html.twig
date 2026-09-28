@@ -1,0 +1,15 @@
+{% extends 'boutique/email/_base.html.twig' %}
+
+{% block contenu %}
+    <p>Bonne nouvelle : votre commande <strong>{{ commande.reference }}</strong> est <strong>prête à être retirée au club</strong>.</p>
+    {% if not commande.isPayee %}
+        <p>Pensez à prévoir votre règlement ({{ commande.modePaiementLabel|lower }}) : <strong>{{ commande.totalCentimes|money }}</strong>.</p>
+    {% endif %}
+    <p>Présentez-vous avec votre numéro de commande : <strong>{{ commande.reference }}</strong>.</p>
+    <p style="text-align:center; margin:28px 0;">
+        <a href="{{ url('boutique_commande_suivi', {reference: commande.reference, token: commande.token}) }}"
+           style="background:#C8102E; color:#fff; padding:12px 26px; border-radius:4px; text-decoration:none; font-weight:700; text-transform:uppercase; letter-spacing:.05em; font-size:13px;">
+            Voir ma commande
+        </a>
+    </p>
+{% endblock %}

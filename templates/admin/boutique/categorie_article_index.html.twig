@@ -1,0 +1,37 @@
+{% extends 'admin/_layout.html.twig' %}
+
+{% block title %}Catégories boutique{% endblock %}
+
+{% block body %}
+    <a href="{{ path('admin_article_index') }}" class="text-sm text-admin-text-muted hover:text-admin-text"><i class="fa-solid fa-arrow-left"></i> Tous les articles</a>
+    <div class="flex items-center justify-between mt-3 mb-6">
+        <h1 class="text-2xl font-black" style="font-family:'Barlow Condensed',sans-serif;">Catégories boutique</h1>
+        {% if can_url(path('admin_boutique_categorie_new')) %}<a href="{{ path('admin_boutique_categorie_new') }}" class="rounded-lg admin-gradient px-4 py-2 text-sm font-semibold text-white">+ Nouvelle catégorie</a>{% endif %}
+    </div>
+
+    {% embed 'admin/_components/data_table.html.twig' with {
+        key: 'categorie_article',
+        plural: 'catégories',
+        search_placeholder: 'Rechercher une catégorie…',
+        empty_message: 'Aucune catégorie ne correspond à votre recherche.',
+        bulk: false,
+        columns: [
+            {key: 'nom', label: 'Nom'},
+        ],
+    } %}
+        {% block rows %}
+            {% for categorie in categories %}
+                <tr data-data-table-target="row" data-id="{{ categorie.id }}">
+                    <td data-col="nom" data-sort="{{ categorie.nom|lower }}" class="font-medium">{{ categorie.nom }}</td>
+                    {% include 'admin/_components/row_menu.html.twig' with {
+                        edit_url: path('admin_boutique_categorie_edit', {id: categorie.id}),
+                        delete_url: path('admin_boutique_categorie_delete', {id: categorie.id}),
+                        delete_token: csrf_token('delete-boutique-categorie-' ~ categorie.id),
+                        delete_title: 'Supprimer cette catégorie ?',
+                        delete_message: 'La catégorie « ' ~ categorie.nom ~ ' » sera supprimée définitivement. Les articles qui l\'utilisent redeviennent « sans catégorie ».',
+                    } %}
+                </tr>
+            {% endfor %}
+        {% endblock %}
+    {% endembed %}
+{% endblock %}

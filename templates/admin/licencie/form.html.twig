@@ -1,0 +1,42 @@
+{% extends 'admin/_layout.html.twig' %}
+{% form_theme form 'admin/_form_theme.html.twig' %}
+
+{% block title %}{{ licencie.id ? 'Modifier le licencié' : 'Nouveau licencié' }}{% endblock %}
+
+{% block body %}
+    <h1 class="text-2xl font-black mb-6" style="font-family:'Barlow Condensed',sans-serif;">
+        {{ licencie.id ? 'Modifier le licencié' : 'Nouveau licencié' }}
+    </h1>
+
+    <div class="admin-card rounded-2xl p-6 max-w-2xl">
+        {{ form_start(form) }}
+          <div data-controller="category-preview">
+            <div class="grid grid-cols-2 gap-4">
+                {{ form_row(form.nom) }}
+                {{ form_row(form.prenom) }}
+            </div>
+            {{ form_row(form.dateNaissance) }}
+            {{ form_row(form.email) }}
+            {% if form.autonome is defined %}
+                {{ form_row(form.autonome) }}
+            {% endif %}
+            {{ form_row(form.famille) }}
+            {{ form_row(form.saison) }}
+
+            <div class="rounded-xl border border-admin-border p-4 mb-5">
+                <p class="text-xs font-semibold uppercase tracking-wide text-admin-text-muted mb-2">Catégorie calculée</p>
+                <div data-category-preview-target="output" class="mb-4"></div>
+                {{ form_row(form.decalageCategorie) }}
+                {{ form_row(form.equipes) }}
+            </div>
+          </div>
+            {{ form_row(form.statut) }}
+
+
+            <div class="flex items-center gap-3 mt-6">
+                <button type="submit" class="rounded-lg admin-gradient px-5 py-2 text-sm font-semibold text-white">Enregistrer</button>
+                <a href="{{ path('admin_licencie_index') }}" class="text-sm text-admin-text-muted hover:text-admin-text">Annuler</a>
+            </div>
+        {{ form_end(form) }}
+    </div>
+{% endblock %}

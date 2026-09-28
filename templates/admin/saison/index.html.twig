@@ -1,0 +1,49 @@
+{% extends 'admin/_layout.html.twig' %}
+
+{% block title %}Saisons{% endblock %}
+
+{% block body %}
+    <div class="flex items-center justify-between mb-6">
+        <h1 class="text-2xl font-black" style="font-family:'Barlow Condensed',sans-serif;">Saisons</h1>
+        {% if can_url(path('admin_saison_new')) %}<a href="{{ path('admin_saison_new') }}" class="rounded-lg admin-gradient px-4 py-2 text-sm font-semibold text-white">+ Nouvelle saison</a>{% endif %}
+    </div>
+
+    {% embed 'admin/_components/data_table.html.twig' with {
+        key: 'saison',
+        plural: 'saisons',
+        statuses: true,
+        search_placeholder: 'Rechercher une saison…',
+        empty_message: 'Aucune saison ne correspond à votre recherche.',
+        columns: [
+            {key: 'libelle', label: 'Libellé'},
+            {key: 'debut', label: 'Début'},
+            {key: 'fin', label: 'Fin'},
+            {key: 'encours', label: 'En cours'},
+            {key: 'statut', label: 'Statut'},
+            {key: 'cree', label: 'Créée le'},
+        ],
+    } %}
+        {% block rows %}
+            {% for saison in saisons %}
+                <tr data-data-table-target="row" data-id="{{ saison.id }}" data-status="{{ saison.statut }}">
+                    {% if bulk %}<td class="dt-check-col"><input type="checkbox" data-row-check value="{{ saison.id }}" data-action="change->data-table#toggleRow" aria-label="Sélectionner {{ saison.libelle }}"></td>{% endif %}
+                    <td data-col="libelle" data-sort="{{ saison.libelle }}" class="font-medium">{{ saison.libelle }}</td>
+                    <td data-col="debut" data-sort="{{ saison.dateDebut|date('Y-m-d') }}">{{ saison.dateDebut|date('d/m/Y') }}</td>
+                    <td data-col="fin" data-sort="{{ saison.dateFin|date('Y-m-d') }}">{{ saison.dateFin|date('d/m/Y') }}</td>
+                    <td data-col="encours" data-sort="{{ saison.active ? 1 : 0 }}">
+                        {% if saison.active %}<span class="badge badge-active">En cours</span>{% else %}<span class="dt-muted">—</span>{% endif %}
+                    </td>
+                    <td data-col="statut"><span class="badge badge-{{ saison.statut }}">{{ saison.statutLabel }}</span></td>
+                    <td data-col="cree" data-sort="{{ saison.createdAt ? saison.createdAt|date('Y-m-d H:i') : '' }}" class="dt-muted">{{ saison.createdAt ? saison.createdAt|date('d/m/Y') : '—' }}</td>
+                    {% include 'admin/_components/row_menu.html.twig' with {
+                        edit_url: path('admin_saison_edit', {id: saison.id}),
+                        delete_url: path('admin_saison_delete', {id: saison.id}),
+                        delete_token: csrf_token('delete-saison-' ~ saison.id),
+                        delete_title: 'Supprimer cette saison ?',
+                        delete_message: 'La saison « ' ~ saison.libelle ~ ' » sera supprimée définitivement (impossible si des licenciés y sont rattachés).',
+                    } %}
+                </tr>
+            {% endfor %}
+        {% endblock %}
+    {% endembed %}
+{% endblock %}

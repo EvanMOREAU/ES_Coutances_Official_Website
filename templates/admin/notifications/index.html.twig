@@ -1,0 +1,38 @@
+{% extends 'admin/_layout.html.twig' %}
+
+{% block title %}Notifications{% endblock %}
+
+{% block body %}
+    {% set unread = notifications|filter(n => not n.read)|length %}
+    <div class="mb-6">
+        <h1 class="text-2xl font-black" style="font-family:'Barlow Condensed',sans-serif;">Notifications</h1>
+        <p class="text-sm text-admin-text-muted">Restez informé des commandes, des nouvelles familles et des points à traiter.</p>
+    </div>
+
+    <section class="admin-card rounded-2xl p-2 sm:p-4 max-w-4xl"
+             data-controller="notifications"
+             data-notifications-read-url-value="{{ path('admin_notification_read') }}"
+             data-notifications-dismiss-url-value="{{ path('admin_notification_dismiss') }}"
+             data-notifications-token-value="{{ csrf_token('admin-notifications') }}">
+        <header class="notif-page-head">
+            <h2 class="font-semibold">Toutes les notifications
+                <span class="notif-count" data-notif-count {{ unread == 0 ? 'hidden' }}><span data-notif-count-value>{{ unread }}</span> non lue<span data-notif-plural>{{ unread > 1 ? 's' }}</span></span>
+            </h2>
+            <span class="notif-page-actions" data-notifications-target="bulk" {{ notifications is empty ? 'hidden' }}>
+                <button type="button" class="admin-btn admin-btn-ghost admin-btn-sm" data-action="notifications#readAll"><i class="fa-solid fa-check-double"></i> Tout marquer comme lu</button>
+                <button type="button" class="admin-btn admin-btn-ghost admin-btn-sm" data-action="notifications#dismissAll"><i class="fa-solid fa-trash-can"></i> Tout supprimer</button>
+            </span>
+        </header>
+
+        <div class="notif-list is-page" data-notifications-target="list">
+            {% for n in notifications %}
+                {% include 'admin/notifications/_item.html.twig' %}
+            {% endfor %}
+        </div>
+
+        <p class="notif-empty" data-notifications-target="empty" {{ notifications is not empty ? 'hidden' }}>
+            <i class="fa-regular fa-bell-slash"></i>
+            Rien à signaler pour le moment.
+        </p>
+    </section>
+{% endblock %}

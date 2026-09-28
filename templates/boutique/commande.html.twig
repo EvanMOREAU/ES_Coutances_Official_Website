@@ -1,0 +1,116 @@
+{% extends 'boutique/_layout.html.twig' %}
+
+{% block boutique_title %}Finaliser ma commande{% endblock %}
+{% block breadcrumb %}<a href="{{ path('boutique_index') }}">Boutique</a> <i class="fa-solid fa-chevron-right"></i> <a href="{{ path('boutique_panier') }}">Panier</a> <i class="fa-solid fa-chevron-right"></i> <span>Commande</span>{% endblock %}
+{% block hero_title %}Finaliser ma <span>commande</span>{% endblock %}
+
+{% block boutique_styles %}
+<style>
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 560px) { .form-grid { grid-template-columns: minmax(0, 1fr); } }
+.f-group { display: flex; flex-direction: column; gap: 6px; }
+.f-group.full { grid-column: 1 / -1; }
+.f-group label.lbl { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 13px; letter-spacing: .1em; text-transform: uppercase; color: var(--mid); }
+.f-group input[type=text], .f-group input[type=email], .f-group input[type=tel], .f-group textarea {
+  width: 100%; padding: 11px 14px; border: 1.5px solid var(--border); border-radius: 6px; font: 400 15px 'Inter', sans-serif; color: var(--dark); background: #fff; transition: border-color .15s, box-shadow .15s;
+}
+.f-group input:focus, .f-group textarea:focus { outline: none; border-color: var(--red); box-shadow: 0 0 0 3px rgba(200,16,46,.12); }
+.f-group textarea { resize: vertical; min-height: 84px; }
+.f-help { font-size: 12px; color: #888; }
+.f-error, .f-group ul { list-style: none; color: #b91c1c; font-size: 13px; }
+.pay-options { display: grid; gap: 10px; }
+.pay-option { display: block; position: relative; }
+.pay-option input { position: absolute; opacity: 0; pointer-events: none; }
+.pay-card { display: flex; align-items: center; gap: 14px; padding: 14px 16px; border: 2px solid var(--border); border-radius: 8px; cursor: pointer; transition: border-color .15s, background .15s; }
+.pay-card:hover { border-color: #d0ccc8; }
+.pay-option input:checked + .pay-card { border-color: var(--red); background: rgba(200,16,46,.04); }
+.pay-option input:focus-visible + .pay-card { outline: 2px solid var(--dark); outline-offset: 2px; }
+.pay-icon { display: flex; width: 40px; height: 40px; flex-shrink: 0; align-items: center; justify-content: center; border-radius: 50%; background: var(--grey); color: var(--mid); font-size: 16px; }
+.pay-option input:checked + .pay-card .pay-icon { background: var(--red); color: #fff; }
+.pay-title { font-weight: 600; font-size: 15px; }
+.pay-sub { font-size: 12.5px; color: #777; }
+.summary { position: sticky; top: calc(var(--nav-h) + 90px); }
+.mini-line { display: flex; justify-content: space-between; gap: 12px; padding: 6px 0; font-size: 14px; }
+.mini-line span:first-child { color: #444; }
+.pickup { display: flex; gap: 10px; margin-top: 16px; padding: 12px 14px; border-radius: 6px; background: var(--grey); font-size: 13px; color: #555; }
+.pickup i { color: var(--red); margin-top: 3px; }
+</style>
+{% endblock %}
+
+{% block shop_body %}
+  <ol class="steps">
+    <li class="is-done"><span class="n"><i class="fa-solid fa-check" style="font-size:11px"></i></span> Panier</li>
+    <li class="is-current"><span class="n">2</span> Vos informations</li>
+    <li><span class="n">3</span> Confirmation</li>
+  </ol>
+
+  {{ form_start(form, {attr: {novalidate: 'novalidate'}}) }}
+  {% if form.vars.errors|length > 0 %}
+    <div class="shop-flash error" role="alert"><i class="fa-solid fa-triangle-exclamation"></i><span>{% for error in form.vars.errors %}{{ error.message }} {% endfor %}</span></div>
+  {% endif %}
+  <div class="shop-cols">
+    <div style="display:grid; gap:24px;">
+      <div class="box">
+        <h2>Vos coordonnées</h2>
+        {% if app.user is null %}
+          <p class="note" style="margin:-8px 0 16px;">Pas besoin de compte pour commander. <a href="{{ path('portail_login') }}" style="color:var(--red); text-decoration:underline;">J'ai un compte</a></p>
+        {% endif %}
+        <div class="form-grid">
+          {% for field in [form.prenom, form.nom, form.email, form.telephone] %}
+            <div class="f-group">
+              {{ form_label(field, null, {label_attr: {class: 'lbl'}}) }}
+              {{ form_widget(field) }}
+              {% if field.vars.help %}<p class="f-help">{{ field.vars.help }}</p>{% endif %}
+              {{ form_errors(field) }}
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="box">
+        <h2>Mode de règlement</h2>
+        <div class="pay-options">
+          {% set pay_meta = {
+            carte:   {icon: 'fa-credit-card', sub: 'Règlement en ligne, immédiat.'},
+            especes: {icon: 'fa-money-bill-wave', sub: 'À régler au club lors du retrait de votre commande.'},
+            cheque:  {icon: 'fa-money-check-dollar', sub: 'À remettre au club lors du retrait (à l\'ordre de l\'ES Coutances).'},
+          } %}
+          {% for choice in form.modePaiement %}
+            {% set meta = pay_meta[choice.vars.value] %}
+            <label class="pay-option">
+              {{ form_widget(choice) }}
+              <span class="pay-card">
+                <span class="pay-icon"><i class="fa-solid {{ meta.icon }}"></i></span>
+                <span><span class="pay-title">{{ choice.vars.label }}</span><br><span class="pay-sub">{{ meta.sub }}</span></span>
+              </span>
+            </label>
+          {% endfor %}
+        </div>
+        {{ form_errors(form.modePaiement) }}
+      </div>
+
+      <div class="box">
+        <div class="f-group">
+          {{ form_label(form.note, null, {label_attr: {class: 'lbl'}}) }}
+          {{ form_widget(form.note) }}
+          {{ form_errors(form.note) }}
+        </div>
+      </div>
+    </div>
+
+    <aside class="box summary">
+      <h2>Votre commande</h2>
+      {% for ligne in lignes %}
+        <div class="mini-line">
+          <span>{{ ligne.quantite }} × {{ ligne.variante.article.nom }}{% if not ligne.variante.article.sansDeclinaison %} <small>({{ ligne.variante.libelle }})</small>{% endif %}</span>
+          <span>{{ ligne.total|money }}</span>
+        </div>
+      {% endfor %}
+      <div class="sum-row total"><span>Total</span><span class="price">{{ total|money }}</span></div>
+      <div class="pickup"><i class="fa-solid fa-store"></i><span><strong>Retrait au club</strong> — pas de livraison. Nous vous prévenons par e-mail dès que votre commande est prête.</span></div>
+      <button type="submit" class="btn btn-primary btn-block" style="margin-top:18px;"><i class="fa-solid fa-lock"></i> Valider la commande</button>
+      <p style="margin-top:12px; text-align:center;"><a href="{{ path('boutique_panier') }}" class="note"><i class="fa-solid fa-arrow-left"></i> Modifier mon panier</a></p>
+    </aside>
+  </div>
+  {{ form_end(form) }}
+{% endblock %}

@@ -5,25 +5,20 @@ namespace App\Controller\Admin;
 use App\Entity\ContactSettings;
 use App\Entity\HomepageBanner;
 use App\Entity\MatchLive;
-use App\Entity\User;
 use App\Repository\ContactSettingsRepository;
 use App\Repository\HomepageBannerRepository;
 use App\Repository\MatchLiveRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminRoute;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
-use Symfony\Component\Form\Extension\Core\Type\PasswordType;
-use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\UrlType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
-use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Vich\UploaderBundle\Form\Type\VichImageType;
 
@@ -33,11 +28,11 @@ use Vich\UploaderBundle\Form\Type\VichImageType;
  * live, mot de passe) derrière une seule entrée de menu et une navigation
  * par onglets, au lieu de 4 pages isolées et déconnectées.
  */
+#[Route('/admin/reglages')]
 #[IsGranted('ROLE_USER')]
 class ReglagesController extends AbstractController
 {
-    #[AdminRoute(path: '/reglages/accueil', name: 'reglages_accueil', options: ['methods' => ['GET', 'POST']])]
-    #[IsGranted('ROLE_ADMIN')]
+    #[Route('/accueil', name: 'admin_reglages_accueil', methods: ['GET', 'POST'])]
     public function accueil(Request $request, HomepageBannerRepository $repo, EntityManagerInterface $em): Response
     {
         $entity = $repo->getSingleton();
@@ -81,12 +76,12 @@ class ReglagesController extends AbstractController
 
         return $this->render('admin/reglages/accueil.html.twig', [
             'form' => $form,
+            'entity' => $entity,
             'active_tab' => 'accueil',
         ]);
     }
 
-    #[AdminRoute(path: '/reglages/contact', name: 'reglages_contact', options: ['methods' => ['GET', 'POST']])]
-    #[IsGranted('ROLE_ADMIN')]
+    #[Route('/contact', name: 'admin_reglages_contact', methods: ['GET', 'POST'])]
     public function contact(Request $request, ContactSettingsRepository $repo, EntityManagerInterface $em): Response
     {
         $entity = $repo->getSingleton();
@@ -112,31 +107,38 @@ class ReglagesController extends AbstractController
                 'constraints' => [new NotBlank(message: 'Indiquez un numéro de téléphone.')],
             ])
             ->add('horaireLundi', TextType::class, [
+                'attr' => ['data-controller' => 'horaire'],
                 'label' => 'Horaires - Lundi',
-                'help' => 'Ex: 14h00 – 18h00, ou "Fermé"',
+                'help' => 'Choisissez « Ouvert » et les plages d’ouverture, ou laissez « Fermé ».',
                 'constraints' => [new NotBlank()],
             ])
             ->add('horaireMardi', TextType::class, [
+                'attr' => ['data-controller' => 'horaire'],
                 'label' => 'Horaires - Mardi',
                 'constraints' => [new NotBlank()],
             ])
             ->add('horaireMercredi', TextType::class, [
+                'attr' => ['data-controller' => 'horaire'],
                 'label' => 'Horaires - Mercredi',
                 'constraints' => [new NotBlank()],
             ])
             ->add('horaireJeudi', TextType::class, [
+                'attr' => ['data-controller' => 'horaire'],
                 'label' => 'Horaires - Jeudi',
                 'constraints' => [new NotBlank()],
             ])
             ->add('horaireVendredi', TextType::class, [
+                'attr' => ['data-controller' => 'horaire'],
                 'label' => 'Horaires - Vendredi',
                 'constraints' => [new NotBlank()],
             ])
             ->add('horaireSamedi', TextType::class, [
+                'attr' => ['data-controller' => 'horaire'],
                 'label' => 'Horaires - Samedi',
                 'constraints' => [new NotBlank()],
             ])
             ->add('horaireDimanche', TextType::class, [
+                'attr' => ['data-controller' => 'horaire'],
                 'label' => 'Horaires - Dimanche',
                 'constraints' => [new NotBlank()],
             ])
@@ -159,8 +161,7 @@ class ReglagesController extends AbstractController
         ]);
     }
 
-    #[AdminRoute(path: '/reglages/match-live', name: 'reglages_match_live', options: ['methods' => ['GET', 'POST']])]
-    #[IsGranted('ROLE_ADMIN')]
+    #[Route('/match-live', name: 'admin_reglages_match_live', methods: ['GET', 'POST'])]
     public function matchLive(Request $request, MatchLiveRepository $repo, EntityManagerInterface $em): Response
     {
         $entity = $repo->getSingleton();
@@ -198,54 +199,4 @@ class ReglagesController extends AbstractController
         ]);
     }
 
-    #[AdminRoute(path: '/reglages/mon-compte', name: 'reglages_compte', options: ['methods' => ['GET', 'POST']])]
-    public function compte(
-        Request $request,
-        EntityManagerInterface $em,
-        UserPasswordHasherInterface $hasher,
-    ): Response {
-        /** @var User $user */
-        $user = $this->getUser();
-
-        $form = $this->createFormBuilder()
-            ->add('currentPassword', PasswordType::class, [
-                'label' => 'Mot de passe actuel',
-                'mapped' => false,
-                'constraints' => [new NotBlank(message: 'Veuillez saisir votre mot de passe actuel.')],
-            ])
-            ->add('newPassword', RepeatedType::class, [
-                'type' => PasswordType::class,
-                'mapped' => false,
-                'first_options' => ['label' => 'Nouveau mot de passe'],
-                'second_options' => ['label' => 'Confirmer le nouveau mot de passe'],
-                'invalid_message' => 'Les deux mots de passe ne correspondent pas.',
-                'constraints' => [new Length(min: 8, minMessage: 'Le mot de passe doit contenir au moins {{ limit }} caractères.')],
-            ])
-            ->add('save', SubmitType::class, ['label' => 'Mettre à jour le mot de passe'])
-            ->getForm();
-
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $currentPassword = $form->get('currentPassword')->getData();
-
-            if (!$hasher->isPasswordValid($user, $currentPassword)) {
-                $this->addFlash('danger', 'Le mot de passe actuel est incorrect.');
-
-                return $this->redirectToRoute('admin_reglages_compte');
-            }
-
-            $user->setPassword($hasher->hashPassword($user, $form->get('newPassword')->getData()));
-            $em->flush();
-
-            $this->addFlash('success', 'Votre mot de passe a bien été mis à jour.');
-
-            return $this->redirectToRoute('admin_reglages_compte');
-        }
-
-        return $this->render('admin/reglages/compte.html.twig', [
-            'form' => $form,
-            'active_tab' => 'compte',
-        ]);
-    }
 }

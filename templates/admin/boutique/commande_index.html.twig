@@ -1,0 +1,50 @@
+{% extends 'admin/_layout.html.twig' %}
+
+{% block title %}Commandes{% endblock %}
+
+{% block body %}
+    <div class="flex flex-wrap items-center justify-between gap-3 mb-2">
+        <h1 class="text-2xl font-black" style="font-family:'Barlow Condensed',sans-serif;">Commandes</h1>
+        <a href="{{ path('admin_article_index') }}" class="admin-btn admin-btn-ghost"><i class="fa-solid fa-shirt"></i> Articles</a>
+    </div>
+    <p class="text-sm text-admin-text-muted mb-6">Les commandes se retirent au club. Ouvrez une commande pour la préparer, encaisser le règlement (espèces, chèque) et la remettre au client.</p>
+
+    {% embed 'admin/_components/data_table.html.twig' with {
+        key: 'commande',
+        plural: 'commandes',
+        statuses: true,
+        bulk: false,
+        status_tabs: {all: 'Toutes', nouvelle: 'À préparer', prete: 'Prêtes', retiree: 'Retirées', annulee: 'Annulées'},
+        search_placeholder: 'Rechercher une commande, un client…',
+        empty_message: 'Aucune commande ne correspond à votre recherche.',
+        columns: [
+            {key: 'reference', label: 'Commande'},
+            {key: 'client', label: 'Client'},
+            {key: 'articles', label: 'Articles', type: 'number'},
+            {key: 'total', label: 'Total', type: 'number'},
+            {key: 'paiement', label: 'Règlement'},
+            {key: 'statut', label: 'Statut'},
+            {key: 'date', label: 'Passée le'},
+        ],
+    } %}
+        {% block rows %}
+            {% for commande in commandes %}
+                <tr data-data-table-target="row" data-id="{{ commande.id }}" data-status="{{ commande.statut }}">
+                    <td data-col="reference" data-sort="{{ commande.reference }}" class="font-medium">
+                        <a href="{{ path('admin_commande_show', {id: commande.id}) }}" class="hover:underline">{{ commande.reference }}</a>
+                    </td>
+                    <td data-col="client" data-sort="{{ commande.nomComplet|lower }}">{{ commande.nomComplet }}</td>
+                    <td data-col="articles" data-sort="{{ commande.nombreArticles }}" class="dt-muted">{{ commande.nombreArticles }}</td>
+                    <td data-col="total" data-sort="{{ commande.totalCentimes }}">{{ commande.totalCentimes|money }}</td>
+                    <td data-col="paiement" data-sort="{{ commande.reglement }}">
+                        <span class="badge badge-{{ commande.payee ? 'paye' : (commande.statut == 'annulee' ? 'archived' : 'attente') }}">{{ commande.payee ? 'Payée' : (commande.statut == 'annulee' ? '—' : 'À encaisser') }}</span>
+                        <span class="dt-muted text-xs ml-1">{{ commande.modePaiementLabel }}</span>
+                    </td>
+                    <td data-col="statut"><span class="badge badge-cmd-{{ commande.statut }}">{{ commande.statutLabel }}</span></td>
+                    <td data-col="date" data-sort="{{ commande.createdAt|date('Y-m-d H:i') }}" class="dt-muted">{{ commande.createdAt|date('d/m/Y H:i') }}</td>
+                    {% include 'admin/_components/row_menu.html.twig' with {show_url: path('admin_commande_show', {id: commande.id})} %}
+                </tr>
+            {% endfor %}
+        {% endblock %}
+    {% endembed %}
+{% endblock %}

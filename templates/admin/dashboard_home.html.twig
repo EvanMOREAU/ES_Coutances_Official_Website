@@ -1,0 +1,199 @@
+{% extends 'admin/_layout.html.twig' %}
+
+{% block title %}Tableau de bord{% endblock %}
+
+{% block body %}
+    <div class="admin-hero relative overflow-hidden rounded-2xl p-8 mb-8">
+        <div class="admin-hero-glow"></div>
+        <div class="relative">
+            <h1 class="text-3xl font-black text-white" style="font-family:'Barlow Condensed',sans-serif;">
+                Bonjour, {{ app.user ? app.user.nomComplet : '' }}
+            </h1>
+            <p class="text-white/75 mt-1">Voici un aperçu de l'activité du club.</p>
+
+            <div class="grid grid-cols-2 lg:grid-cols-5 gap-4 mt-7">
+                {% for stat in stats %}
+                    <div class="rounded-xl bg-white/10 border border-white/10 backdrop-blur-sm p-4">
+                        <div class="flex items-center gap-2 text-white/70 text-xs uppercase tracking-wide">
+                            <i class="fa-solid fa-{{ stat.icon }}"></i>
+                            <span>{{ stat.label }}</span>
+                        </div>
+                        <p class="text-2xl font-black text-white mt-2" style="font-family:'Barlow Condensed',sans-serif;">{{ stat.value }}</p>
+                        {% if stat.trend %}
+                            <p class="flex items-center gap-1 text-xs mt-1 {{ stat.trend.positive ? 'text-emerald-300' : 'text-red-300' }}">
+                                <i class="fa-solid {{ stat.trend.positive ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down' }}"></i>
+                                <span class="font-semibold">{{ stat.trend.value }}</span>
+                                <span class="text-white/60">{{ stat.trend.label }}</span>
+                            </p>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    {# Conseils de configuration : invitation (jamais obligatoire) à compléter le site #}
+    {% set advice_vitrine = advice_items('vitrine') %}
+    {% set advice_licencies = advice_items('licencies') %}
+    {% if advice_vitrine|length + advice_licencies|length > 0 %}
+        <div class="admin-card rounded-2xl p-5 mb-6">
+            <div class="flex items-center gap-3 mb-3">
+                <span class="vt-advice-icon"><i class="fa-solid fa-lightbulb"></i></span>
+                <div>
+                    <h2 class="font-bold">À compléter</h2>
+                    <p class="text-xs text-admin-text-muted">Quelques suggestions pour que le site soit complet — rien d'obligatoire.</p>
+                </div>
+            </div>
+            <ul class="vt-advice-list" style="padding:0">
+                {% for a in (advice_vitrine|map(a => a|merge({url: path('admin_site_vitrine', {ouvrir: a.section, vue: a.target})})))|merge(advice_licencies|map(a => a|merge({url: path('admin_licencies_hub', {ouvrir: a.section, vue: a.target})}))) %}
+                    {% if loop.index <= 6 %}
+                        <li>
+                            <a href="{{ a.url }}" class="vt-advice-item {{ a.optional ? 'is-optional' }}">
+                                <span class="vt-icon vt-icon-sm"><i class="fa-solid {{ a.icon }}"></i></span>
+                                <span class="vt-advice-text">
+                                    <span class="vt-advice-label">{{ a.label }}</span>
+                                    <span class="vt-advice-detail">{{ a.detail }}</span>
+                                </span>
+                                <i class="fa-solid fa-arrow-right vt-advice-go"></i>
+                            </a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+
+    {# Évolution du nombre de partenaires + accès rapides #}
+    {% set evolution_first = partenaires_evolution|first %}
+    {% set evolution_last = partenaires_evolution|last %}
+    <div class="grid lg:grid-cols-3 gap-6 mb-6">
+        <div class="admin-card rounded-2xl p-6 lg:col-span-2">
+            <div class="flex flex-wrap items-start justify-between gap-3 mb-4">
+                <div>
+                    <h2 class="font-bold">Évolution des partenaires</h2>
+                    <p class="text-sm text-admin-text-muted">Partenaires actifs à la fin de chaque mois, sur les 12 derniers mois.</p>
+                </div>
+                <div class="ml-auto text-right">
+                    <p class="text-2xl font-black" style="font-family:'Barlow Condensed',sans-serif;">{{ evolution_last.total }}</p>
+                    {% set gain = evolution_last.total - (evolution_first.total - evolution_first.new) %}
+                    <p class="text-xs text-admin-text-muted">{{ gain > 0 ? '+' ~ gain : gain }} sur 12 mois</p>
+                </div>
+            </div>
+
+            <div class="chart"
+                 data-controller="line-chart"
+                 data-line-chart-unit-value="partenaire"
+                 data-line-chart-points-value="{{ partenaires_evolution|map(p => {month: p.month|date('Y-m'), total: p.total, new: p.new})|json_encode|e('html_attr') }}">
+                <div data-line-chart-target="plot"></div>
+                <div class="chart-tooltip" data-line-chart-target="tooltip" hidden></div>
+            </div>
+
+            {# Version tableau du graphique (lecteurs d'écran) #}
+            <table class="sr-only">
+                <caption>Nombre de partenaires actifs par mois</caption>
+                <thead><tr><th>Mois</th><th>Partenaires actifs</th><th>Ajouts du mois</th></tr></thead>
+                <tbody>
+                    {% for point in partenaires_evolution %}
+                        <tr><td>{{ point.month|date('m/Y') }}</td><td>{{ point.total }}</td><td>{{ point.new }}</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="admin-card rounded-2xl p-6">
+            <h2 class="font-bold mb-1">Accès rapides</h2>
+            <p class="text-sm text-admin-text-muted mb-4">Créer un nouvel enregistrement en un clic.</p>
+            <div class="grid gap-3 text-sm">
+                <a href="{{ path('admin_famille_new') }}" class="admin-surface-hover flex items-center gap-3 rounded-xl border border-admin-border px-4 py-3">
+                    <span class="flex h-9 w-9 items-center justify-center rounded-lg admin-gradient text-white"><i class="fa-solid fa-house-user"></i></span>
+                    Nouvelle famille
+                </a>
+                <a href="{{ path('admin_licencie_new') }}" class="admin-surface-hover flex items-center gap-3 rounded-xl border border-admin-border px-4 py-3">
+                    <span class="flex h-9 w-9 items-center justify-center rounded-lg admin-gradient text-white"><i class="fa-solid fa-id-card"></i></span>
+                    Nouveau licencié
+                </a>
+                <a href="{{ path('admin_saison_new') }}" class="admin-surface-hover flex items-center gap-3 rounded-xl border border-admin-border px-4 py-3">
+                    <span class="flex h-9 w-9 items-center justify-center rounded-lg admin-gradient text-white"><i class="fa-solid fa-calendar-days"></i></span>
+                    Nouvelle saison
+                </a>
+                <a href="{{ path('admin_user_new') }}" class="admin-surface-hover flex items-center gap-3 rounded-xl border border-admin-border px-4 py-3">
+                    <span class="flex h-9 w-9 items-center justify-center rounded-lg admin-gradient text-white"><i class="fa-solid fa-user-plus"></i></span>
+                    Nouvel utilisateur
+                </a>
+            </div>
+        </div>
+    </div>
+
+    {# Derniers enregistrements créés #}
+    {% if is_granted('ROLE_ADMIN') %}
+        <div class="grid md:grid-cols-2 gap-6">
+            <div class="admin-card rounded-2xl p-6">
+                <div class="flex items-center justify-between mb-2">
+                    <h2 class="font-bold">Dernières familles</h2>
+                    <a href="{{ path('admin_famille_index') }}" class="text-xs text-admin-text-muted hover:text-admin-text">Tout voir &rarr;</a>
+                </div>
+                <div class="recent-list">
+                    {% for famille in dernieres_familles %}
+                        <a href="{{ path('admin_famille_show', {id: famille.id}) }}" class="recent-item">
+                            <span class="recent-title">{{ famille.nom }}</span>
+                            <span class="recent-meta">{{ famille.licencies|length }} licencié{{ famille.licencies|length > 1 ? 's' }}{{ famille.createdAt ? ' · ' ~ famille.createdAt|date('d/m/Y') }}</span>
+                        </a>
+                    {% else %}
+                        <p class="text-sm text-admin-text-muted py-2">Aucune famille pour le moment.</p>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="admin-card rounded-2xl p-6">
+                <div class="flex items-center justify-between mb-2">
+                    <h2 class="font-bold">Derniers licenciés</h2>
+                    <a href="{{ path('admin_licencie_index') }}" class="text-xs text-admin-text-muted hover:text-admin-text">Tout voir &rarr;</a>
+                </div>
+                <div class="recent-list">
+                    {% for licencie in derniers_licencies %}
+                        <a href="{{ path('admin_licencie_edit', {id: licencie.id}) }}" class="recent-item">
+                            <span class="recent-title">{{ licencie.prenom }} {{ licencie.nom }}</span>
+                            <span class="recent-meta">{{ licencie.categorie }} · {{ licencie.saison }}{{ licencie.createdAt ? ' · ' ~ licencie.createdAt|date('d/m/Y') }}</span>
+                        </a>
+                    {% else %}
+                        <p class="text-sm text-admin-text-muted py-2">Aucun licencié pour le moment.</p>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="admin-card rounded-2xl p-6">
+                <div class="flex items-center justify-between mb-2">
+                    <h2 class="font-bold">Dernières équipes</h2>
+                    <a href="{{ path('admin_equipe_index') }}" class="text-xs text-admin-text-muted hover:text-admin-text">Tout voir &rarr;</a>
+                </div>
+                <div class="recent-list">
+                    {% for equipe in dernieres_equipes %}
+                        <a href="{{ path('admin_equipe_edit', {id: equipe.id}) }}" class="recent-item">
+                            <span class="recent-title">{{ equipe.nom }}</span>
+                            <span class="recent-meta">{{ equipe.categorie }} · {{ equipe.statutLabel|lower }}{{ equipe.createdAt ? ' · ' ~ equipe.createdAt|date('d/m/Y') }}</span>
+                        </a>
+                    {% else %}
+                        <p class="text-sm text-admin-text-muted py-2">Aucune équipe pour le moment.</p>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="admin-card rounded-2xl p-6">
+                <div class="flex items-center justify-between mb-2">
+                    <h2 class="font-bold">Dernières saisons</h2>
+                    <a href="{{ path('admin_saison_index') }}" class="text-xs text-admin-text-muted hover:text-admin-text">Tout voir &rarr;</a>
+                </div>
+                <div class="recent-list">
+                    {% for saison in dernieres_saisons %}
+                        <a href="{{ path('admin_saison_edit', {id: saison.id}) }}" class="recent-item">
+                            <span class="recent-title">{{ saison.libelle }}{% if saison.active %} <span class="badge badge-active ml-1">En cours</span>{% endif %}</span>
+                            <span class="recent-meta">{{ saison.dateDebut|date('d/m/Y') }} → {{ saison.dateFin|date('d/m/Y') }}</span>
+                        </a>
+                    {% else %}
+                        <p class="text-sm text-admin-text-muted py-2">Aucune saison pour le moment.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}

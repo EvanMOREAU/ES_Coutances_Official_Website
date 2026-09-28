@@ -1,0 +1,61 @@
+{% extends 'admin/_layout.html.twig' %}
+
+{% block title %}Licenciés{% endblock %}
+
+{% block body %}
+    <div class="flex items-center justify-between mb-6">
+        <h1 class="text-2xl font-black" style="font-family:'Barlow Condensed',sans-serif;">Licenciés</h1>
+        {% if can_url(path('admin_licencie_new')) %}<a href="{{ path('admin_licencie_new') }}" class="rounded-lg admin-gradient px-4 py-2 text-sm font-semibold text-white">+ Nouveau licencié</a>{% endif %}
+    </div>
+
+    {% embed 'admin/_components/data_table.html.twig' with {
+        key: 'licencie',
+        plural: 'licenciés',
+        statuses: true,
+        search_placeholder: 'Rechercher un licencié…',
+        empty_message: 'Aucun licencié ne correspond à votre recherche.',
+        columns: [
+            {key: 'nom', label: 'Nom'},
+            {key: 'famille', label: 'Famille'},
+            {key: 'categorie', label: 'Catégorie / équipes'},
+            {key: 'saison', label: 'Saison'},
+            {key: 'statut', label: 'Statut'},
+            {key: 'cree', label: 'Créé le'},
+        ],
+    } %}
+        {% block rows %}
+            {% for licencie in licencies %}
+                <tr data-data-table-target="row" data-id="{{ licencie.id }}" data-status="{{ licencie.statut }}" data-href="{{ path('admin_licencie_show', {id: licencie.id}) }}">
+                    {% if bulk %}<td class="dt-check-col"><input type="checkbox" data-row-check value="{{ licencie.id }}" data-action="change->data-table#toggleRow" aria-label="Sélectionner {{ licencie }}"></td>{% endif %}
+                    <td data-col="nom" data-sort="{{ licencie.nom|lower }} {{ licencie.prenom|lower }}" class="font-medium">{{ licencie.prenom }} {{ licencie.nom }}{% if licencie.autonome %} <span class="badge badge-neutral ml-1" title="Gère lui-même son compte">Autonome</span>{% endif %}</td>
+                    <td data-col="famille" class="dt-muted">{{ licencie.famille }}</td>
+                    <td data-col="categorie" data-sort="{{ licencie.categorie }}">
+                        <span class="rounded-full admin-gradient px-2.5 py-0.5 text-xs font-semibold text-white">{{ licencie.categorie }}</span>
+                        {% if licencie.decalageCategorie != 0 %}<span class="text-xs dt-muted ml-1">{{ licencie.decalageCategorie > 0 ? 'surclassé' : 'sous-classé' }}</span>{% endif %}
+                        <span class="block text-xs dt-muted mt-1">{{ licencie.equipes|map(e => e.nom)|join(', ') }}</span>
+                    </td>
+                    <td data-col="saison" class="dt-muted">{{ licencie.saison }}</td>
+                    <td data-col="statut"><span class="badge badge-{{ licencie.statut }}">{{ licencie.statutLabel }}</span></td>
+                    <td data-col="cree" data-sort="{{ licencie.createdAt ? licencie.createdAt|date('Y-m-d H:i') : '' }}" class="dt-muted">{{ licencie.createdAt ? licencie.createdAt|date('d/m/Y') : '—' }}</td>
+                    {% include 'admin/_components/row_menu.html.twig' with {
+                        show_url: path('admin_licencie_show', {id: licencie.id}),
+                        actions: [{
+                            url: path('admin_licencie_resend', {id: licencie.id}),
+                            token: csrf_token('resend-licencie-' ~ licencie.id),
+                            label: "Renvoyer l'accès",
+                            icon: 'fa-envelope',
+                            confirm: 'Un e-mail pour créer son mot de passe sera envoyé à ' ~ licencie.user.email ~ '.',
+                            confirm_title: "Renvoyer l'accès ?",
+                            confirm_label: 'Envoyer',
+                        }],
+                        edit_url: path('admin_licencie_edit', {id: licencie.id}),
+                        delete_url: path('admin_licencie_delete', {id: licencie.id}),
+                        delete_token: csrf_token('delete-licencie-' ~ licencie.id),
+                        delete_title: 'Supprimer ce licencié ?',
+                        delete_message: licencie.prenom ~ ' ' ~ licencie.nom ~ ' et son compte seront supprimés définitivement.',
+                    } %}
+                </tr>
+            {% endfor %}
+        {% endblock %}
+    {% endembed %}
+{% endblock %}

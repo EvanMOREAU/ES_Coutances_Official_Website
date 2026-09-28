@@ -1,0 +1,25 @@
+{% extends 'admin/_layout.html.twig' %}
+{% form_theme form 'admin/_form_theme.html.twig' %}
+
+{% block title %}{{ slide.id ? 'Modifier la slide' : 'Nouvelle slide' }}{% endblock %}
+
+{% block body %}
+    <h1 class="text-2xl font-black mb-6" style="font-family:'Barlow Condensed',sans-serif;">
+        {{ slide.id ? 'Modifier la slide' : 'Nouvelle slide' }}
+    </h1>
+
+    <div class="admin-card rounded-2xl p-6 max-w-xl">
+        {{ form_start(form) }}
+            {{ form_row(form.titre) }}
+            {{ form_row(form.titreMot) }}
+            {{ form_row(form.sousTitre) }}
+            {{ form_row(form.imageFile) }}
+            {{ form_row(form.actif) }}
+
+            <div class="flex items-center gap-3 mt-6">
+                <button type="submit" class="rounded-lg admin-gradient px-5 py-2 text-sm font-semibold text-white">Enregistrer</button>
+                <a href="{{ path('admin_slide_carousel_index') }}" class="text-sm text-admin-text-muted hover:text-white">Annuler</a>
+            </div>
+        {{ form_end(form) }}
+    </div>
+{% endblock %}

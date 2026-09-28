@@ -18,7 +18,9 @@ framework:
             messenger.bus.default: []
 
         routing:
-            Symfony\Component\Mailer\Messenger\SendEmailMessage: async
+            # Les emails partent en synchrone (pas de worker à maintenir pour un
+            # club) : pour repasser en file d'attente, router SendEmailMessage vers "async"
+            # et lancer "php bin/console messenger:consume async".
             Symfony\Component\Notifier\Message\ChatMessage: async
             Symfony\Component\Notifier\Message\SmsMessage: async
 

@@ -1,0 +1,20 @@
+<div style="font-family: 'Inter', Arial, sans-serif; max-width: 480px; margin: 0 auto;">
+    <div style="background:linear-gradient(135deg,#7c3aed,#2563eb); padding:24px; text-align:center;">
+        <h1 style="color:#fff; font-family: 'Barlow Condensed', Arial, sans-serif; font-size:20px; letter-spacing:.06em; text-transform:uppercase; margin:0;">
+            Espace Familles &amp; Licenciés — ES Coutances
+        </h1>
+    </div>
+    <div style="background:#fff; padding:32px; color:#0D0D0D; line-height:1.6;">
+        <p>Bonjour {{ user.nomComplet }},</p>
+        <p>Un compte vient d'être créé pour vous sur l'espace en ligne du club, à l'adresse <strong>{{ user.email }}</strong>.</p>
+        <p>Pour l'activer, définissez votre mot de passe en cliquant sur le bouton ci-dessous :</p>
+        <p style="text-align:center; margin:32px 0;">
+            <a href="{{ url('app_reset_password', {token: resetToken.token}) }}"
+               style="background:linear-gradient(135deg,#7c3aed,#2563eb); color:#fff; padding:13px 28px; border-radius:6px; text-decoration:none; font-weight:700; text-transform:uppercase; letter-spacing:.05em; font-size:14px;">
+                Définir mon mot de passe
+            </a>
+        </p>
+        <p>Ce lien expirera dans {{ resetToken.expirationMessageKey|trans(resetToken.expirationMessageData, 'ResetPasswordBundle') }}.</p>
+        <p style="color:#888; font-size:13px;">Passé ce délai, vous pourrez toujours créer votre mot de passe via le lien "Mot de passe oublié ?" sur la page de connexion de l'espace familles.</p>
+    </div>
+</div>

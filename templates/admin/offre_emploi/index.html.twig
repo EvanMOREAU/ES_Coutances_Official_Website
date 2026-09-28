@@ -1,0 +1,50 @@
+{% extends 'admin/_layout.html.twig' %}
+
+{% block title %}Offres d'emploi{% endblock %}
+
+{% block body %}
+    <div class="flex items-center justify-between mb-6">
+        <h1 class="text-2xl font-black" style="font-family:'Barlow Condensed',sans-serif;">Offres d'emploi</h1>
+        {% if can_url(path('admin_offre_emploi_new')) %}<a href="{{ path('admin_offre_emploi_new') }}" class="rounded-lg admin-gradient px-4 py-2 text-sm font-semibold text-white">+ Nouvelle offre</a>{% endif %}
+    </div>
+
+    {% embed 'admin/_components/data_table.html.twig' with {
+        key: 'offre_emploi',
+        plural: 'offres',
+        search_placeholder: 'Rechercher une offre…',
+        empty_message: 'Aucune offre ne correspond à votre recherche.',
+        statuses: true,
+        status_tabs: {all: 'Tous', active: 'Actifs', inactive: 'Inactifs'},
+        status_actions: false,
+        bulk_type: 'offre_emploi',
+        columns: [
+            {key: 'titre', label: 'Titre'},
+            {key: 'type', label: 'Type'},
+            {key: 'statut', label: 'Statut'},
+        ],
+    } %}
+        {% block rows %}
+            {% for offre in offres %}
+                <tr data-data-table-target="row" data-id="{{ offre.id }}" data-status="{{ offre.actif ? 'active' : 'inactive' }}">
+                    {% if bulk %}<td class="dt-check-col"><input type="checkbox" data-row-check value="{{ offre.id }}" data-action="change->data-table#toggleRow" aria-label="Sélectionner {{ offre.titre }}"></td>{% endif %}
+                    <td data-col="titre" data-sort="{{ offre.titre|lower }}" class="font-medium">{{ offre.titre }}</td>
+                    <td data-col="type" class="dt-muted">{{ offre.type }}</td>
+                    <td data-col="statut" data-sort="{{ offre.actif ? 1 : 0 }}"><span class="badge {{ offre.actif ? 'badge-active' : 'badge-archived' }}">{{ offre.actif ? 'Actif' : 'Inactif' }}</span></td>
+                    {% include 'admin/_components/row_menu.html.twig' with {
+                        actions: [{
+                            url: path('admin_toggle_actif', {type: 'offre_emploi', id: offre.id}),
+                            token: csrf_token('toggle-offre_emploi-' ~ offre.id),
+                            label: offre.actif ? 'Désactiver' : 'Activer',
+                            icon: offre.actif ? 'fa-eye-slash' : 'fa-eye',
+                        }],
+                        edit_url: path('admin_offre_emploi_edit', {id: offre.id}),
+                        delete_url: path('admin_offre_emploi_delete', {id: offre.id}),
+                        delete_token: csrf_token('delete-offre-' ~ offre.id),
+                        delete_title: 'Supprimer cette offre ?',
+                        delete_message: 'L\'offre « ' ~ offre.titre ~ ' » sera supprimée définitivement.',
+                    } %}
+                </tr>
+            {% endfor %}
+        {% endblock %}
+    {% endembed %}
+{% endblock %}

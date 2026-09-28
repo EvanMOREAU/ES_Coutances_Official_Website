@@ -1,0 +1,67 @@
+{% extends 'admin/_layout.html.twig' %}
+
+{% block title %}{{ article.nom }}{% endblock %}
+
+{% block body %}
+    <a href="{{ path('admin_article_index') }}" class="text-sm text-admin-text-muted hover:text-admin-text"><i class="fa-solid fa-arrow-left"></i> Tous les articles</a>
+
+    <div class="flex flex-wrap items-center justify-between gap-3 mt-3 mb-6">
+        <div class="flex flex-wrap items-center gap-3">
+            <h1 class="text-2xl font-black" style="font-family:'Barlow Condensed',sans-serif;">{{ article.nom }}</h1>
+            <span class="badge badge-{{ article.statut }}">{{ article.statutLabel }}</span>
+            {% if article.stockTotal == 0 %}<span class="badge badge-cmd-annulee">Épuisé</span>{% endif %}
+        </div>
+        <div class="flex items-center gap-2">
+            <form method="post" action="{{ path('admin_toggle_actif', {type: 'article', id: article.id}) }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('toggle-article-' ~ article.id) }}">
+                <button type="submit" class="admin-btn admin-btn-ghost"><i class="fa-solid {{ article.actif ? 'fa-eye-slash' : 'fa-eye' }}"></i> {{ article.actif ? 'Désactiver' : 'Activer' }}</button>
+            </form>
+            <a href="{{ path('admin_article_edit', {id: article.id}) }}" class="rounded-lg admin-gradient px-4 py-2 text-sm font-semibold text-white"><i class="fa-solid fa-pen mr-1"></i> Modifier</a>
+        </div>
+    </div>
+
+    <div class="grid gap-6 lg:grid-cols-5 items-start">
+        <section class="admin-card rounded-2xl p-6 lg:col-span-3">
+            <div class="grid gap-6 md:grid-cols-[14rem_minmax(0,1fr)]">
+                <div>
+                    {% if article.imageName %}
+                        <img src="{{ asset('uploads/articles/' ~ article.imageName) }}" alt="{{ article.nom }}" class="art-show-img">
+                    {% else %}
+                        <div class="art-show-img is-empty"><i class="fa-regular fa-image"></i><span>Pas de photo</span></div>
+                    {% endif %}
+                </div>
+                <dl class="cmd-dl content-start">
+                    <dt>Prix</dt><dd><strong>{{ article.prixCentimes|money }}</strong></dd>
+                    <dt>Statut</dt><dd>{{ article.statutLabel }}</dd>
+                    <dt>Stock total</dt><dd>{{ article.stockTotal }}</dd>
+                    <dt>Créé le</dt><dd>{{ article.createdAt ? article.createdAt|date('d/m/Y') : '—' }}</dd>
+                    <dt>Dans la boutique</dt>
+                    <dd>{% if article.actif %}<a href="{{ path('boutique_article', {slug: article.slug}) }}" target="_blank" rel="noopener" class="underline">Voir la page publique</a>{% else %}Non visible{% endif %}</dd>
+                </dl>
+            </div>
+            <div class="mt-6">
+                <h2 class="font-semibold mb-2">Description</h2>
+                <p class="text-sm text-admin-text-muted" style="white-space:pre-line">{{ article.description ?: 'Aucune description.' }}</p>
+            </div>
+        </section>
+
+        <section class="admin-card rounded-2xl p-6 lg:col-span-2">
+            <h2 class="font-semibold mb-4">Tailles et stock</h2>
+            <table class="cmd-lines">
+                <thead><tr><th>Taille</th><th class="num">Stock</th></tr></thead>
+                <tbody>
+                    {% for v in article.variantes %}
+                        <tr>
+                            <td>{{ v.libelle }}</td>
+                            <td class="num">
+                                {% if v.stock == 0 %}<span class="badge badge-cmd-annulee">Épuisé</span>
+                                {% elseif v.stock <= 3 %}<span class="badge badge-cmd-nouvelle">{{ v.stock }} · presque épuisé</span>
+                                {% else %}{{ v.stock }}{% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+    </div>
+{% endblock %}

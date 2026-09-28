@@ -1,0 +1,17 @@
+{% extends 'admin/_layout.html.twig' %}
+
+{% block title %}Site vitrine{% endblock %}
+
+{% block body %}
+    <div class="flex flex-wrap items-start justify-between gap-3 mb-6">
+        <div>
+            <h1 class="text-2xl font-black" style="font-family:'Barlow Condensed',sans-serif;">Site vitrine</h1>
+            <p class="text-sm text-admin-text-muted">Tout le contenu du site public au même endroit. Cliquez sur une rubrique pour la gérer.</p>
+        </div>
+        <a href="{{ path('app_home') }}" target="_blank" rel="noopener" class="admin-btn admin-btn-ghost">
+            <i class="fa-solid fa-arrow-up-right-from-square"></i> Voir le site
+        </a>
+    </div>
+
+    {{ include('admin/_hub.html.twig', {groups: {'Contenu': 'Contenu', 'Réglages': 'Réglages du site'}}) }}
+{% endblock %}
