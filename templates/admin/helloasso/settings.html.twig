@@ -1,0 +1,53 @@
+{% extends 'admin/_layout.html.twig' %}
+{% form_theme form 'admin/_form_theme.html.twig' %}
+
+{% block title %}Paramètres HelloAsso{% endblock %}
+
+{% macro toggle(field, hint) %}
+    <div class="mb-5">
+        <label class="sv-toggle">{{ form_widget(field) }}<span class="sv-switch"></span><span><strong>{{ field.vars.label }}</strong>{% if hint %}<small>{{ hint }}</small>{% endif %}</span></label>
+        {{ form_errors(field) }}
+    </div>
+{% endmacro %}
+
+{% block body %}
+    <div class="mb-6">
+        <h1 class="text-2xl font-black" style="font-family:'Barlow Condensed',sans-serif;">Paramètres HelloAsso</h1>
+        <p class="text-sm text-admin-text-muted">Identifiants d'accès à l'API HelloAsso, pour le paiement en ligne de la boutique.</p>
+    </div>
+
+    <div class="admin-card rounded-2xl p-5 mb-6 max-w-3xl flex items-center gap-4">
+        <span class="badge {{ settings.utilisable ? 'badge-active' : 'badge-draft' }}">{{ settings.utilisable ? 'HelloAsso actif' : 'HelloAsso non configuré' }}</span>
+        <p class="text-sm text-admin-text-muted">
+            {% if settings.utilisable %}
+                Environnement <strong>{{ settings.sandbox ? 'sandbox (test)' : 'production' }}</strong>, organisation <strong>{{ settings.organisationSlug }}</strong>.
+            {% else %}
+                Tant que ce n'est pas configuré et activé, le paiement en ligne par carte n'est pas disponible.
+            {% endif %}
+        </p>
+    </div>
+
+    {{ form_start(form, {attr: {novalidate: 'novalidate'}}) }}
+        <section class="admin-card rounded-2xl p-6 mb-6 max-w-3xl">
+            {{ _self.toggle(form.actif, 'Désactivé, le paiement en ligne par carte reste indisponible.') }}
+            {{ form_row(form.environnement) }}
+            {{ form_row(form.organisationSlug) }}
+        </section>
+
+        <section class="admin-card rounded-2xl p-6 mb-6 max-w-3xl">
+            <h2 class="font-semibold mb-4">Identifiants d'API</h2>
+            <p class="text-xs text-admin-text-muted mb-4">Générés depuis l'espace HelloAsso de l'organisation (section « API » / « Développeurs »), séparément pour le sandbox et la production.</p>
+            {{ form_row(form.clientId) }}
+            {{ form_row(form.clientSecret) }}
+            {% if settings.hasClientSecret %}
+                <div class="mb-1"><label class="sv-toggle">{{ form_widget(form.retirerClientSecret) }}<span class="sv-switch"></span><span>{{ form.retirerClientSecret.vars.label }}</span></label></div>
+            {% else %}
+                {% do form.retirerClientSecret.setRendered %}
+            {% endif %}
+        </section>
+
+        <div class="flex items-center gap-3 mb-8">
+            <button type="submit" class="rounded-lg admin-gradient px-5 py-2 text-sm font-semibold text-white">Enregistrer</button>
+        </div>
+    {{ form_end(form) }}
+{% endblock %}

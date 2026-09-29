@@ -102,11 +102,66 @@
 .prose p { margin-bottom: 16px; }
 .prose ul { list-style: disc; padding-left: 20px; margin-bottom: 16px; }
 .prose ul li { margin-bottom: 6px; }
-.prose img { border-radius: 8px; margin: 24px 0; box-shadow: 0 8px 32px rgba(0,0,0,.1); }
+.prose img { max-width: 100%; height: auto; border-radius: 8px; margin: 24px 0; box-shadow: 0 8px 32px rgba(0,0,0,.1); }
 .prose strong { color: var(--dark); font-weight: 700; }
 .prose a { color: var(--red); text-decoration: underline; }
 .prose figure { margin: 24px 0; }
-.prose figure img { margin: 0; width: 100%; }
+.prose figure img { display: block; margin: 0; width: 100%; height: auto; cursor: zoom-in; }
 .prose figcaption { margin-top: 8px; font-size: 13px; color: #777; text-align: center; font-style: italic; }
+
+/* Aperçu plein écran des images insérées dans le contenu (voir lightbox ci-dessous) */
+.content-lightbox {
+  position: fixed; inset: 0; z-index: 1000;
+  display: none; align-items: center; justify-content: center;
+  padding: 24px; background: rgba(13,13,13,.96);
+}
+.content-lightbox.is-open { display: flex; }
+.content-lightbox img { max-width: 100%; max-height: 100%; border-radius: 8px; box-shadow: 0 16px 48px rgba(0,0,0,.5); }
+.content-lightbox-close {
+  position: absolute; top: 20px; right: 24px;
+  width: 40px; height: 40px; border-radius: 999px; border: none;
+  background: rgba(255,255,255,.12); color: #fff; font-size: 18px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+.content-lightbox-close:hover { background: rgba(255,255,255,.22); }
 </style>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+(function () {
+  var overlay = document.createElement('div');
+  overlay.className = 'content-lightbox';
+  overlay.innerHTML = '<button type="button" class="content-lightbox-close" aria-label="Fermer"><i class="fa-solid fa-xmark"></i></button><img alt="">';
+  document.body.appendChild(overlay);
+  var img = overlay.querySelector('img');
+
+  function open(src, alt) {
+    img.src = src;
+    img.alt = alt || '';
+    overlay.classList.add('is-open');
+  }
+  function close() {
+    overlay.classList.remove('is-open');
+    img.src = '';
+  }
+
+  document.querySelectorAll('.prose figure > a').forEach(function (link) {
+    var target = link.querySelector('img');
+    if (!target) return;
+    link.addEventListener('click', function (event) {
+      event.preventDefault();
+      open(link.getAttribute('href'), target.alt);
+    });
+  });
+
+  overlay.addEventListener('click', function (event) {
+    if (event.target === overlay || event.target.closest('.content-lightbox-close')) close();
+  });
+  document.addEventListener('keydown', function (event) {
+    if (event.key === 'Escape') close();
+  });
+})();
+</script>
 {% endblock %}

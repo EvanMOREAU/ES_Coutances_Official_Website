@@ -30,6 +30,7 @@
 .pay-title { font-weight: 600; font-size: 15px; }
 .pay-sub { font-size: 12.5px; color: #777; }
 .summary { position: sticky; top: calc(var(--nav-h) + 90px); }
+.summary .sum-row[hidden] { display: none; }
 .mini-line { display: flex; justify-content: space-between; gap: 12px; padding: 6px 0; font-size: 14px; }
 .mini-line span:first-child { color: #444; }
 .pickup { display: flex; gap: 10px; margin-top: 16px; padding: 12px 14px; border-radius: 6px; background: var(--grey); font-size: 13px; color: #555; }
@@ -48,7 +49,7 @@
   {% if form.vars.errors|length > 0 %}
     <div class="shop-flash error" role="alert"><i class="fa-solid fa-triangle-exclamation"></i><span>{% for error in form.vars.errors %}{{ error.message }} {% endfor %}</span></div>
   {% endif %}
-  <div class="shop-cols">
+  <div class="shop-cols" data-promo-code data-promo-code-url="{{ path('boutique_code_promo_verifier') }}" data-promo-code-sous-total="{{ total }}">
     <div style="display:grid; gap:24px;">
       <div class="box">
         <h2>Vos coordonnées</h2>
@@ -96,6 +97,16 @@
           {{ form_errors(form.note) }}
         </div>
       </div>
+
+      <div class="box">
+        <h2>Code de réduction</h2>
+        <div class="f-group">
+          {{ form_label(form.codePromo, null, {label_attr: {class: 'lbl'}}) }}
+          {{ form_widget(form.codePromo, {attr: {'data-promo-code-input': true}}) }}
+          <p class="f-help" data-promo-code-message hidden></p>
+          {{ form_errors(form.codePromo) }}
+        </div>
+      </div>
     </div>
 
     <aside class="box summary">
@@ -106,7 +117,13 @@
           <span>{{ ligne.total|money }}</span>
         </div>
       {% endfor %}
-      <div class="sum-row total"><span>Total</span><span class="price">{{ total|money }}</span></div>
+      <div class="sum-row" data-promo-code-subtotal-row hidden>
+        <span>Sous-total</span><span data-promo-code-subtotal-amount></span>
+      </div>
+      <div class="sum-row" data-promo-code-reduction-row hidden>
+        <span>Réduction</span><span data-promo-code-reduction-amount></span>
+      </div>
+      <div class="sum-row total"><span>Total</span><span class="price" data-promo-code-total>{{ total|money }}</span></div>
       <div class="pickup"><i class="fa-solid fa-store"></i><span><strong>Retrait au club</strong> — pas de livraison. Nous vous prévenons par e-mail dès que votre commande est prête.</span></div>
       <button type="submit" class="btn btn-primary btn-block" style="margin-top:18px;"><i class="fa-solid fa-lock"></i> Valider la commande</button>
       <p style="margin-top:12px; text-align:center;"><a href="{{ path('boutique_panier') }}" class="note"><i class="fa-solid fa-arrow-left"></i> Modifier mon panier</a></p>

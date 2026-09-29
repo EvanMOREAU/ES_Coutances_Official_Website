@@ -67,7 +67,7 @@ class Famille
 
     public function __toString(): string
     {
-        return $this->nom ?? '';
+        return $this->getNomAffiche();
     }
 
     public function getId(): ?int
@@ -82,9 +82,34 @@ class Famille
 
     public function setNom(string $nom): static
     {
-        $this->nom = $nom;
+        $this->nom = mb_strtoupper(trim($nom), 'UTF-8');
 
         return $this;
+    }
+
+    /**
+     * Nom affiché dans l'interface : "(Prénom) NOM", le prénom entre parenthèses étant celui du
+     * parent référent (compte de connexion de la famille), pour distinguer deux familles homonymes.
+     */
+    public function getNomAffiche(): string
+    {
+        $prenom = $this->user?->getPrenom();
+
+        return ($prenom ? '('.$prenom.') ' : '').($this->nom ?? '');
+    }
+
+    /**
+     * Faux si la famille n'a pas d'adresse email exploitable : ni format invalide, ni adresse
+     * provisoire générée par l'import (@import.local, cf. FootClubImportApplier::uniqueEmail).
+     */
+    public function hasEmailValide(): bool
+    {
+        $email = $this->user?->getEmail();
+        if (!$email || !filter_var($email, \FILTER_VALIDATE_EMAIL)) {
+            return false;
+        }
+
+        return !str_ends_with(strtolower($email), '@import.local');
     }
 
     public function getAdresse(): ?string
@@ -118,7 +143,7 @@ class Famille
 
     public function setVille(?string $ville): static
     {
-        $this->ville = $ville;
+        $this->ville = null !== $ville ? mb_strtoupper(trim($ville), 'UTF-8') : null;
 
         return $this;
     }

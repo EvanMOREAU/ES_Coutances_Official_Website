@@ -1,0 +1,118 @@
+{% extends 'admin/parametres/_layout.html.twig' %}
+
+{% block tab_content %}
+    <h2 class="text-lg font-bold">Sécurité</h2>
+    <p class="text-sm text-admin-text-muted mb-4">Renforcez la protection de votre compte avec une double authentification</p>
+
+    <div class="divide-y divide-admin-border">
+        {# --- Application d'authentification (TOTP) --- #}
+        <div class="py-4">
+            <div class="flex items-center justify-between gap-6">
+                <div class="min-w-0">
+                    <span class="flex items-center gap-2 text-sm font-semibold">
+                        <i class="fa-solid fa-mobile-screen-button text-admin-text-muted"></i>
+                        Application d'authentification
+                        {% if user.totpAuthenticationEnabled %}
+                            <span class="rounded-full bg-admin-success/10 text-admin-success text-[11px] font-semibold uppercase tracking-wide px-2 py-0.5">Activée</span>
+                        {% endif %}
+                    </span>
+                    <span class="block text-xs text-admin-text-muted mt-0.5">Google Authenticator, Bitwarden, 1Password… génère un code à usage unique.</span>
+                </div>
+                {% if user.totpAuthenticationEnabled %}
+                    <form method="post" action="{{ path('admin_parametres_securite_totp_desactiver') }}" class="shrink-0">
+                        <input type="hidden" name="_csrf_token" value="{{ csrf_token('securite_totp_desactiver') }}">
+                        <button type="submit" class="rounded-lg border border-admin-danger/30 text-admin-danger px-4 py-2 text-sm font-semibold hover:bg-admin-danger/10">Désactiver</button>
+                    </form>
+                {% elseif not pendingTotpSecret %}
+                    <form method="post" action="{{ path('admin_parametres_securite_totp_generer') }}" class="shrink-0">
+                        <input type="hidden" name="_csrf_token" value="{{ csrf_token('securite_totp_generer') }}">
+                        <button type="submit" class="rounded-lg admin-gradient px-4 py-2 text-sm font-semibold text-white">Activer</button>
+                    </form>
+                {% endif %}
+            </div>
+
+            {% if pendingTotpSecret and totpQrDataUri %}
+                <div class="mt-4 rounded-xl border border-admin-border bg-admin-bg p-5">
+                    <p class="text-sm mb-4">Scannez ce QR code avec votre application, puis saisissez le code à 6 chiffres qu'elle affiche pour confirmer l'activation.</p>
+                    <div class="flex flex-col sm:flex-row items-center gap-6">
+                        <img src="{{ totpQrDataUri }}" alt="QR code d'activation" class="rounded-lg bg-white p-2 shrink-0">
+                        <div class="w-full min-w-0">
+                            <p class="text-xs text-admin-text-muted mb-2">Impossible de scanner ? Saisissez ce code manuellement :</p>
+                            <code class="block break-all rounded-lg bg-admin-surface border border-admin-border px-3 py-2 text-xs mb-4">{{ pendingTotpSecret }}</code>
+
+                            <form method="post" action="{{ path('admin_parametres_securite_totp_confirmer') }}" data-controller="otp-input">
+                                <div class="flex items-center gap-2 mb-3">
+                                    {% for i in 0..5 %}
+                                        <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1"
+                                               data-otp-input-target="box" data-index="{{ i }}"
+                                               data-action="input->otp-input#input keydown->otp-input#keydown paste->otp-input#paste"
+                                               class="w-10 h-11 text-center text-lg font-semibold rounded-lg border border-admin-border bg-admin-surface text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-primary-to">
+                                    {% endfor %}
+                                </div>
+                                <input type="hidden" name="code" data-otp-input-target="hidden">
+                                <input type="hidden" name="_csrf_token" value="{{ csrf_token('securite_totp_confirmer') }}">
+                                <div class="flex gap-2">
+                                    <button type="submit" class="rounded-lg admin-gradient px-4 py-2 text-sm font-semibold text-white">Confirmer</button>
+                                </div>
+                            </form>
+                            <form method="post" action="{{ path('admin_parametres_securite_totp_annuler') }}" class="mt-2">
+                                <input type="hidden" name="_csrf_token" value="{{ csrf_token('securite_totp_annuler') }}">
+                                <button type="submit" class="text-xs text-admin-text-muted hover:text-white underline">Annuler</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+
+        {# --- Code par e-mail --- #}
+        <div class="py-4">
+            <div class="flex items-center justify-between gap-6">
+                <div class="min-w-0">
+                    <span class="flex items-center gap-2 text-sm font-semibold">
+                        <i class="fa-solid fa-envelope text-admin-text-muted"></i>
+                        Code par e-mail
+                    </span>
+                    <span class="block text-xs text-admin-text-muted mt-0.5">Recevez un code de vérification à {{ user.email }} à chaque connexion.</span>
+                </div>
+                <form method="post" action="{{ path(user.emailAuthEnabled ? 'admin_parametres_securite_email_desactiver' : 'admin_parametres_securite_email_activer') }}" class="shrink-0">
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token(user.emailAuthEnabled ? 'securite_email_desactiver' : 'securite_email_activer') }}">
+                    <input type="checkbox" class="admin-switch" {{ user.emailAuthEnabled ? 'checked' : '' }} onchange="this.form.submit()" aria-label="Code de vérification par e-mail">
+                </form>
+            </div>
+        </div>
+
+        {# --- Codes de secours --- #}
+        <div class="py-4">
+            <div class="flex items-center justify-between gap-6">
+                <div class="min-w-0">
+                    <span class="flex items-center gap-2 text-sm font-semibold">
+                        <i class="fa-solid fa-key text-admin-text-muted"></i>
+                        Codes de secours
+                    </span>
+                    <span class="block text-xs text-admin-text-muted mt-0.5">10 codes à usage unique, à utiliser si vous perdez l'accès à vos autres méthodes.</span>
+                </div>
+                <form method="post" action="{{ path('admin_parametres_securite_backup_codes_generer') }}" class="shrink-0"
+                      {% if user.backupCodes|length > 0 %}data-confirm="Générer de nouveaux codes de secours invalidera les codes précédents. Continuer ?" data-confirm-label="Régénérer" data-confirm-neutral{% endif %}>
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token('securite_backup_codes_generer') }}">
+                    <button type="submit" class="rounded-lg border border-admin-border px-4 py-2 text-sm font-semibold admin-surface-hover">
+                        {{ user.backupCodes|length > 0 ? 'Régénérer' : 'Générer des codes' }}
+                    </button>
+                </form>
+            </div>
+
+            {% if newBackupCodes %}
+                <div class="mt-4 rounded-xl border border-admin-border bg-admin-bg p-5">
+                    <p class="text-sm mb-3">Notez ces codes dans un endroit sûr : ils ne seront plus affichés ensuite. Chacun ne fonctionne qu'une seule fois.</p>
+                    <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 font-mono text-sm">
+                        {% for code in newBackupCodes %}
+                            <code class="rounded-lg bg-admin-surface border border-admin-border px-2 py-1.5 text-center">{{ code }}</code>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% elseif user.backupCodes|length > 0 %}
+                <p class="mt-3 text-xs text-admin-text-muted">{{ user.backupCodes|length }} code(s) de secours encore disponible(s).</p>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

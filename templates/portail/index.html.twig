@@ -49,6 +49,13 @@
             </table>
             <p style="margin-top:16px;"><a class="bouton" href="{{ path('portail_licencie', {id: licencie.id}) }}">Voir ma fiche complète</a></p>
         </div>
+    {% elseif portail_est_boutique() %}
+        <h1>Mon espace</h1>
+        <div class="card">
+            <h2>Compte boutique</h2>
+            <p>Ce compte vous permet de commander sur la boutique du club et de retrouver l'historique de vos commandes.</p>
+            <p style="margin-top:16px;"><a class="bouton" href="{{ path('boutique_index') }}">Aller à la boutique</a></p>
+        </div>
     {% else %}
         <h1>Mon espace</h1>
         <div class="card">

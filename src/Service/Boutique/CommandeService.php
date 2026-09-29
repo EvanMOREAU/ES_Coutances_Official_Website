@@ -6,6 +6,7 @@ use App\Entity\ArticleVariante;
 use App\Entity\Commande;
 use App\Entity\CommandeLigne;
 use App\Entity\User;
+use App\Repository\CodePromoRepository;
 use App\Repository\CommandeRepository;
 use Doctrine\DBAL\LockMode;
 use Doctrine\ORM\EntityManagerInterface;
@@ -24,14 +25,21 @@ class CommandeService
     public function __construct(
         private readonly EntityManagerInterface $em,
         private readonly CommandeRepository $commandes,
+        private readonly CodePromoRepository $codesPromo,
     ) {
     }
 
     /**
      * @param array<int, int> $quantites id de variante => quantité
-     * @param array{prenom: string, nom: string, email: string, telephone: ?string, note: ?string, modePaiement: string} $client
+     * @param array{
+     *     prenom: string, nom: string, email: string, telephone: ?string, note: ?string, modePaiement: string,
+     *     codePromo?: ?string,
+     *     livraisonAdresse?: ?string, livraisonComplement?: ?string, livraisonCodePostal?: ?string,
+     *     livraisonVille?: ?string, livraisonTelephone?: ?string, livraisonInstructions?: ?string,
+     * } $client
      *
      * @throws StockInsuffisantException
+     * @throws PromoCodeException
      */
     public function passer(array $quantites, array $client, ?User $user): Commande
     {
@@ -74,11 +82,52 @@ class CommandeService
                 $commande->addLigne(CommandeLigne::depuis($variante, $quantite));
             }
 
+            $this->appliquerCodePromo($commande, $client);
+
             $this->em->persist($commande);
             $this->em->flush();
 
             return $commande;
         });
+    }
+
+    /**
+     * Valide et applique un éventuel code de réduction saisi par le client. Un code « bon de
+     * livraison » exige en plus une adresse complète, sans quoi la commande est refusée.
+     *
+     * @param array<string, mixed> $client
+     *
+     * @throws PromoCodeException
+     */
+    private function appliquerCodePromo(Commande $commande, array $client): void
+    {
+        $code = trim((string) ($client['codePromo'] ?? ''));
+        if ('' === $code) {
+            return;
+        }
+
+        $codePromo = $this->codesPromo->findParCode($code);
+        if (!$codePromo || !$codePromo->isValide()) {
+            throw new PromoCodeException('Ce code de réduction est invalide ou n\'est plus valable.');
+        }
+
+        $reductionCentimes = $codePromo->calculerReductionCentimes($commande->getSousTotalCentimes());
+        $commande->appliquerReduction($codePromo, $reductionCentimes);
+        $codePromo->incrementerUsage();
+
+        if ($codePromo->isAutoriseLivraison()) {
+            $adresse    = trim((string) ($client['livraisonAdresse'] ?? ''));
+            $codePostal = trim((string) ($client['livraisonCodePostal'] ?? ''));
+            $ville      = trim((string) ($client['livraisonVille'] ?? ''));
+            if ('' === $adresse || '' === $codePostal || '' === $ville) {
+                throw new PromoCodeException('Ce code nécessite une adresse de livraison complète (adresse, code postal, ville).');
+            }
+
+            $complement    = trim((string) ($client['livraisonComplement'] ?? ''));
+            $telephone     = trim((string) ($client['livraisonTelephone'] ?? ''));
+            $instructions  = trim((string) ($client['livraisonInstructions'] ?? ''));
+            $commande->setLivraison($adresse, '' !== $complement ? $complement : null, $codePostal, $ville, '' !== $telephone ? $telephone : null, '' !== $instructions ? $instructions : null);
+        }
     }
 
     /**

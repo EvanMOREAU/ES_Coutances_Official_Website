@@ -56,6 +56,12 @@ class CheckoutType extends AbstractType
                 'constraints' => [new Length(max: 1000)],
                 'attr'        => ['rows' => 3, 'placeholder' => 'Facultatif : flocage, précision sur une taille…'],
             ])
+            ->add('codePromo', TextType::class, [
+                'label'       => 'Code de réduction',
+                'required'    => false,
+                'constraints' => [new Length(max: 30)],
+                'attr'        => ['placeholder' => 'Facultatif', 'autocomplete' => 'off'],
+            ])
         ;
     }
 }

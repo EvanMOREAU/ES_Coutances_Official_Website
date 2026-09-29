@@ -75,7 +75,7 @@ class ImportController extends AbstractController
     }
 
     #[Route('/confirmer', name: 'admin_import_confirm', methods: ['POST'])]
-    public function confirm(Request $request, RequestStack $requestStack, FootClubImportApplier $applier): Response
+    public function confirm(Request $request, RequestStack $requestStack, FootClubImportParser $parser, FootClubImportApplier $applier): Response
     {
         if (!$this->isCsrfTokenValid('import-confirm', (string) $request->request->get('_token'))) {
             $this->addFlash('error', 'Jeton de sécurité invalide, merci de réessayer.');
@@ -98,6 +98,9 @@ class ImportController extends AbstractController
         if (\function_exists('set_time_limit')) {
             @set_time_limit(0);
         }
+
+        $detach  = array_map('strval', $request->request->all('detach'));
+        $preview = $parser->applyDetachments($preview, $detach);
 
         try {
             $result = $applier->apply($preview);

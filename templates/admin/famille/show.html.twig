@@ -1,12 +1,12 @@
 {% extends 'admin/_layout.html.twig' %}
 
-{% block title %}{{ famille.nom }}{% endblock %}
+{% block title %}{{ famille.nomAffiche }}{% endblock %}
 
 {% block body %}
     <p class="mb-4"><a href="{{ path('admin_famille_index') }}" class="text-sm text-admin-text-muted hover:text-white">&larr; Retour aux familles</a></p>
 
     <div class="flex items-center justify-between mb-6">
-        <h1 class="text-2xl font-black" style="font-family:'Barlow Condensed',sans-serif;">{{ famille.nom }}</h1>
+        <h1 class="text-2xl font-black" style="font-family:'Barlow Condensed',sans-serif;">{{ famille.nomAffiche }}</h1>
         <a href="{{ path('admin_famille_edit', {id: famille.id}) }}" class="rounded-lg admin-gradient px-4 py-2 text-sm font-semibold text-white">Modifier</a>
     </div>
 
@@ -14,7 +14,7 @@
         <div class="admin-card rounded-2xl p-6">
             <h2 class="font-bold mb-4">Informations</h2>
             <dl class="text-sm space-y-2">
-                <div class="flex justify-between"><dt class="text-admin-text-muted">Compte</dt><dd>{{ famille.user }}</dd></div>
+                <div class="flex justify-between"><dt class="text-admin-text-muted">Compte</dt><dd>{{ famille.user }}{% if not famille.hasEmailValide %} <span class="badge badge-danger ml-1">Email invalide</span>{% endif %}</dd></div>
                 <div class="flex justify-between"><dt class="text-admin-text-muted">Adresse</dt><dd>{{ famille.adresse ?? '—' }}</dd></div>
                 <div class="flex justify-between"><dt class="text-admin-text-muted">Ville</dt><dd>{{ famille.codePostal }} {{ famille.ville }}</dd></div>
                 <div class="flex justify-between"><dt class="text-admin-text-muted">Téléphone</dt><dd>{{ famille.telephone ?? '—' }}</dd></div>

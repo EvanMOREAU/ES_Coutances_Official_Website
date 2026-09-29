@@ -53,7 +53,7 @@ class ProfilDefaults
         return [
             'Administrateur complet' => ['Toutes les autorisations, y compris la gestion des utilisateurs.', $all],
             'Secrétariat' => ['Gestion quotidienne des licenciés, des paiements, des imports et des commandes.', array_merge(
-                $crud('famille', ['voir', 'creer', 'modifier']), $crud('licencie', ['voir', 'creer', 'modifier', 'renvoyer_acces']),
+                $crud('famille', ['voir', 'creer', 'modifier']), $crud('licencie', ['voir', 'creer', 'modifier', 'renvoyer_acces', 'corriger_import']),
                 $crud('equipe', ['voir', 'creer', 'modifier']), $crud('saison', ['voir']),
                 $crud('adhesion', ['voir', 'creer', 'modifier', 'suivi']), $crud('import', ['voir', 'executer']),
                 $crud('planning', ['voir']), $crud('commande', ['voir', 'traiter']), $crud('messagerie', ['utiliser']),
@@ -61,7 +61,7 @@ class ProfilDefaults
             'Éducateur' => ['Consulte les licenciés et gère le planning des entraînements.', array_merge(
                 $crud('planning'), $crud('licencie', ['voir']), $crud('famille', ['voir']), $crud('equipe', ['voir']), $crud('messagerie', ['utiliser']),
             )],
-            'Responsable boutique' => ['Articles, stock et commandes.', array_merge($crud('article'), $crud('commande', ['voir', 'traiter', 'annuler']))],
+            'Responsable boutique' => ['Articles, stock, commandes et codes de réduction.', array_merge($crud('article'), $crud('commande', ['voir', 'traiter', 'annuler']), $crud('code_promo'))],
             'Communication' => ['Site vitrine et fichiers.', array_merge(
                 $crud('partenaire'), $crud('rejoindre_card'), $crud('offre_emploi'), $crud('slide_carousel'), $crud('page_contenu'), $crud('membre'), $crud('categorie'),
                 $crud('reglages', ['voir', 'modifier']), $crud('fichiers', ['voir', 'televerser', 'modifier']),

@@ -21,6 +21,11 @@ class FamilleWizardType extends AbstractType
                 'label' => 'Email de référence de la famille',
                 'help'  => 'Un compte est créé automatiquement à cette adresse : la famille reçoit un email pour définir son mot de passe.',
             ])
+            ->add('prenomReferent', TextType::class, [
+                'label'    => 'Prénom du parent référent',
+                'required' => false,
+                'help'     => "Affiché entre parenthèses devant le nom de famille pour distinguer deux familles homonymes.",
+            ])
             ->add('adresse', TextType::class, [
                 'label'    => 'Adresse',
                 'required' => false,

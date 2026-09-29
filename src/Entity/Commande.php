@@ -93,6 +93,43 @@ class Commande
     #[ORM\Column]
     private int $totalCentimes = 0;
 
+    #[ORM\ManyToOne(targetEntity: CodePromo::class)]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
+    private ?CodePromo $codePromo = null;
+
+    /** Code saisi par le client, conservé même si le code promo est supprimé ensuite. */
+    #[ORM\Column(length: 30, nullable: true)]
+    private ?string $codePromoCode = null;
+
+    #[ORM\Column]
+    private int $reductionCentimes = 0;
+
+    /** Le code utilisé autorisait une livraison et le client a renseigné une adresse. */
+    #[ORM\Column]
+    private bool $livraisonDemandee = false;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $livraisonAdresse = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $livraisonComplement = null;
+
+    #[ORM\Column(length: 10, nullable: true)]
+    private ?string $livraisonCodePostal = null;
+
+    #[ORM\Column(length: 100, nullable: true)]
+    private ?string $livraisonVille = null;
+
+    #[ORM\Column(length: 30, nullable: true)]
+    private ?string $livraisonTelephone = null;
+
+    #[ORM\Column(type: 'text', nullable: true)]
+    private ?string $livraisonInstructions = null;
+
+    /** Identifiant de la dernière intention de paiement HelloAsso créée pour cette commande. */
+    #[ORM\Column(nullable: true)]
+    private ?int $helloAssoCheckoutIntentId = null;
+
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
 
@@ -177,6 +214,58 @@ class Commande
 
     public function getTotalCentimes(): int { return $this->totalCentimes; }
 
+    /** Total des lignes, avant application de la réduction. */
+    public function getSousTotalCentimes(): int
+    {
+        return array_sum($this->lignes->map(static fn (CommandeLigne $l) => $l->getTotalCentimes())->toArray());
+    }
+
+    public function getCodePromo(): ?CodePromo { return $this->codePromo; }
+    public function getCodePromoCode(): ?string { return $this->codePromoCode; }
+    public function getReductionCentimes(): int { return $this->reductionCentimes; }
+
+    /** Applique (ou retire, avec null) un code de réduction et recalcule le total. */
+    public function appliquerReduction(?CodePromo $codePromo, int $reductionCentimes): static
+    {
+        $this->codePromo        = $codePromo;
+        $this->codePromoCode    = $codePromo?->getCode();
+        $this->reductionCentimes = max(0, $reductionCentimes);
+        $this->recalculer();
+
+        return $this;
+    }
+
+    public function isLivraisonDemandee(): bool { return $this->livraisonDemandee; }
+    public function getLivraisonAdresse(): ?string { return $this->livraisonAdresse; }
+    public function getLivraisonComplement(): ?string { return $this->livraisonComplement; }
+    public function getLivraisonCodePostal(): ?string { return $this->livraisonCodePostal; }
+    public function getLivraisonVille(): ?string { return $this->livraisonVille; }
+    public function getLivraisonTelephone(): ?string { return $this->livraisonTelephone; }
+    public function getLivraisonInstructions(): ?string { return $this->livraisonInstructions; }
+
+    /** Enregistre l'adresse de livraison fournie par le client (code promo « bon de livraison »). */
+    public function setLivraison(
+        string $adresse,
+        ?string $complement,
+        string $codePostal,
+        string $ville,
+        ?string $telephone,
+        ?string $instructions,
+    ): static {
+        $this->livraisonDemandee     = true;
+        $this->livraisonAdresse      = $adresse;
+        $this->livraisonComplement   = $complement;
+        $this->livraisonCodePostal   = $codePostal;
+        $this->livraisonVille        = $ville;
+        $this->livraisonTelephone    = $telephone;
+        $this->livraisonInstructions = $instructions;
+
+        return $this;
+    }
+
+    public function getHelloAssoCheckoutIntentId(): ?int { return $this->helloAssoCheckoutIntentId; }
+    public function setHelloAssoCheckoutIntentId(?int $id): static { $this->helloAssoCheckoutIntentId = $id; return $this; }
+
     public function getCreatedAt(): ?\DateTimeImmutable { return $this->createdAt; }
 
     /** @return Collection<int, CommandeLigne> */
@@ -214,6 +303,6 @@ class Commande
 
     private function recalculer(): void
     {
-        $this->totalCentimes = array_sum($this->lignes->map(static fn (CommandeLigne $l) => $l->getTotalCentimes())->toArray());
+        $this->totalCentimes = max(0, $this->getSousTotalCentimes() - $this->reductionCentimes);
     }
 }

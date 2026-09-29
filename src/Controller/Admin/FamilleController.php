@@ -65,6 +65,7 @@ class FamilleController extends AbstractController
                 $familleUser = new User();
                 $familleUser->setEmail($data['email']);
                 $familleUser->setNom($data['nom']);
+                $familleUser->setPrenom($data['prenomReferent'] ?: null);
                 $familleUser->setRoles(['ROLE_FAMILLE']);
                 $familleUser->setPassword($hasher->hashPassword($familleUser, bin2hex(random_bytes(16))));
                 $em->persist($familleUser);

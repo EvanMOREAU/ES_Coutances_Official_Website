@@ -50,8 +50,10 @@
                 </button>
             </form>
             <a href="{{ path('app_forgot_password_request') }}" class="block text-center mt-5 text-sm text-admin-text-muted hover:text-white">Mot de passe oublié ?</a>
+            <a href="{{ path('portail_inscription') }}" class="block text-center mt-2 text-sm text-admin-text-muted hover:text-white">Pas encore de compte ? Créer un compte boutique</a>
         </div>
     </div>
+    {{ importmap('public') }}
 </body>
 </html>
 {% endblock %}

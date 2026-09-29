@@ -47,6 +47,11 @@
                             confirm: 'Un e-mail pour créer son mot de passe sera envoyé à ' ~ licencie.user.email ~ '.',
                             confirm_title: "Renvoyer l'accès ?",
                             confirm_label: 'Envoyer',
+                        }, {
+                            url: path('admin_licencie_correction_import', {id: licencie.id}),
+                            modal: true,
+                            label: "Correction d'import",
+                            icon: 'fa-people-arrows',
                         }],
                         edit_url: path('admin_licencie_edit', {id: licencie.id}),
                         delete_url: path('admin_licencie_delete', {id: licencie.id}),
