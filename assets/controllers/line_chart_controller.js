@@ -19,7 +19,11 @@ const el = (name, attrs = {}) => {
 export default class extends Controller {
     static targets = ['plot', 'tooltip'];
     // compact : mini-courbe sans axes (cartes du tableau de bord), hauteur réglable.
-    static values = { points: Array, unit: { type: String, default: 'élément' }, compact: Boolean, height: { type: Number, default: 240 } };
+    // unitPlural : forme au pluriel quand elle ne s'obtient pas en ajoutant un simple "s" (ex. une unité monétaire).
+    static values = {
+        points: Array, unit: { type: String, default: 'élément' }, unitPlural: String,
+        compact: Boolean, height: { type: Number, default: 240 },
+    };
 
     connect() {
         const points = this.pointsValue;
@@ -126,9 +130,9 @@ export default class extends Controller {
         this.cursor.setAttribute('visibility', 'visible');
         this.dots.forEach((dot, i) => dot.setAttribute('r', i === index ? 5 : (this.compactValue ? 0 : 3.5)));
 
-        const plural = point.total > 1 ? 's' : '';
+        const unit = point.total > 1 ? (this.unitPluralValue || `${this.unitValue}s`) : this.unitValue;
         const gain = point.new > 0 ? `<span>+${point.new} ce mois-ci</span>` : '<span>aucun ajout ce mois-ci</span>';
-        this.tooltipTarget.innerHTML = `<strong>${point.long}</strong>${point.total} ${this.unitValue}${plural}<br>${gain}`;
+        this.tooltipTarget.innerHTML = `<strong>${point.long}</strong>${point.total} ${unit}<br>${gain}`;
         this.tooltipTarget.hidden = false;
 
         const box = this.plotTarget.getBoundingClientRect();

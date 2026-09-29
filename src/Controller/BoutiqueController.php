@@ -5,32 +5,50 @@ namespace App\Controller;
 use App\Entity\Commande;
 use App\Entity\User;
 use App\Form\CheckoutType;
+use App\Form\LivraisonType;
 use App\Repository\ArticleRepository;
 use App\Repository\ArticleVarianteRepository;
 use App\Repository\CategorieArticleRepository;
+use App\Repository\CodePromoRepository;
 use App\Repository\CommandeRepository;
 use App\Repository\FamilleRepository;
 use App\Service\Boutique\CommandeMailer;
 use App\Service\Boutique\CommandeService;
 use App\Service\Boutique\Panier;
+use App\Service\Boutique\PromoCodeException;
 use App\Service\Boutique\StockInsuffisantException;
+use App\Service\HelloAsso\HelloAssoClient;
+use App\Service\HelloAsso\HelloAssoException;
+use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 /**
  * Boutique du club (site public) : catalogue, panier, commande, suivi.
- * Il n'y a pas de livraison : les commandes se retirent au club. Le paiement
- * par carte est pour l'instant simulé (voir paiement()), en attendant HelloAsso.
+ * Il n'y a pas de livraison par défaut : les commandes se retirent au club. Seul un code de
+ * réduction marqué « bon de livraison » (CodePromo::autoriseLivraison) débloque une étape
+ * supplémentaire (voir commandeLivraison()) pour renseigner une adresse. Le paiement par
+ * carte se fait via HelloAsso (voir paiement()/paiementRetour()).
  */
 #[Route('/boutique')]
 class BoutiqueController extends AbstractController
 {
+    /** Le temps de remplir l'étape « livraison », les coordonnées du client patientent en session. */
+    private const SESSION_CHECKOUT = 'boutique_checkout_client';
+
     public function __construct(
         private readonly Panier $panier,
         private readonly CommandeService $commandes,
         private readonly CommandeMailer $mailer,
+        private readonly CodePromoRepository $codesPromo,
+        private readonly HelloAssoClient $helloAsso,
+        private readonly EntityManagerInterface $em,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -143,29 +161,124 @@ class BoutiqueController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $quantites = [];
-            foreach ($detail['lignes'] as $ligne) {
-                $quantites[$ligne['variante']->getId()] = $ligne['quantite'];
+            $client = $form->getData();
+
+            // Un code « bon de livraison » ouvre une étape en plus pour l'adresse ; sinon on
+            // finalise directement (un code invalide sera de toute façon rejeté par passer()).
+            $code = trim((string) ($client['codePromo'] ?? ''));
+            if ('' !== $code) {
+                $codePromo = $this->codesPromo->findParCode($code);
+                if ($codePromo && $codePromo->isValide() && $codePromo->isAutoriseLivraison()) {
+                    $request->getSession()->set(self::SESSION_CHECKOUT, $client);
+
+                    return $this->redirectToRoute('boutique_commande_livraison');
+                }
             }
 
             try {
-                $commande = $this->commandes->passer($quantites, $form->getData(), $user instanceof User ? $user : null);
+                $commande = $this->passerCommande($detail, $client, $user instanceof User ? $user : null);
             } catch (StockInsuffisantException $e) {
                 $this->addFlash('boutique_error', $e->getMessage() . ' Votre panier a été mis à jour.');
 
                 return $this->redirectToRoute('boutique_panier');
+            } catch (PromoCodeException $e) {
+                $this->addFlash('boutique_error', $e->getMessage());
+
+                return $this->render('boutique/commande.html.twig', $detail + ['form' => $form]);
             }
 
-            $this->panier->clear();
-            $this->mailer->confirmation($commande);
-            $this->addFlash('boutique_success', 'Merci ! Votre commande est enregistrée.');
-
-            return Commande::PAIEMENT_CARTE === $commande->getModePaiement()
-                ? $this->redirectToRoute('boutique_paiement', $this->routeParams($commande))
-                : $this->redirectToRoute('boutique_commande_suivi', $this->routeParams($commande));
+            return $this->commandeReussie($commande);
         }
 
         return $this->render('boutique/commande.html.twig', $detail + ['form' => $form]);
+    }
+
+    /**
+     * Aperçu en direct (sans consommer le code) : appelé en AJAX pendant la saisie, à l'étape
+     * « Vos informations », pour mettre à jour le total affiché avant même de valider le formulaire.
+     */
+    #[Route('/code-promo/verifier', name: 'boutique_code_promo_verifier', methods: ['GET'])]
+    public function verifierCodePromo(Request $request): JsonResponse
+    {
+        $sousTotal = $this->panier->detail()['total'];
+        $code      = trim((string) $request->query->get('code', ''));
+
+        if ('' === $code) {
+            return $this->json(['valide' => false, 'sousTotalCentimes' => $sousTotal, 'totalCentimes' => $sousTotal, 'reductionCentimes' => 0]);
+        }
+
+        $codePromo = $this->codesPromo->findParCode($code);
+        if (!$codePromo || !$codePromo->isValide()) {
+            return $this->json([
+                'valide'            => false,
+                'message'           => 'Ce code de réduction est invalide ou n\'est plus valable.',
+                'sousTotalCentimes' => $sousTotal,
+                'totalCentimes'     => $sousTotal,
+                'reductionCentimes' => 0,
+            ]);
+        }
+
+        $reduction = $codePromo->calculerReductionCentimes($sousTotal);
+
+        return $this->json([
+            'valide'             => true,
+            'sousTotalCentimes'  => $sousTotal,
+            'reductionCentimes'  => $reduction,
+            'totalCentimes'      => max(0, $sousTotal - $reduction),
+            'autoriseLivraison'  => $codePromo->isAutoriseLivraison(),
+        ]);
+    }
+
+    /**
+     * Étape intercalée avant la confirmation, uniquement quand le code saisi à l'étape
+     * précédente autorise la livraison : sans un tel code, cette page n'est pas accessible
+     * (par défaut, une commande ne peut pas être livrée, seulement retirée au club).
+     */
+    #[Route('/commande/livraison', name: 'boutique_commande_livraison', methods: ['GET', 'POST'])]
+    public function commandeLivraison(Request $request): Response
+    {
+        $detail  = $this->panier->detail();
+        $session = $request->getSession();
+        $client  = $session->get(self::SESSION_CHECKOUT);
+
+        if ([] === $detail['lignes'] || !is_array($client)) {
+            return $this->redirectToRoute('boutique_commande');
+        }
+
+        $codePromo = $this->codesPromo->findParCode((string) ($client['codePromo'] ?? ''));
+        if (!$codePromo || !$codePromo->isValide() || !$codePromo->isAutoriseLivraison()) {
+            $session->remove(self::SESSION_CHECKOUT);
+
+            return $this->redirectToRoute('boutique_commande');
+        }
+
+        $form = $this->createForm(LivraisonType::class);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $client = array_merge($client, $form->getData());
+            $user   = $this->getUser();
+
+            try {
+                $commande = $this->passerCommande($detail, $client, $user instanceof User ? $user : null);
+            } catch (StockInsuffisantException $e) {
+                $session->remove(self::SESSION_CHECKOUT);
+                $this->addFlash('boutique_error', $e->getMessage() . ' Votre panier a été mis à jour.');
+
+                return $this->redirectToRoute('boutique_panier');
+            } catch (PromoCodeException $e) {
+                $session->remove(self::SESSION_CHECKOUT);
+                $this->addFlash('boutique_error', $e->getMessage());
+
+                return $this->redirectToRoute('boutique_commande');
+            }
+
+            $session->remove(self::SESSION_CHECKOUT);
+
+            return $this->commandeReussie($commande);
+        }
+
+        return $this->render('boutique/commande_livraison.html.twig', $detail + ['form' => $form, 'codePromo' => $codePromo]);
     }
 
     #[Route('/commande/{reference}/{token}', name: 'boutique_commande_suivi', methods: ['GET'])]
@@ -175,13 +288,13 @@ class BoutiqueController extends AbstractController
     }
 
     /**
-     * Paiement par carte — SIMULÉ. Cette page tient la place de la page de
-     * paiement HelloAsso : « Payer » enregistre le règlement comme si le
-     * prestataire l'avait confirmé. À remplacer par la redirection vers
-     * HelloAsso et son retour (webhook) le moment venu.
+     * Redirige le client vers HelloAsso pour régler sa commande par carte : crée une intention
+     * de paiement pour le montant exact et renvoie vers la page de paiement hébergée par
+     * HelloAsso. Le retour (paiementRetour()) vérifie le résultat auprès de l'API — on ne fait
+     * jamais confiance à la seule redirection du navigateur.
      */
-    #[Route('/commande/{reference}/{token}/paiement', name: 'boutique_paiement', methods: ['GET', 'POST'])]
-    public function paiement(string $reference, string $token, Request $request, CommandeRepository $commandes): Response
+    #[Route('/commande/{reference}/{token}/paiement', name: 'boutique_paiement', methods: ['GET'])]
+    public function paiement(string $reference, string $token, CommandeRepository $commandes): Response
     {
         $commande = $this->findCommande($commandes, $reference, $token);
         $suivi    = $this->redirectToRoute('boutique_commande_suivi', $this->routeParams($commande));
@@ -190,19 +303,114 @@ class BoutiqueController extends AbstractController
             return $suivi;
         }
 
-        if ($request->isMethod('POST')) {
-            if ($this->isCsrfTokenValid('boutique-paiement-' . $commande->getId(), (string) $request->request->get('_token'))) {
-                $this->commandes->appliquer($commande, 'payer');
-                $this->addFlash('boutique_success', 'Paiement reçu, merci !');
-            }
+        // Une réduction à 100% laisse un total nul : rien à faire payer, on encaisse directement.
+        if ($commande->getTotalCentimes() <= 0) {
+            $this->commandes->appliquer($commande, 'payer');
+            $this->addFlash('boutique_success', 'Paiement reçu, merci !');
 
             return $suivi;
         }
 
-        return $this->render('boutique/paiement.html.twig', ['commande' => $commande]);
+        $retourUrl = $this->generateUrl('boutique_paiement_retour', $this->routeParams($commande), UrlGeneratorInterface::ABSOLUTE_URL);
+
+        try {
+            $intention = $this->helloAsso->creerIntentionPaiement(
+                $commande->getTotalCentimes(),
+                sprintf('Commande %s', $commande->getReference()),
+                $retourUrl,
+                $retourUrl,
+                [
+                    'firstName' => $commande->getPrenom(),
+                    'lastName'  => $commande->getNom(),
+                    'email'     => $commande->getEmail(),
+                ],
+            );
+        } catch (HelloAssoException $e) {
+            $this->logger->error('Échec de création de l\'intention de paiement HelloAsso pour la commande {reference} : {message}', ['reference' => $commande->getReference(), 'message' => $e->getMessage()]);
+            $this->addFlash('boutique_error', 'Le paiement en ligne est momentanément indisponible. Contactez le club pour régler autrement.');
+
+            return $suivi;
+        }
+
+        $commande->setHelloAssoCheckoutIntentId($intention['id']);
+        $this->em->flush();
+
+        return $this->redirect($intention['redirectUrl']);
+    }
+
+    /**
+     * Retour depuis HelloAsso (succès ou échec) : on revérifie toujours le statut réel auprès de
+     * l'API avant de marquer la commande payée, la redirection seule pouvant être rejouée par
+     * n'importe qui.
+     */
+    #[Route('/commande/{reference}/{token}/paiement/retour', name: 'boutique_paiement_retour', methods: ['GET'])]
+    public function paiementRetour(string $reference, string $token, CommandeRepository $commandes): Response
+    {
+        $commande = $this->findCommande($commandes, $reference, $token);
+        $suivi    = $this->redirectToRoute('boutique_commande_suivi', $this->routeParams($commande));
+
+        if (Commande::PAIEMENT_CARTE !== $commande->getModePaiement() || !$commande->isReglementDu()) {
+            return $suivi;
+        }
+
+        $checkoutIntentId = $commande->getHelloAssoCheckoutIntentId();
+        if (!$checkoutIntentId) {
+            $this->addFlash('boutique_error', 'Impossible de vérifier ce paiement : réessayez depuis cette page.');
+
+            return $suivi;
+        }
+
+        try {
+            $intention = $this->helloAsso->recupererIntention($checkoutIntentId);
+        } catch (HelloAssoException $e) {
+            $this->logger->error('Échec de vérification de l\'intention de paiement HelloAsso {id} pour la commande {reference} : {message}', ['id' => $checkoutIntentId, 'reference' => $commande->getReference(), 'message' => $e->getMessage()]);
+            $this->addFlash('boutique_error', 'Impossible de vérifier votre paiement pour le moment. Réessayez depuis cette page dans un instant.');
+
+            return $suivi;
+        }
+
+        $etat = $intention['state'] ?? null;
+        if ('Authorized' === $etat) {
+            $this->commandes->appliquer($commande, 'payer');
+            $this->addFlash('boutique_success', 'Paiement reçu, merci !');
+        } elseif (in_array($etat, ['Waiting', 'Processing'], true)) {
+            $this->addFlash('boutique_warning', 'Votre paiement est en cours de traitement : nous vous confirmerons par e-mail dès sa validation.');
+        } else {
+            $this->addFlash('boutique_error', 'Le paiement n\'a pas abouti. Vous pouvez réessayer depuis cette page.');
+        }
+
+        return $suivi;
     }
 
     // ------------------------------------------------------------------ outils
+
+    /**
+     * @param array{lignes: list<array{variante: \App\Entity\ArticleVariante, quantite: int, total: int}>, total: int, messages: list<string>} $detail
+     * @param array<string, mixed> $client
+     *
+     * @throws StockInsuffisantException
+     * @throws PromoCodeException
+     */
+    private function passerCommande(array $detail, array $client, ?User $user): Commande
+    {
+        $quantites = [];
+        foreach ($detail['lignes'] as $ligne) {
+            $quantites[$ligne['variante']->getId()] = $ligne['quantite'];
+        }
+
+        return $this->commandes->passer($quantites, $client, $user);
+    }
+
+    private function commandeReussie(Commande $commande): Response
+    {
+        $this->panier->clear();
+        $this->mailer->confirmation($commande);
+        $this->addFlash('boutique_success', 'Merci ! Votre commande est enregistrée.');
+
+        return Commande::PAIEMENT_CARTE === $commande->getModePaiement()
+            ? $this->redirectToRoute('boutique_paiement', $this->routeParams($commande))
+            : $this->redirectToRoute('boutique_commande_suivi', $this->routeParams($commande));
+    }
 
     private function findCommande(CommandeRepository $commandes, string $reference, string $token): Commande
     {

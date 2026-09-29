@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Entity\Famille;
 use App\Entity\NotificationState;
 use App\Entity\User;
 use App\Repository\CommandeRepository;
@@ -159,6 +160,23 @@ class AdminNotificationProvider
                     'text' => sprintf('%s : %d élément%s à compléter', $label, $count, $count > 1 ? 's' : ''),
                     'meta' => 'Conseil de configuration',
                     'url'  => $url,
+                ];
+            }
+        }
+
+        // Familles sans email exploitable (adresse invalide, ou provisoire générée par un import) :
+        // la clé inclut le compte pour que la notification réapparaisse si elle a été masquée puis
+        // que le nombre de familles concernées change à nouveau.
+        if ($this->permissions->can('famille.voir')) {
+            $sansEmailValide = array_filter($this->familleRepository->findAll(), static fn (Famille $f) => !$f->hasEmailValide());
+            $count = count($sansEmailValide);
+            if ($count > 0) {
+                $notifications[] = [
+                    'key'  => sprintf('email-invalide:%d', $count),
+                    'icon' => 'fa-envelope-circle-exclamation',
+                    'text' => sprintf('%d famille%s sans email valide', $count, $count > 1 ? 's' : ''),
+                    'meta' => 'À corriger',
+                    'url'  => $this->urls->generate('admin_famille_index'),
                 ];
             }
         }

@@ -1,0 +1,97 @@
+{% extends 'boutique/_layout.html.twig' %}
+
+{% block boutique_title %}Adresse de livraison{% endblock %}
+{% block breadcrumb %}<a href="{{ path('boutique_index') }}">Boutique</a> <i class="fa-solid fa-chevron-right"></i> <a href="{{ path('boutique_panier') }}">Panier</a> <i class="fa-solid fa-chevron-right"></i> <span>Livraison</span>{% endblock %}
+{% block hero_title %}Adresse de <span>livraison</span>{% endblock %}
+
+{% block boutique_styles %}
+<style>
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 560px) { .form-grid { grid-template-columns: minmax(0, 1fr); } }
+.f-group { display: flex; flex-direction: column; gap: 6px; }
+.f-group.full { grid-column: 1 / -1; }
+.f-group label.lbl { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 13px; letter-spacing: .1em; text-transform: uppercase; color: var(--mid); }
+.f-group input[type=text], .f-group input[type=tel], .f-group textarea {
+  width: 100%; padding: 11px 14px; border: 1.5px solid var(--border); border-radius: 6px; font: 400 15px 'Inter', sans-serif; color: var(--dark); background: #fff; transition: border-color .15s, box-shadow .15s;
+}
+.f-group input:focus, .f-group textarea:focus { outline: none; border-color: var(--red); box-shadow: 0 0 0 3px rgba(200,16,46,.12); }
+.f-group textarea { resize: vertical; min-height: 84px; }
+.f-help { font-size: 12px; color: #888; }
+.f-error, .f-group ul { list-style: none; color: #b91c1c; font-size: 13px; }
+.summary { position: sticky; top: calc(var(--nav-h) + 90px); }
+.mini-line { display: flex; justify-content: space-between; gap: 12px; padding: 6px 0; font-size: 14px; }
+.mini-line span:first-child { color: #444; }
+.pickup { display: flex; gap: 10px; margin-top: 16px; padding: 12px 14px; border-radius: 6px; background: var(--grey); font-size: 13px; color: #555; }
+.pickup i { color: var(--red); margin-top: 3px; }
+</style>
+{% endblock %}
+
+{% block shop_body %}
+  <ol class="steps">
+    <li class="is-done"><span class="n"><i class="fa-solid fa-check" style="font-size:11px"></i></span> Panier</li>
+    <li class="is-done"><span class="n"><i class="fa-solid fa-check" style="font-size:11px"></i></span> Vos informations</li>
+    <li class="is-current"><span class="n">3</span> Livraison</li>
+    <li><span class="n">4</span> Confirmation</li>
+  </ol>
+
+  <div class="box" style="margin-bottom:24px;">
+    <p class="note" style="margin:0;"><i class="fa-solid fa-truck" style="color:var(--red);"></i> Le code <strong>{{ codePromo.code }}</strong> vous permet de vous faire livrer votre commande. Indiquez ci-dessous l'adresse à laquelle nous devons vous livrer.</p>
+  </div>
+
+  {{ form_start(form, {attr: {novalidate: 'novalidate'}}) }}
+  {% if form.vars.errors|length > 0 %}
+    <div class="shop-flash error" role="alert"><i class="fa-solid fa-triangle-exclamation"></i><span>{% for error in form.vars.errors %}{{ error.message }} {% endfor %}</span></div>
+  {% endif %}
+  <div class="shop-cols">
+    <div class="box">
+      <h2>Adresse de livraison</h2>
+      <div class="form-grid">
+        <div class="f-group full">
+          {{ form_label(form.livraisonAdresse, null, {label_attr: {class: 'lbl'}}) }}
+          {{ form_widget(form.livraisonAdresse) }}
+          {{ form_errors(form.livraisonAdresse) }}
+        </div>
+        <div class="f-group full">
+          {{ form_label(form.livraisonComplement, null, {label_attr: {class: 'lbl'}}) }}
+          {{ form_widget(form.livraisonComplement) }}
+          {{ form_errors(form.livraisonComplement) }}
+        </div>
+        <div class="f-group">
+          {{ form_label(form.livraisonCodePostal, null, {label_attr: {class: 'lbl'}}) }}
+          {{ form_widget(form.livraisonCodePostal) }}
+          {{ form_errors(form.livraisonCodePostal) }}
+        </div>
+        <div class="f-group">
+          {{ form_label(form.livraisonVille, null, {label_attr: {class: 'lbl'}}) }}
+          {{ form_widget(form.livraisonVille) }}
+          {{ form_errors(form.livraisonVille) }}
+        </div>
+        <div class="f-group">
+          {{ form_label(form.livraisonTelephone, null, {label_attr: {class: 'lbl'}}) }}
+          {{ form_widget(form.livraisonTelephone) }}
+          {{ form_errors(form.livraisonTelephone) }}
+        </div>
+        <div class="f-group full">
+          {{ form_label(form.livraisonInstructions, null, {label_attr: {class: 'lbl'}}) }}
+          {{ form_widget(form.livraisonInstructions) }}
+          {{ form_errors(form.livraisonInstructions) }}
+        </div>
+      </div>
+    </div>
+
+    <aside class="box summary">
+      <h2>Votre commande</h2>
+      {% for ligne in lignes %}
+        <div class="mini-line">
+          <span>{{ ligne.quantite }} × {{ ligne.variante.article.nom }}{% if not ligne.variante.article.sansDeclinaison %} <small>({{ ligne.variante.libelle }})</small>{% endif %}</span>
+          <span>{{ ligne.total|money }}</span>
+        </div>
+      {% endfor %}
+      <div class="sum-row total"><span>Total</span><span class="price">{{ total|money }}</span></div>
+      <div class="pickup"><i class="fa-solid fa-truck"></i><span><strong>Livraison</strong> à l'adresse indiquée ci-contre, grâce au code {{ codePromo.code }}.</span></div>
+      <button type="submit" class="btn btn-primary btn-block" style="margin-top:18px;"><i class="fa-solid fa-lock"></i> Valider la commande</button>
+      <p style="margin-top:12px; text-align:center;"><a href="{{ path('boutique_commande') }}" class="note"><i class="fa-solid fa-arrow-left"></i> Retour</a></p>
+    </aside>
+  </div>
+  {{ form_end(form) }}
+{% endblock %}

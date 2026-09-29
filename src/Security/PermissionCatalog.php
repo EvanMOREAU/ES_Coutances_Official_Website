@@ -38,7 +38,7 @@ final class PermissionCatalog
         return [
             'Licenciés' => [
                 'famille'  => ['label' => 'Familles', 'actions' => $crud],
-                'licencie' => ['label' => 'Licenciés', 'actions' => $crud + ['renvoyer_acces' => 'Renvoyer l\'accès (mot de passe)']],
+                'licencie' => ['label' => 'Licenciés', 'actions' => $crud + ['renvoyer_acces' => 'Renvoyer l\'accès (mot de passe)', 'corriger_import' => "Corriger l'import (changer de famille)"]],
                 'equipe'   => ['label' => 'Équipes', 'actions' => $crud],
                 'saison'   => ['label' => 'Saisons', 'actions' => $crud],
                 'adhesion' => ['label' => 'Paiements des licences', 'actions' => [
@@ -55,6 +55,7 @@ final class PermissionCatalog
                 'commande' => ['label' => 'Commandes', 'actions' => [
                     self::VOIR => 'Voir', 'traiter' => 'Préparer, encaisser, remettre', 'annuler' => 'Annuler une commande',
                 ]],
+                'code_promo' => ['label' => 'Codes de réduction', 'actions' => $crud],
             ],
             'Site vitrine' => [
                 'partenaire'     => ['label' => 'Partenaires et sponsors', 'actions' => $crud],
@@ -73,6 +74,7 @@ final class PermissionCatalog
                     self::VOIR => 'Voir et télécharger', 'televerser' => 'Envoyer, créer un dossier', self::MODIFIER => 'Renommer', self::SUPPRIMER => 'Supprimer',
                 ]],
                 'mail'         => ['label' => 'Paramètres e-mail (serveur SMTP)', 'actions' => [self::VOIR => 'Voir', self::MODIFIER => 'Modifier', 'tester' => 'Envoyer un e-mail de test']],
+                'helloasso'    => ['label' => 'Paramètres HelloAsso (paiement en ligne)', 'actions' => [self::VOIR => 'Voir', self::MODIFIER => 'Modifier']],
                 'messagerie'   => ['label' => 'Messagerie', 'actions' => ['utiliser' => 'Utiliser la messagerie']],
                 'boutique_maintenance' => ['label' => 'Maintenance de la boutique', 'actions' => [self::VOIR => 'Voir', self::MODIFIER => 'Modifier']],
                 'deploiement'  => ['label' => 'Déploiement', 'actions' => [self::VOIR => 'Voir', 'lancer' => 'Lancer un déploiement']],

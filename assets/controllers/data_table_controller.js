@@ -37,6 +37,9 @@ export default class extends Controller {
             index,
             id: element.dataset.id,
             status: element.dataset.status || '',
+            // Écart transverse au statut (ex. "email invalide") : l'onglet spécial "non_conforme"
+            // affiche ces lignes quel que soit leur statut réel (actif, brouillon, archivé…).
+            problem: element.dataset.problem === '1',
             text: normalize(element.dataset.search || element.textContent),
         }));
 
@@ -226,7 +229,7 @@ export default class extends Controller {
     compute() {
         const { status, query, sortCol, sortDir } = this.state;
 
-        let rows = this.rows.filter((row) => (status === 'all' || row.status === status)
+        let rows = this.rows.filter((row) => (status === 'all' || (status === 'non_conforme' ? row.problem : row.status === status))
             && (query === '' || row.text.includes(query)));
 
         if (sortCol) {
@@ -289,7 +292,9 @@ export default class extends Controller {
     renderTabs() {
         this.tabTargets.forEach((tab) => {
             const status = tab.dataset.status;
-            const count = status === 'all' ? this.rows.length : this.rows.filter((row) => row.status === status).length;
+            const count = status === 'all' ? this.rows.length
+                : status === 'non_conforme' ? this.rows.filter((row) => row.problem).length
+                : this.rows.filter((row) => row.status === status).length;
             tab.querySelector('[data-count]').textContent = String(count);
             const active = status === this.state.status;
             tab.classList.toggle('is-active', active);

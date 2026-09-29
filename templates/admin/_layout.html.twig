@@ -90,12 +90,13 @@
                 </div>
                 {% endif %}
 
-                {% if can('commande.voir,article.voir') %}
+                {% if can('commande.voir,article.voir,code_promo.voir') %}
                 <div data-controller="nav-section" data-nav-section-id-value="boutique">
                     {{ _self.nav_section_label('Boutique') }}
                     <div class="space-y-1" data-nav-section-target="links">
                         {% if can('commande.voir') %}{{ _self.nav_link('admin_commande_index', 'admin_commande', 'fa-bag-shopping', 'Commandes', false, commandes_a_preparer(), false, 'à préparer') }}{% endif %}
                         {% if can('article.voir') %}{{ _self.nav_link('admin_article_index', 'admin_article', 'fa-shirt', 'Articles') }}{% endif %}
+                        {% if can('code_promo.voir') %}{{ _self.nav_link('admin_code_promo_index', 'admin_code_promo', 'fa-tag', 'Codes de réduction') }}{% endif %}
                     </div>
                 </div>
                 {% endif %}
@@ -110,19 +111,26 @@
                 </div>
                 {% endif %}
 
-                {% if can('utilisateur.voir,autorisation.voir,import.voir,fichiers.voir,mail.voir,categorie.voir,boutique_maintenance.voir,deploiement.voir,journal.voir,changelog.voir') %}
+                {% if can('utilisateur.voir,autorisation.voir,import.voir,fichiers.voir,mail.voir,categorie.voir,helloasso.voir,boutique_maintenance.voir') %}
                 <div data-controller="nav-section" data-nav-section-id-value="administration">
                     {{ _self.nav_section_label('Administration') }}
                     <div class="space-y-1" data-nav-section-target="links">
                         {% if can('utilisateur.voir,autorisation.voir') %}{{ _self.nav_link('admin_acces_hub', ['admin_acces_hub', 'admin_user', 'admin_profil'], 'fa-user-shield', 'Utilisateurs et autorisations') }}{% endif %}
                         {% if can('import.voir') %}{{ _self.nav_link('admin_import_hub', 'admin_import', 'fa-file-import', 'Import') }}{% endif %}
                         {% if can('fichiers.voir') %}{{ _self.nav_link('admin_files_index', 'admin_files', 'fa-folder-tree', 'Fichiers') }}{% endif %}
-                        {% if can('mail.voir') %}{{ _self.nav_link('admin_mail_settings', 'admin_mail', 'fa-envelope-circle-check', 'Paramètres e-mail') }}{% endif %}
-                        {% if can('categorie.voir') %}{{ _self.nav_link('admin_categorie_index', 'admin_categorie', 'fa-tags', 'Catégories encadrement') }}{% endif %}
+                        {% if can('mail.voir,categorie.voir,helloasso.voir') %}{{ _self.nav_link('admin_configuration_hub', ['admin_configuration_hub', 'admin_mail_settings', 'admin_categorie_index', 'admin_helloasso_settings'], 'fa-gears', 'Configuration') }}{% endif %}
                         {% if can('boutique_maintenance.voir') %}{{ _self.nav_link('admin_boutique_maintenance', 'admin_boutique_maintenance', 'fa-shop-slash', 'Maintenance boutique') }}{% endif %}
-                        {% if can('deploiement.voir') %}{{ _self.nav_link('admin_deploy_index', 'admin_deploy', 'fa-rocket', 'Déploiement') }}{% endif %}
-                        {% if can('journal.voir') %}{{ _self.nav_link('admin_journal_index', 'admin_journal', 'fa-scroll', "Journal d'activité") }}{% endif %}
-                        {% if can('changelog.voir') %}{{ _self.nav_link('admin_changelog_index', 'admin_changelog', 'fa-clock-rotate-left', 'Changelog') }}{% endif %}
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if is_granted('ROLE_DEV') %}
+                <div data-controller="nav-section" data-nav-section-id-value="developpeur">
+                    {{ _self.nav_section_label('Développeur') }}
+                    <div class="space-y-1" data-nav-section-target="links">
+                        {{ _self.nav_link('admin_deploy_index', 'admin_deploy', 'fa-rocket', 'Déploiement') }}
+                        {{ _self.nav_link('admin_journal_index', 'admin_journal', 'fa-scroll', "Journal d'activité") }}
+                        {{ _self.nav_link('admin_changelog_index', 'admin_changelog', 'fa-clock-rotate-left', 'Changelog', false, changelog_non_lu(), false, 'nouvelle version') }}
                     </div>
                 </div>
                 {% endif %}

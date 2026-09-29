@@ -245,14 +245,19 @@ class FootClubImportParser
         foreach ($groupedRows as $key => $groupRows) {
             $first = $groupRows[0];
 
-            // 1) La famille est-elle déjà connue via un licencié déjà importé (numéro personne) ?
-            $existingFamille = null;
+            // 1) La famille est-elle déjà connue via un licencié déjà importé (numéro personne) ? On
+            // recense TOUS les matches (et pas seulement le premier) pour pouvoir détecter un conflit
+            // (des licenciés du même groupe rattachés jusqu'ici à des familles différentes en base).
+            $matchedExistingFamilles = [];
             foreach ($groupRows as $r) {
                 if ($r->numeroPersonne && isset($existingLicenciesByNumero[$r->numeroPersonne])) {
-                    $existingFamille = $existingLicenciesByNumero[$r->numeroPersonne]->getFamille();
-                    break;
+                    $famille = $existingLicenciesByNumero[$r->numeroPersonne]->getFamille();
+                    if ($famille) {
+                        $matchedExistingFamilles[$famille->getId()] = $famille;
+                    }
                 }
             }
+            $existingFamille = $matchedExistingFamilles ? reset($matchedExistingFamilles) : null;
 
             // 2) Sinon, on tente le rapprochement par nom + adresse normalisés.
             if (!$existingFamille) {
@@ -275,12 +280,40 @@ class FootClubImportParser
                 ++$summary['famillesNouvelles'];
             }
 
-            [$nomFamille, ] = $first->aReprLegal1()
+            [$nomFamille, $prenomReferent] = $first->aReprLegal1()
                 ? self::splitNomPrenom($first->reprLegal1NomPrenom)
                 : [$first->nom, $first->prenom];
 
+            $groupAdresse    = $first->aReprLegal1() ? $first->reprLegal1VoieRue : $first->voieRue;
+            $groupCodePostal = $first->aReprLegal1() ? $first->reprLegal1CodePostal : $first->codePostal;
+
+            // Vérification de véracité du regroupement : plusieurs familles existantes différentes
+            // matchées dans un même groupe (conflit certain), ou une adresse qui ne correspond plus à
+            // celle déjà enregistrée pour la famille existante matchée (à vérifier avant de confirmer).
+            $verification = null;
+            if (count($matchedExistingFamilles) > 1) {
+                $verification = [
+                    'level'   => 'conflict',
+                    'message' => sprintf(
+                        "Ces licenciés étaient jusqu'ici rattachés à %d familles différentes en base : vérifiez le regroupement avant de confirmer.",
+                        count($matchedExistingFamilles)
+                    ),
+                ];
+            } elseif ($existingFamille && isset($matchedExistingFamilles[$existingFamille->getId()])) {
+                $matchedAdresse = self::normalize((string) $existingFamille->getAdresse());
+                $matchedCp      = self::normalize((string) $existingFamille->getCodePostal());
+                $newAdresse     = self::normalize((string) $groupAdresse);
+                $newCp          = self::normalize((string) $groupCodePostal);
+                if ('' !== $matchedAdresse && '' !== $newAdresse && ($matchedAdresse !== $newAdresse || $matchedCp !== $newCp)) {
+                    $verification = [
+                        'level'   => 'risk',
+                        'message' => "L'adresse du fichier diffère de celle déjà enregistrée pour cette famille : vérifiez qu'il s'agit bien de la même famille.",
+                    ];
+                }
+            }
+
             $licenciesData = [];
-            foreach ($groupRows as $row) {
+            foreach ($groupRows as $index => $row) {
                 $existingLicencie = $row->numeroPersonne ? ($existingLicenciesByNumero[$row->numeroPersonne] ?? null) : null;
                 if ($existingLicencie) {
                     ++$summary['licenciesMisAJour'];
@@ -288,9 +321,14 @@ class FootClubImportParser
                     ++$summary['licenciesNouveaux'];
                 }
 
+                [$rowNomFamille, $rowPrenomReferent] = $row->aReprLegal1()
+                    ? self::splitNomPrenom($row->reprLegal1NomPrenom)
+                    : [$row->nom, $row->prenom];
+
                 $licenciesData[] = [
                     'status'             => $existingLicencie ? 'update' : 'new',
                     'existingLicencieId' => $existingLicencie?->getId(),
+                    'rowToken'           => $row->numeroPersonne ?: md5($key.'#'.$index.'#'.$row->nom.'#'.$row->prenom),
                     'numeroPersonne'     => $row->numeroPersonne,
                     'numeroLicence'      => $row->numeroLicence,
                     'nom'                => $row->nom,
@@ -304,6 +342,18 @@ class FootClubImportParser
                     'codeCategorie'      => $row->codeCategorie,
                     'telephone'          => $row->telephonePrefere(),
                     'emailIndividuel'    => $row->emailPrincipal,
+                    // Ce que cette ligne porterait comme famille si elle était détachée de son groupe
+                    // (cf. FootClubImportParser::applyDetachments), utilisé par l'aperçu d'import.
+                    'ownFamilleCandidate' => [
+                        'nom'            => $rowNomFamille ?: ($row->nom ?: 'Famille'),
+                        'prenomReferent' => $rowPrenomReferent,
+                        'civilite'       => $row->aReprLegal1() ? null : $row->civilite,
+                        'adresse'        => $row->aReprLegal1() ? $row->reprLegal1VoieRue : $row->voieRue,
+                        'codePostal'     => $row->aReprLegal1() ? $row->reprLegal1CodePostal : $row->codePostal,
+                        'ville'          => $row->aReprLegal1() ? $row->reprLegal1BureauDistrib : $row->bureauDistributeur,
+                        'telephone'      => $row->aReprLegal1() ? $row->telephoneReprLegal1() : $row->telephonePrefere(),
+                        'email'          => $row->aReprLegal1() ? $row->reprLegal1Email : $row->emailPrincipal,
+                    ],
                 ];
             }
 
@@ -312,20 +362,87 @@ class FootClubImportParser
                 'status'              => $existingFamille ? 'existing' : 'new',
                 'existingFamilleId'   => $existingFamille?->getId(),
                 'nom'                 => $nomFamille ?: ($first->nom ?? 'Famille'),
+                'prenomReferent'      => $prenomReferent,
                 'civilite'            => $first->aReprLegal1() ? null : $first->civilite,
-                'adresse'             => $first->aReprLegal1() ? $first->reprLegal1VoieRue : $first->voieRue,
-                'codePostal'          => $first->aReprLegal1() ? $first->reprLegal1CodePostal : $first->codePostal,
+                'adresse'             => $groupAdresse,
+                'codePostal'          => $groupCodePostal,
                 'ville'               => $first->aReprLegal1() ? $first->reprLegal1BureauDistrib : $first->bureauDistributeur,
                 'telephone'           => $first->aReprLegal1() ? $first->telephoneReprLegal1() : $first->telephonePrefere(),
                 'email'               => $first->aReprLegal1() ? $first->reprLegal1Email : $first->emailPrincipal,
                 'nomReprLegal2'       => $first->reprLegal2NomPrenom,
                 'telephoneReprLegal2' => $first->telephoneReprLegal2(),
                 'emailReprLegal2'     => $first->reprLegal2Email,
+                'verification'        => $verification,
                 'licencies'           => $licenciesData,
             ];
         }
 
         return ['groups' => $groups, 'summary' => $summary];
+    }
+
+    /**
+     * Applique les détachements demandés par l'admin depuis l'aperçu d'import (case "Retirer de
+     * cette famille" sur un licencié) : chaque ligne détachée quitte son groupe d'origine pour
+     * former sa propre famille (à partir de ownFamilleCandidate). Si un groupe se retrouve sans
+     * aucune ligne restante, il est simplement omis du résultat : aucune famille vide n'est jamais
+     * créée par l'import.
+     *
+     * @param array{groups: array<int, array>, summary: array} $preview
+     * @param list<string>                                     $detachTokens
+     *
+     * @return array{groups: array<int, array>, summary: array}
+     */
+    public function applyDetachments(array $preview, array $detachTokens): array
+    {
+        if ([] === $detachTokens) {
+            return $preview;
+        }
+
+        $detachSet = array_flip($detachTokens);
+        $newGroups = [];
+
+        foreach ($preview['groups'] as $group) {
+            $kept = [];
+            foreach ($group['licencies'] as $row) {
+                if (isset($detachSet[$row['rowToken']])) {
+                    $candidate   = $row['ownFamilleCandidate'];
+                    $newGroups[] = [
+                        'key'                 => 'detach-'.$row['rowToken'],
+                        'status'              => 'new',
+                        'existingFamilleId'   => null,
+                        'nom'                 => $candidate['nom'],
+                        'prenomReferent'      => $candidate['prenomReferent'],
+                        'civilite'            => $candidate['civilite'],
+                        'adresse'             => $candidate['adresse'],
+                        'codePostal'          => $candidate['codePostal'],
+                        'ville'               => $candidate['ville'],
+                        'telephone'           => $candidate['telephone'],
+                        'email'               => $candidate['email'],
+                        'nomReprLegal2'       => null,
+                        'telephoneReprLegal2' => null,
+                        'emailReprLegal2'     => null,
+                        'verification'        => null,
+                        'licencies'           => [$row],
+                    ];
+                } else {
+                    $kept[] = $row;
+                }
+            }
+            if ([] !== $kept) {
+                $group['licencies'] = $kept;
+                $newGroups[]        = $group;
+            }
+        }
+
+        $summary = ['famillesNouvelles' => 0, 'famillesExistantes' => 0, 'licenciesNouveaux' => 0, 'licenciesMisAJour' => 0];
+        foreach ($newGroups as $group) {
+            ++$summary['new' === $group['status'] ? 'famillesNouvelles' : 'famillesExistantes'];
+            foreach ($group['licencies'] as $row) {
+                ++$summary['new' === $row['status'] ? 'licenciesNouveaux' : 'licenciesMisAJour'];
+            }
+        }
+
+        return ['groups' => $newGroups, 'summary' => $summary];
     }
 
     private static function splitNomPrenom(?string $nomPrenom): array
@@ -342,8 +459,17 @@ class FootClubImportParser
         }
 
         if (!$nomWords) {
-            // Rien n'est en majuscules : on considère tout comme le nom.
-            return [$nomPrenom, null];
+            // Rien n'est en majuscules (fichier saisi tout en minuscules) : on ne peut plus se fier à
+            // la casse pour distinguer nom et prénom. On retombe sur la convention "NOM Prénom" : le
+            // dernier mot est le prénom, le reste le nom. Imparfait sur les noms composés, mais
+            // préférable à perdre le prénom (utile à l'affichage "(Prénom) NOM") ; l'admin peut
+            // corriger via le champ "Prénom du parent référent" de la fiche famille.
+            if (count($words) < 2) {
+                return [$nomPrenom, null];
+            }
+            $prenom = array_pop($words);
+
+            return [implode(' ', $words), $prenom];
         }
 
         return [implode(' ', $nomWords), $words ? implode(' ', $words) : null];

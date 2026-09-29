@@ -18,6 +18,10 @@ final class RoutePermissions
     private const FREE = [
         'admin', 'admin_notification_index', 'admin_notification_read', 'admin_notification_dismiss',
         'admin_table_preferences', 'admin_parametres_profil', 'admin_parametres_apparence', 'admin_parametres_preferences',
+        'admin_parametres_securite', 'admin_parametres_securite_totp_generer', 'admin_parametres_securite_totp_confirmer',
+        'admin_parametres_securite_totp_annuler', 'admin_parametres_securite_totp_desactiver',
+        'admin_parametres_securite_email_activer', 'admin_parametres_securite_email_desactiver',
+        'admin_parametres_securite_backup_codes_generer',
     ];
 
     /** Routes déjà réservées aux développeurs par leur contrôleur. */
@@ -33,6 +37,7 @@ final class RoutePermissions
         'admin_planning'        => 'planning',
         'admin_article'         => 'article',
         'admin_boutique_categorie' => 'article',
+        'admin_code_promo'      => 'code_promo',
         'admin_partenaire'      => 'partenaire',
         'admin_rejoindre_card'  => 'rejoindre_card',
         'admin_offre_emploi'    => 'offre_emploi',
@@ -50,12 +55,14 @@ final class RoutePermissions
         'admin_site_vitrine'  => 'partenaire.voir,rejoindre_card.voir,offre_emploi.voir,slide_carousel.voir,page_contenu.voir,membre.voir,reglages.voir',
         'admin_import_hub'    => 'import.voir',
         'admin_acces_hub'     => 'utilisateur.voir,autorisation.voir',
+        'admin_configuration_hub' => 'mail.voir,helloasso.voir,categorie.voir',
         'admin_content_image_upload' => 'page_contenu.modifier,page_contenu.creer,article.modifier,article.creer,offre_emploi.modifier,offre_emploi.creer,membre.modifier,membre.creer,rejoindre_card.modifier,rejoindre_card.creer',
     ];
 
     /** Exceptions à la convention. */
     private const EXPLICIT = [
         'admin_licencie_resend'        => 'licencie.renvoyer_acces',
+        'admin_licencie_correction_import' => 'licencie.corriger_import',
         'admin_mail_test'              => 'mail.tester',
         'admin_user_resend_activation' => 'utilisateur.modifier',
         'admin_adhesion_suivi'         => 'adhesion.suivi',
@@ -130,6 +137,9 @@ final class RoutePermissions
         }
         if ('admin_mail_settings' === $route) {
             return 'GET' === $method || 'HEAD' === $method ? 'mail.voir' : 'mail.modifier';
+        }
+        if ('admin_helloasso_settings' === $route) {
+            return 'GET' === $method || 'HEAD' === $method ? 'helloasso.voir' : 'helloasso.modifier';
         }
         if (str_starts_with($route, 'admin_reglages_')) {
             return 'GET' === $method || 'HEAD' === $method ? 'reglages.voir' : 'reglages.modifier';

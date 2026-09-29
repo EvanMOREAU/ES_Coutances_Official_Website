@@ -38,6 +38,12 @@ security:
             logout:
                 path: app_logout
                 target: app_login
+            two_factor:
+                auth_form_path: 2fa_login
+                check_path: 2fa_login_check
+                prepare_on_login: true
+                prepare_on_access_denied: true
+                enable_csrf: true
 
         main:
             context: app_user_context
@@ -56,6 +62,8 @@ security:
 
     access_control:
         - { path: ^/admin/login, roles: PUBLIC_ACCESS }
+        - { path: ^/admin/(2fa$|2fa_check$|2fa/resend-email$), roles: IS_AUTHENTICATED_2FA_IN_PROGRESS }
         - { path: ^/admin, roles: ROLE_EDITOR }
         - { path: ^/mon-compte/connexion, roles: PUBLIC_ACCESS }
+        - { path: ^/mon-compte/inscription, roles: PUBLIC_ACCESS }
         - { path: ^/mon-compte, roles: ROLE_USER }

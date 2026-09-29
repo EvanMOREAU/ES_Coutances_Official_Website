@@ -82,6 +82,9 @@ class FootClubImportApplier
                     $famille->setCodePostal($famille->getCodePostal() ?? ($group['codePostal'] ?: null));
                     $famille->setVille($famille->getVille() ?? ($group['ville'] ?: null));
                     $famille->setTelephone($famille->getTelephone() ?? ($group['telephone'] ?: null));
+                    if ($famille->getUser() && !$famille->getUser()->getPrenom() && !empty($group['prenomReferent'])) {
+                        $famille->getUser()->setPrenom($group['prenomReferent']);
+                    }
                     $famille->setNomReprLegal2($group['nomReprLegal2'] ?: $famille->getNomReprLegal2());
                     $famille->setTelephoneReprLegal2($group['telephoneReprLegal2'] ?: $famille->getTelephoneReprLegal2());
                     $famille->setEmailReprLegal2($group['emailReprLegal2'] ?: $famille->getEmailReprLegal2());
@@ -94,6 +97,7 @@ class FootClubImportApplier
                     $familleUser = new User();
                     $familleUser->setEmail($email);
                     $familleUser->setNom($group['nom'] ?: 'Famille');
+                    $familleUser->setPrenom($group['prenomReferent'] ?: null);
                     $familleUser->setRoles(['ROLE_FAMILLE']);
                     $familleUser->setPassword($placeholderPassword);
                     $this->em->persist($familleUser);

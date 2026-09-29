@@ -39,6 +39,10 @@
                         {% endfor %}
                     </tbody>
                     <tfoot>
+                        {% if commande.reductionCentimes > 0 %}
+                            <tr><td colspan="3">Sous-total</td><td class="num">{{ commande.sousTotalCentimes|money }}</td></tr>
+                            <tr><td colspan="3">Réduction{% if commande.codePromoCode %} (code {{ commande.codePromoCode }}){% endif %}</td><td class="num">− {{ commande.reductionCentimes|money }}</td></tr>
+                        {% endif %}
                         <tr><td colspan="3">Total à régler</td><td class="num">{{ commande.totalCentimes|money }}</td></tr>
                     </tfoot>
                 </table>
@@ -49,6 +53,18 @@
                     </div>
                 {% endif %}
             </section>
+
+            {% if commande.livraisonDemandee %}
+                <section class="admin-card rounded-2xl p-6">
+                    <h2 class="font-semibold mb-4"><i class="fa-solid fa-truck"></i> Bon de livraison</h2>
+                    <dl class="cmd-dl">
+                        <dt>Adresse</dt><dd>{{ commande.livraisonAdresse }}{% if commande.livraisonComplement %}<br>{{ commande.livraisonComplement }}{% endif %}</dd>
+                        <dt>Code postal / Ville</dt><dd>{{ commande.livraisonCodePostal }} {{ commande.livraisonVille }}</dd>
+                        {% if commande.livraisonTelephone %}<dt>Téléphone</dt><dd>{{ commande.livraisonTelephone }}</dd>{% endif %}
+                        {% if commande.livraisonInstructions %}<dt>Instructions</dt><dd>{{ commande.livraisonInstructions|nl2br }}</dd>{% endif %}
+                    </dl>
+                </section>
+            {% endif %}
         </div>
 
         <div class="space-y-6">

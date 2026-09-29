@@ -7,6 +7,46 @@
 #   version : numéro (ex. 1.2.0)      date : AAAA-MM-JJ      titre : résumé court (facultatif)
 #   added / improved / fixed / removed : listes de phrases (Ajouté / Amélioré / Corrigé / Retiré)
 
+- version: "1.0.5"
+  date: "2026-09-29"
+  titre: "Codes promo, paiement HelloAsso, comptes boutique et double authentification"
+  added:
+    - "Codes de réduction pour la boutique (pourcentage ou montant fixe), avec activation, période de validité et quota d'utilisation, gérés depuis Configuration > Codes de réduction."
+    - "Codes « bon de livraison » : un code peut, en plus (ou à la place) d'une réduction, autoriser la livraison — une étape dédiée demande alors l'adresse avant de valider la commande, au lieu du simple retrait au club."
+    - "Commande boutique : le total se met à jour en direct dès la saisie d'un code de réduction, avant même de valider le formulaire."
+    - "Paiement en ligne par carte via HelloAsso : redirection vers HelloAsso pour régler le montant exact de la commande, avec vérification du paiement auprès de HelloAsso au retour avant de l'enregistrer."
+    - "Configuration (rubrique Développeur) : nouvelle page regroupant les paramètres techniques du site — e-mail, HelloAsso et catégories d'encadrement — avec une carte par réglage."
+    - "N'importe qui peut créer librement un compte « boutique » (sans lien avec une famille, un licencié ou un compte du club) pour commander sur la boutique et retrouver l'historique de ses commandes."
+    - "Double authentification (2FA) activable depuis Paramètres > Sécurité : application d'authentification (Google Authenticator, Bitwarden, 1Password…) avec QR code, code de vérification par e-mail, et codes de secours à usage unique en cas de perte d'accès."
+    - "Écran de vérification en deux étapes à la connexion, avec choix de la méthode si plusieurs sont activées et lien pour utiliser un code de secours."
+    - "Menu de l'administration : nouvelle catégorie « Développeur », visible uniquement pour les comptes développeur."
+    - "Changelog : pastille « nouvelle version » dans le menu tant que la dernière version n'a pas été consultée."
+  improved:
+    - "Boutique : le paiement par carte doit désormais être finalisé en ligne (le règlement ne peut plus être reporté après validation de la commande)."
+    - "Menu de l'administration : Paramètres e-mail et Catégories d'encadrement regroupés avec HelloAsso dans la nouvelle page Configuration, à la place de liens séparés dans « Administration »."
+    - "Pages personnalisées du site vitrine (ex. « Nous rejoindre ») : un clic sur une image insérée dans le texte ouvre désormais un aperçu en grand sans quitter la page, au lieu de charger le fichier brut sans moyen simple de revenir en arrière."
+    - "Pages personnalisées du site vitrine : les images insérées dans le texte s'adaptent à la largeur de l'écran, y compris sur mobile."
+    - "Paramètres > Sécurité : mise en page alignée sur les autres onglets (espacements, plus de barre de défilement parasite)."
+  fixed:
+    - "Pages personnalisées du site vitrine : une image insérée dans le texte dont les proportions ne correspondaient pas à la largeur affichée apparaissait déformée (étirée ou écrasée)."
+  removed:
+    - "Déploiement, Journal d'activité et Changelog ne sont plus listés dans la catégorie « Administration » du menu (regroupés dans la nouvelle catégorie « Développeur »)."
+
+- version: "1.0.4"
+  date: "2026-09-28"
+  titre: "Import fiabilisé et tableau de bord personnalisable"
+  added:
+    - "Import Foot Club : l'aperçu avant confirmation signale les regroupements de familles à risque (adresse différente de celle déjà enregistrée, licenciés jusqu'ici rattachés à des familles différentes) et permet de retirer un licencié d'une famille avant de confirmer ; aucune famille sans licencié ne peut plus être créée par l'import."
+    - "Import Foot Club : correction après coup depuis le menu « … » d'un licencié (« Correction d'import ») pour le rattacher à la bonne famille ; l'ancienne famille est supprimée automatiquement si elle se retrouve sans aucun licencié."
+    - "Familles : le prénom du parent référent s'affiche entre parenthèses devant le nom de famille, pour distinguer deux familles homonymes."
+    - "Familles : indicateur (liste des familles + cloche de notifications) quand une famille n'a pas d'adresse e-mail exploitable."
+    - "Liste des familles : nouvel onglet « Non conforme » regroupant les familles ayant un problème à corriger (ex. e-mail invalide)."
+    - "Tableau de bord : personnalisation par modules — chaque utilisateur choisit les blocs affichés parmi ceux que ses autorisations permettent de voir, mémorisé automatiquement."
+    - "Tableau de bord : nouveaux graphiques d'évolution du nombre de licenciés actifs et des ventes de la boutique."
+  improved:
+    - "Familles : le nom de famille et la ville sont désormais toujours enregistrés en majuscules, que ce soit à l'import ou à la saisie manuelle (les données déjà en base ont été mises à jour)."
+    - "Tableau de bord : les blocs « Dernières familles / derniers licenciés / dernières équipes / dernières saisons » dépendent désormais des autorisations de l'utilisateur plutôt que du rôle administrateur."
+
 - version: "1.0.3"
   date: "2026-09-28"
   titre: "Réorganisation par glisser-déposer et menu repliable"

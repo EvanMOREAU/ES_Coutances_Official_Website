@@ -1,0 +1,12 @@
+{% extends 'admin/_layout.html.twig' %}
+
+{% block title %}Configuration{% endblock %}
+
+{% block body %}
+    <div class="mb-6">
+        <h1 class="text-2xl font-black" style="font-family:'Barlow Condensed',sans-serif;">Configuration</h1>
+        <p class="text-sm text-admin-text-muted">Réglages techniques du site : serveur d'envoi des e-mails, paiement en ligne… Cliquez sur une carte pour la gérer.</p>
+    </div>
+
+    {{ include('admin/_hub.html.twig', {groups: {'Technique': 'Réglages techniques'}, advice: [], hide_advice: true}) }}
+{% endblock %}

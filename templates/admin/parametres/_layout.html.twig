@@ -1,5 +1,5 @@
 {% extends 'admin/_layout.html.twig' %}
-{% form_theme form 'admin/_form_theme.html.twig' %}
+{% if form is defined %}{% form_theme form 'admin/_form_theme.html.twig' %}{% endif %}
 
 {% block title %}Paramètres{% endblock %}
 
@@ -9,16 +9,17 @@
 
     {% set tabs = [
         { id: 'profil', label: 'Profil', desc: 'Informations personnelles', icon: 'fa-user', route: 'admin_parametres_profil' },
+        { id: 'securite', label: 'Sécurité', desc: 'Authentification à deux facteurs', icon: 'fa-shield-halved', route: 'admin_parametres_securite' },
         { id: 'preferences', label: 'Préférences', desc: 'Notifications et alertes', icon: 'fa-bell', route: 'admin_parametres_preferences' },
         { id: 'apparence', label: 'Apparence', desc: 'Thème et affichage', icon: 'fa-palette', route: 'admin_parametres_apparence' },
     ] %}
 
     <div class="grid gap-6 lg:grid-cols-[15rem_minmax(0,1fr)] items-start">
-        <nav class="flex lg:flex-col gap-2 overflow-x-auto">
+        <nav class="flex lg:flex-col gap-2 overflow-x-auto lg:overflow-visible">
             {% for tab in tabs %}
                 {% set active = active_tab == tab.id %}
                 <a href="{{ path(tab.route) }}"
-                   class="flex items-center gap-3 rounded-xl px-4 py-3 min-w-max {{ active ? 'admin-surface-active' : 'text-admin-text-muted admin-surface-hover' }}">
+                   class="flex items-center gap-3 rounded-xl px-4 py-3 min-w-max lg:min-w-0 {{ active ? 'admin-surface-active' : 'text-admin-text-muted admin-surface-hover' }}">
                     <i class="fa-solid {{ tab.icon }} w-4 text-center {{ active ? 'text-admin-primary-to' : '' }}"></i>
                     <span>
                         <span class="block text-sm font-semibold {{ active ? 'text-admin-primary-to' : '' }}">{{ tab.label }}</span>
@@ -28,7 +29,7 @@
             {% endfor %}
         </nav>
 
-        <div class="admin-card rounded-2xl p-6 sm:p-8 max-w-3xl">
+        <div class="admin-card rounded-2xl p-6 sm:p-8 max-w-3xl min-w-0">
             {% block tab_content %}{% endblock %}
         </div>
     </div>

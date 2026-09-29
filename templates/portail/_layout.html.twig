@@ -114,9 +114,13 @@
         </div>
         <nav class="entete-liens">
             <a class="lien-nav" href="{{ path('portail_index') }}">Mon espace</a>
-            <a class="lien-nav" href="{{ path('portail_planning') }}">Planning</a>
-            {% if portail_facturation() %}<a class="lien-nav" href="{{ path('portail_factures') }}">Factures</a><a class="lien-nav" href="{{ path('portail_commandes') }}">Commandes</a>{% endif %}
-            <a class="lien-nav" href="{{ path('portail_chat_index') }}">Messagerie{% set unread = chat_unread() %}<span class="pastille" data-chat-badge {{ unread == 0 ? 'hidden' }}>{{ unread }}</span></a>
+            {% if not portail_est_boutique() %}
+                <a class="lien-nav" href="{{ path('portail_planning') }}">Planning</a>
+                {% if portail_facturation() %}<a class="lien-nav" href="{{ path('portail_factures') }}">Factures</a>{% endif %}
+                <a class="lien-nav" href="{{ path('portail_chat_index') }}">Messagerie{% set unread = chat_unread() %}<span class="pastille" data-chat-badge {{ unread == 0 ? 'hidden' }}>{{ unread }}</span></a>
+            {% endif %}
+            {% if portail_commandes_visible() %}<a class="lien-nav" href="{{ path('portail_commandes') }}">Commandes</a>{% endif %}
+            <a class="lien-nav" href="{{ path('boutique_index') }}">Boutique</a>
             <a class="logout" href="{{ path('portail_logout') }}">Déconnexion</a>
         </nav>
     </header>

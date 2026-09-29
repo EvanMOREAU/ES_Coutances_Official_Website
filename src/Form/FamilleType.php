@@ -24,10 +24,18 @@ class FamilleType extends AbstractType
                 'help'     => 'Un compte est créé automatiquement à cette adresse : la famille reçoit un email pour définir son mot de passe.',
             ]);
         } else {
-            $builder->add('email', EmailType::class, [
-                'label'        => 'Email de référence de la famille (compte de connexion)',
-                'property_path' => 'user.email',
-            ]);
+            $builder
+                ->add('email', EmailType::class, [
+                    'label'        => 'Email de référence de la famille (compte de connexion)',
+                    'property_path' => 'user.email',
+                ])
+                ->add('prenomReferent', TextType::class, [
+                    'label'          => 'Prénom du parent référent',
+                    'required'       => false,
+                    'property_path'  => 'user.prenom',
+                    'help'           => "Affiché entre parenthèses devant le nom de famille pour distinguer deux familles homonymes.",
+                ])
+            ;
         }
 
         $builder

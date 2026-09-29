@@ -122,7 +122,7 @@ class LicencieController extends AbstractController
     {
         if ($this->isCsrfTokenValid('resend-licencie-'.$licencie->getId(), (string) $request->request->get('_token'))) {
             $user = $licencie->getUser();
-            if (str_ends_with((string) $user?->getEmail(), '@import.local')) {
+            if (!$licencie->hasEmailValide()) {
                 $this->addFlash('error', sprintf('%s n\'a pas d\'adresse e-mail réelle (adresse provisoire d\'import). Renseignez-la dans la fiche, puis renvoyez l\'accès.', $licencie));
             } else {
                 $this->flashAccess($user, null, $licencie);
@@ -130,6 +130,44 @@ class LicencieController extends AbstractController
         }
 
         return $this->redirectToRoute('admin_licencie_index');
+    }
+
+    /**
+     * Correction d'un rattachement erroné (issu d'un import ou non) : déplace le licencié vers une
+     * autre famille déjà existante. Si son ancienne famille se retrouve sans aucun licencié, elle
+     * est supprimée avec son compte (même règle que pour le licencié autonome, cf. delete() ci-dessous).
+     */
+    #[Route('/{id}/correction-import', name: 'admin_licencie_correction_import', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
+    public function correctionImport(Request $request, Licencie $licencie, \App\Repository\FamilleRepository $familles): Response
+    {
+        if ($request->isMethod('POST')) {
+            if ($this->isCsrfTokenValid('correction-import-'.$licencie->getId(), (string) $request->request->get('_token'))) {
+                $nouvelleFamille = $familles->find($request->request->get('famille'));
+                if (!$nouvelleFamille) {
+                    $this->addFlash('error', 'Choisissez une famille.');
+                } elseif ($nouvelleFamille === $licencie->getFamille()) {
+                    $this->addFlash('error', 'Ce licencié est déjà rattaché à cette famille.');
+                } else {
+                    $ancienneFamille = $licencie->getFamille();
+                    $licencie->setFamille($nouvelleFamille);
+                    $this->em->flush();
+
+                    if ($ancienneFamille && $ancienneFamille->getLicencies()->isEmpty()) {
+                        $this->em->remove($ancienneFamille);
+                        $this->em->flush();
+                    }
+
+                    $this->addFlash('success', sprintf('%s a été rattaché à la famille %s.', $licencie, $nouvelleFamille->getNomAffiche()));
+                }
+            }
+
+            return $this->redirectToRoute('admin_licencie_correction_import', ['id' => $licencie->getId()]);
+        }
+
+        return $this->render('admin/licencie/correction_import.html.twig', [
+            'licencie' => $licencie,
+            'familles' => $familles->findBy([], ['nom' => 'ASC']),
+        ]);
     }
 
     #[Route('/{id}/supprimer', name: 'admin_licencie_delete', requirements: ['id' => '\d+'], methods: ['POST'])]

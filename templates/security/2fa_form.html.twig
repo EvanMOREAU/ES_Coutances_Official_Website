@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="fr" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/png" href="{{ asset('images/favicon.png') }}">
+    <title>Vérification en deux étapes — ES Coutances Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="{{ asset('styles/admin.css') }}">
+    <style>body { font-family: 'Inter', sans-serif; }</style>
+    {{ importmap('admin') }}
+</head>
+<body class="admin-shell h-full bg-admin-bg text-admin-text flex items-center justify-center p-4">
+    <div class="w-full max-w-md">
+        <div class="admin-hero relative overflow-hidden rounded-2xl p-8 mb-6 text-center">
+            <div class="admin-hero-glow"></div>
+            <div class="relative">
+                <i class="fa-solid fa-shield-halved text-3xl text-white mb-3"></i>
+                <h1 class="text-xl font-black text-white uppercase tracking-wide" style="font-family:'Barlow Condensed',sans-serif;">Vérification en deux étapes</h1>
+            </div>
+        </div>
+
+        <div class="admin-card rounded-2xl p-8 text-center">
+            {% for message in app.flashes('success') %}
+                <div class="mb-4 rounded-lg border border-admin-success/30 bg-admin-success/10 text-admin-success px-4 py-3 text-sm">{{ message }}</div>
+            {% endfor %}
+            {% if authenticationError %}
+                <div class="mb-4 rounded-lg border border-admin-danger/30 bg-admin-danger/10 text-admin-danger px-4 py-3 text-sm text-left">
+                    {{ authenticationError|trans(authenticationErrorData, 'SchebTwoFactorBundle') }}
+                </div>
+            {% endif %}
+
+            <p class="text-xs font-semibold uppercase tracking-widest text-admin-text-muted mb-1">Verification Code</p>
+            <p class="text-sm text-admin-text-muted mb-6">
+                {% if twoFactorProvider == 'totp' %}
+                    Saisissez le code affiché dans votre application d'authentification.
+                {% elseif twoFactorProvider == 'email' %}
+                    Saisissez le code que nous venons de vous envoyer par e-mail.
+                {% else %}
+                    Saisissez votre code de vérification.
+                {% endif %}
+            </p>
+
+            <form method="post" action="{{ checkPathUrl ? checkPathUrl : path(checkPathRoute) }}" data-controller="otp-input">
+                <div data-otp-input-target="boxes" class="flex items-center justify-center gap-2 mb-6">
+                    {% for i in 0..5 %}
+                        {% if i == 3 %}<span class="text-xl text-admin-text-muted px-1">—</span>{% endif %}
+                        <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" autocomplete="{{ i == 0 ? 'one-time-code' : 'off' }}"
+                               data-otp-input-target="box" data-index="{{ i }}"
+                               data-action="input->otp-input#input keydown->otp-input#keydown paste->otp-input#paste"
+                               class="w-11 h-13 text-center text-lg font-semibold rounded-lg border border-admin-border bg-admin-bg text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-primary-to">
+                    {% endfor %}
+                </div>
+
+                <div data-otp-input-target="backup" class="hidden mb-6">
+                    <input type="text" autocomplete="off" placeholder="Code de secours"
+                           data-action="input->otp-input#backupInput"
+                           class="w-full rounded-lg border border-admin-border bg-admin-bg px-3 py-2 text-center text-sm tracking-widest text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-primary-to">
+                </div>
+
+                <input type="hidden" name="{{ authCodeParameterName }}" data-otp-input-target="hidden">
+                {% if isCsrfProtectionEnabled %}
+                    <input type="hidden" name="{{ csrfParameterName }}" value="{{ csrf_token(csrfTokenId) }}">
+                {% endif %}
+                {% if displayTrustedOption %}
+                    <label class="flex items-center gap-2 justify-center text-sm text-admin-text-muted mb-5">
+                        <input type="checkbox" name="{{ trustedParameterName }}"> Faire confiance à cet appareil
+                    </label>
+                {% endif %}
+
+                <button type="submit" class="w-full rounded-lg admin-gradient px-5 py-2.5 text-sm font-semibold text-white">
+                    Vérifier
+                </button>
+            </form>
+
+            {% if twoFactorProvider == 'email' %}
+                <form method="post" action="{{ path('2fa_resend_email') }}" class="mt-2">
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token('2fa_resend_email') }}">
+                    <button type="submit" class="text-xs text-admin-text-muted hover:text-white underline">Renvoyer le code</button>
+                </form>
+            {% endif %}
+
+            {% if availableTwoFactorProviders|length > 1 %}
+                <div class="mt-5 flex items-center justify-center gap-3 text-xs text-admin-text-muted">
+                    {% for provider in availableTwoFactorProviders %}
+                        {% if provider != twoFactorProvider %}
+                            <a href="{{ path('2fa_login', {preferProvider: provider}) }}" class="hover:text-white">
+                                {% if provider == 'totp' %}Utiliser l'application{% elseif provider == 'email' %}Recevoir un code par e-mail{% else %}{{ provider }}{% endif %}
+                            </a>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <a href="#" data-action="otp-input#toggleBackup" class="block text-center mt-5 text-xs text-admin-text-muted hover:text-white">Utiliser un code de secours</a>
+            <a href="{{ logoutPath }}" class="block text-center mt-3 text-sm text-admin-text-muted hover:text-white">Annuler et se déconnecter</a>
+        </div>
+    </div>
+</body>
+</html>

@@ -12,6 +12,7 @@
         key: 'famille',
         plural: 'familles',
         statuses: true,
+        status_tabs: {all: 'Tous', active: 'Actifs', draft: 'Brouillons', archived: 'Archivés', non_conforme: 'Non conforme'},
         search_placeholder: 'Rechercher une famille…',
         empty_message: 'Aucune famille ne correspond à votre recherche.',
         columns: [
@@ -39,12 +40,12 @@
                     {% endfor %}
                     {% set famille_delete = {name: famille.nom, licencies: items} %}
                 {% endif %}
-                <tr data-data-table-target="row" data-id="{{ famille.id }}" data-status="{{ famille.statut }}">
+                <tr data-data-table-target="row" data-id="{{ famille.id }}" data-status="{{ famille.statut }}" data-problem="{{ famille.hasEmailValide ? 0 : 1 }}">
                     {% if bulk %}<td class="dt-check-col"><input type="checkbox" data-row-check value="{{ famille.id }}" data-action="change->data-table#toggleRow" aria-label="Sélectionner {{ famille.nom }}"></td>{% endif %}
                     <td data-col="nom" data-sort="{{ famille.nom|lower }}" class="font-medium">
-                        <a href="{{ path('admin_famille_show', {id: famille.id}) }}" class="hover:underline">{{ famille.nom }}</a>
+                        <a href="{{ path('admin_famille_show', {id: famille.id}) }}" class="hover:underline">{{ famille.nomAffiche }}</a>
                     </td>
-                    <td data-col="compte" class="dt-muted">{{ famille.user }}</td>
+                    <td data-col="compte" class="dt-muted">{{ famille.user }}{% if not famille.hasEmailValide %} <span class="badge badge-danger ml-1">Email invalide</span>{% endif %}</td>
                     <td data-col="ville" class="dt-muted">{{ famille.ville ?? '—' }}</td>
                     <td data-col="licencies" data-sort="{{ famille.licencies|length }}">{{ famille.licencies|length }}</td>
                     <td data-col="statut"><span class="badge badge-{{ famille.statut }}">{{ famille.statutLabel }}</span></td>

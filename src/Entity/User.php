@@ -4,6 +4,11 @@ namespace App\Entity;
 
 use App\Repository\UserRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Scheb\TwoFactorBundle\Model\BackupCodeInterface;
+use Scheb\TwoFactorBundle\Model\Email\TwoFactorInterface as EmailTwoFactorInterface;
+use Scheb\TwoFactorBundle\Model\Totp\TotpConfiguration;
+use Scheb\TwoFactorBundle\Model\Totp\TotpConfigurationInterface;
+use Scheb\TwoFactorBundle\Model\Totp\TwoFactorInterface as TotpTwoFactorInterface;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
@@ -14,7 +19,7 @@ use Vich\UploaderBundle\Mapping\Attribute as Vich;
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
 #[UniqueEntity(fields: ['email'], message: 'Cet email est déjà utilisé.')]
-class User implements UserInterface, PasswordAuthenticatedUserInterface
+class User implements UserInterface, PasswordAuthenticatedUserInterface, TotpTwoFactorInterface, EmailTwoFactorInterface, BackupCodeInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -90,6 +95,33 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     #[ORM\Column(options: ['default' => false])]
     private bool $accesRestreint = false;
+
+    /** Secret TOTP (base32), présent seulement si l'authentification par application est activée. */
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $totpSecret = null;
+
+    /** Code de vérification envoyé par e-mail, en attente de saisie. */
+    #[ORM\Column(length: 20, nullable: true)]
+    private ?string $emailAuthCode = null;
+
+    /** Faux par défaut : l'authentification par e-mail n'est activée qu'après un choix explicite de l'utilisateur. */
+    #[ORM\Column(options: ['default' => false])]
+    private bool $emailAuthEnabled = false;
+
+    /** Codes de secours à usage unique (hachés), générés à la demande depuis les paramètres de sécurité. @var list<string> */
+    #[ORM\Column(type: 'json')]
+    private array $backupCodes = [];
+
+    /** Dernière version du changelog consultée par cet utilisateur (voir ChangelogController). */
+    #[ORM\Column(length: 20, nullable: true)]
+    private ?string $changelogVersionVue = null;
+
+    /**
+     * Identifiant opaque et stable utilisé comme « user handle » WebAuthn (voir WebauthnService),
+     * généré à la première clé d'accès enregistrée. Jamais réaffiché, sans lien visible avec l'email.
+     */
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $webauthnUserHandle = null;
 
     public function getProfil(): ?ProfilAutorisation { return $this->profil; }
     public function setProfil(?ProfilAutorisation $profil): static { $this->profil = $profil; return $this; }
@@ -193,6 +225,69 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function isStaff(): bool
     {
         return (bool) array_intersect($this->getRoles(), ['ROLE_EDITOR', 'ROLE_ADMIN', 'ROLE_DEV']);
+    }
+
+    // --- Authentification à deux facteurs : application (TOTP) ---
+
+    public function isTotpAuthenticationEnabled(): bool { return null !== $this->totpSecret; }
+
+    public function getTotpAuthenticationUsername(): ?string { return $this->email; }
+
+    public function getTotpAuthenticationConfiguration(): ?TotpConfigurationInterface
+    {
+        if (null === $this->totpSecret) {
+            return null;
+        }
+
+        return new TotpConfiguration($this->totpSecret, TotpConfiguration::ALGORITHM_SHA1, 30, 6);
+    }
+
+    public function getTotpSecret(): ?string { return $this->totpSecret; }
+    public function setTotpSecret(?string $totpSecret): static { $this->totpSecret = $totpSecret; return $this; }
+
+    // --- Authentification à deux facteurs : code par e-mail ---
+
+    public function isEmailAuthEnabled(): bool { return $this->emailAuthEnabled; }
+    public function setEmailAuthEnabled(bool $emailAuthEnabled): static { $this->emailAuthEnabled = $emailAuthEnabled; return $this; }
+
+    public function getEmailAuthRecipient(): string { return (string) $this->email; }
+
+    public function getEmailAuthCode(): ?string { return $this->emailAuthCode; }
+    public function setEmailAuthCode(string $authCode): void { $this->emailAuthCode = $authCode; }
+
+    // --- Authentification à deux facteurs : codes de secours ---
+
+    /** @return list<string> hachages des codes de secours restants */
+    public function getBackupCodes(): array { return $this->backupCodes; }
+    /** @param list<string> $hashedCodes */
+    public function setBackupCodes(array $hashedCodes): static { $this->backupCodes = array_values($hashedCodes); return $this; }
+
+    public function isBackupCode(string $code): bool
+    {
+        foreach ($this->backupCodes as $hashedCode) {
+            if (password_verify($code, $hashedCode)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function invalidateBackupCode(string $code): void
+    {
+        $this->backupCodes = array_values(array_filter(
+            $this->backupCodes,
+            static fn (string $hashedCode): bool => !password_verify($code, $hashedCode),
+        ));
+    }
+
+    public function getChangelogVersionVue(): ?string { return $this->changelogVersionVue; }
+    public function setChangelogVersionVue(?string $version): static { $this->changelogVersionVue = $version; return $this; }
+
+    /** Compte de l'équipe du club ayant activé au moins une méthode de double authentification. */
+    public function hasTwoFactorEnabled(): bool
+    {
+        return $this->isTotpAuthenticationEnabled() || $this->isEmailAuthEnabled();
     }
 
     public function eraseCredentials(): void {}

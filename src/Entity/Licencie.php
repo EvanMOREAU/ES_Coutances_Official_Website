@@ -400,6 +400,17 @@ class Licencie
         return $this;
     }
 
+    /** Faux si le compte du licencié n'a pas d'adresse email exploitable (invalide, ou provisoire d'import). */
+    public function hasEmailValide(): bool
+    {
+        $email = $this->user?->getEmail();
+        if (!$email || !filter_var($email, \FILTER_VALIDATE_EMAIL)) {
+            return false;
+        }
+
+        return !str_ends_with(strtolower($email), '@import.local');
+    }
+
     public function setActif(bool $actif): static
     {
         if ($actif) {

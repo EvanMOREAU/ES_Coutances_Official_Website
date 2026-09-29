@@ -1,0 +1,76 @@
+{% block body %}
+<!DOCTYPE html>
+<html lang="fr" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/png" href="{{ asset('images/favicon.png') }}">
+    <title>Créer un compte — ES Coutances</title>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="{{ asset('styles/admin.css') }}">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .f-group { margin-bottom: 20px; }
+        .f-group label { display: block; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; color: var(--color-admin-text-muted); margin-bottom: 6px; }
+        .f-group input { width: 100%; border-radius: 0.5rem; border: 1px solid var(--color-admin-border); background: var(--color-admin-bg); padding: 8px 12px; font-size: 14px; color: var(--color-admin-text); }
+        .f-group input:focus { outline: none; box-shadow: 0 0 0 2px var(--color-admin-primary-to); }
+        .f-group ul { list-style: none; color: var(--color-admin-danger); font-size: 13px; margin-top: 6px; }
+        .two { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        @media (max-width: 480px) { .two { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body class="admin-shell h-full bg-admin-bg text-admin-text flex items-center justify-center p-4">
+    <div class="w-full max-w-md">
+        <div class="admin-hero relative overflow-hidden rounded-2xl p-8 mb-6 text-center">
+            <div class="admin-hero-glow"></div>
+            <div class="relative">
+                <img src="https://raw.githubusercontent.com/CylaosICT/escoutances-images/refs/heads/main/logo_hd_trans3_gt.png" alt="ES Coutances" class="h-14 mx-auto mb-3">
+                <h1 class="text-xl font-black text-white uppercase tracking-wide" style="font-family:'Barlow Condensed',sans-serif;">Créer un compte</h1>
+            </div>
+        </div>
+
+        <div class="admin-card rounded-2xl p-8">
+            <p class="text-sm text-admin-text-muted mb-6">Un compte boutique vous permet de commander sur la boutique du club et de retrouver l'historique de vos commandes. Si vous êtes déjà une famille ou un licencié du club, utilisez plutôt l'accès qui vous a été communiqué.</p>
+
+            {{ form_start(form) }}
+            <div class="two">
+                <div class="f-group">
+                    {{ form_label(form.prenom) }}
+                    {{ form_widget(form.prenom) }}
+                    {{ form_errors(form.prenom) }}
+                </div>
+                <div class="f-group">
+                    {{ form_label(form.nom) }}
+                    {{ form_widget(form.nom) }}
+                    {{ form_errors(form.nom) }}
+                </div>
+            </div>
+            <div class="f-group">
+                {{ form_label(form.email) }}
+                {{ form_widget(form.email) }}
+                {{ form_errors(form.email) }}
+            </div>
+            <div class="f-group">
+                {{ form_label(form.plainPassword.first) }}
+                {{ form_widget(form.plainPassword.first) }}
+                {{ form_errors(form.plainPassword.first) }}
+            </div>
+            <div class="f-group">
+                {{ form_label(form.plainPassword.second) }}
+                {{ form_widget(form.plainPassword.second) }}
+                {{ form_errors(form.plainPassword.second) }}
+            </div>
+
+            <button type="submit" class="w-full rounded-lg admin-gradient px-5 py-2.5 text-sm font-semibold text-white">
+                Créer mon compte
+            </button>
+            {{ form_end(form) }}
+
+            <a href="{{ path('portail_login') }}" class="block text-center mt-5 text-sm text-admin-text-muted hover:text-white">J'ai déjà un compte</a>
+        </div>
+    </div>
+    {{ importmap('public') }}
+</body>
+</html>
+{% endblock %}

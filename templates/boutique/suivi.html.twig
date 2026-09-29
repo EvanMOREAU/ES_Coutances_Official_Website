@@ -69,6 +69,10 @@
       {% for ligne in commande.lignes %}
         <div class="order-line"><span>{{ ligne.quantite }} × {{ ligne.libelle }}</span><span>{{ ligne.totalCentimes|money }}</span></div>
       {% endfor %}
+      {% if commande.reductionCentimes > 0 %}
+        <div class="order-line"><span>Sous-total</span><span>{{ commande.sousTotalCentimes|money }}</span></div>
+        <div class="order-line"><span>Réduction{% if commande.codePromoCode %} (code {{ commande.codePromoCode }}){% endif %}</span><span>− {{ commande.reductionCentimes|money }}</span></div>
+      {% endif %}
       <div class="sum-row total"><span>Total</span><span class="price">{{ commande.totalCentimes|money }}</span></div>
     </div>
 
@@ -79,7 +83,11 @@
       <div class="sum-row"><span>Mode</span><span>{{ commande.modePaiementLabel }}</span></div>
       <div class="sum-row"><span>Client</span><span>{{ commande.nomComplet }}</span></div>
       <div class="sum-row"><span>E-mail</span><span style="overflow-wrap:anywhere; text-align:right;">{{ commande.email }}</span></div>
-      <p class="note" style="margin-top:14px;"><i class="fa-solid fa-store"></i> Retrait au club, sans livraison.</p>
+      {% if commande.livraisonDemandee %}
+        <p class="note" style="margin-top:14px;"><i class="fa-solid fa-truck"></i> Livraison à : {{ commande.livraisonAdresse }}{% if commande.livraisonComplement %}, {{ commande.livraisonComplement }}{% endif %}, {{ commande.livraisonCodePostal }} {{ commande.livraisonVille }}.</p>
+      {% else %}
+        <p class="note" style="margin-top:14px;"><i class="fa-solid fa-store"></i> Retrait au club, sans livraison.</p>
+      {% endif %}
       <p style="margin-top:18px;"><a class="btn btn-outline btn-block" href="{{ path('boutique_index') }}">Retour à la boutique</a></p>
     </aside>
   </div>
