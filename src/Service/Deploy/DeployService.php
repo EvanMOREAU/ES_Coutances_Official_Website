@@ -126,7 +126,7 @@ class DeployService
 
     private function spawn(Deployment $deployment): void
     {
-        $php = (new PhpExecutableFinder())->find(false) ?: 'php';
+        $php = $this->phpBinary();
         $arguments = sprintf('%s %s app:deploy %d --env=%s',
             escapeshellarg($php),
             escapeshellarg($this->projectDir.'/bin/console'),
@@ -150,7 +150,7 @@ class DeployService
      */
     public function run(Deployment $deployment): bool
     {
-        $php     = (new PhpExecutableFinder())->find(false) ?: 'php';
+        $php     = $this->phpBinary();
         $console = [$php, $this->projectDir.'/bin/console', '--no-interaction', '--env='.$this->kernelEnvironment];
         $isProd  = $this->kernelEnvironment === 'prod';
 
@@ -225,17 +225,46 @@ class DeployService
     {
         $configured = $_SERVER['COMPOSER_BIN'] ?? $_ENV['COMPOSER_BIN'] ?? null;
         $finder     = new ExecutableFinder();
-        $php        = (new PhpExecutableFinder())->find(false) ?: 'php';
 
         foreach (array_filter([$configured, 'composer', 'composer.phar']) as $candidate) {
             $path = is_file((string) $candidate) ? $candidate : $finder->find((string) $candidate);
             if ($path !== null) {
-                // Un .phar ou un script se lance avec le même PHP que le site.
-                return str_ends_with($path, '.phar') || !is_executable($path) ? [$php, $path] : [$path];
+                // Toujours lancé explicitement avec le PHP du site : un composer
+                // système (script avec shebang #!/usr/bin/env php) peut sinon
+                // s'exécuter avec une autre version de PHP que celle requise.
+                return [$this->phpBinary(), $path];
             }
         }
 
         throw new \RuntimeException("Composer est introuvable : définissez COMPOSER_BIN dans .env.local (chemin vers composer ou composer.phar).");
+    }
+
+    /**
+     * Binaire PHP à utiliser pour les sous-processus (console, composer).
+     *
+     * PhpExecutableFinder ne trouve pas de manière fiable le CLI depuis un
+     * processus PHP-FPM (le déploiement est lancé depuis une requête web) et
+     * retombe alors sur le simple `php` du PATH, qui peut être une version
+     * différente de celle qui fait tourner le site (ex. 8.2 vs 8.4 sur un
+     * serveur avec plusieurs PHP installés) : le sous-processus échoue alors
+     * silencieusement (sortie jetée par le `nohup ... > /dev/null`), et le
+     * déploiement reste bloqué sur « Démarrage » sans aucune erreur visible.
+     * On force donc explicitement la version majeure.mineure de PHP courante.
+     */
+    private function phpBinary(): string
+    {
+        $configured = $_SERVER['PHP_CLI_BIN'] ?? $_ENV['PHP_CLI_BIN'] ?? null;
+        if ($configured !== null && $configured !== '') {
+            return $configured;
+        }
+
+        $versioned = 'php'.PHP_MAJOR_VERSION.'.'.PHP_MINOR_VERSION;
+        $found     = (new ExecutableFinder())->find($versioned);
+        if ($found !== null) {
+            return $found;
+        }
+
+        return (new PhpExecutableFinder())->find(false) ?: 'php';
     }
 
     /**
