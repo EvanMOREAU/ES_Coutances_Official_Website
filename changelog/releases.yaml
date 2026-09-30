@@ -29,6 +29,7 @@
     - "Paramètres > Sécurité : mise en page alignée sur les autres onglets (espacements, plus de barre de défilement parasite)."
   fixed:
     - "Pages personnalisées du site vitrine : une image insérée dans le texte dont les proportions ne correspondaient pas à la largeur affichée apparaissait déformée (étirée ou écrasée)."
+    - "Création manuelle d'une famille : une erreur 500 se produisait si la date de naissance d'un licencié restait vide."
   removed:
     - "Déploiement, Journal d'activité et Changelog ne sont plus listés dans la catégorie « Administration » du menu (regroupés dans la nouvelle catégorie « Développeur »)."
 
