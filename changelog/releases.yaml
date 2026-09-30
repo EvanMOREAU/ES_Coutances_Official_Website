@@ -7,6 +7,15 @@
 #   version : numéro (ex. 1.2.0)      date : AAAA-MM-JJ      titre : résumé court (facultatif)
 #   added / improved / fixed / removed : listes de phrases (Ajouté / Amélioré / Corrigé / Retiré)
 
+- version: "1.0.6"
+  date: "2026-09-30"
+  titre: "Correctifs : création de famille et outil de déploiement"
+  fixed:
+    - "Création manuelle d'une famille : une erreur 500 se produisait si la date de naissance, l'email, le nom, le prénom ou la saison d'un licencié restait vide au lieu d'afficher une erreur de formulaire."
+    - "Déploiement (rubrique Développeur) : le bouton restait bloqué indéfiniment sur « Démarrage » sans aucune erreur visible (le processus lancé en arrière-plan utilisait une version de PHP incompatible avec le site)."
+    - "Déploiement : l'installation des dépendances (Composer) pouvait échouer pour la même raison de version de PHP."
+    - "Déploiement : le paquet de compilation Tailwind était classé par erreur comme dépendance de développement, absente d'une installation de production."
+
 - version: "1.0.5"
   date: "2026-09-29"
   titre: "Codes promo, paiement HelloAsso, comptes boutique et double authentification"
@@ -29,7 +38,6 @@
     - "Paramètres > Sécurité : mise en page alignée sur les autres onglets (espacements, plus de barre de défilement parasite)."
   fixed:
     - "Pages personnalisées du site vitrine : une image insérée dans le texte dont les proportions ne correspondaient pas à la largeur affichée apparaissait déformée (étirée ou écrasée)."
-    - "Création manuelle d'une famille : une erreur 500 se produisait si la date de naissance d'un licencié restait vide."
   removed:
     - "Déploiement, Journal d'activité et Changelog ne sont plus listés dans la catégorie « Administration » du menu (regroupés dans la nouvelle catégorie « Développeur »)."
 
@@ -95,7 +103,7 @@
   date: "2026-09-25"
   titre: "Paiement des licences, planning avancé et gestion des accès"
   added:
-    - "Suivi des paiements des licences : montant dû, règlements échelonnés (espèces, carte, chèques), remises en banque et aides (Pass'Sport, Sport 50, Atout Normandie, Bourse Évasion, chèques vacances, coupons sport)."
+    - "Suivi des paiements des licences : montant dû, règlements échelonnés (espèces, carte, chèques), remises en banque et aides (Pass'Sport, Spot 50, Atout Normandie, Bourse Évasion, chèques vacances, coupons sport)."
     - "Planning : équipes par catégorie et rencontres internes entre deux équipes du club."
     - "Fiche licencié en lecture seule, ouverte d'un clic sur la ligne ou depuis le menu « … »."
     - "Renvoi de l'e-mail de création de mot de passe depuis la liste des licenciés."
