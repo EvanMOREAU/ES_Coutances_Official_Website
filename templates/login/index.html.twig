@@ -49,6 +49,17 @@
                     Se connecter
                 </button>
             </form>
+
+            <div class="mt-5 pt-5 border-t border-admin-border" data-controller="passkey"
+                 data-passkey-options-url-value="{{ path('admin_webauthn_login_options') }}"
+                 data-passkey-finish-url-value="{{ path('admin_webauthn_login_check') }}">
+                <button type="button" data-passkey-target="button" data-action="click->passkey#login"
+                        class="w-full rounded-lg border border-admin-border px-5 py-2.5 text-sm font-semibold text-admin-text hover:bg-admin-surface">
+                    <i class="fa-solid fa-fingerprint mr-1"></i> Se connecter avec une clé d'accès
+                </button>
+                <p data-passkey-target="status" class="mt-2 text-xs text-admin-danger text-center"></p>
+            </div>
+
             <a href="{{ path('app_forgot_password_request') }}" class="block text-center mt-5 text-sm text-admin-text-muted hover:text-white">Mot de passe oublié ?</a>
         </div>
     </div>

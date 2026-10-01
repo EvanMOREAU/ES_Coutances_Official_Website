@@ -6,24 +6,18 @@ use App\Repository\CodePromoRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Code de réduction utilisable au moment du paiement d'une commande boutique.
+ * Bon de livraison : code saisi par le client au moment du paiement d'une commande boutique
+ * pour renseigner une adresse et se faire livrer, au lieu de retirer sa commande au club.
+ * Il n'y a pas de réduction associée : le code sert uniquement à débloquer la livraison.
  *
- * Un code « bon de livraison » (autoriseLivraison) a lui aussi une réduction
- * (souvent 0%) mais permet en plus au client de renseigner une adresse pour
- * que le club lui livre sa commande, au lieu de la faire retirer au club.
+ * Attribution : soit réservé à un utilisateur précis (lui seul peut l'utiliser, utilisable
+ * dès sa création), soit ouvert à tout le monde — mais dans ce cas il doit d'abord être
+ * validé (approuve) par un compte autorisé avant de devenir utilisable.
  */
 #[ORM\Entity(repositoryClass: CodePromoRepository::class)]
 #[ORM\Table(name: 'code_promo')]
 class CodePromo
 {
-    public const TYPE_POURCENTAGE = 'pourcentage';
-    public const TYPE_MONTANT     = 'montant';
-
-    public const TYPES = [
-        self::TYPE_POURCENTAGE => 'Pourcentage',
-        self::TYPE_MONTANT     => 'Montant fixe',
-    ];
-
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -34,13 +28,6 @@ class CodePromo
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $description = null;
-
-    #[ORM\Column(length: 20)]
-    private string $type = self::TYPE_POURCENTAGE;
-
-    /** Pourcentage (0-100) ou montant en centimes, selon le type. */
-    #[ORM\Column]
-    private int $valeur = 0;
 
     #[ORM\Column]
     private bool $actif = true;
@@ -58,8 +45,14 @@ class CodePromo
     #[ORM\Column]
     private int $usageActuel = 0;
 
+    /** Réservé à cet utilisateur, ou null si ouvert à tout le monde. */
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
+    private ?User $utilisateur = null;
+
+    /** Un bon ouvert à tout le monde (utilisateur = null) doit être validé avant d'être utilisable. */
     #[ORM\Column]
-    private bool $autoriseLivraison = false;
+    private bool $approuve = false;
 
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
@@ -77,21 +70,6 @@ class CodePromo
     public function getDescription(): ?string { return $this->description; }
     public function setDescription(?string $description): static { $this->description = $description; return $this; }
 
-    public function getType(): string { return $this->type; }
-    public function setType(string $type): static
-    {
-        if (!isset(self::TYPES[$type])) {
-            throw new \InvalidArgumentException(sprintf('Type de code promo inconnu "%s".', $type));
-        }
-        $this->type = $type;
-
-        return $this;
-    }
-    public function getTypeLabel(): string { return self::TYPES[$this->type]; }
-
-    public function getValeur(): int { return $this->valeur; }
-    public function setValeur(int $valeur): static { $this->valeur = max(0, $valeur); return $this; }
-
     public function isActif(): bool { return $this->actif; }
     public function setActif(bool $actif): static { $this->actif = $actif; return $this; }
 
@@ -108,12 +86,22 @@ class CodePromo
 
     public function incrementerUsage(): static { ++$this->usageActuel; return $this; }
 
-    public function isAutoriseLivraison(): bool { return $this->autoriseLivraison; }
-    public function setAutoriseLivraison(bool $autoriseLivraison): static { $this->autoriseLivraison = $autoriseLivraison; return $this; }
+    public function getUtilisateur(): ?User { return $this->utilisateur; }
+    public function setUtilisateur(?User $utilisateur): static { $this->utilisateur = $utilisateur; return $this; }
+
+    /** Ouvert à tout le monde (pas réservé à un utilisateur précis) ? */
+    public function isOuvertATous(): bool { return null === $this->utilisateur; }
+
+    public function isApprouve(): bool { return $this->approuve; }
+    public function setApprouve(bool $approuve): static { $this->approuve = $approuve; return $this; }
 
     public function getCreatedAt(): ?\DateTimeImmutable { return $this->createdAt; }
 
-    /** Le code est-il utilisable maintenant (actif, dans sa période de validité, pas épuisé) ? */
+    /**
+     * Le code est-il utilisable maintenant (actif, dans sa période de validité, pas épuisé,
+     * et — s'il est ouvert à tout le monde — validé) ? Ne vérifie pas à qui il est réservé :
+     * voir estUtilisablePar() pour ça.
+     */
     public function isValide(?\DateTimeImmutable $maintenant = null): bool
     {
         $maintenant ??= new \DateTimeImmutable();
@@ -130,17 +118,16 @@ class CodePromo
         if (null !== $this->usageMax && $this->usageActuel >= $this->usageMax) {
             return false;
         }
+        if ($this->isOuvertATous() && !$this->approuve) {
+            return false; // ouvert à tous, mais pas encore validé
+        }
 
         return true;
     }
 
-    /** Réduction appliquée à un total donné, en centimes, jamais plus que ce total. */
-    public function calculerReductionCentimes(int $totalCentimes): int
+    /** Ce compte (ou personne, en visiteur non connecté) peut-il utiliser ce code ? */
+    public function estUtilisablePar(?User $utilisateur): bool
     {
-        $reduction = self::TYPE_POURCENTAGE === $this->type
-            ? intdiv($totalCentimes * $this->valeur, 100)
-            : $this->valeur;
-
-        return max(0, min($reduction, $totalCentimes));
+        return $this->isOuvertATous() || $utilisateur?->getId() === $this->utilisateur->getId();
     }
 }

@@ -141,12 +141,14 @@ class AdminNotificationProvider
 
         // Conseils de configuration : simples invitations à compléter le site, jamais bloquantes.
         $hubs = [
-            SiteAdvisor::HUB_VITRINE   => ['vitrine', 'Site vitrine', '/admin/site-vitrine'],
-            SiteAdvisor::HUB_LICENCIES => ['licencies', 'Gestion des licenciés', '/admin/gestion-licencies'],
+            SiteAdvisor::HUB_VITRINE    => ['vitrine', 'Site vitrine', '/admin/site-vitrine'],
+            SiteAdvisor::HUB_LICENCIES  => ['licencies', 'Gestion des licenciés', '/admin/gestion-licencies'],
+            SiteAdvisor::HUB_PARTENAIRE => ['partenaire', 'Partenaires', '/admin/partenaires/hub'],
         ];
         $hubPermission = [
-            SiteAdvisor::HUB_VITRINE   => 'partenaire.voir,rejoindre_card.voir,offre_emploi.voir,slide_carousel.voir,page_contenu.voir,membre.voir,reglages.voir',
-            SiteAdvisor::HUB_LICENCIES => 'famille.voir,licencie.voir,equipe.voir,saison.voir',
+            SiteAdvisor::HUB_VITRINE    => 'rejoindre_card.voir,offre_emploi.voir,slide_carousel.voir,page_contenu.voir,membre.voir,reglages.voir',
+            SiteAdvisor::HUB_LICENCIES  => 'famille.voir,licencie.voir,equipe.voir,saison.voir',
+            SiteAdvisor::HUB_PARTENAIRE => 'partenaire.voir',
         ];
         foreach ($hubs as $hub => [$slug, $label, $url]) {
             if (!$this->permissions->can($hubPermission[$hub])) {

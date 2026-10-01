@@ -55,10 +55,12 @@ final class PermissionCatalog
                 'commande' => ['label' => 'Commandes', 'actions' => [
                     self::VOIR => 'Voir', 'traiter' => 'Préparer, encaisser, remettre', 'annuler' => 'Annuler une commande',
                 ]],
-                'code_promo' => ['label' => 'Codes de réduction', 'actions' => $crud],
+                'code_promo' => ['label' => 'Bons de livraison', 'actions' => $crud + ['approuver' => "Valider un bon ouvert à tout le monde"]],
             ],
             'Site vitrine' => [
                 'partenaire'     => ['label' => 'Partenaires et sponsors', 'actions' => $crud],
+                'contrat_partenaire' => ['label' => 'Contrats partenaires', 'actions' => $crud],
+                'categorie_partenaire' => ['label' => 'Catégories de partenaires', 'actions' => $crud],
                 'rejoindre_card' => ['label' => 'Cartes « Nous rejoindre »', 'actions' => $crud],
                 'offre_emploi'   => ['label' => 'Offres d\'emploi', 'actions' => $crud],
                 'slide_carousel' => ['label' => 'Carousel de l\'accueil', 'actions' => $crud],

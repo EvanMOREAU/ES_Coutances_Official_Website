@@ -29,6 +29,7 @@ export default class extends Controller {
         bulkUrl: String,
         bulkToken: String,
         plural: { type: String, default: 'éléments' },
+        defaultStatus: { type: String, default: 'all' },
     };
 
     connect() {
@@ -44,7 +45,7 @@ export default class extends Controller {
         }));
 
         this.state = {
-            status: 'all',
+            status: this.defaultStatusValue,
             query: '',
             sortCol: null,
             sortDir: 'asc',

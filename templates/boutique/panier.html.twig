@@ -90,6 +90,9 @@
         <div class="sum-row"><span>Retrait au club</span><span>Gratuit</span></div>
         <div class="sum-row total"><span>Total</span><span class="price">{{ total|money }}</span></div>
         <a href="{{ path('boutique_commande') }}" class="btn btn-primary btn-block" style="margin-top:18px;">Commander <i class="fa-solid fa-arrow-right"></i></a>
+        {% if not app.user %}
+          <p class="note" style="margin-top:14px;"><i class="fa-solid fa-circle-info"></i> Un compte est nécessaire pour valider la commande : <a href="{{ path('portail_login') }}">se connecter</a> ou <a href="{{ path('portail_inscription') }}">créer un compte</a>.</p>
+        {% endif %}
         <p class="note" style="margin-top:14px;"><i class="fa-solid fa-store"></i> Pas de livraison : vous retirez votre commande au club.</p>
       </aside>
     </div>

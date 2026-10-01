@@ -27,6 +27,16 @@
         </p>
     </div>
 
+    <div class="admin-card rounded-2xl p-5 mb-6 max-w-3xl">
+        <h2 class="font-semibold mb-2"><i class="fa-solid fa-bell text-admin-text-muted"></i> URL de notification</h2>
+        <p class="text-xs text-admin-text-muted mb-3">
+            À coller dans l'espace HelloAsso de l'organisation, section « Notifications » : sans elle, un paiement
+            effectué par un client qui ne revient pas sur le site (onglet fermé, interruption…) reste indéfiniment
+            en attente ici alors qu'il a bien été encaissé par HelloAsso.
+        </p>
+        <code class="block break-all rounded-lg bg-admin-surface border border-admin-border px-3 py-2 text-xs">{{ url('boutique_helloasso_notification') }}</code>
+    </div>
+
     {{ form_start(form, {attr: {novalidate: 'novalidate'}}) }}
         <section class="admin-card rounded-2xl p-6 mb-6 max-w-3xl">
             {{ _self.toggle(form.actif, 'Désactivé, le paiement en ligne par carte reste indisponible.') }}

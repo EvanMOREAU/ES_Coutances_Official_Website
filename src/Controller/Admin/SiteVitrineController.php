@@ -10,7 +10,6 @@ use App\Repository\MatchLiveRepository;
 use App\Repository\MembreRepository;
 use App\Repository\OffreEmploiRepository;
 use App\Repository\PageContenuRepository;
-use App\Repository\PartenaireRepository;
 use App\Repository\RejoindreCardRepository;
 use App\Repository\SlideCarouselRepository;
 use App\Service\SiteAdvisor;
@@ -42,7 +41,6 @@ class SiteVitrineController extends AbstractController
     public function __invoke(
         Request $request,
         SiteAdvisor $advisor,
-        PartenaireRepository $partenaires,
         RejoindreCardRepository $cards,
         OffreEmploiRepository $offres,
         SlideCarouselRepository $slides,
@@ -56,23 +54,6 @@ class SiteVitrineController extends AbstractController
         $sections = [];
 
         // --- Contenu -------------------------------------------------------
-        $partenairesActifs = $partenaires->count(['statut' => 'active']);
-        $sections[] = [
-            'key'    => 'partenaires',
-            'group'  => 'Contenu',
-            'icon'   => 'fa-handshake',
-            'title'  => 'Partenaires & sponsors',
-            'url'    => $this->generateUrl('admin_partenaire_index'),
-            'new'    => $this->generateUrl('admin_partenaire_new'),
-            'value'  => $partenairesActifs,
-            'label'  => 'actifs',
-            'sub'    => sprintf('sur %d au total', $partenaires->count([])),
-            'visual' => ['type' => 'line', 'points' => array_map(
-                static fn (array $p) => ['month' => $p['month']->format('Y-m'), 'total' => $p['total'], 'new' => $p['new']],
-                $partenaires->monthlyEvolution(12),
-            ), 'unit' => 'partenaire'],
-        ];
-
         $sections[] = $this->split('rejoindre', 'fa-user-plus', 'Nous rejoindre', 'admin_rejoindre_card_index', 'admin_rejoindre_card_new',
             $cards->count(['actif' => true]), $cards->count(['actif' => false]));
 

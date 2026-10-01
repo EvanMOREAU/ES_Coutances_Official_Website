@@ -1,0 +1,139 @@
+{% extends 'admin/_layout.html.twig' %}
+{% form_theme form 'admin/_form_theme.html.twig' %}
+
+{% block title %}{{ contrat.id ? 'Contrat ' ~ contrat.titre : 'Nouveau contrat' }}{% endblock %}
+
+{% macro reglement_row(row) %}
+    <div class="ad-row" data-contrat-partenaire-form-target="reglement">
+        <div class="ad-cell">{{ form_label(row.mode) }}{{ form_widget(row.mode) }}{{ form_errors(row.mode) }}</div>
+        <div class="ad-cell">{{ form_label(row.montantCentimes) }}{{ form_widget(row.montantCentimes) }}{{ form_errors(row.montantCentimes) }}</div>
+        <div class="ad-cell">{{ form_label(row.dateEcheance) }}{{ form_widget(row.dateEcheance) }}</div>
+        <div class="ad-cell ad-check"><label class="sv-toggle">{{ form_widget(row.recu) }}<span class="sv-switch"></span><span>Encaissé</span></label></div>
+        <div class="ad-cell">{{ form_label(row.dateRemise) }}{{ form_widget(row.dateRemise) }}</div>
+        <div class="ad-cell">{{ form_label(row.reference) }}{{ form_widget(row.reference) }}</div>
+        {{ form_widget(row.ordre) }}
+        <button type="button" class="var-remove" data-action="contrat-partenaire-form#remove" title="Retirer" aria-label="Retirer ce règlement"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+{% endmacro %}
+
+{% macro tache_row(row) %}
+    <div class="ad-row" data-contrat-partenaire-form-target="tache">
+        <div class="ad-cell ad-wide">{{ form_label(row.titre) }}{{ form_widget(row.titre) }}{{ form_errors(row.titre) }}</div>
+        <div class="ad-cell">{{ form_label(row.echeance) }}{{ form_widget(row.echeance) }}</div>
+        <div class="ad-cell ad-check"><label class="sv-toggle">{{ form_widget(row.fait) }}<span class="sv-switch"></span><span>Faite</span></label></div>
+        {{ form_widget(row.ordre) }}
+        <button type="button" class="var-remove" data-action="contrat-partenaire-form#remove" title="Retirer" aria-label="Retirer cette tâche"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+{% endmacro %}
+
+{% block body %}
+    <a href="{{ path('admin_partenaire_show', {id: partenaire.id}) }}" class="text-sm text-admin-text-muted hover:text-admin-text"><i class="fa-solid fa-arrow-left"></i> {{ partenaire.nom }}</a>
+    <div class="flex flex-wrap items-center gap-3 mt-3 mb-5">
+        <h1 class="text-2xl font-black" style="font-family:'Barlow Condensed',sans-serif;">
+            {{ contrat.id ? contrat.titre : 'Nouveau contrat' }}
+        </h1>
+        {% if contrat.id %}<span class="badge badge-pay-{{ contrat.statutPaiement }}">{{ contrat.statutPaiementLabel }}</span>{% endif %}
+    </div>
+
+    {% if contrat.id %}
+        <div class="ad-tiles">
+            <div class="ad-tile"><span>Montant du contrat</span><strong>{{ contrat.montantCentimes|money }}</strong></div>
+            <div class="ad-tile"><span>Encaissé</span><strong>{{ contrat.reglementsRecusCentimes|money }}</strong></div>
+            <div class="ad-tile"><span>Reste à encaisser</span><strong>{{ contrat.resteCentimes|money }}</strong></div>
+            <div class="ad-tile"><span>Tâches restantes</span><strong>{{ contrat.tachesRestantes }} / {{ contrat.tachesTotal }}</strong></div>
+        </div>
+    {% endif %}
+
+    {% set next_reglement = 0 %}{% for key, row in form.reglements %}{% set next_reglement = max(next_reglement, key + 1) %}{% endfor %}
+    {% set next_tache = 0 %}{% for key, row in form.taches %}{% set next_tache = max(next_tache, key + 1) %}{% endfor %}
+    {{ form_start(form, {attr: {novalidate: 'novalidate'}}) }}
+    <div data-controller="contrat-partenaire-form" data-action="change->contrat-partenaire-form#received"
+         data-contrat-partenaire-form-reglement-prototype-value="{{ _self.reglement_row(form.reglements.vars.prototype)|e('html_attr') }}"
+         data-contrat-partenaire-form-tache-prototype-value="{{ _self.tache_row(form.taches.vars.prototype)|e('html_attr') }}"
+         data-contrat-partenaire-form-reglement-index-value="{{ next_reglement }}"
+         data-contrat-partenaire-form-tache-index-value="{{ next_tache }}">
+        <div class="grid gap-6 lg:grid-cols-3 items-start">
+            <div class="lg:col-span-2 space-y-6">
+                <section class="admin-card rounded-2xl p-6">
+                    <h2 class="font-semibold mb-5">Contrat</h2>
+                    {{ form_row(form.titre) }}
+                    <div class="grid sm:grid-cols-2 gap-4">
+                        {{ form_row(form.dateDebut) }}
+                        {{ form_row(form.dateFin) }}
+                    </div>
+                    {{ form_row(form.montantCentimes) }}
+                </section>
+
+                <section class="admin-card rounded-2xl p-6">
+                    <h2 class="font-semibold mb-1">Règlements</h2>
+                    <p class="text-xs text-admin-text-muted mb-4">Une ligne par échéance. Cochez « Encaissé » à la réception, et indiquez la date d'encaissement.</p>
+                    <div data-contrat-partenaire-form-target="reglements">
+                        {% for row in form.reglements %}{{ _self.reglement_row(row) }}{% endfor %}
+                    </div>
+                    <p class="ad-empty" data-contrat-partenaire-form-target="reglementsEmpty" {{ form.reglements|length > 0 ? 'hidden' }}>Aucun règlement enregistré.</p>
+                    <button type="button" class="admin-btn admin-btn-ghost admin-btn-sm mt-3" data-action="contrat-partenaire-form#addReglement"><i class="fa-solid fa-plus"></i> Ajouter un règlement</button>
+                    {% do form.reglements.setRendered %}
+                </section>
+
+                <section class="admin-card rounded-2xl p-6">
+                    <h2 class="font-semibold mb-1">Tâches à réaliser</h2>
+                    <p class="text-xs text-admin-text-muted mb-4">Ex. envoyer le flocage, poser le panneau publicitaire, inviter à l'assemblée générale…</p>
+                    <div data-contrat-partenaire-form-target="taches">
+                        {% for row in form.taches %}{{ _self.tache_row(row) }}{% endfor %}
+                    </div>
+                    <p class="ad-empty" data-contrat-partenaire-form-target="tachesEmpty" {{ form.taches|length > 0 ? 'hidden' }}>Aucune tâche enregistrée.</p>
+                    <button type="button" class="admin-btn admin-btn-ghost admin-btn-sm mt-3" data-action="contrat-partenaire-form#addTache"><i class="fa-solid fa-plus"></i> Ajouter une tâche</button>
+                    {% do form.taches.setRendered %}
+                </section>
+
+                <section class="admin-card rounded-2xl p-6">
+                    <h2 class="font-semibold mb-5">Notes</h2>
+                    {{ form_row(form.notes) }}
+                </section>
+            </div>
+
+            <aside class="space-y-6">
+                <section class="admin-card rounded-2xl p-6">
+                    <h2 class="font-semibold mb-3">Partenaire</h2>
+                    <p class="text-sm">{{ partenaire.nom }}</p>
+                </section>
+
+                {% if contrat.id %}
+                    <section class="admin-card rounded-2xl p-6">
+                        <h2 class="font-semibold mb-3">Documents</h2>
+                        {% if contrat.documents is empty %}
+                            <p class="text-sm text-admin-text-muted mb-4">Aucun document hébergé.</p>
+                        {% else %}
+                            <ul class="text-sm space-y-2 mb-4">
+                                {% for document in contrat.documents %}
+                                    <li class="flex items-center justify-between gap-2">
+                                        <a href="{{ asset('uploads/contrats-partenaires/' ~ document.fichierName) }}" target="_blank" rel="noopener" class="hover:underline truncate">
+                                            <i class="fa-regular fa-file-lines"></i> {{ document.nomOriginal ?? document.fichierName }}
+                                        </a>
+                                        <form method="post" action="{{ path('admin_partenaire_contrat_document_delete', {id: document.id}) }}"
+                                              data-confirm="Le document « {{ document.nomOriginal ?? document.fichierName }} » sera supprimé définitivement." data-confirm-title="Supprimer ce document ?">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('delete-contrat-partenaire-document-' ~ document.id) }}">
+                                            <button type="submit" class="pl-icon-btn is-danger" aria-label="Supprimer"><i class="fa-solid fa-trash"></i></button>
+                                        </form>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                        {% if documentForm is defined %}
+                            {{ form_start(documentForm, {action: path('admin_partenaire_contrat_document_new', {id: contrat.id}), attr: {novalidate: 'novalidate'}}) }}
+                                {{ form_row(documentForm.fichierFile) }}
+                                <button type="submit" class="admin-btn admin-btn-ghost admin-btn-sm mt-2"><i class="fa-solid fa-upload"></i> Ajouter</button>
+                            {{ form_end(documentForm) }}
+                        {% endif %}
+                    </section>
+                {% endif %}
+            </aside>
+        </div>
+
+        <div class="flex items-center gap-3 mt-6">
+            <button type="submit" class="rounded-lg admin-gradient px-5 py-2 text-sm font-semibold text-white">Enregistrer</button>
+            <a href="{{ path('admin_partenaire_show', {id: partenaire.id}) }}" class="text-sm text-admin-text-muted hover:text-admin-text">Annuler</a>
+        </div>
+    </div>
+    {{ form_end(form) }}
+{% endblock %}

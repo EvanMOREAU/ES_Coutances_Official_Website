@@ -61,7 +61,7 @@ class ProfilDefaults
             'Éducateur' => ['Consulte les licenciés et gère le planning des entraînements.', array_merge(
                 $crud('planning'), $crud('licencie', ['voir']), $crud('famille', ['voir']), $crud('equipe', ['voir']), $crud('messagerie', ['utiliser']),
             )],
-            'Responsable boutique' => ['Articles, stock, commandes et codes de réduction.', array_merge($crud('article'), $crud('commande', ['voir', 'traiter', 'annuler']), $crud('code_promo'))],
+            'Responsable boutique' => ['Articles, stock, commandes et bons de livraison.', array_merge($crud('article'), $crud('commande', ['voir', 'traiter', 'annuler']), $crud('code_promo'))],
             'Communication' => ['Site vitrine et fichiers.', array_merge(
                 $crud('partenaire'), $crud('rejoindre_card'), $crud('offre_emploi'), $crud('slide_carousel'), $crud('page_contenu'), $crud('membre'), $crud('categorie'),
                 $crud('reglages', ['voir', 'modifier']), $crud('fichiers', ['voir', 'televerser', 'modifier']),

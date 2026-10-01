@@ -39,6 +39,7 @@
      data-data-table-plural-value="{{ plural|default('éléments') }}"
      data-data-table-hidden-value="{{ hidden_columns|json_encode|e('html_attr') }}"
      data-data-table-per-page-value="{{ per_page }}"
+     data-data-table-default-status-value="{{ default_status|default('all') }}"
      data-data-table-prefs-url-value="{{ path('admin_table_preferences', {key: key}) }}"
      data-data-table-prefs-token-value="{{ csrf_token('admin-table-preferences') }}"
      {% if bulk %}

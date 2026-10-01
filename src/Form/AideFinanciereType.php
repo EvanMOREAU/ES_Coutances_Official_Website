@@ -11,7 +11,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-/** Une aide (Pass'Sport, Sport 50…) : montant attendu, puis reçu ou non. */
+/** Une aide (Pass'Sport, Spot 50…) : montant attendu, puis reçu ou non. */
 class AideFinanciereType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void

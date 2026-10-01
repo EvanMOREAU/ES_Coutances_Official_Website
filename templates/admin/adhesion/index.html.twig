@@ -7,7 +7,7 @@
         <h1 class="text-2xl font-black" style="font-family:'Barlow Condensed',sans-serif;">Paiements des licences</h1>
         {% if can_url(path('admin_adhesion_new')) %}<a href="{{ path('admin_adhesion_new') }}" class="rounded-lg admin-gradient px-4 py-2 text-sm font-semibold text-white">+ Nouvelle licence</a>{% endif %}
     </div>
-    <p class="text-sm text-admin-text-muted mb-5">Suivi des règlements (espèces, carte, chèques) et des aides (Pass'Sport, Sport 50…) pour chaque licence, saison après saison.</p>
+    <p class="text-sm text-admin-text-muted mb-5">Suivi des règlements (espèces, carte, chèques) et des aides (Pass'Sport, Spot 50…) pour chaque licence, saison après saison.</p>
 
     <div class="ad-tiles">
         <div class="ad-tile"><span>À encaisser au total</span><strong>{{ totalDu|money }}</strong></div>
@@ -38,8 +38,8 @@
         {% block rows %}
             {% for a in adhesions %}
                 <tr data-data-table-target="row" data-id="{{ a.id }}" data-status="{{ a.statutPaiement }}" data-href="{{ path('admin_adhesion_edit', {id: a.id}) }}">
-                    <td data-col="licencie" data-sort="{{ a.licencie.nom|lower }} {{ a.licencie.prenom|lower }}" class="font-medium">{{ a.licencie.prenom }} {{ a.licencie.nom }}</td>
-                    <td data-col="famille" class="dt-muted">{{ a.licencie.famille }}</td>
+                    <td data-col="licencie" data-sort="{{ a.licencieAffichage|lower }}" class="font-medium">{{ a.licencieAffichage }}{% if not a.licencie %} <span class="badge badge-draft" title="Pas encore rattaché à une fiche licencié">libellé</span>{% endif %}</td>
+                    <td data-col="famille" class="dt-muted">{{ a.licencie ? a.licencie.famille : '—' }}</td>
                     <td data-col="saison" class="dt-muted">{{ a.saison }}</td>
                     <td data-col="du" data-sort="{{ a.montantDuCentimes }}">{{ a.montantDuCentimes|money }}</td>
                     <td data-col="recu" data-sort="{{ a.recuCentimes }}">{{ a.recuCentimes|money }}</td>
@@ -50,15 +50,16 @@
                         actions: [{
                             url: path('admin_adhesion_suivi', {id: a.id}),
                             modal: true,
-                            title: 'Suivi du paiement — ' ~ a.licencie.prenom ~ ' ' ~ a.licencie.nom ~ ' (' ~ a.saison ~ ')',
+                            title: 'Suivi du paiement — ' ~ a.licencieAffichage ~ ' (' ~ a.saison ~ ')',
                             label: 'Suivi du paiement',
                             icon: 'fa-list-check',
                         }],
+                        show_url: path('admin_adhesion_show', {id: a.id}),
                         edit_url: path('admin_adhesion_edit', {id: a.id}),
                         delete_url: path('admin_adhesion_delete', {id: a.id}),
                         delete_token: csrf_token('delete-adhesion-' ~ a.id),
                         delete_title: 'Supprimer cette licence ?',
-                        delete_message: 'La licence ' ~ a.saison ~ ' de ' ~ a.licencie.prenom ~ ' ' ~ a.licencie.nom ~ ' et son suivi de paiement seront supprimés définitivement.',
+                        delete_message: 'La licence ' ~ a.saison ~ ' de ' ~ a.licencieAffichage ~ ' et son suivi de paiement seront supprimés définitivement.',
                     } %}
                 </tr>
             {% endfor %}

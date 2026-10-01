@@ -12,14 +12,16 @@
          data-planning-token-value="{{ csrf_token('admin-planning') }}"
          data-planning-categories-value="{{ categories|json_encode|e('html_attr') }}"
          data-planning-equipes-value="{{ equipes|json_encode|e('html_attr') }}"
-         data-planning-filter-categories-value="{{ categories|json_encode|e('html_attr') }}">
+         data-planning-filter-categories-value="{{ categories|json_encode|e('html_attr') }}"
+         data-planning-profils-value="{{ profils|json_encode|e('html_attr') }}"
+         data-planning-utilisateurs-value="{{ utilisateurs|json_encode|e('html_attr') }}">
         <div class="flex flex-wrap items-start justify-between gap-4 mb-6">
             <div>
                 <h1 class="text-2xl font-black" style="font-family:'Barlow Condensed',sans-serif;">Planning</h1>
-                <p class="text-sm text-admin-text-muted">Planifiez les entraînements de chaque catégorie. Les licenciés les retrouvent dans leur espace.</p>
+                <p class="text-sm text-admin-text-muted">Planifiez des événements internes (réunions, formations…), les entraînements de chaque catégorie et les rencontres internes. Les licenciés retrouvent les entraînements et rencontres dans leur espace ; les événements internes ne sont visibles que du back-office.</p>
             </div>
             <button type="button" data-action="planning#add" class="rounded-lg admin-gradient px-4 py-2 text-sm font-semibold text-white">
-                <i class="fa-solid fa-plus mr-1"></i> Ajouter une séance
+                <i class="fa-solid fa-plus mr-1"></i> Ajouter un événement
             </button>
         </div>
 

@@ -114,5 +114,49 @@
                 <p class="mt-3 text-xs text-admin-text-muted">{{ user.backupCodes|length }} code(s) de secours encore disponible(s).</p>
             {% endif %}
         </div>
+
+        {# --- Clés d'accès (passkeys) --- #}
+        <div class="py-4" data-controller="passkey"
+             data-passkey-options-url-value="{{ path('admin_parametres_securite_webauthn_options') }}"
+             data-passkey-finish-url-value="{{ path('admin_parametres_securite_webauthn_enregistrer') }}"
+             data-passkey-csrf-token-value="{{ csrf_token('securite_webauthn_enregistrer') }}">
+            <div class="min-w-0">
+                <span class="flex items-center gap-2 text-sm font-semibold">
+                    <i class="fa-solid fa-fingerprint text-admin-text-muted"></i>
+                    Clés d'accès (passkeys)
+                </span>
+                <span class="block text-xs text-admin-text-muted mt-0.5">Connexion sans mot de passe via Face ID, Windows Hello, une clé de sécurité ou un gestionnaire de mots de passe (Bitwarden…).</span>
+            </div>
+
+            <div class="mt-4 flex flex-wrap items-center gap-2">
+                <input type="text" data-passkey-target="label" placeholder="Nom de la clé (ex. Bitwarden, iPhone de Marie)" maxlength="100"
+                       class="min-w-0 flex-1 rounded-lg border border-admin-border bg-admin-bg px-3 py-2 text-sm text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-primary-to">
+                <button type="button" data-passkey-target="button" data-action="click->passkey#register"
+                        class="rounded-lg admin-gradient px-4 py-2 text-sm font-semibold text-white shrink-0">Ajouter une clé</button>
+            </div>
+            <p data-passkey-target="status" class="mt-2 text-xs text-admin-danger"></p>
+
+            {% if passkeys|length > 0 %}
+                <ul class="mt-4 space-y-2">
+                    {% for passkey in passkeys %}
+                        <li class="flex items-center justify-between gap-3 rounded-lg border border-admin-border px-3 py-2 text-sm">
+                            <div class="min-w-0">
+                                <span class="font-medium">{{ passkey.label }}</span>
+                                <span class="block text-xs text-admin-text-muted">
+                                    Ajoutée le {{ passkey.createdAt|date('d/m/Y') }}{% if passkey.lastUsedAt %} · dernière utilisation le {{ passkey.lastUsedAt|date('d/m/Y') }}{% endif %}
+                                </span>
+                            </div>
+                            <form method="post" action="{{ path('admin_parametres_securite_webauthn_supprimer', {id: passkey.id}) }}" class="shrink-0"
+                                  data-confirm="Supprimer cette clé d'accès ? Elle ne pourra plus être utilisée pour se connecter." data-confirm-label="Supprimer">
+                                <input type="hidden" name="_csrf_token" value="{{ csrf_token('securite_webauthn_supprimer') }}">
+                                <button type="submit" class="rounded-lg border border-admin-danger/30 text-admin-danger px-3 py-1.5 text-xs font-semibold hover:bg-admin-danger/10">Retirer</button>
+                            </form>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="mt-3 text-xs text-admin-text-muted">Aucune clé d'accès enregistrée.</p>
+            {% endif %}
+        </div>
     </div>
 {% endblock %}

@@ -28,8 +28,9 @@ use Symfony\Bundle\SecurityBundle\Security;
  */
 class SiteAdvisor
 {
-    public const HUB_VITRINE   = 'vitrine';
-    public const HUB_LICENCIES = 'licencies';
+    public const HUB_VITRINE    = 'vitrine';
+    public const HUB_LICENCIES  = 'licencies';
+    public const HUB_PARTENAIRE = 'partenaire';
 
     /** @var array<string, list<array<string, mixed>>> */
     private array $cache = [];
@@ -64,9 +65,10 @@ class SiteAdvisor
         }
 
         return $this->cache[$hub] ??= match ($hub) {
-            self::HUB_VITRINE   => $this->vitrine(),
-            self::HUB_LICENCIES => $this->licenciesHub(),
-            default             => [],
+            self::HUB_VITRINE    => $this->vitrine(),
+            self::HUB_LICENCIES  => $this->licenciesHub(),
+            self::HUB_PARTENAIRE => $this->partenaireHub(),
+            default              => [],
         };
     }
 
@@ -102,11 +104,6 @@ class SiteAdvisor
                 'Manque : '.implode(', ', $manquants).'. Affiché sur la page Contact du site.');
         }
 
-        if (0 === $this->partenaires->count(['statut' => 'active'])) {
-            $items[] = $this->item(self::HUB_VITRINE, 'partenaires', 'fa-handshake', 'Ajouter vos partenaires',
-                "Aucun partenaire actif : la bande de sponsors du site est vide.", 'new');
-        }
-
         if (0 === $this->cards->count(['actif' => true])) {
             $items[] = $this->item(self::HUB_VITRINE, 'rejoindre', 'fa-user-plus', 'Créer une carte « Nous rejoindre »',
                 'Aucune carte active : cette rubrique de l\'accueil est vide.', 'new');
@@ -138,6 +135,19 @@ class SiteAdvisor
         if (!$banner || !$banner->getImageName()) {
             $items[] = $this->item(self::HUB_VITRINE, 'accueil', 'fa-image', "Ajouter une bannière d'accueil",
                 'Optionnel : utile pour mettre en avant un match ou un événement.', 'list', true);
+        }
+
+        return $items;
+    }
+
+    /** @return list<array<string, mixed>> */
+    private function partenaireHub(): array
+    {
+        $items = [];
+
+        if (0 === $this->partenaires->count(['statut' => 'active'])) {
+            $items[] = $this->item(self::HUB_PARTENAIRE, 'partenaires', 'fa-handshake', 'Ajouter vos partenaires',
+                "Aucun partenaire actif : la bande de sponsors du site est vide.", 'new');
         }
 
         return $items;

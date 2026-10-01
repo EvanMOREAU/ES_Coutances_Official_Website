@@ -18,6 +18,7 @@
 .pl-tone-6 { --tone: #f97316; }
 .pl-tone-7 { --tone: #ef4444; }
 .pl-tone-match { --tone: #0d9488; }
+.pl-tone-event { --tone: #64748b; }
 
 .pl-layout { display: grid; grid-template-columns: minmax(0, 1fr) 20rem; gap: 1.25rem; align-items: start; }
 @media (max-width: 1100px) { .pl-layout { grid-template-columns: minmax(0, 1fr); } }

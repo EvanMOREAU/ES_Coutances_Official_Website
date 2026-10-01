@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-/** Codes de réduction utilisables au paiement d'une commande boutique. */
+/** Bons de livraison : codes utilisables au paiement d'une commande boutique pour débloquer la livraison. */
 #[Route('/admin/codes-promo')]
 class CodePromoController extends AbstractController
 {
@@ -37,7 +37,7 @@ class CodePromoController extends AbstractController
                 $em->persist($codePromo);
                 $em->flush();
 
-                $this->addFlash('success', 'Code de réduction créé.');
+                $this->addFlash('success', 'Bon de livraison créé.');
 
                 return $this->redirectToRoute('admin_code_promo_index');
             }
@@ -65,7 +65,7 @@ class CodePromoController extends AbstractController
             } else {
                 $em->flush();
 
-                $this->addFlash('success', 'Code de réduction mis à jour.');
+                $this->addFlash('success', 'Bon de livraison mis à jour.');
 
                 return $this->redirectToRoute('admin_code_promo_index');
             }
@@ -77,13 +77,27 @@ class CodePromoController extends AbstractController
         ]);
     }
 
+    #[Route('/{id}/approuver', name: 'admin_code_promo_approuver', methods: ['POST'])]
+    public function approuver(Request $request, CodePromo $codePromo, EntityManagerInterface $em): Response
+    {
+        if ($this->isCsrfTokenValid('approuver-code-promo-' . $codePromo->getId(), (string) $request->request->get('_token'))) {
+            if ($codePromo->isOuvertATous()) {
+                $codePromo->setApprouve(true);
+                $em->flush();
+                $this->addFlash('success', 'Bon de livraison validé : il est maintenant utilisable.');
+            }
+        }
+
+        return $this->redirectToRoute('admin_code_promo_index');
+    }
+
     #[Route('/{id}/supprimer', name: 'admin_code_promo_delete', methods: ['POST'])]
     public function delete(Request $request, CodePromo $codePromo, EntityManagerInterface $em): Response
     {
         if ($this->isCsrfTokenValid('delete-code-promo-' . $codePromo->getId(), (string) $request->request->get('_token'))) {
             $em->remove($codePromo);
             $em->flush();
-            $this->addFlash('success', 'Code de réduction supprimé.');
+            $this->addFlash('success', 'Bon de livraison supprimé.');
         }
 
         return $this->redirectToRoute('admin_code_promo_index');

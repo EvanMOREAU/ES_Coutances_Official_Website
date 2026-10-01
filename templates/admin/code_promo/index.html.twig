@@ -1,24 +1,24 @@
 {% extends 'admin/_layout.html.twig' %}
 
-{% block title %}Codes de réduction{% endblock %}
+{% block title %}Bons de livraison{% endblock %}
 
 {% block body %}
     <div class="flex items-center justify-between mb-6">
-        <h1 class="text-2xl font-black" style="font-family:'Barlow Condensed',sans-serif;">Codes de réduction</h1>
-        {% if can_url(path('admin_code_promo_new')) %}<a href="{{ path('admin_code_promo_new') }}" class="rounded-lg admin-gradient px-4 py-2 text-sm font-semibold text-white">+ Nouveau code</a>{% endif %}
+        <h1 class="text-2xl font-black" style="font-family:'Barlow Condensed',sans-serif;">Bons de livraison</h1>
+        {% if can_url(path('admin_code_promo_new')) %}<a href="{{ path('admin_code_promo_new') }}" class="rounded-lg admin-gradient px-4 py-2 text-sm font-semibold text-white">+ Nouveau bon</a>{% endif %}
     </div>
+    <p class="text-sm text-admin-text-muted mb-6">Un code saisi par le client au paiement débloque une étape pour indiquer une adresse de livraison, au lieu du retrait au club. Aucune réduction n'est appliquée.</p>
 
     {% embed 'admin/_components/data_table.html.twig' with {
         key: 'code_promo',
-        plural: 'codes',
+        plural: 'bons',
         statuses: false,
         bulk: false,
         search_placeholder: 'Rechercher un code…',
-        empty_message: 'Aucun code de réduction ne correspond à votre recherche.',
+        empty_message: 'Aucun bon de livraison ne correspond à votre recherche.',
         columns: [
             {key: 'code', label: 'Code'},
-            {key: 'type', label: 'Réduction'},
-            {key: 'livraison', label: 'Livraison'},
+            {key: 'attribution', label: 'Attribution'},
             {key: 'usage', label: 'Utilisations', type: 'number'},
             {key: 'validite', label: 'Validité'},
             {key: 'statut', label: 'Statut'},
@@ -28,11 +28,12 @@
             {% for codePromo in codesPromo %}
                 <tr data-data-table-target="row" data-id="{{ codePromo.id }}">
                     <td data-col="code" data-sort="{{ codePromo.code|lower }}" class="font-medium font-mono">{{ codePromo.code }}</td>
-                    <td data-col="type" class="dt-muted">
-                        {{ codePromo.type == 'pourcentage' ? codePromo.valeur ~ ' %' : (codePromo.valeur / 100)|money }}
-                    </td>
-                    <td data-col="livraison">
-                        {% if codePromo.autoriseLivraison %}<span class="badge badge-active"><i class="fa-solid fa-truck"></i> Oui</span>{% else %}<span class="dt-muted">—</span>{% endif %}
+                    <td data-col="attribution" class="dt-muted">
+                        {% if codePromo.utilisateur %}
+                            <span class="badge badge-active"><i class="fa-solid fa-user-lock"></i> {{ codePromo.utilisateur.nomComplet }}</span>
+                        {% else %}
+                            <span class="badge badge-draft"><i class="fa-solid fa-users"></i> Tout le monde</span>
+                        {% endif %}
                     </td>
                     <td data-col="usage" data-sort="{{ codePromo.usageActuel }}">
                         {{ codePromo.usageActuel }}{% if codePromo.usageMax %} / {{ codePromo.usageMax }}{% endif %}
@@ -45,7 +46,9 @@
                         {% endif %}
                     </td>
                     <td data-col="statut">
-                        {% if codePromo.valide %}
+                        {% if codePromo.isOuvertATous and not codePromo.approuve %}
+                            <span class="badge badge-draft">En attente de validation</span>
+                        {% elseif codePromo.valide %}
                             <span class="badge badge-active">Valide</span>
                         {% elseif not codePromo.actif %}
                             <span class="badge badge-archived">Désactivé</span>
@@ -57,8 +60,17 @@
                         edit_url: path('admin_code_promo_edit', {id: codePromo.id}),
                         delete_url: path('admin_code_promo_delete', {id: codePromo.id}),
                         delete_token: csrf_token('delete-code-promo-' ~ codePromo.id),
-                        delete_title: 'Supprimer ce code ?',
-                        delete_message: 'Le code « ' ~ codePromo.code ~ ' » sera supprimé définitivement. Les commandes déjà passées avec ce code conservent leur réduction.',
+                        delete_title: 'Supprimer ce bon ?',
+                        delete_message: 'Le code « ' ~ codePromo.code ~ ' » sera supprimé définitivement. Les commandes déjà passées avec ce code restent inchangées.',
+                        actions: (codePromo.isOuvertATous and not codePromo.approuve) ? [{
+                            url: path('admin_code_promo_approuver', {id: codePromo.id}),
+                            token: csrf_token('approuver-code-promo-' ~ codePromo.id),
+                            label: 'Valider',
+                            icon: 'fa-check',
+                            confirm: 'Le bon « ' ~ codePromo.code ~ ' », ouvert à tout le monde, deviendra utilisable dès validation.',
+                            confirm_title: 'Valider ce bon ?',
+                            confirm_label: 'Valider',
+                        }] : [],
                     } %}
                 </tr>
             {% endfor %}

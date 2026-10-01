@@ -7,7 +7,9 @@ use App\Form\AppearanceType;
 use App\Form\NotificationPreferencesType;
 use App\Form\ProfileType;
 use App\Repository\UserRepository;
+use App\Repository\WebauthnCredentialRepository;
 use App\Security\TwoFactor\PendingTotpSecret;
+use App\Service\Webauthn\WebauthnService;
 use Doctrine\ORM\EntityManagerInterface;
 use Endroid\QrCode\Builder\Builder;
 use Scheb\TwoFactorBundle\Security\TwoFactor\Provider\Totp\TotpAuthenticatorInterface;
@@ -16,6 +18,7 @@ use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -143,7 +146,7 @@ class AccountSettingsController extends AbstractController
     }
 
     #[Route('/securite', name: 'admin_parametres_securite', methods: ['GET'])]
-    public function securite(Request $request, TotpAuthenticatorInterface $totpAuthenticator): Response
+    public function securite(Request $request, TotpAuthenticatorInterface $totpAuthenticator, WebauthnCredentialRepository $webauthnCredentials): Response
     {
         /** @var User $user */
         $user = $this->getUser();
@@ -167,7 +170,62 @@ class AccountSettingsController extends AbstractController
             'pendingTotpSecret'  => $pendingTotpSecret,
             'totpQrDataUri'      => $totpQrDataUri,
             'newBackupCodes'     => $newBackupCodes,
+            'passkeys'           => $webauthnCredentials->findAllForUser($user),
         ]);
+    }
+
+    // --- Clés d'accès (passkeys) --------------------------------------------
+
+    #[Route('/securite/webauthn/options', name: 'admin_parametres_securite_webauthn_options', methods: ['GET'])]
+    public function webauthnOptions(WebauthnService $webauthn): JsonResponse
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+        $options = $webauthn->generateRegistrationOptions($user);
+
+        return JsonResponse::fromJsonString($webauthn->optionsToJson($options));
+    }
+
+    #[Route('/securite/webauthn/enregistrer', name: 'admin_parametres_securite_webauthn_enregistrer', methods: ['POST'])]
+    public function webauthnEnregistrer(Request $request, WebauthnService $webauthn): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+        if (!is_array($data) || !$this->isCsrfTokenValid('securite_webauthn_enregistrer', (string) ($data['_csrf_token'] ?? ''))) {
+            throw $this->createAccessDeniedException();
+        }
+
+        /** @var User $user */
+        $user = $this->getUser();
+        $label = is_string($data['label'] ?? null) ? $data['label'] : '';
+
+        try {
+            $webauthn->verifyRegistration($user, json_encode($data['response'] ?? null), $label);
+        } catch (\Throwable $e) {
+            return new JsonResponse(['error' => "L'enregistrement de la clé d'accès a échoué : ".$e->getMessage()], 422);
+        }
+
+        $this->addFlash('success', 'Clé d\'accès enregistrée.');
+
+        return new JsonResponse(['ok' => true]);
+    }
+
+    #[Route('/securite/webauthn/{id}/supprimer', name: 'admin_parametres_securite_webauthn_supprimer', requirements: ['id' => '\d+'], methods: ['POST'])]
+    public function webauthnSupprimer(Request $request, int $id, WebauthnCredentialRepository $webauthnCredentials, EntityManagerInterface $em): Response
+    {
+        if (!$this->isCsrfTokenValid('securite_webauthn_supprimer', (string) $request->request->get('_csrf_token'))) {
+            throw $this->createAccessDeniedException();
+        }
+
+        /** @var User $user */
+        $user = $this->getUser();
+        $credential = $webauthnCredentials->find($id);
+        if ($credential && $credential->getUser() === $user) {
+            $em->remove($credential);
+            $em->flush();
+            $this->addFlash('success', 'Clé d\'accès supprimée.');
+        }
+
+        return $this->redirectToRoute('admin_parametres_securite');
     }
 
     #[Route('/securite/totp/generer', name: 'admin_parametres_securite_totp_generer', methods: ['POST'])]

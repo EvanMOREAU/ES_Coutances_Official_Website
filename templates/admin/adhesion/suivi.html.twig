@@ -11,7 +11,7 @@
 
         <div class="flex flex-wrap items-center justify-between gap-2 mb-1">
             <div>
-                <h1 class="text-xl font-black" style="font-family:'Barlow Condensed',sans-serif;">{{ adhesion.licencie }} — {{ adhesion.saison }}</h1>
+                <h1 class="text-xl font-black" style="font-family:'Barlow Condensed',sans-serif;">{{ adhesion.licencieAffichage }} — {{ adhesion.saison }}</h1>
                 <p class="text-sm text-admin-text-muted">Montant dû : <strong>{{ adhesion.montantDuCentimes|money }}</strong>{% if adhesion.reductionCentimes > 0 %} (après {{ adhesion.reductionCentimes|money }} de réduction){% endif %}</p>
             </div>
             <span class="badge badge-pay-{{ adhesion.statutPaiement }}">{{ adhesion.statutPaiementLabel }}</span>

@@ -21,9 +21,9 @@ class AdhesionRepository extends ServiceEntityRepository
     {
         return $this->createQueryBuilder('a')
             ->addSelect('l', 's', 'r', 'ai')
-            ->join('a.licencie', 'l')->join('a.saison', 's')
+            ->leftJoin('a.licencie', 'l')->join('a.saison', 's')
             ->leftJoin('a.reglements', 'r')->leftJoin('a.aides', 'ai')
-            ->orderBy('s.dateDebut', 'DESC')->addOrderBy('l.nom', 'ASC')
+            ->orderBy('s.dateDebut', 'DESC')->addOrderBy('a.licencieLabel', 'ASC')->addOrderBy('l.nom', 'ASC')
             ->getQuery()->getResult();
     }
 
