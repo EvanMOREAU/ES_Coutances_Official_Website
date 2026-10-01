@@ -7,11 +7,12 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 /**
  * Licence d'un licencié pour une saison, et le suivi de son paiement : montant dû,
  * règlements (espèces, carte, chèques, en 1 à 3 fois, avec date de remise en banque)
- * et aides (Pass'Sport, Sport 50…) dont l'encaissement peut arriver des mois plus tard.
+ * et aides (Pass'Sport, Spot 50…) dont l'encaissement peut arriver des mois plus tard.
  * Une adhésion par saison : l'historique des saisons précédentes est conservé.
  */
 #[ORM\Entity(repositoryClass: AdhesionRepository::class)]
@@ -37,8 +38,15 @@ class Adhesion
     private ?int $id = null;
 
     #[ORM\ManyToOne(targetEntity: Licencie::class)]
-    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'CASCADE')]
     private ?Licencie $licencie = null;
+
+    /**
+     * Nom de la personne quand elle n'est pas (encore) enregistrée comme licencié : la licence
+     * est alors créée pour un simple libellé, à rattacher plus tard à une fiche licencié.
+     */
+    #[ORM\Column(length: 150, nullable: true)]
+    private ?string $licencieLabel = null;
 
     #[ORM\ManyToOne(targetEntity: Saison::class)]
     #[ORM\JoinColumn(nullable: false)]
@@ -86,6 +94,19 @@ class Adhesion
 
     public function getLicencie(): ?Licencie { return $this->licencie; }
     public function setLicencie(?Licencie $licencie): static { $this->licencie = $licencie; return $this; }
+
+    public function getLicencieLabel(): ?string { return $this->licencieLabel; }
+    public function setLicencieLabel(?string $label): static { $this->licencieLabel = $label; return $this; }
+
+    /** Nom affiché, que la licence soit rattachée à un licencié ou à un simple libellé. */
+    public function getLicencieAffichage(): string
+    {
+        if ($this->licencie) {
+            return trim($this->licencie->getPrenom().' '.$this->licencie->getNom());
+        }
+
+        return $this->licencieLabel ?? '—';
+    }
 
     public function getSaison(): ?Saison { return $this->saison; }
     public function setSaison(?Saison $saison): static { $this->saison = $saison; return $this; }
@@ -186,4 +207,30 @@ class Adhesion
     }
 
     public function getStatutPaiementLabel(): string { return self::PAIEMENTS[$this->getStatutPaiement()]; }
+
+    /**
+     * Le total prévu (aides + règlements, encaissés ou non) doit couvrir exactement le montant
+     * dû : ni manquant, ni excédentaire, pour que le plan de paiement corresponde au prix réel.
+     */
+    #[Assert\Callback]
+    public function validateBudget(ExecutionContextInterface $context): void
+    {
+        $du = $this->getMontantDuCentimes();
+        if (0 === $du) {
+            return;
+        }
+
+        $prevu = $this->getAidesPrevuesCentimes() + $this->getReglementsPrevusCentimes();
+        $ecartCentimes = $du - $prevu;
+        if (0 === $ecartCentimes) {
+            return;
+        }
+
+        $montant = number_format(abs($ecartCentimes) / 100, 2, ',', ' ');
+        $message = $ecartCentimes > 0
+            ? sprintf("Il manque %s € pour couvrir le prix de la licence : complétez les aides ou les règlements.", $montant)
+            : sprintf('Le total des aides et des règlements dépasse le prix de la licence de %s €.', $montant);
+
+        $context->buildViolation($message)->atPath('reglements')->addViolation();
+    }
 }

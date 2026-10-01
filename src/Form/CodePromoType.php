@@ -3,9 +3,10 @@
 namespace App\Form;
 
 use App\Entity\CodePromo;
+use App\Entity\User;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -23,7 +24,7 @@ class CodePromoType extends AbstractType
         $builder
             ->add('code', TextType::class, [
                 'label'       => 'Code',
-                'help'        => 'Saisi par le client au moment du paiement (insensible à la casse).',
+                'help'        => 'Saisi par le client au moment du paiement (insensible à la casse) : débloque une étape pour indiquer une adresse de livraison.',
                 'constraints' => [
                     new NotBlank(message: 'Indiquez un code.'),
                     new Length(max: 30),
@@ -35,17 +36,8 @@ class CodePromoType extends AbstractType
                 'required'    => false,
                 'constraints' => [new Length(max: 255)],
             ])
-            ->add('type', ChoiceType::class, [
-                'label'   => 'Type de réduction',
-                'choices' => array_flip(CodePromo::TYPES),
-            ])
-            ->add('valeur', IntegerType::class, [
-                'label'       => 'Valeur',
-                'help'        => 'Selon le type choisi ci-dessus : un pourcentage entre 0 et 100, ou un montant fixe en centimes (ex. 500 pour 5,00 €). Un code « bon de livraison » peut avoir une valeur de 0.',
-                'constraints' => [new PositiveOrZero(message: 'La valeur ne peut pas être négative.')],
-            ])
             ->add('actif', CheckboxType::class, [
-                'label'    => 'Code actif',
+                'label'    => 'Bon actif',
                 'required' => false,
             ])
             ->add('dateDebut', DateType::class, [
@@ -64,10 +56,13 @@ class CodePromoType extends AbstractType
                 'help'        => 'Laisser vide pour un nombre illimité.',
                 'constraints' => [new PositiveOrZero(message: 'Le nombre d\'utilisations ne peut pas être négatif.')],
             ])
-            ->add('autoriseLivraison', CheckboxType::class, [
-                'label'    => 'Bon de livraison',
-                'required' => false,
-                'help'     => "Autorise le client à renseigner une adresse pour se faire livrer sa commande, au lieu de la retirer au club.",
+            ->add('utilisateur', EntityType::class, [
+                'class'        => User::class,
+                'label'        => 'Réservé à',
+                'required'     => false,
+                'placeholder'  => 'N\'importe qui (nécessite une validation avant utilisation)',
+                'choice_label' => static fn (User $u) => sprintf('%s (%s)', $u->getNomComplet(), $u->getEmail()),
+                'help'         => 'Un bon réservé à un compte précis est utilisable dès sa création, par ce compte uniquement. Laissé vide, il est ouvert à tout le monde mais doit d\'abord être validé.',
             ])
         ;
     }

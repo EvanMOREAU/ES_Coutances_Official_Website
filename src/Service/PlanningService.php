@@ -9,6 +9,8 @@ use App\Entity\User;
 use App\Repository\EquipeRepository;
 use App\Repository\FamilleRepository;
 use App\Repository\LicencieRepository;
+use App\Repository\ProfilAutorisationRepository;
+use App\Repository\UserRepository;
 
 /**
  * Logique du planning : mise en forme JSON des séances, validation des
@@ -19,6 +21,9 @@ class PlanningService
     /** Nombre maximal de séances créées d'un coup par une répétition hebdomadaire. */
     public const MAX_OCCURRENCES = 60;
 
+    /** Rôles proposés pour restreindre le partage d'un événement interne. */
+    public const EVENEMENT_ROLES = ['ROLE_DEV', 'ROLE_ADMIN', 'ROLE_EDITOR'];
+
     /** @var array<int, Equipe>|null équipes indexées par id */
     private ?array $equipes = null;
 
@@ -26,7 +31,34 @@ class PlanningService
         private readonly FamilleRepository $familleRepository,
         private readonly LicencieRepository $licencieRepository,
         private readonly EquipeRepository $equipeRepository,
+        private readonly ProfilAutorisationRepository $profilRepository,
+        private readonly UserRepository $userRepository,
     ) {
+    }
+
+    /** Profils d'autorisation proposés dans le formulaire de partage d'un événement. @return list<array{id: int, nom: string}> */
+    public function profilChoices(): array
+    {
+        $choices = [];
+        foreach ($this->profilRepository->findBy([], ['nom' => 'ASC']) as $profil) {
+            $choices[] = ['id' => $profil->getId(), 'nom' => (string) $profil->getNom()];
+        }
+
+        return $choices;
+    }
+
+    /** Comptes du back-office proposés dans le formulaire de partage d'un événement à des personnes précises. @return list<array{id: int, nom: string}> */
+    public function userChoices(): array
+    {
+        $choices = [];
+        foreach ($this->userRepository->findAll() as $user) {
+            if ($user->isStaff()) {
+                $choices[] = ['id' => $user->getId(), 'nom' => $user->getNomComplet() ?: (string) $user->getEmail()];
+            }
+        }
+        usort($choices, static fn (array $a, array $b) => $a['nom'] <=> $b['nom']);
+
+        return $choices;
     }
 
     /** @return array<int, Equipe> */
@@ -64,19 +96,88 @@ class PlanningService
             }
         }
 
+        $profils = [];
+        foreach ($e->getPartageProfils() as $id) {
+            $nom = $this->profilNom($id);
+            if (null !== $nom) {
+                $profils[] = ['id' => $id, 'nom' => $nom];
+            }
+        }
+
+        $utilisateurs = [];
+        foreach ($e->getPartageUtilisateurs() as $id) {
+            $nom = $this->userNom($id);
+            if (null !== $nom) {
+                $utilisateurs[] = ['id' => $id, 'nom' => $nom];
+            }
+        }
+
+        $partage = null;
+        if ($e->isEvenement()) {
+            $partage = match (true) {
+                $e->isPartageTous()                    => 'tous',
+                [] !== $e->getPartageUtilisateurs()
+                    && [] === $e->getPartageProfils()
+                    && [] === $e->getPartageRoles()     => 'utilisateurs',
+                default                                 => 'groupe',
+            };
+        }
+
         return [
-            'id'          => $e->getId(),
-            'type'        => $e->getType(),
-            'titre'       => $e->getTitre(),
-            'categories'  => $e->getCategories(),
-            'equipes'     => $equipes,
-            'date'        => $e->getDate()?->format('Y-m-d'),
-            'debut'       => $e->getHeureDebut()?->format('H:i'),
-            'fin'         => $e->getHeureFin()?->format('H:i'),
-            'lieu'        => $e->getLieu(),
-            'description' => $e->getDescription(),
-            'serie'       => null !== $e->getSerie(),
+            'id'             => $e->getId(),
+            'type'           => $e->getType(),
+            'titre'          => $e->getTitre(),
+            'categories'     => $e->getCategories(),
+            'equipes'        => $equipes,
+            'date'           => $e->getDate()?->format('Y-m-d'),
+            'debut'          => $e->getHeureDebut()?->format('H:i'),
+            'fin'            => $e->getHeureFin()?->format('H:i'),
+            'lieu'           => $e->getLieu(),
+            'description'    => $e->getDescription(),
+            'serie'          => null !== $e->getSerie(),
+            'partage'        => $partage,
+            'partageProfils' => $profils,
+            'partageRoles'   => $e->getPartageRoles(),
+            'partageUtilisateurs' => $utilisateurs,
         ];
+    }
+
+    private function profilNom(int $id): ?string
+    {
+        return $this->profilRepository->find($id)?->getNom();
+    }
+
+    private function userNom(int $id): ?string
+    {
+        $user = $this->userRepository->find($id);
+
+        return $user ? ($user->getNomComplet() ?: (string) $user->getEmail()) : null;
+    }
+
+    /**
+     * Un événement interne est-il visible pour ce compte du back-office ? Toujours vrai pour
+     * les séances ordinaires (entraînement/rencontre) et pour un accès total (développeur,
+     * administrateur non restreint).
+     */
+    public function visibleEvenement(Entrainement $e, User $user): bool
+    {
+        if (!$e->isEvenement() || $e->isPartageTous()) {
+            return true;
+        }
+        if (in_array('ROLE_DEV', $user->getRoles(), true) || in_array('ROLE_ADMIN', $user->getRoles(), true)) {
+            return true;
+        }
+        if ([] !== array_intersect($e->getPartageRoles(), $user->getRoles())) {
+            return true;
+        }
+
+        if (in_array($user->getId(), $e->getPartageUtilisateurs(), true)) {
+            return true;
+        }
+
+        $profilId = $user->getProfil()?->getId();
+
+        return null !== $profilId && in_array($profilId, $e->getPartageProfils(), true);
     }
 
     /**
@@ -127,6 +228,10 @@ class PlanningService
      */
     public function concerns(Entrainement $e, array $licencies): bool
     {
+        if ($e->isEvenement()) {
+            return false; // interne : jamais visible des familles/licenciés
+        }
+
         foreach ($licencies as $licencie) {
             $mesEquipes = array_map(static fn (Equipe $eq) => $eq->getId(), $licencie->getEquipes()->toArray());
 
@@ -160,16 +265,23 @@ class PlanningService
     {
         $errors = [];
 
-        $type = Entrainement::TYPE_RENCONTRE === ($data['type'] ?? null) ? Entrainement::TYPE_RENCONTRE : Entrainement::TYPE_ENTRAINEMENT;
+        $type = match ($data['type'] ?? null) {
+            Entrainement::TYPE_RENCONTRE => Entrainement::TYPE_RENCONTRE,
+            Entrainement::TYPE_EVENEMENT => Entrainement::TYPE_EVENEMENT,
+            default                      => Entrainement::TYPE_ENTRAINEMENT,
+        };
 
         $titre = trim((string) ($data['titre'] ?? ''));
         if (mb_strlen($titre) > 150) {
             $errors['titre'] = 'Le titre est trop long (150 caractères maximum).';
         }
 
-        $categories = [];
-        $equipeIds  = array_values(array_unique(array_map('intval', array_filter((array) ($data['equipes'] ?? []), static fn ($v) => '' !== $v && null !== $v))));
-        $equipes    = array_filter(array_map(fn (int $id) => $this->equipes()[$id] ?? null, $equipeIds));
+        $categories     = [];
+        $equipeIds      = array_values(array_unique(array_map('intval', array_filter((array) ($data['equipes'] ?? []), static fn ($v) => '' !== $v && null !== $v))));
+        $equipes        = array_filter(array_map(fn (int $id) => $this->equipes()[$id] ?? null, $equipeIds));
+        $partageProfils      = [];
+        $partageRoles        = [];
+        $partageUtilisateurs = [];
 
         if (Entrainement::TYPE_RENCONTRE === $type) {
             if (2 !== count($equipes) || 2 !== count($equipeIds)) {
@@ -179,6 +291,32 @@ class PlanningService
                 $categories = array_values(array_unique(array_map(static fn (Equipe $eq) => (string) $eq->getCategorie(), $equipes)));
                 if ('' === $titre) {
                     $titre = sprintf('%s – %s', $equipes[0]->getNom(), $equipes[1]->getNom());
+                }
+            }
+        } elseif (Entrainement::TYPE_EVENEMENT === $type) {
+            $equipeIds = [];
+            if ('' === $titre) {
+                $errors['titre'] = 'Donnez un titre à l\'événement.';
+            }
+            $partage = $data['partage'] ?? 'tous';
+            if ('groupe' === $partage) {
+                $profilIds = array_values(array_unique(array_map('intval', array_filter((array) ($data['profils'] ?? []), static fn ($v) => '' !== $v && null !== $v))));
+                $knownIds  = array_column($this->profilChoices(), 'id');
+                $partageProfils = array_values(array_intersect($profilIds, $knownIds));
+
+                $roles        = array_map('strval', (array) ($data['roles'] ?? []));
+                $partageRoles = array_values(array_intersect($roles, self::EVENEMENT_ROLES));
+
+                if ([] === $partageProfils && [] === $partageRoles) {
+                    $errors['partage'] = 'Choisissez au moins un profil ou un rôle, ou partagez à tout le monde.';
+                }
+            } elseif ('utilisateurs' === $partage) {
+                $userIds  = array_values(array_unique(array_map('intval', array_filter((array) ($data['utilisateurs'] ?? []), static fn ($v) => '' !== $v && null !== $v))));
+                $knownIds = array_column($this->userChoices(), 'id');
+                $partageUtilisateurs = array_values(array_intersect($userIds, $knownIds));
+
+                if ([] === $partageUtilisateurs) {
+                    $errors['partage'] = 'Choisissez au moins un compte, ou partagez à tout le monde.';
                 }
             }
         } else {
@@ -240,16 +378,19 @@ class PlanningService
         return [
             'errors' => $errors,
             'values' => [
-                'type'        => $type,
-                'titre'       => '' === $titre ? (Entrainement::TYPE_RENCONTRE === $type ? 'Rencontre' : 'Entraînement') : $titre,
-                'categories'  => $categories,
-                'equipes'     => $equipeIds,
-                'date'        => $date,
-                'debut'       => $debut,
-                'fin'         => $fin,
-                'lieu'        => '' === $lieu ? null : $lieu,
-                'description' => '' === $description ? null : $description,
-                'jusqua'      => $jusqua,
+                'type'           => $type,
+                'titre'          => '' === $titre ? (Entrainement::TYPE_RENCONTRE === $type ? 'Rencontre' : 'Entraînement') : $titre,
+                'categories'     => $categories,
+                'equipes'        => $equipeIds,
+                'date'           => $date,
+                'debut'          => $debut,
+                'fin'            => $fin,
+                'lieu'           => '' === $lieu ? null : $lieu,
+                'description'    => '' === $description ? null : $description,
+                'jusqua'         => $jusqua,
+                'partageProfils'      => $partageProfils,
+                'partageRoles'        => $partageRoles,
+                'partageUtilisateurs' => $partageUtilisateurs,
             ],
         ];
     }

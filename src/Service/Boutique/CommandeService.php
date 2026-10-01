@@ -82,7 +82,7 @@ class CommandeService
                 $commande->addLigne(CommandeLigne::depuis($variante, $quantite));
             }
 
-            $this->appliquerCodePromo($commande, $client);
+            $this->appliquerCodePromo($commande, $client, $user);
 
             $this->em->persist($commande);
             $this->em->flush();
@@ -92,14 +92,14 @@ class CommandeService
     }
 
     /**
-     * Valide et applique un éventuel code de réduction saisi par le client. Un code « bon de
-     * livraison » exige en plus une adresse complète, sans quoi la commande est refusée.
+     * Valide et applique un éventuel bon de livraison saisi par le client : exige en plus une
+     * adresse complète, sans quoi la commande est refusée. Le code ne donne aucune réduction.
      *
      * @param array<string, mixed> $client
      *
      * @throws PromoCodeException
      */
-    private function appliquerCodePromo(Commande $commande, array $client): void
+    private function appliquerCodePromo(Commande $commande, array $client, ?User $user): void
     {
         $code = trim((string) ($client['codePromo'] ?? ''));
         if ('' === $code) {
@@ -107,27 +107,24 @@ class CommandeService
         }
 
         $codePromo = $this->codesPromo->findParCode($code);
-        if (!$codePromo || !$codePromo->isValide()) {
-            throw new PromoCodeException('Ce code de réduction est invalide ou n\'est plus valable.');
+        if (!$codePromo || !$codePromo->isValide() || !$codePromo->estUtilisablePar($user)) {
+            throw new PromoCodeException('Ce code est invalide ou n\'est plus valable.');
         }
 
-        $reductionCentimes = $codePromo->calculerReductionCentimes($commande->getSousTotalCentimes());
-        $commande->appliquerReduction($codePromo, $reductionCentimes);
+        $commande->appliquerReduction($codePromo, 0);
         $codePromo->incrementerUsage();
 
-        if ($codePromo->isAutoriseLivraison()) {
-            $adresse    = trim((string) ($client['livraisonAdresse'] ?? ''));
-            $codePostal = trim((string) ($client['livraisonCodePostal'] ?? ''));
-            $ville      = trim((string) ($client['livraisonVille'] ?? ''));
-            if ('' === $adresse || '' === $codePostal || '' === $ville) {
-                throw new PromoCodeException('Ce code nécessite une adresse de livraison complète (adresse, code postal, ville).');
-            }
-
-            $complement    = trim((string) ($client['livraisonComplement'] ?? ''));
-            $telephone     = trim((string) ($client['livraisonTelephone'] ?? ''));
-            $instructions  = trim((string) ($client['livraisonInstructions'] ?? ''));
-            $commande->setLivraison($adresse, '' !== $complement ? $complement : null, $codePostal, $ville, '' !== $telephone ? $telephone : null, '' !== $instructions ? $instructions : null);
+        $adresse    = trim((string) ($client['livraisonAdresse'] ?? ''));
+        $codePostal = trim((string) ($client['livraisonCodePostal'] ?? ''));
+        $ville      = trim((string) ($client['livraisonVille'] ?? ''));
+        if ('' === $adresse || '' === $codePostal || '' === $ville) {
+            throw new PromoCodeException('Ce code nécessite une adresse de livraison complète (adresse, code postal, ville).');
         }
+
+        $complement   = trim((string) ($client['livraisonComplement'] ?? ''));
+        $telephone    = trim((string) ($client['livraisonTelephone'] ?? ''));
+        $instructions = trim((string) ($client['livraisonInstructions'] ?? ''));
+        $commande->setLivraison($adresse, '' !== $complement ? $complement : null, $codePostal, $ville, '' !== $telephone ? $telephone : null, '' !== $instructions ? $instructions : null);
     }
 
     /**

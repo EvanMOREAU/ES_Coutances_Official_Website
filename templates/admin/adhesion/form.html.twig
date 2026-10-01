@@ -31,7 +31,7 @@
     <a href="{{ path('admin_adhesion_index') }}" class="text-sm text-admin-text-muted hover:text-admin-text"><i class="fa-solid fa-arrow-left"></i> Paiements des licences</a>
     <div class="flex flex-wrap items-center gap-3 mt-3 mb-5">
         <h1 class="text-2xl font-black" style="font-family:'Barlow Condensed',sans-serif;">
-            {% if adhesion.id %}Licence {{ adhesion.saison }} — {{ adhesion.licencie }}{% else %}Nouvelle licence{% endif %}
+            {% if adhesion.id %}Licence {{ adhesion.saison }} — {{ adhesion.licencieAffichage }}{% else %}Nouvelle licence{% endif %}
         </h1>
         {% if adhesion.id %}<span class="badge badge-pay-{{ adhesion.statutPaiement }}">{{ adhesion.statutPaiementLabel }}</span>{% endif %}
     </div>
@@ -68,7 +68,7 @@
 
                 <section class="admin-card rounded-2xl p-6">
                     <h2 class="font-semibold mb-1">Aides</h2>
-                    <p class="text-xs text-admin-text-muted mb-4">Pass'Sport, Sport 50, Atout Normandie, Bourse Évasion, chèques vacances, coupons sport… Une aide reste « attendue » jusqu'à sa réception : notez la date quand elle arrive.</p>
+                    <p class="text-xs text-admin-text-muted mb-4">Pass'Sport, Spot 50, Atout Normandie, Bourse Évasion, chèques vacances, coupons sport… Une aide reste « attendue » jusqu'à sa réception : notez la date quand elle arrive.</p>
                     <div data-adhesion-form-target="aides">
                         {% for row in form.aides %}{{ _self.aide_row(row) }}{% endfor %}
                     </div>
@@ -88,6 +88,7 @@
                         </div>
                     </div>
                     <p class="text-xs text-admin-text-muted mb-4">Une ligne par échéance. Cochez « Encaissé » à la réception, et indiquez la date de remise en banque (chèques, espèces) ou de paiement (carte).</p>
+                    {{ form_errors(form.reglements) }}
                     <div data-adhesion-form-target="reglements">
                         {% for row in form.reglements %}{{ _self.reglement_row(row) }}{% endfor %}
                     </div>

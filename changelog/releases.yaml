@@ -8,13 +8,36 @@
 #   added / improved / fixed / removed : listes de phrases (Ajouté / Amélioré / Corrigé / Retiré)
 
 - version: "1.0.6"
-  date: "2026-09-30"
-  titre: "Correctifs : création de famille et outil de déploiement"
+  date: "2026-10-01"
+  titre: "Gestion des partenaires, assistants de création et planning"
+  added:
+    - "Nouvelle catégorie « Partenaires » dans le menu : tableau de bord dédié (montant total des contrats, reste à encaisser, partenaires en impayé, tâches en attente, évolution du nombre de partenaires)."
+    - "Création d'un partenaire sous forme d'assistant en 5 étapes : informations, premier contrat (dates, montant, document), règlements, tâches et notes."
+    - "Catégories de partenaires (ex. Or, Argent, Fournisseur…), définies depuis la rubrique Développeur et proposées sur chaque partenaire."
+    - "Déploiement : l'historique affiche désormais toutes les mises à jour déployées, avec pagination, au lieu des 10 dernières seulement."
+    - "Planning : un événement interne peut être partagé à un ou plusieurs comptes précis, en plus de « tout le monde » et d'un groupe précis."
+    - "Paiement d'une licence : création sous forme d'assistant en 4 étapes (licence et montant, aides, règlements, observations) ; le reste à régler se recalcule automatiquement avec les aides, et toute saisie dépassant le montant de la licence est bloquée tant qu'elle n'est pas corrigée."
+    - "Paiement d'une licence : possibilité de créer une licence pour une personne pas encore enregistrée comme licencié (simple nom), à rattacher plus tard à une fiche licencié."
+    - "Fiche de lecture d'une licence (« Voir »), accessible depuis le menu « … » de la liste, avant de la modifier."
+    - "Connexion sans mot de passe par clé d'accès (passkey) : enregistrement d'une ou plusieurs clés depuis Paramètres > Sécurité (Face ID, Windows Hello, clé de sécurité, gestionnaire de mots de passe comme Bitwarden…), et bouton dédié sur l'écran de connexion de l'administration."
+    - "Notification de paiement HelloAsso : le site est désormais averti par HelloAsso dès qu'un paiement est confirmé, même si le client ferme l'onglet avant de revenir sur le site (l'URL à configurer côté HelloAsso est affichée dans Configuration > HelloAsso)."
+  improved:
+    - "Paiement d'une licence : le montant dû, le prix de la licence (supérieur à 0€) et le rattachement à un licencié sont désormais aussi vérifiés côté serveur, pas seulement dans l'assistant de création — toute tentative de contournement est rejetée avec le montant exact manquant."
+    - "Boutique : un compte est désormais obligatoire pour valider une commande (catalogue et panier restent accessibles sans compte)."
+    - "Boutique : pour un paiement par carte, l'e-mail de confirmation n'est plus envoyé à la création de la commande mais seulement une fois le paiement réellement validé par HelloAsso."
+    - "Planning : le bouton « Ajouter une séance » devient « Ajouter un événement » ; l'ordre des types proposés est désormais Événement interne, Entraînement, Rencontre interne (événement interne sélectionné par défaut), et la mention trompeuse « réservé au back-office » a été retirée."
+    - "Liste des commandes : l'onglet « À préparer » est sélectionné par défaut à l'ouverture de la page, au lieu de « Toutes »."
+    - "La carte « Partenaires & sponsors » quitte la page « Site vitrine » pour rejoindre le nouveau tableau de bord « Partenaires »."
+    - "Assistants de création d'un contrat partenaire et d'une licence : les lignes d'aides et de règlements ne se tronquent plus (largeur et grille corrigées)."
+    - "Déploiement : si une mise à jour modifie l'outil de déploiement lui-même, le déploiement en cours peut encore échouer à l'étape « Dépendances PHP » (le processus continue avec l'ancien code déjà chargé en mémoire) — relancer « Déployer » une seconde fois suffit, le code étant alors déjà à jour sur le serveur."
   fixed:
     - "Création manuelle d'une famille : une erreur 500 se produisait si la date de naissance, l'email, le nom, le prénom ou la saison d'un licencié restait vide au lieu d'afficher une erreur de formulaire."
     - "Déploiement (rubrique Développeur) : le bouton restait bloqué indéfiniment sur « Démarrage » sans aucune erreur visible (le processus lancé en arrière-plan utilisait une version de PHP incompatible avec le site)."
     - "Déploiement : l'installation des dépendances (Composer) pouvait échouer pour la même raison de version de PHP."
     - "Déploiement : le paquet de compilation Tailwind était classé par erreur comme dépendance de développement, absente d'une installation de production."
+    - "Déploiement : le binaire Tailwind téléchargé n'avait pas les droits d'exécution, faisant échouer la compilation des styles."
+    - "Assistants de création (partenaire, licence) : la touche Entrée ne termine plus la création en cours de route, elle passe simplement à l'étape suivante."
+    - "Création d'un article : une photo envoyée restait perdue si la publication était bloquée faute de taille renseignée, obligeant à la renvoyer ; elle est maintenant conservée et réutilisée automatiquement à l'envoi suivant."
 
 - version: "1.0.5"
   date: "2026-09-29"

@@ -1,28 +1,24 @@
 {% extends 'admin/_layout.html.twig' %}
 {% form_theme form 'admin/_form_theme.html.twig' %}
 
-{% block title %}{{ codePromo.id ? 'Modifier le code' : 'Nouveau code de réduction' }}{% endblock %}
+{% block title %}{{ codePromo.id ? 'Modifier le bon' : 'Nouveau bon de livraison' }}{% endblock %}
 
 {% block body %}
     <h1 class="text-2xl font-black mb-6" style="font-family:'Barlow Condensed',sans-serif;">
-        {{ codePromo.id ? 'Modifier le code ' ~ codePromo.code : 'Nouveau code de réduction' }}
+        {{ codePromo.id ? 'Modifier le bon ' ~ codePromo.code : 'Nouveau bon de livraison' }}
     </h1>
 
     <div class="admin-card rounded-2xl p-6 max-w-xl">
         {{ form_start(form) }}
             {{ form_row(form.code) }}
             {{ form_row(form.description) }}
-            <div class="grid grid-cols-2 gap-4">
-                {{ form_row(form.type) }}
-                {{ form_row(form.valeur) }}
-            </div>
             {{ form_row(form.actif) }}
             <div class="grid grid-cols-2 gap-4">
                 {{ form_row(form.dateDebut) }}
                 {{ form_row(form.dateFin) }}
             </div>
             {{ form_row(form.usageMax) }}
-            {{ form_row(form.autoriseLivraison) }}
+            {{ form_row(form.utilisateur) }}
 
             <div class="flex items-center gap-3 mt-6">
                 <button type="submit" class="rounded-lg admin-gradient px-5 py-2 text-sm font-semibold text-white">Enregistrer</button>

@@ -20,14 +20,23 @@ class AdhesionType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         if ($options['nouveau']) {
-            $builder->add('licencie', EntityType::class, [
-                'class'         => Licencie::class,
-                'choice_label'  => static fn (Licencie $l) => sprintf('%s %s (%s)', $l->getNom(), $l->getPrenom(), $l->getFamille()),
-                'query_builder' => static fn ($repo) => $repo->createQueryBuilder('l')->orderBy('l.nom', 'ASC')->addOrderBy('l.prenom', 'ASC'),
-                'label'         => 'Licencié',
-                'placeholder'   => 'Choisir un licencié',
-                'attr'          => ['data-placeholder' => 'Rechercher un licencié'],
-            ]);
+            $builder
+                ->add('licencie', EntityType::class, [
+                    'class'         => Licencie::class,
+                    'choice_label'  => static fn (Licencie $l) => sprintf('%s %s (%s)', $l->getNom(), $l->getPrenom(), $l->getFamille()),
+                    'query_builder' => static fn ($repo) => $repo->createQueryBuilder('l')->orderBy('l.nom', 'ASC')->addOrderBy('l.prenom', 'ASC'),
+                    'label'         => 'Licencié',
+                    'required'      => false,
+                    'placeholder'   => 'Choisir un licencié',
+                    'attr'          => ['data-placeholder' => 'Rechercher un licencié'],
+                ])
+                ->add('licencieLabel', TextType::class, [
+                    'label'    => 'Ou, si la personne n\'est pas encore enregistrée : son nom',
+                    'required' => false,
+                    'attr'     => ['placeholder' => 'Ex. Jules Martin', 'maxlength' => 150],
+                    'help'     => 'La licence sera créée pour ce nom, à rattacher plus tard à une fiche licencié.',
+                ])
+            ;
         }
 
         $builder

@@ -6,7 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * Aide qui prend en charge une partie de la licence (Pass'Sport, Sport 50, Atout Normandie…).
+ * Aide qui prend en charge une partie de la licence (Pass'Sport, Spot 50, Atout Normandie…).
  * Les demandes se font après réception des licences : l'aide reste « attendue » jusqu'à son encaissement.
  */
 #[ORM\Entity]
@@ -15,7 +15,7 @@ class AideFinanciere
 {
     public const TYPES = [
         'pass_sport'       => "Pass'Sport",
-        'sport_50'         => 'Sport 50',
+        'sport_50'         => 'Spot 50',
         'atout_normandie'  => 'Atout Normandie',
         'bourse_evasion'   => 'Bourse Évasion',
         'cheques_vacances' => 'Chèques vacances',

@@ -17,12 +17,18 @@ use Symfony\Component\Routing\Attribute\Route;
 class DeployController extends AbstractController
 {
     #[Route('', name: 'admin_deploy_index', methods: ['GET'])]
-    public function index(DeployService $deploy, DeploymentRepository $deployments): Response
+    public function index(Request $request, DeployService $deploy, DeploymentRepository $deployments): Response
     {
+        $page   = max(1, $request->query->getInt('page', 1));
+        $result = $deployments->paginated($page);
+
         return $this->render('admin/deploy/index.html.twig', [
             'status'      => $deploy->status(),
             'running'     => $deploy->running(),
-            'history'     => $deployments->findRecent(10),
+            'history'     => $result['rows'],
+            'page'        => $page,
+            'pages'       => max(1, (int) ceil($result['total'] / DeploymentRepository::PER_PAGE)),
+            'total'       => $result['total'],
         ]);
     }
 

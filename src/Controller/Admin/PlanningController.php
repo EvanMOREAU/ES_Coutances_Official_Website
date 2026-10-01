@@ -3,6 +3,7 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Entrainement;
+use App\Entity\User;
 use App\Repository\EntrainementRepository;
 use App\Service\CategorieAge;
 use App\Service\PlanningService;
@@ -34,8 +35,10 @@ class PlanningController extends AbstractController
     public function index(): Response
     {
         return $this->render('admin/planning/index.html.twig', [
-            'categories' => array_values(CategorieAge::choices()),
-            'equipes'    => $this->planning->equipeChoices(),
+            'categories'   => array_values(CategorieAge::choices()),
+            'equipes'      => $this->planning->equipeChoices(),
+            'profils'      => $this->planning->profilChoices(),
+            'utilisateurs' => $this->planning->userChoices(),
         ]);
     }
 
@@ -56,6 +59,9 @@ class PlanningController extends AbstractController
             }
             $result = $this->repository->between($start, $end, $filter);
         }
+
+        $user   = $this->getUser();
+        $result = array_values(array_filter($result, fn ($e) => !$user instanceof User || $this->planning->visibleEvenement($e, $user)));
 
         return new JsonResponse(['events' => array_map($this->planning->serialize(...), $result)]);
     }
@@ -146,7 +152,10 @@ class PlanningController extends AbstractController
             ->setHeureDebut($v['debut'])
             ->setHeureFin($v['fin'])
             ->setLieu($v['lieu'])
-            ->setDescription($v['description']);
+            ->setDescription($v['description'])
+            ->setPartageProfils($v['partageProfils'])
+            ->setPartageRoles($v['partageRoles'])
+            ->setPartageUtilisateurs($v['partageUtilisateurs']);
     }
 
     private function checkToken(Request $request): ?JsonResponse

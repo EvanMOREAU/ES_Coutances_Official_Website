@@ -2,8 +2,11 @@
 
 namespace App\Controller\Admin;
 
+use App\Entity\ContratPartenaire;
+use App\Entity\ContratPartenaireDocument;
 use App\Entity\Partenaire;
 use App\Form\PartenaireType;
+use App\Form\PartenaireWizardType;
 use App\Repository\PartenaireRepository;
 use App\Service\OrdreService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -25,28 +28,60 @@ class PartenaireController extends AbstractController
         ]);
     }
 
+    #[Route('/{id}', name: 'admin_partenaire_show', requirements: ['id' => '\d+'], methods: ['GET'])]
+    public function show(Partenaire $partenaire): Response
+    {
+        return $this->render('admin/partenaire/show.html.twig', [
+            'partenaire' => $partenaire,
+        ]);
+    }
+
+    /** Création guidée : partenaire, premier contrat, règlements, tâches et notes en une fois. */
     #[Route('/nouveau', name: 'admin_partenaire_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $em, OrdreService $ordreService): Response
     {
         $partenaire = new Partenaire();
         $partenaire->setOrdre($ordreService->getNextOrdre(Partenaire::class));
 
-        $form = $this->createForm(PartenaireType::class, $partenaire);
+        $form = $this->createForm(PartenaireWizardType::class, $partenaire);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $contrat = $form->get('contrat')->getData();
+            $this->renumber($contrat);
+            $partenaire->addContrat($contrat);
+
+            $document = $form->get('document')->getData();
+            if ($document instanceof ContratPartenaireDocument && $document->getFichierFile()) {
+                $document->setNomOriginal($document->getFichierFile()->getClientOriginalName());
+                $contrat->addDocument($document);
+            }
+
             $em->persist($partenaire);
             $em->flush();
 
             $this->addFlash('success', 'Partenaire créé.');
 
-            return $this->redirectToRoute('admin_partenaire_index');
+            return $this->redirectToRoute('admin_partenaire_show', ['id' => $partenaire->getId()]);
         }
 
-        return $this->render('admin/partenaire/form.html.twig', [
+        return $this->render('admin/partenaire/wizard.html.twig', [
             'form'       => $form,
             'partenaire' => $partenaire,
         ]);
+    }
+
+    /** Les règlements et tâches sont numérotés dans l'ordre de saisie (voir ContratPartenaireController). */
+    private function renumber(ContratPartenaire $contrat): void
+    {
+        $i = 1;
+        foreach ($contrat->getReglements() as $reglement) {
+            $reglement->setOrdre($i++);
+        }
+        $i = 0;
+        foreach ($contrat->getTaches() as $tache) {
+            $tache->setOrdre($i++);
+        }
     }
 
     #[Route('/{id}/modifier', name: 'admin_partenaire_edit', methods: ['GET', 'POST'])]

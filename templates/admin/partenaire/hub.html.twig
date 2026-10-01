@@ -1,0 +1,75 @@
+{% extends 'admin/_layout.html.twig' %}
+
+{% block title %}Partenaires{% endblock %}
+
+{% block body %}
+    <div class="flex flex-wrap items-start justify-between gap-3 mb-6">
+        <div>
+            <h1 class="text-2xl font-black" style="font-family:'Barlow Condensed',sans-serif;">Partenaires</h1>
+            <p class="text-sm text-admin-text-muted">Tout ce qu'il faut pour gérer les partenaires et sponsors du club.</p>
+        </div>
+    </div>
+
+    <div class="ad-tiles mb-8">
+        <div class="ad-tile"><span>Montant total des contrats</span><strong>{{ totalMontant|money }}</strong></div>
+        <div class="ad-tile"><span>Reste à encaisser</span><strong>{{ totalResteAPayer|money }}</strong></div>
+        <div class="ad-tile"><span>Partenaires en impayé</span><strong>{{ totalImpayes }}</strong></div>
+        <div class="ad-tile"><span>Tâches en attente</span><strong>{{ totalTaches }}</strong></div>
+    </div>
+
+    <div class="grid lg:grid-cols-2 gap-5 mb-8">
+        <section class="admin-card rounded-2xl p-6">
+            <h2 class="font-semibold mb-1">Partenaires en impayé</h2>
+            <p class="text-xs text-admin-text-muted mb-4">Contrats dont il reste un solde à encaisser.</p>
+            {% if impayes is empty %}
+                <p class="text-sm text-admin-text-muted">Tous les contrats sont réglés.</p>
+            {% else %}
+                <ul class="text-sm divide-y divide-admin-border">
+                    {% for contrat in impayes %}
+                        <li class="py-2 flex items-center justify-between gap-3">
+                            <a href="{{ path('admin_partenaire_show', {id: contrat.partenaire.id}) }}" class="hover:underline truncate">
+                                {{ contrat.partenaire.nom }} <span class="text-admin-text-muted">— {{ contrat.titre }}</span>
+                            </a>
+                            <span class="badge badge-pay-{{ contrat.statutPaiement }} shrink-0">{{ contrat.resteCentimes|money }} restant</span>
+                        </li>
+                    {% endfor %}
+                </ul>
+                {% if pagesImpayes > 1 %}
+                    <nav class="jr-pager mt-3" aria-label="Pages">
+                        {% if pageImpayes > 1 %}<a href="{{ path('admin_partenaire_hub', {page_impayes: pageImpayes - 1, page_taches: pageTaches}) }}" class="admin-btn admin-btn-ghost admin-btn-sm">← Précédent</a>{% endif %}
+                        <span>Page {{ pageImpayes }} sur {{ pagesImpayes }}</span>
+                        {% if pageImpayes < pagesImpayes %}<a href="{{ path('admin_partenaire_hub', {page_impayes: pageImpayes + 1, page_taches: pageTaches}) }}" class="admin-btn admin-btn-ghost admin-btn-sm">Suivant →</a>{% endif %}
+                    </nav>
+                {% endif %}
+            {% endif %}
+        </section>
+
+        <section class="admin-card rounded-2xl p-6">
+            <h2 class="font-semibold mb-1">Tâches en attente</h2>
+            <p class="text-xs text-admin-text-muted mb-4">Tous contrats confondus, la plus proche échéance en premier.</p>
+            {% if tachesEnAttente is empty %}
+                <p class="text-sm text-admin-text-muted">Aucune tâche en attente.</p>
+            {% else %}
+                <ul class="text-sm divide-y divide-admin-border">
+                    {% for tache in tachesEnAttente %}
+                        <li class="py-2 flex items-center justify-between gap-3">
+                            <a href="{{ path('admin_partenaire_contrat_edit', {id: tache.contrat.id}) }}" class="hover:underline truncate">
+                                {{ tache.titre }} <span class="text-admin-text-muted">— {{ tache.contrat.partenaire.nom }}</span>
+                            </a>
+                            <span class="dt-muted shrink-0">{{ tache.echeance ? tache.echeance|date('d/m/Y') : '—' }}</span>
+                        </li>
+                    {% endfor %}
+                </ul>
+                {% if pagesTaches > 1 %}
+                    <nav class="jr-pager mt-3" aria-label="Pages">
+                        {% if pageTaches > 1 %}<a href="{{ path('admin_partenaire_hub', {page_impayes: pageImpayes, page_taches: pageTaches - 1}) }}" class="admin-btn admin-btn-ghost admin-btn-sm">← Précédent</a>{% endif %}
+                        <span>Page {{ pageTaches }} sur {{ pagesTaches }}</span>
+                        {% if pageTaches < pagesTaches %}<a href="{{ path('admin_partenaire_hub', {page_impayes: pageImpayes, page_taches: pageTaches + 1}) }}" class="admin-btn admin-btn-ghost admin-btn-sm">Suivant →</a>{% endif %}
+                    </nav>
+                {% endif %}
+            {% endif %}
+        </section>
+    </div>
+
+    {{ include('admin/_hub.html.twig', {groups: {'Partenaires': 'Partenaires'}}) }}
+{% endblock %}

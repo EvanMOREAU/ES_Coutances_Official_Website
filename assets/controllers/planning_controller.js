@@ -30,11 +30,20 @@ const fromIso = (s) => {
 const addDays = (d, n) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
 const esc = (value) => String(value ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 const tone = (category) => (category === 'Senior' ? 6 : (parseInt(category.slice(1), 10) || 0) % TONES);
-const toneOf = (event, category = null) => (event.type === 'rencontre' ? 'match' : tone(category ?? event.categories[0] ?? ''));
-/** Libellés de ce qu'une séance vise : « A vs B » pour une rencontre, sinon catégories (ou équipes choisies). */
+const toneOf = (event, category = null) => {
+    if (event.type === 'rencontre') return 'match';
+    if (event.type === 'evenement') return 'event';
+
+    return tone(category ?? event.categories[0] ?? '');
+};
+/** Libellés de ce qu'une séance vise : « A vs B » pour une rencontre, le titre pour un
+ *  événement interne, sinon catégories (ou équipes choisies) pour un entraînement. */
 const targets = (event) => {
     if (event.type === 'rencontre') {
         return [event.equipes.map((q) => q.nom).join(' vs ')];
+    }
+    if (event.type === 'evenement') {
+        return [event.titre];
     }
 
     return event.categories.map((c) => {
@@ -42,6 +51,21 @@ const targets = (event) => {
 
         return teams.length ? teams.join(' / ') : c;
     });
+};
+/** Libellé du partage d'un événement interne, pour affichage dans la fiche. */
+const partageLabel = (event) => {
+    if (event.type !== 'evenement' || event.partage === 'tous') {
+        return 'Tout le monde';
+    }
+    if (event.partage === 'utilisateurs') {
+        const noms = event.partageUtilisateurs.map((u) => u.nom);
+
+        return noms.length ? noms.join(', ') : 'Tout le monde';
+    }
+    const roleLabels = { ROLE_DEV: 'Développeur', ROLE_ADMIN: 'Administrateur', ROLE_EDITOR: 'Éditeur' };
+    const parts = [...event.partageProfils.map((p) => p.nom), ...event.partageRoles.map((r) => roleLabels[r] ?? r)];
+
+    return parts.length ? parts.join(', ') : 'Tout le monde';
 };
 const timeRange = (event) => (event.fin ? `${event.debut} – ${event.fin}` : event.debut);
 
@@ -57,6 +81,8 @@ export default class extends Controller {
         categories: Array,
         equipes: Array,
         filterCategories: Array,
+        profils: Array,
+        utilisateurs: Array,
     };
 
     connect() {
@@ -346,7 +372,10 @@ export default class extends Controller {
             if (key === this.selected) classes.push('is-selected');
 
             const chips = events.slice(0, MAX_CHIPS).map((e) => {
-                return `<span class="pl-chip pl-tone-${toneOf(e)}" title="${esc(e.titre)} · ${esc(targets(e).join(', '))}">${esc(e.debut)} ${esc(targets(e).join(' · '))}</span>`;
+                const label = targets(e).join(', ');
+                const title = e.type === 'evenement' ? e.titre : `${e.titre} · ${label}`;
+
+                return `<span class="pl-chip pl-tone-${toneOf(e)}" title="${esc(title)}">${esc(e.debut)} ${esc(label)}</span>`;
             }).join('');
             const more = events.length > MAX_CHIPS ? `<span class="pl-more">+${events.length - MAX_CHIPS}</span>` : '';
             const label = `${cap(LONG_DATE.format(day))}${events.length ? `, ${events.length} séance${events.length > 1 ? 's' : ''}` : ''}`;
@@ -454,16 +483,21 @@ export default class extends Controller {
                </span>`
             : '';
 
+        const icon = event.type === 'rencontre' ? 'fa-futbol' : event.type === 'evenement' ? 'fa-calendar-day' : null;
+        const badges = event.type === 'evenement'
+            ? `<span class="pl-badge pl-tone-event"><i class="fa-solid fa-lock"></i> ${esc(partageLabel(event))}</span>`
+            : `${event.type === 'rencontre' ? '<span class="pl-badge pl-tone-match">Rencontre</span>' : ''}${event.categories.map((c) => `<span class="pl-badge pl-tone-${toneOf(event, c)}">${esc(c)}</span>`).join('')}${event.type === 'rencontre' ? '' : event.equipes.map((q) => `<span class="pl-badge is-team pl-tone-${toneOf(event, q.categorie)}">${esc(q.nom)}</span>`).join('')}`;
+
         return `
             <article class="pl-event pl-tone-${toneOf(event)}">
                 <div class="pl-event-head">
-                    <strong>${event.type === 'rencontre' ? '<i class="fa-solid fa-futbol"></i> ' : ''}${esc(event.titre)}</strong>
+                    <strong>${icon ? `<i class="fa-solid ${icon}"></i> ` : ''}${esc(event.titre)}</strong>
                     ${actions}
                 </div>
                 <p class="pl-event-meta"><i class="fa-regular fa-clock"></i> ${esc(timeRange(event))}${event.serie ? ' <span class="pl-tag"><i class="fa-solid fa-repeat"></i> Chaque semaine</span>' : ''}</p>
                 ${event.lieu ? `<p class="pl-event-meta"><i class="fa-solid fa-location-dot"></i> ${esc(event.lieu)}</p>` : ''}
                 ${event.description ? `<p class="pl-event-desc">${esc(event.description)}</p>` : ''}
-                <div class="pl-badges">${event.type === 'rencontre' ? '<span class="pl-badge pl-tone-match">Rencontre</span>' : ''}${event.categories.map((c) => `<span class="pl-badge pl-tone-${toneOf(event, c)}">${esc(c)}</span>`).join('')}${event.type === 'rencontre' ? '' : event.equipes.map((q) => `<span class="pl-badge is-team pl-tone-${toneOf(event, q.categorie)}">${esc(q.nom)}</span>`).join('')}</div>
+                <div class="pl-badges">${badges}</div>
             </article>`;
     }
 
@@ -477,7 +511,7 @@ export default class extends Controller {
                         data-planning-date-param="${event.date}" data-planning-keep-param="true">
                     <span class="pl-date-badge"><b>${date.getDate()}</b><small>${esc(SHORT_MONTH.format(date).replace('.', ''))}</small></span>
                     <span class="pl-upcoming-text">
-                        <strong>${esc(event.titre)}${event.type === 'rencontre' ? '' : ` · ${esc(targets(event).join(', '))}`}</strong>
+                        <strong>${esc(event.titre)}${event.type === 'entrainement' ? ` · ${esc(targets(event).join(', '))}` : ''}</strong>
                         <small>${esc(cap(SHORT_WEEKDAY.format(date).replace('.', '')))} · ${esc(timeRange(event))}${event.lieu ? ` · ${esc(event.lieu)}` : ''}</small>
                     </span>
                 </button>`;
@@ -592,7 +626,7 @@ export default class extends Controller {
 
     openForm(existing) {
         const isEdit = existing !== null;
-        const values = existing ?? { type: 'entrainement', titre: '', categories: [], equipes: [], date: this.selected ?? iso(this.today), debut: '', fin: '', lieu: '', description: '', serie: false };
+        const values = existing ?? { type: 'evenement', titre: '', categories: [], equipes: [], date: this.selected ?? iso(this.today), debut: '', fin: '', lieu: '', description: '', serie: false, partage: 'tous', partageProfils: [], partageRoles: [], partageUtilisateurs: [] };
         const chips = this.categoriesValue.map((c) => `
             <label class="pl-check pl-tone-${tone(c)}"><input type="checkbox" name="categories" value="${esc(c)}" ${values.categories.includes(c) ? 'checked' : ''}><span>${esc(c)}</span></label>`).join('');
         const teamIds = values.equipes.map((q) => q.id);
@@ -600,29 +634,39 @@ export default class extends Controller {
         const groups = [...new Set(this.equipesValue.map((q) => q.categorie))];
         const teamOptions = (selected) => `<option value="">Choisir une équipe</option>${groups.map((g) => `<optgroup label="${esc(g)}">${this.equipesValue.filter((q) => q.categorie === g).map((q) => `<option value="${q.id}" ${q.id === selected ? 'selected' : ''}>${esc(q.nom)}</option>`).join('')}</optgroup>`).join('')}`;
         const isMatch = values.type === 'rencontre';
+        const isEntrainement = values.type === 'entrainement';
+        const isEvenement = values.type === 'evenement';
+        const roleLabels = { ROLE_DEV: 'Développeur', ROLE_ADMIN: 'Administrateur', ROLE_EDITOR: 'Éditeur' };
+        const profilIds = (values.partageProfils ?? []).map((p) => p.id);
+        const roleValues = values.partageRoles ?? [];
+        const utilisateurIds = (values.partageUtilisateurs ?? []).map((u) => u.id);
+        const partageValue = values.partage ?? 'tous';
+        const isGroupe = partageValue === 'groupe';
+        const isUtilisateurs = partageValue === 'utilisateurs';
 
         const dialog = document.createElement('dialog');
         dialog.className = 'admin-modal admin-modal-wide pl-modal';
         dialog.innerHTML = `
             <form class="admin-modal-body" novalidate>
-                <h2 class="admin-modal-title">${isEdit ? 'Modifier la séance' : 'Ajouter une séance'}</h2>
-                <p class="admin-modal-text">${isEdit ? 'Les changements sont visibles tout de suite par les licenciés concernés.' : 'Planifiez un entraînement (catégories ou équipes) ou une rencontre entre deux équipes du club.'}</p>
+                <h2 class="admin-modal-title">${isEdit ? "Modifier l'événement" : 'Ajouter un événement'}</h2>
+                <p class="admin-modal-text">${isEdit ? 'Les changements sont visibles tout de suite par les licenciés (ou comptes) concernés.' : "Planifiez un événement interne, un entraînement (catégories ou équipes), ou une rencontre entre deux équipes du club."}</p>
 
                 <div class="pl-field">
                     <span class="admin-modal-label">Type</span>
                     <div class="pl-types" role="radiogroup">
-                        <label class="pl-type"><input type="radio" name="type" value="entrainement" ${isMatch ? '' : 'checked'}><span><i class="fa-solid fa-person-running"></i> Entraînement</span></label>
+                        <label class="pl-type"><input type="radio" name="type" value="evenement" ${isEvenement ? 'checked' : ''}><span><i class="fa-solid fa-calendar-day"></i> Événement interne</span></label>
+                        <label class="pl-type"><input type="radio" name="type" value="entrainement" ${isEntrainement ? 'checked' : ''}><span><i class="fa-solid fa-person-running"></i> Entraînement</span></label>
                         <label class="pl-type"><input type="radio" name="type" value="rencontre" ${isMatch ? 'checked' : ''}><span><i class="fa-solid fa-futbol"></i> Rencontre interne</span></label>
                     </div>
                 </div>
 
                 <div class="pl-field">
                     <label class="admin-modal-label" for="pl-titre">Titre</label>
-                    <input class="admin-modal-input" id="pl-titre" name="titre" maxlength="150" placeholder="${isMatch ? 'Automatique : Équipe A – Équipe B' : 'Entraînement'}" value="${esc(values.titre)}" autocomplete="off">
+                    <input class="admin-modal-input" id="pl-titre" name="titre" maxlength="150" placeholder="${isMatch ? 'Automatique : Équipe A – Équipe B' : (isEvenement ? 'Ex. Réunion coachs, formation arbitrage…' : 'Entraînement')}" value="${esc(values.titre)}" autocomplete="off">
                     <p class="pl-error" data-error="titre"></p>
                 </div>
 
-                <div data-section="entrainement" ${isMatch ? 'hidden' : ''}>
+                <div data-section="entrainement" ${isMatch || isEvenement ? 'hidden' : ''}>
                     <div class="pl-field">
                         <span class="admin-modal-label">Catégories <em>*</em></span>
                         <div class="pl-checks">${chips}</div>
@@ -646,6 +690,38 @@ export default class extends Controller {
                         </div>
                     </div>
                     <p class="pl-error" data-error="equipes"></p>
+                </div>
+
+                <div data-section="evenement" ${isEvenement ? '' : 'hidden'}>
+                    <div class="pl-field">
+                        <span class="admin-modal-label">Partagé à</span>
+                        <div class="pl-types" role="radiogroup">
+                            <label class="pl-type"><input type="radio" name="partage" value="tous" ${!isGroupe && !isUtilisateurs ? 'checked' : ''}><span><i class="fa-solid fa-users"></i> Tout le monde</span></label>
+                            <label class="pl-type"><input type="radio" name="partage" value="groupe" ${isGroupe ? 'checked' : ''}><span><i class="fa-solid fa-user-group"></i> Groupe(s) précis</span></label>
+                            <label class="pl-type"><input type="radio" name="partage" value="utilisateurs" ${isUtilisateurs ? 'checked' : ''}><span><i class="fa-solid fa-user"></i> Utilisateur(s) précis</span></label>
+                        </div>
+                    </div>
+                    <div class="pl-field" data-partage-groupe ${isGroupe ? '' : 'hidden'}>
+                        <span class="admin-modal-label">Rôles</span>
+                        <div class="pl-checks">
+                            ${Object.entries(roleLabels).map(([role, label]) => `
+                                <label class="pl-check"><input type="checkbox" name="roles" value="${esc(role)}" ${roleValues.includes(role) ? 'checked' : ''}><span>${esc(label)}</span></label>`).join('')}
+                        </div>
+                        <span class="admin-modal-label" style="margin-top:.6rem;display:block;">Profils d'autorisation</span>
+                        <div class="pl-checks">
+                            ${this.profilsValue.map((p) => `
+                                <label class="pl-check"><input type="checkbox" name="profils" value="${p.id}" ${profilIds.includes(p.id) ? 'checked' : ''}><span>${esc(p.nom)}</span></label>`).join('') || '<p class="pl-muted">Aucun profil d\'autorisation défini pour le moment.</p>'}
+                        </div>
+                        <p class="pl-error" data-error="partage"></p>
+                    </div>
+                    <div class="pl-field" data-partage-utilisateurs ${isUtilisateurs ? '' : 'hidden'}>
+                        <span class="admin-modal-label">Comptes</span>
+                        <div class="pl-checks">
+                            ${this.utilisateursValue.map((u) => `
+                                <label class="pl-check"><input type="checkbox" name="utilisateurs" value="${u.id}" ${utilisateurIds.includes(u.id) ? 'checked' : ''}><span>${esc(u.nom)}</span></label>`).join('') || '<p class="pl-muted">Aucun compte disponible.</p>'}
+                        </div>
+                        <p class="pl-error" data-error="partage"></p>
+                    </div>
                 </div>
 
                 <div class="pl-row">
@@ -698,20 +774,29 @@ export default class extends Controller {
                 <div class="admin-modal-actions pl-actions">
                     ${isEdit ? '<button type="button" data-role="delete" class="admin-btn admin-btn-ghost pl-delete"><i class="fa-solid fa-trash"></i> Supprimer</button>' : ''}
                     <button type="button" data-role="cancel" class="admin-btn admin-btn-ghost">Annuler</button>
-                    <button type="submit" class="admin-btn admin-btn-primary">${isEdit ? 'Enregistrer' : 'Créer la séance'}</button>
+                    <button type="submit" class="admin-btn admin-btn-primary">${isEdit ? 'Enregistrer' : "Créer l'événement"}</button>
                 </div>
             </form>`;
 
         const form = dialog.querySelector('form');
 
-        // Bascule entraînement / rencontre.
+        // Bascule entraînement / rencontre / événement interne.
         const sync = () => {
-            const match = form.querySelector('input[name="type"]:checked').value === 'rencontre';
-            form.querySelector('[data-section="entrainement"]').hidden = match;
-            form.querySelector('[data-section="rencontre"]').hidden = !match;
-            form.titre.placeholder = match ? 'Automatique : Équipe A – Équipe B' : 'Entraînement';
+            const type = form.querySelector('input[name="type"]:checked').value;
+            form.querySelector('[data-section="entrainement"]').hidden = type !== 'entrainement';
+            form.querySelector('[data-section="rencontre"]').hidden = type !== 'rencontre';
+            form.querySelector('[data-section="evenement"]').hidden = type !== 'evenement';
+            form.titre.placeholder = type === 'rencontre' ? 'Automatique : Équipe A – Équipe B' : (type === 'evenement' ? 'Ex. Réunion coachs, formation arbitrage…' : 'Entraînement');
         };
         form.querySelectorAll('input[name="type"]').forEach((radio) => radio.addEventListener('change', sync));
+
+        // Partage d'un événement interne : tout le monde, un groupe précis (rôles / profils), ou des comptes précis.
+        const syncPartage = () => {
+            const partage = form.querySelector('input[name="partage"]:checked')?.value;
+            form.querySelector('[data-partage-groupe]').hidden = partage !== 'groupe';
+            form.querySelector('[data-partage-utilisateurs]').hidden = partage !== 'utilisateurs';
+        };
+        form.querySelectorAll('input[name="partage"]').forEach((radio) => radio.addEventListener('change', syncPartage));
 
         // Pour chaque catégorie cochée qui a des équipes : « toute la catégorie » ou une équipe précise.
         const renderTeams = () => {
@@ -769,18 +854,26 @@ export default class extends Controller {
         const type = data.get('type');
         const equipes = type === 'rencontre'
             ? [data.get('equipeA'), data.get('equipeB')].filter(Boolean)
-            : [...form.querySelectorAll('[data-teams-list] select')].map((sel) => sel.value).filter(Boolean);
+            : type === 'evenement'
+                ? []
+                : [...form.querySelectorAll('[data-teams-list] select')].map((sel) => sel.value).filter(Boolean);
         const body = {
             type,
             equipes,
             titre: data.get('titre'),
-            categories: type === 'rencontre' ? [] : data.getAll('categories'),
+            categories: type === 'entrainement' ? data.getAll('categories') : [],
             date: data.get('date'),
             debut: data.get('debut'),
             fin: data.get('fin'),
             lieu: data.get('lieu'),
             description: data.get('description'),
         };
+        if (type === 'evenement') {
+            body.partage = data.get('partage') ?? 'tous';
+            body.roles = data.getAll('roles');
+            body.profils = data.getAll('profils');
+            body.utilisateurs = data.getAll('utilisateurs');
+        }
         if (existing) {
             body.portee = data.get('portee') ?? 'occurrence';
         } else {

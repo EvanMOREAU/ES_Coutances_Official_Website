@@ -1,0 +1,42 @@
+{% extends 'admin/_layout.html.twig' %}
+
+{% block title %}Catégories de partenaires{% endblock %}
+
+{% block body %}
+    <div class="flex items-center justify-between mb-6">
+        <h1 class="text-2xl font-black" style="font-family:'Barlow Condensed',sans-serif;">Catégories de partenaires</h1>
+        {% if can_url(path('admin_categorie_partenaire_new')) %}<a href="{{ path('admin_categorie_partenaire_new') }}" class="rounded-lg admin-gradient px-4 py-2 text-sm font-semibold text-white">+ Nouvelle catégorie</a>{% endif %}
+    </div>
+    <p class="text-sm text-admin-text-muted mb-6">Ces catégories (or, argent, fournisseur…) sont ensuite proposées sur la fiche de chaque partenaire.</p>
+
+    {% embed 'admin/_components/data_table.html.twig' with {
+        key: 'categorie_partenaire',
+        plural: 'catégories',
+        search_placeholder: 'Rechercher une catégorie…',
+        empty_message: 'Aucune catégorie ne correspond à votre recherche.',
+        bulk: false,
+        default_per_page: 100,
+        reorder_url: can_url(path('admin_categorie_partenaire_reorder'), 'POST') ? path('admin_categorie_partenaire_reorder') : null,
+        reorder_token: 'reorder-categorie-partenaire',
+        columns: [
+            {key: 'drag', label: 'Ordre', sortable: false},
+            {key: 'nom', label: 'Nom'},
+        ],
+    } %}
+        {% block rows %}
+            {% for categorie in categories %}
+                <tr data-data-table-target="row" data-reorder-target="row" data-action="dragover->reorder#over drop->reorder#drop" data-id="{{ categorie.id }}">
+                    <td data-col="drag" class="dt-drag-handle" draggable="true" data-action="dragstart->reorder#start dragend->reorder#end" title="Glisser pour réordonner"><i class="fa-solid fa-grip-vertical"></i></td>
+                    <td data-col="nom" data-sort="{{ categorie.nom|lower }}" class="font-medium">{{ categorie.nom }}</td>
+                    {% include 'admin/_components/row_menu.html.twig' with {
+                        edit_url: path('admin_categorie_partenaire_edit', {id: categorie.id}),
+                        delete_url: path('admin_categorie_partenaire_delete', {id: categorie.id}),
+                        delete_token: csrf_token('delete-categorie-partenaire-' ~ categorie.id),
+                        delete_title: 'Supprimer cette catégorie ?',
+                        delete_message: 'La catégorie « ' ~ categorie.nom ~ ' » sera supprimée définitivement. Les partenaires qui l\'utilisent perdront cette catégorie.',
+                    } %}
+                </tr>
+            {% endfor %}
+        {% endblock %}
+    {% endembed %}
+{% endblock %}

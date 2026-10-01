@@ -1,0 +1,95 @@
+{% extends 'admin/_layout.html.twig' %}
+
+{% block title %}Licence {{ adhesion.saison }} — {{ adhesion.licencieAffichage }}{% endblock %}
+
+{% block body %}
+    <p class="mb-4"><a href="{{ path('admin_adhesion_index') }}" class="text-sm text-admin-text-muted hover:text-white">&larr; Paiements des licences</a></p>
+
+    <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
+        <div class="flex items-center gap-3">
+            <h1 class="text-2xl font-black" style="font-family:'Barlow Condensed',sans-serif;">{{ adhesion.licencieAffichage }} — {{ adhesion.saison }}</h1>
+            <span class="badge badge-pay-{{ adhesion.statutPaiement }}">{{ adhesion.statutPaiementLabel }}</span>
+            {% if not adhesion.licencie %}<span class="badge badge-draft" title="Pas encore rattaché à une fiche licencié">libellé</span>{% endif %}
+        </div>
+        {% if can_url(path('admin_adhesion_edit', {id: adhesion.id})) %}
+            <a href="{{ path('admin_adhesion_edit', {id: adhesion.id}) }}" class="rounded-lg admin-gradient px-4 py-2 text-sm font-semibold text-white">Modifier</a>
+        {% endif %}
+    </div>
+
+    <div class="ad-tiles mb-6">
+        <div class="ad-tile"><span>Montant dû</span><strong>{{ adhesion.montantDuCentimes|money }}</strong></div>
+        <div class="ad-tile"><span>Encaissé</span><strong>{{ adhesion.recuCentimes|money }}</strong></div>
+        <div class="ad-tile"><span>Reste à encaisser</span><strong>{{ adhesion.resteCentimes|money }}</strong></div>
+        <div class="ad-tile"><span>Aides attendues</span><strong>{{ adhesion.aidesAttenduesCentimes|money }}</strong></div>
+    </div>
+
+    <div class="grid gap-6 lg:grid-cols-3 items-start">
+        <div class="lg:col-span-2 space-y-6">
+            <section class="admin-card rounded-2xl p-6">
+                <h2 class="font-semibold mb-4">Licence et montant</h2>
+                <dl class="text-sm space-y-2">
+                    <div class="flex justify-between"><dt class="text-admin-text-muted">Licencié</dt><dd>{{ adhesion.licencieAffichage }}</dd></div>
+                    <div class="flex justify-between"><dt class="text-admin-text-muted">Saison</dt><dd>{{ adhesion.saison }}</dd></div>
+                    <div class="flex justify-between"><dt class="text-admin-text-muted">Prix de la licence</dt><dd>{{ adhesion.montantBaseCentimes|money }}</dd></div>
+                    {% if adhesion.reductionCentimes > 0 %}
+                        <div class="flex justify-between"><dt class="text-admin-text-muted">Réduction{{ adhesion.reductionMotif ? ' (' ~ adhesion.reductionMotif ~ ')' }}</dt><dd>− {{ adhesion.reductionCentimes|money }}</dd></div>
+                    {% endif %}
+                </dl>
+            </section>
+
+            <section class="admin-card rounded-2xl p-6">
+                <h2 class="font-semibold mb-1">Aides</h2>
+                {% if adhesion.aides is empty %}
+                    <p class="text-sm text-admin-text-muted">Aucune aide enregistrée.</p>
+                {% else %}
+                    <ul class="text-sm divide-y divide-admin-border">
+                        {% for aide in adhesion.aides %}
+                            <li class="py-2 flex items-center justify-between gap-3">
+                                <span>{{ aide.typeLabel }}{% if aide.note %} <span class="text-admin-text-muted">— {{ aide.note }}</span>{% endif %}</span>
+                                <span class="flex items-center gap-2 shrink-0">
+                                    <span>{{ aide.montantCentimes|money }}</span>
+                                    <span class="badge {{ aide.recue ? 'badge-active' : 'badge-draft' }}">{{ aide.recue ? 'Reçue' : 'Attendue' }}</span>
+                                </span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </section>
+
+            <section class="admin-card rounded-2xl p-6">
+                <h2 class="font-semibold mb-1">Règlements</h2>
+                {% if adhesion.reglements is empty %}
+                    <p class="text-sm text-admin-text-muted">Aucun règlement enregistré.</p>
+                {% else %}
+                    <ul class="text-sm divide-y divide-admin-border">
+                        {% for reglement in adhesion.reglements %}
+                            <li class="py-2 flex items-center justify-between gap-3">
+                                <span>{{ reglement.modeLabel }}{% if reglement.reference %} <span class="text-admin-text-muted">— {{ reglement.reference }}</span>{% endif %}</span>
+                                <span class="flex items-center gap-2 shrink-0">
+                                    <span>{{ reglement.montantCentimes|money }}</span>
+                                    <span class="badge {{ reglement.recu ? 'badge-active' : 'badge-draft' }}">{{ reglement.recu ? 'Encaissé' : 'En attente' }}</span>
+                                </span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </section>
+
+            {% if adhesion.observation %}
+                <section class="admin-card rounded-2xl p-6">
+                    <h2 class="font-semibold mb-3">Observations</h2>
+                    <p class="text-sm whitespace-pre-line">{{ adhesion.observation }}</p>
+                </section>
+            {% endif %}
+        </div>
+
+        <aside class="space-y-6">
+            {% if adhesion.licencie %}
+                <section class="admin-card rounded-2xl p-6">
+                    <h2 class="font-semibold mb-3">Famille</h2>
+                    <p class="text-sm">{{ adhesion.licencie.famille }}</p>
+                </section>
+            {% endif %}
+        </aside>
+    </div>
+{% endblock %}

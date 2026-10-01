@@ -42,6 +42,13 @@ class AdhesionController extends AbstractController
         ]);
     }
 
+    /** Fiche de la licence en lecture seule, avant de la modifier. */
+    #[Route('/{id}', name: 'admin_adhesion_show', requirements: ['id' => '\d+'], methods: ['GET'])]
+    public function show(Adhesion $adhesion): Response
+    {
+        return $this->render('admin/adhesion/show.html.twig', ['adhesion' => $adhesion]);
+    }
+
     #[Route('/nouvelle', name: 'admin_adhesion_new', methods: ['GET', 'POST'])]
     public function new(Request $request, LicencieRepository $licencies, SaisonRepository $saisons): Response
     {
@@ -55,9 +62,16 @@ class AdhesionController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            if ($this->adhesions->findOneBy(['licencie' => $adhesion->getLicencie(), 'saison' => $adhesion->getSaison()])) {
+            if (!$adhesion->getLicencie() && !trim((string) $adhesion->getLicencieLabel())) {
+                $form->get('licencieLabel')->addError(new FormError("Choisissez un licencié, ou indiquez au moins un nom si la personne n'est pas encore enregistrée."));
+            } elseif ($adhesion->getMontantBaseCentimes() <= 0) {
+                $form->get('montantBaseCentimes')->addError(new FormError('Le prix de la licence doit être supérieur à 0 €.'));
+            } elseif ($adhesion->getLicencie() && $this->adhesions->findOneBy(['licencie' => $adhesion->getLicencie(), 'saison' => $adhesion->getSaison()])) {
                 $form->get('saison')->addError(new FormError('Ce licencié a déjà une licence pour cette saison : ouvrez-la depuis la liste.'));
             } else {
+                if ($adhesion->getLicencie()) {
+                    $adhesion->setLicencieLabel(null);
+                }
                 $this->renumber($adhesion);
                 $this->em->persist($adhesion);
                 $this->em->flush();
@@ -67,7 +81,7 @@ class AdhesionController extends AbstractController
             }
         }
 
-        return $this->render('admin/adhesion/form.html.twig', ['form' => $form, 'adhesion' => $adhesion]);
+        return $this->render('admin/adhesion/wizard.html.twig', ['form' => $form, 'adhesion' => $adhesion]);
     }
 
     #[Route('/{id}', name: 'admin_adhesion_edit', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
@@ -87,7 +101,7 @@ class AdhesionController extends AbstractController
         return $this->render('admin/adhesion/form.html.twig', [
             'form'     => $form,
             'adhesion' => $adhesion,
-            'history'  => $this->adhesions->forLicencie($adhesion->getLicencie()),
+            'history'  => $adhesion->getLicencie() ? $this->adhesions->forLicencie($adhesion->getLicencie()) : [],
         ]);
     }
 

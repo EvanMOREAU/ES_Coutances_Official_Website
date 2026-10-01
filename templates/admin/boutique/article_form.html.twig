@@ -38,6 +38,9 @@
                 </datalist>
                 <div class="mb-5" data-controller="image-remove">
                     {{ form_label(form.imageFile) }}
+                    {% if hasPendingImage|default(false) %}
+                        <p class="text-xs text-admin-success mb-2"><i class="fa-solid fa-circle-check"></i> Photo déjà reçue : inutile de la renvoyer, elle sera utilisée telle quelle.</p>
+                    {% endif %}
                     {% if article.imageName %}
                         <div class="art-preview-wrap" data-image-remove-target="preview">
                             <img src="{{ asset('uploads/articles/' ~ article.imageName) }}" alt="" class="art-preview">

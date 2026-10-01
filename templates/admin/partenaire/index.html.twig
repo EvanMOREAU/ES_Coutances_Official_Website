@@ -38,7 +38,9 @@
                             <span class="dt-muted">—</span>
                         {% endif %}
                     </td>
-                    <td data-col="nom" data-sort="{{ partenaire.nom|lower }}" class="font-medium">{{ partenaire.nom }}</td>
+                    <td data-col="nom" data-sort="{{ partenaire.nom|lower }}" class="font-medium">
+                        <a href="{{ path('admin_partenaire_show', {id: partenaire.id}) }}" class="hover:underline">{{ partenaire.nom }}</a>
+                    </td>
                     <td data-col="site" class="dt-muted">{{ partenaire.url ?? '—' }}</td>
                     <td data-col="statut"><span class="badge badge-{{ partenaire.statut }}">{{ partenaire.statutLabel }}</span></td>
                     <td data-col="cree" data-sort="{{ partenaire.createdAt ? partenaire.createdAt|date('Y-m-d H:i') : '' }}" class="dt-muted">{{ partenaire.createdAt ? partenaire.createdAt|date('d/m/Y') : '—' }}</td>
@@ -49,6 +51,7 @@
                             label: partenaire.actif ? 'Désactiver' : 'Activer',
                             icon: partenaire.actif ? 'fa-eye-slash' : 'fa-eye',
                         }],
+                        show_url: path('admin_partenaire_show', {id: partenaire.id}),
                         edit_url: path('admin_partenaire_edit', {id: partenaire.id}),
                         delete_url: path('admin_partenaire_delete', {id: partenaire.id}),
                         delete_token: csrf_token('delete-partenaire-' ~ partenaire.id),

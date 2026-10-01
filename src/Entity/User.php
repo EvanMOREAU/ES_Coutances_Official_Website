@@ -123,6 +123,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, TotpTwo
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $webauthnUserHandle = null;
 
+    public function getWebauthnUserHandle(): ?string { return $this->webauthnUserHandle; }
+    public function setWebauthnUserHandle(?string $handle): static { $this->webauthnUserHandle = $handle; return $this; }
+
     public function getProfil(): ?ProfilAutorisation { return $this->profil; }
     public function setProfil(?ProfilAutorisation $profil): static { $this->profil = $profil; return $this; }
 

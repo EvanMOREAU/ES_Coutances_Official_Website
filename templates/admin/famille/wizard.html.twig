@@ -97,6 +97,14 @@
                     </div>
                 </div>
             </div>
-        {{ form_end(form) }}
+
+            {# form.licencies est géré entièrement côté JS (pattern prototype) : on le
+               rend mais sans l'afficher, pour ne pas dupliquer visuellement les lignes
+               resoumises après une erreur de validation. #}
+            <div class="hidden">
+                {{ form_widget(form.licencies) }}
+                {% if form._token is defined %}{{ form_widget(form._token) }}{% endif %}
+            </div>
+        {{ form_end(form, {render_rest: false}) }}
     </div>
 {% endblock %}

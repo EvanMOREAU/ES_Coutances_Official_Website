@@ -1,0 +1,21 @@
+{% extends 'admin/_layout.html.twig' %}
+{% form_theme form 'admin/_form_theme.html.twig' %}
+
+{% block title %}{{ categorie.id ? 'Modifier la catégorie' : 'Nouvelle catégorie de partenaire' }}{% endblock %}
+
+{% block body %}
+    <h1 class="text-2xl font-black mb-6" style="font-family:'Barlow Condensed',sans-serif;">
+        {{ categorie.id ? 'Modifier la catégorie' : 'Nouvelle catégorie de partenaire' }}
+    </h1>
+
+    <div class="admin-card rounded-2xl p-6 max-w-xl">
+        {{ form_start(form) }}
+            {{ form_row(form.nom) }}
+
+            <div class="flex items-center gap-3 mt-6">
+                <button type="submit" class="rounded-lg admin-gradient px-5 py-2 text-sm font-semibold text-white">Enregistrer</button>
+                <a href="{{ path('admin_categorie_partenaire_index') }}" class="text-sm text-admin-text-muted hover:text-white">Annuler</a>
+            </div>
+        {{ form_end(form) }}
+    </div>
+{% endblock %}

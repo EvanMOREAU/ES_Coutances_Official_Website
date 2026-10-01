@@ -72,7 +72,7 @@
 
     <section class="admin-card rounded-2xl p-6">
         <h2 class="text-lg font-bold mb-1">Historique</h2>
-        <p class="text-sm text-admin-text-muted mb-4">Les 10 dernières mises à jour déployées depuis l'admin.</p>
+        <p class="text-sm text-admin-text-muted mb-4">{{ total }} mise{{ total > 1 ? 's' }} à jour déployée{{ total > 1 ? 's' }} depuis l'admin.</p>
 
         {% if history is empty %}
             <p class="text-sm text-admin-text-muted">Aucun déploiement pour le moment.</p>
@@ -99,6 +99,14 @@
                     </tbody>
                 </table>
             </div>
+
+            {% if pages > 1 %}
+                <nav class="jr-pager" aria-label="Pages">
+                    {% if page > 1 %}<a href="{{ path('admin_deploy_index', {page: page - 1}) }}" class="admin-btn admin-btn-ghost admin-btn-sm">← Plus récentes</a>{% endif %}
+                    <span>Page {{ page }} sur {{ pages }}</span>
+                    {% if page < pages %}<a href="{{ path('admin_deploy_index', {page: page + 1}) }}" class="admin-btn admin-btn-ghost admin-btn-sm">Plus anciennes →</a>{% endif %}
+                </nav>
+            {% endif %}
         {% endif %}
     </section>
 {% endblock %}

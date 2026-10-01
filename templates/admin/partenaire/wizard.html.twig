@@ -1,0 +1,131 @@
+{% extends 'admin/_layout.html.twig' %}
+{% form_theme form 'admin/_form_theme.html.twig' %}
+
+{% block title %}Nouveau partenaire{% endblock %}
+
+{% macro reglement_row(row) %}
+    <div class="ad-row" data-partenaire-wizard-target="reglement">
+        <div class="ad-cell">{{ form_label(row.mode) }}{{ form_widget(row.mode) }}{{ form_errors(row.mode) }}</div>
+        <div class="ad-cell">{{ form_label(row.montantCentimes) }}{{ form_widget(row.montantCentimes) }}{{ form_errors(row.montantCentimes) }}</div>
+        <div class="ad-cell">{{ form_label(row.dateEcheance) }}{{ form_widget(row.dateEcheance) }}</div>
+        <div class="ad-cell ad-check"><label class="sv-toggle">{{ form_widget(row.recu) }}<span class="sv-switch"></span><span>Encaissé</span></label></div>
+        <div class="ad-cell">{{ form_label(row.dateRemise) }}{{ form_widget(row.dateRemise) }}</div>
+        <div class="ad-cell">{{ form_label(row.reference) }}{{ form_widget(row.reference) }}</div>
+        {{ form_widget(row.ordre) }}
+        <button type="button" class="var-remove" data-action="partenaire-wizard#remove" title="Retirer" aria-label="Retirer ce règlement"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+{% endmacro %}
+
+{% macro tache_row(row) %}
+    <div class="ad-row" data-partenaire-wizard-target="tache">
+        <div class="ad-cell ad-wide">{{ form_label(row.titre) }}{{ form_widget(row.titre) }}{{ form_errors(row.titre) }}</div>
+        <div class="ad-cell">{{ form_label(row.echeance) }}{{ form_widget(row.echeance) }}</div>
+        <div class="ad-cell ad-check"><label class="sv-toggle">{{ form_widget(row.fait) }}<span class="sv-switch"></span><span>Faite</span></label></div>
+        {{ form_widget(row.ordre) }}
+        <button type="button" class="var-remove" data-action="partenaire-wizard#remove" title="Retirer" aria-label="Retirer cette tâche"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+{% endmacro %}
+
+{% block body %}
+    <h1 class="text-2xl font-black mb-1" style="font-family:'Barlow Condensed',sans-serif;">Nouveau partenaire</h1>
+    <p class="text-sm text-admin-text-muted mb-6">Créez le partenaire et son premier contrat en une fois : informations, contrat, règlements, tâches et notes.</p>
+
+    {% set next_reglement = 0 %}{% for key, row in form.contrat.reglements %}{% set next_reglement = max(next_reglement, key + 1) %}{% endfor %}
+    {% set next_tache = 0 %}{% for key, row in form.contrat.taches %}{% set next_tache = max(next_tache, key + 1) %}{% endfor %}
+
+    <div data-controller="partenaire-wizard" data-action="change->partenaire-wizard#received keydown.enter->partenaire-wizard#onEnter"
+         data-partenaire-wizard-reglement-prototype-value="{{ _self.reglement_row(form.contrat.reglements.vars.prototype)|e('html_attr') }}"
+         data-partenaire-wizard-tache-prototype-value="{{ _self.tache_row(form.contrat.taches.vars.prototype)|e('html_attr') }}"
+         data-partenaire-wizard-reglement-index-value="{{ next_reglement }}"
+         data-partenaire-wizard-tache-index-value="{{ next_tache }}">
+
+        {# Indicateur d'étapes #}
+        <div class="flex items-center justify-center gap-3 mb-8 flex-wrap">
+            {% for step in [{n: 1, label: 'Partenaire'}, {n: 2, label: 'Contrat'}, {n: 3, label: 'Règlements'}, {n: 4, label: 'Tâches'}, {n: 5, label: 'Notes'}] %}
+                <div class="flex items-center gap-2">
+                    <span data-partenaire-wizard-target="indicator" class="flex h-9 w-9 items-center justify-center rounded-full text-sm font-bold {{ loop.first ? 'admin-gradient text-white' : 'bg-admin-surface text-admin-text-muted border border-admin-border' }}">{{ step.n }}</span>
+                    <span class="text-sm {{ loop.first ? 'text-admin-text font-medium' : 'text-admin-text-muted' }}">{{ step.label }}</span>
+                </div>
+                {% if not loop.last %}<div class="w-8 h-px bg-admin-border"></div>{% endif %}
+            {% endfor %}
+        </div>
+
+        {{ form_start(form, {attr: {novalidate: 'novalidate'}}) }}
+            <div class="admin-card rounded-2xl p-6 max-w-3xl mx-auto">
+
+                {# Étape 1 : Partenaire #}
+                <div data-partenaire-wizard-target="step">
+                    <h2 class="font-bold mb-4">Informations du partenaire</h2>
+                    {{ form_row(form.nom) }}
+                    {{ form_row(form.url) }}
+                    {{ form_row(form.logoFile) }}
+                    {{ form_row(form.categorie) }}
+                    {{ form_row(form.statut) }}
+                </div>
+
+                {# Étape 2 : Contrat #}
+                <div data-partenaire-wizard-target="step" class="hidden">
+                    <h2 class="font-bold mb-1">Contrat</h2>
+                    <p class="text-sm text-admin-text-muted mb-4">Le premier contrat de ce partenaire.</p>
+                    {{ form_row(form.contrat.titre) }}
+                    <div class="grid sm:grid-cols-2 gap-4">
+                        {{ form_row(form.contrat.dateDebut) }}
+                        {{ form_row(form.contrat.dateFin) }}
+                    </div>
+                    {{ form_row(form.contrat.montantCentimes) }}
+                    {{ form_row(form.document.fichierFile) }}
+                </div>
+
+                {# Étape 3 : Règlements #}
+                <div data-partenaire-wizard-target="step" class="hidden">
+                    <h2 class="font-bold mb-1">Règlements</h2>
+                    <p class="text-sm text-admin-text-muted mb-4">Optionnel : une ligne par échéance. Vous pourrez aussi les ajouter plus tard.</p>
+                    <div data-partenaire-wizard-target="reglements">
+                        {% for row in form.contrat.reglements %}{{ _self.reglement_row(row) }}{% endfor %}
+                    </div>
+                    <p class="ad-empty" data-partenaire-wizard-target="reglementsEmpty" {{ form.contrat.reglements|length > 0 ? 'hidden' }}>Aucun règlement enregistré.</p>
+                    <button type="button" class="admin-btn admin-btn-ghost admin-btn-sm mt-3" data-action="partenaire-wizard#addReglement"><i class="fa-solid fa-plus"></i> Ajouter un règlement</button>
+                </div>
+
+                {# Étape 4 : Tâches #}
+                <div data-partenaire-wizard-target="step" class="hidden">
+                    <h2 class="font-bold mb-1">Tâches à réaliser</h2>
+                    <p class="text-sm text-admin-text-muted mb-4">Optionnel : ex. envoyer le flocage, poser le panneau publicitaire…</p>
+                    <div data-partenaire-wizard-target="taches">
+                        {% for row in form.contrat.taches %}{{ _self.tache_row(row) }}{% endfor %}
+                    </div>
+                    <p class="ad-empty" data-partenaire-wizard-target="tachesEmpty" {{ form.contrat.taches|length > 0 ? 'hidden' }}>Aucune tâche enregistrée.</p>
+                    <button type="button" class="admin-btn admin-btn-ghost admin-btn-sm mt-3" data-action="partenaire-wizard#addTache"><i class="fa-solid fa-plus"></i> Ajouter une tâche</button>
+                </div>
+
+                {# Étape 5 : Notes #}
+                <div data-partenaire-wizard-target="step" class="hidden">
+                    <h2 class="font-bold mb-4">Notes</h2>
+                    {{ form_row(form.contrat.notes) }}
+                </div>
+
+                <div class="flex items-center justify-between mt-6 pt-4 border-t border-admin-border">
+                    <button type="button" data-partenaire-wizard-target="backButton" data-action="click->partenaire-wizard#back" class="invisible text-sm text-admin-text-muted hover:text-admin-text">
+                        <i class="fa-solid fa-arrow-left mr-1"></i> Précédent
+                    </button>
+                    <div class="flex items-center gap-3">
+                        <a href="{{ path('admin_partenaire_index') }}" class="text-sm text-admin-text-muted hover:text-admin-text">Annuler</a>
+                        <button type="button" data-partenaire-wizard-target="nextButton" data-action="click->partenaire-wizard#next"
+                                class="rounded-lg admin-gradient px-5 py-2 text-sm font-semibold text-white">
+                            Suivant <i class="fa-solid fa-arrow-right ml-1"></i>
+                        </button>
+                        <button type="submit" data-partenaire-wizard-target="submitButton" class="hidden rounded-lg admin-gradient px-5 py-2 text-sm font-semibold text-white">
+                            Créer le partenaire
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            {% do form.contrat.setRendered %}
+            {% do form.document.setRendered %}
+            <div class="hidden">
+                {% if form._token is defined %}{{ form_widget(form._token) }}{% endif %}
+            </div>
+        {{ form_end(form, {render_rest: false}) }}
+    </div>
+{% endblock %}

@@ -27,13 +27,14 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 /**
  * Boutique du club (site public) : catalogue, panier, commande, suivi.
- * Il n'y a pas de livraison par défaut : les commandes se retirent au club. Seul un code de
- * réduction marqué « bon de livraison » (CodePromo::autoriseLivraison) débloque une étape
- * supplémentaire (voir commandeLivraison()) pour renseigner une adresse. Le paiement par
- * carte se fait via HelloAsso (voir paiement()/paiementRetour()).
+ * Il n'y a pas de livraison par défaut : les commandes se retirent au club. Seul un bon de
+ * livraison (CodePromo) valide débloque une étape supplémentaire (voir commandeLivraison())
+ * pour renseigner une adresse. Le paiement par carte se fait via HelloAsso
+ * (voir paiement()/paiementRetour()).
  */
 #[Route('/boutique')]
 class BoutiqueController extends AbstractController
@@ -145,7 +146,9 @@ class BoutiqueController extends AbstractController
 
     // ------------------------------------------------------------------ commande
 
+    /** Un compte est obligatoire pour commander (catalogue et panier restent accessibles sans compte). */
     #[Route('/commande', name: 'boutique_commande', methods: ['GET', 'POST'])]
+    #[IsGranted('ROLE_USER')]
     public function commande(Request $request, FamilleRepository $familles): Response
     {
         $detail = $this->panier->detail();
@@ -163,12 +166,12 @@ class BoutiqueController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $client = $form->getData();
 
-            // Un code « bon de livraison » ouvre une étape en plus pour l'adresse ; sinon on
+            // Un bon de livraison valide ouvre une étape en plus pour l'adresse ; sinon on
             // finalise directement (un code invalide sera de toute façon rejeté par passer()).
             $code = trim((string) ($client['codePromo'] ?? ''));
             if ('' !== $code) {
                 $codePromo = $this->codesPromo->findParCode($code);
-                if ($codePromo && $codePromo->isValide() && $codePromo->isAutoriseLivraison()) {
+                if ($codePromo && $codePromo->isValide() && $codePromo->estUtilisablePar($user instanceof User ? $user : null)) {
                     $request->getSession()->set(self::SESSION_CHECKOUT, $client);
 
                     return $this->redirectToRoute('boutique_commande_livraison');
@@ -194,47 +197,35 @@ class BoutiqueController extends AbstractController
     }
 
     /**
-     * Aperçu en direct (sans consommer le code) : appelé en AJAX pendant la saisie, à l'étape
-     * « Vos informations », pour mettre à jour le total affiché avant même de valider le formulaire.
+     * Vérification en direct (sans consommer le code) : appelé en AJAX pendant la saisie, à
+     * l'étape « Vos informations », pour prévenir le client tout de suite qu'un code valide
+     * débloquera une étape de livraison, avant même de valider le formulaire.
      */
     #[Route('/code-promo/verifier', name: 'boutique_code_promo_verifier', methods: ['GET'])]
     public function verifierCodePromo(Request $request): JsonResponse
     {
-        $sousTotal = $this->panier->detail()['total'];
-        $code      = trim((string) $request->query->get('code', ''));
+        $code = trim((string) $request->query->get('code', ''));
 
         if ('' === $code) {
-            return $this->json(['valide' => false, 'sousTotalCentimes' => $sousTotal, 'totalCentimes' => $sousTotal, 'reductionCentimes' => 0]);
+            return $this->json(['valide' => false]);
         }
 
+        $user      = $this->getUser();
         $codePromo = $this->codesPromo->findParCode($code);
-        if (!$codePromo || !$codePromo->isValide()) {
-            return $this->json([
-                'valide'            => false,
-                'message'           => 'Ce code de réduction est invalide ou n\'est plus valable.',
-                'sousTotalCentimes' => $sousTotal,
-                'totalCentimes'     => $sousTotal,
-                'reductionCentimes' => 0,
-            ]);
+        if (!$codePromo || !$codePromo->isValide() || !$codePromo->estUtilisablePar($user instanceof User ? $user : null)) {
+            return $this->json(['valide' => false, 'message' => 'Ce code est invalide ou n\'est plus valable.']);
         }
 
-        $reduction = $codePromo->calculerReductionCentimes($sousTotal);
-
-        return $this->json([
-            'valide'             => true,
-            'sousTotalCentimes'  => $sousTotal,
-            'reductionCentimes'  => $reduction,
-            'totalCentimes'      => max(0, $sousTotal - $reduction),
-            'autoriseLivraison'  => $codePromo->isAutoriseLivraison(),
-        ]);
+        return $this->json(['valide' => true]);
     }
 
     /**
      * Étape intercalée avant la confirmation, uniquement quand le code saisi à l'étape
-     * précédente autorise la livraison : sans un tel code, cette page n'est pas accessible
-     * (par défaut, une commande ne peut pas être livrée, seulement retirée au club).
+     * précédente est un bon de livraison valide : sans un tel code, cette page n'est pas
+     * accessible (par défaut, une commande ne peut pas être livrée, seulement retirée au club).
      */
     #[Route('/commande/livraison', name: 'boutique_commande_livraison', methods: ['GET', 'POST'])]
+    #[IsGranted('ROLE_USER')]
     public function commandeLivraison(Request $request): Response
     {
         $detail  = $this->panier->detail();
@@ -245,8 +236,9 @@ class BoutiqueController extends AbstractController
             return $this->redirectToRoute('boutique_commande');
         }
 
+        $user      = $this->getUser();
         $codePromo = $this->codesPromo->findParCode((string) ($client['codePromo'] ?? ''));
-        if (!$codePromo || !$codePromo->isValide() || !$codePromo->isAutoriseLivraison()) {
+        if (!$codePromo || !$codePromo->isValide() || !$codePromo->estUtilisablePar($user instanceof User ? $user : null)) {
             $session->remove(self::SESSION_CHECKOUT);
 
             return $this->redirectToRoute('boutique_commande');
@@ -257,7 +249,6 @@ class BoutiqueController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $client = array_merge($client, $form->getData());
-            $user   = $this->getUser();
 
             try {
                 $commande = $this->passerCommande($detail, $client, $user instanceof User ? $user : null);
@@ -306,6 +297,7 @@ class BoutiqueController extends AbstractController
         // Une réduction à 100% laisse un total nul : rien à faire payer, on encaisse directement.
         if ($commande->getTotalCentimes() <= 0) {
             $this->commandes->appliquer($commande, 'payer');
+            $this->mailer->confirmation($commande);
             $this->addFlash('boutique_success', 'Paiement reçu, merci !');
 
             return $suivi;
@@ -372,6 +364,7 @@ class BoutiqueController extends AbstractController
         $etat = $intention['state'] ?? null;
         if ('Authorized' === $etat) {
             $this->commandes->appliquer($commande, 'payer');
+            $this->mailer->confirmation($commande);
             $this->addFlash('boutique_success', 'Paiement reçu, merci !');
         } elseif (in_array($etat, ['Waiting', 'Processing'], true)) {
             $this->addFlash('boutique_warning', 'Votre paiement est en cours de traitement : nous vous confirmerons par e-mail dès sa validation.');
@@ -380,6 +373,63 @@ class BoutiqueController extends AbstractController
         }
 
         return $suivi;
+    }
+
+    /**
+     * Notification serveur à serveur envoyée par HelloAsso (à configurer dans leur back-office,
+     * section Notifications, avec l'URL absolue de cette route) : contrairement au retour
+     * navigateur (paiementRetour()), elle arrive même si le client ferme l'onglet après avoir
+     * payé. On ne fait jamais confiance au contenu de la notification elle-même (rejouable) :
+     * elle ne sert qu'à déclencher une revérification auprès de l'API, comme pour le retour.
+     */
+    #[Route('/helloasso/notification', name: 'boutique_helloasso_notification', methods: ['POST'])]
+    public function helloAssoNotification(Request $request, CommandeRepository $commandes): Response
+    {
+        $payload = json_decode($request->getContent(), true);
+        $checkoutIntentId = $this->extraireCheckoutIntentId(is_array($payload) ? $payload : []);
+        if (null === $checkoutIntentId) {
+            return new Response();
+        }
+
+        $commande = $commandes->findOneBy(['helloAssoCheckoutIntentId' => $checkoutIntentId]);
+        if (!$commande || Commande::PAIEMENT_CARTE !== $commande->getModePaiement() || !$commande->isReglementDu()) {
+            return new Response();
+        }
+
+        try {
+            $intention = $this->helloAsso->recupererIntention($checkoutIntentId);
+        } catch (HelloAssoException $e) {
+            $this->logger->error('Échec de vérification (notification HelloAsso) de l\'intention {id} pour la commande {reference} : {message}', ['id' => $checkoutIntentId, 'reference' => $commande->getReference(), 'message' => $e->getMessage()]);
+
+            // Code d'erreur : HelloAsso réessaiera d'envoyer cette notification plus tard.
+            return new Response(status: 503);
+        }
+
+        if ('Authorized' === ($intention['state'] ?? null)) {
+            $this->commandes->appliquer($commande, 'payer');
+            $this->mailer->confirmation($commande);
+        }
+
+        return new Response();
+    }
+
+    /** Cherche récursivement un « checkoutIntentId » dans la charge utile, quel que soit le type d'évènement HelloAsso. */
+    private function extraireCheckoutIntentId(mixed $payload): ?int
+    {
+        if (!is_array($payload)) {
+            return null;
+        }
+        if (isset($payload['checkoutIntentId']) && is_numeric($payload['checkoutIntentId'])) {
+            return (int) $payload['checkoutIntentId'];
+        }
+        foreach ($payload as $value) {
+            $trouve = $this->extraireCheckoutIntentId($value);
+            if (null !== $trouve) {
+                return $trouve;
+            }
+        }
+
+        return null;
     }
 
     // ------------------------------------------------------------------ outils
@@ -401,10 +451,18 @@ class BoutiqueController extends AbstractController
         return $this->commandes->passer($quantites, $client, $user);
     }
 
+    /**
+     * Pour un paiement au club (espèces/chèque), la commande est confirmée dès sa création : le
+     * mail part tout de suite. Pour un paiement par carte, rien n'est encore payé à ce stade : le
+     * mail de confirmation n'est envoyé qu'une fois le paiement réellement validé (voir paiement(),
+     * paiementRetour() et helloAssoNotification()), jamais avant.
+     */
     private function commandeReussie(Commande $commande): Response
     {
         $this->panier->clear();
-        $this->mailer->confirmation($commande);
+        if (Commande::PAIEMENT_CARTE !== $commande->getModePaiement()) {
+            $this->mailer->confirmation($commande);
+        }
         $this->addFlash('boutique_success', 'Merci ! Votre commande est enregistrée.');
 
         return Commande::PAIEMENT_CARTE === $commande->getModePaiement()

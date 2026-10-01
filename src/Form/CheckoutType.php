@@ -57,7 +57,8 @@ class CheckoutType extends AbstractType
                 'attr'        => ['rows' => 3, 'placeholder' => 'Facultatif : flocage, précision sur une taille…'],
             ])
             ->add('codePromo', TextType::class, [
-                'label'       => 'Code de réduction',
+                'label'       => 'Code de livraison',
+                'help'        => 'Facultatif : un code valide vous permet de vous faire livrer, au lieu de retirer votre commande au club.',
                 'required'    => false,
                 'constraints' => [new Length(max: 30)],
                 'attr'        => ['placeholder' => 'Facultatif', 'autocomplete' => 'off'],
