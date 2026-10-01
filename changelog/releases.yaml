@@ -41,6 +41,7 @@
     - "Clés d'accès (passkeys) : la page Paramètres > Sécurité refusait l'accès aux clés avec « Vous n'avez pas l'autorisation d'accéder à cette page » (nouvelles routes non déclarées dans le système d'autorisations)."
     - "Clés d'accès (passkeys) : l'ajout d'une clé échouait avec une erreur SQL (donnée binaire rejetée par la colonne de stockage)."
     - "Clés d'accès (passkeys) : le bouton « Se connecter avec une clé d'accès » restait sans effet sur l'écran de connexion (la page ne chargeait aucun script)."
+    - "Paiement HelloAsso : un paiement par carte réellement abouti restait affiché comme « en attente » (le site vérifiait un champ absent de la réponse de l'API ; l'état réel du paiement est maintenant correctement lu)."
 
 - version: "1.0.5"
   date: "2026-09-29"

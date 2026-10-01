@@ -74,7 +74,35 @@ class HelloAssoClient
     {
         $settings = $this->settingsUtilisables();
 
-        return $this->request('GET', $settings, sprintf('/v5/organizations/%s/checkout-intents/%d', $settings->getOrganisationSlug(), $checkoutIntentId));
+        $data = $this->request('GET', $settings, sprintf('/v5/organizations/%s/checkout-intents/%d', $settings->getOrganisationSlug(), $checkoutIntentId));
+
+        return ['state' => $this->etatPaiement($data)];
+    }
+
+    /**
+     * La réponse de l'API n'a pas de champ « state » à la racine (contrairement à ce que laisse
+     * penser la doc rapide) : l'état se déduit des paiements de la commande associée
+     * (order.payments[].state), absente tant que le client n'a pas encore payé.
+     *
+     * @param array<string, mixed> $data
+     */
+    private function etatPaiement(array $data): string
+    {
+        $paiements = $data['order']['payments'] ?? null;
+        if (!is_array($paiements) || [] === $paiements) {
+            return 'Waiting'; // intention créée, pas encore de paiement associé
+        }
+
+        $etats = array_map(static fn ($p) => is_array($p) ? ($p['state'] ?? null) : null, $paiements);
+
+        if (in_array('Authorized', $etats, true)) {
+            return 'Authorized';
+        }
+        if (array_intersect($etats, ['Pending', 'Registered', 'Processing', 'Waiting'])) {
+            return 'Processing';
+        }
+
+        return (string) ($etats[0] ?? 'Unknown');
     }
 
     private function settingsUtilisables(): HelloAssoSettings
