@@ -64,7 +64,9 @@ class WebauthnCredential
 
     public function getRecord(): CredentialRecord
     {
-        $record = unserialize((string) $this->donnees, ['allowed_classes' => true]);
+        // serialize() produit des octets binaires bruts (clé publique COSE, aaguid…) : la
+        // colonne étant du texte UTF-8, on les encode en base64 avant stockage (voir setRecord()).
+        $record = unserialize(base64_decode((string) $this->donnees, true) ?: '', ['allowed_classes' => true]);
         if (!$record instanceof CredentialRecord) {
             throw new \RuntimeException('Enregistrement de clé d\'accès illisible.');
         }
@@ -74,7 +76,7 @@ class WebauthnCredential
 
     public function setRecord(CredentialRecord $record): static
     {
-        $this->donnees = serialize($record);
+        $this->donnees = base64_encode(serialize($record));
 
         return $this;
     }

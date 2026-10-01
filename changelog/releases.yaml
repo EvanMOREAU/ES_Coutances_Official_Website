@@ -39,6 +39,7 @@
     - "Assistants de création (partenaire, licence) : la touche Entrée ne termine plus la création en cours de route, elle passe simplement à l'étape suivante."
     - "Création d'un article : une photo envoyée restait perdue si la publication était bloquée faute de taille renseignée, obligeant à la renvoyer ; elle est maintenant conservée et réutilisée automatiquement à l'envoi suivant."
     - "Clés d'accès (passkeys) : la page Paramètres > Sécurité refusait l'accès aux clés avec « Vous n'avez pas l'autorisation d'accéder à cette page » (nouvelles routes non déclarées dans le système d'autorisations)."
+    - "Clés d'accès (passkeys) : l'ajout d'une clé échouait avec une erreur SQL (donnée binaire rejetée par la colonne de stockage)."
 
 - version: "1.0.5"
   date: "2026-09-29"
