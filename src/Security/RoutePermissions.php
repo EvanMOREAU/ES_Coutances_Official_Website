@@ -22,6 +22,8 @@ final class RoutePermissions
         'admin_parametres_securite_totp_annuler', 'admin_parametres_securite_totp_desactiver',
         'admin_parametres_securite_email_activer', 'admin_parametres_securite_email_desactiver',
         'admin_parametres_securite_backup_codes_generer',
+        'admin_parametres_securite_webauthn_options', 'admin_parametres_securite_webauthn_enregistrer',
+        'admin_parametres_securite_webauthn_supprimer',
     ];
 
     /** Routes déjà réservées aux développeurs par leur contrôleur. */
