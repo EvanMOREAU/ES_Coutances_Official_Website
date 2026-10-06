@@ -1,59 +1,45 @@
-{% block body %}
-<!DOCTYPE html>
-<html lang="fr" class="h-full">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="icon" type="image/png" href="{{ asset('images/favicon.png') }}">
-    <title>Connexion — Espace Familles &amp; Licenciés — ES Coutances</title>
-    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-    <link rel="stylesheet" href="{{ asset('styles/admin.css') }}">
-    <style>body { font-family: 'Inter', sans-serif; }</style>
-</head>
-<body class="admin-shell h-full bg-admin-bg text-admin-text flex items-center justify-center p-4">
-    <div class="w-full max-w-md">
-        <div class="admin-hero relative overflow-hidden rounded-2xl p-8 mb-6 text-center">
-            <div class="admin-hero-glow"></div>
-            <div class="relative">
-                <img src="https://raw.githubusercontent.com/CylaosICT/escoutances-images/refs/heads/main/logo_hd_trans3_gt.png" alt="ES Coutances" class="h-14 mx-auto mb-3">
-                <h1 class="text-xl font-black text-white uppercase tracking-wide" style="font-family:'Barlow Condensed',sans-serif;">Espace Familles &amp; Licenciés</h1>
-            </div>
+{% extends 'portail/_auth.html.twig' %}
+
+{% block title %}Connexion{% endblock %}
+{% block heading %}Connexion{% endblock %}
+{% block lead %}Accédez à votre compte pour commander à la boutique et suivre vos commandes.{% endblock %}
+
+{% block head_assets %}{{ importmap('portail') }}{% endblock %}
+
+{% block card %}
+    {% for message in app.flashes('success') %}
+        <div class="mc-alert ok">{{ message }}</div>
+    {% endfor %}
+    {% if error %}
+        <div class="mc-alert ko">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+    {% endif %}
+
+    <form method="post">
+        <div class="mc-field">
+            <label for="email">Adresse e-mail</label>
+            <input type="email" id="email" name="email" value="{{ last_username }}" autocomplete="email" required autofocus>
+        </div>
+        <div class="mc-field">
+            <label for="password">Mot de passe</label>
+            <input type="password" id="password" name="password" autocomplete="current-password" required>
         </div>
 
-        <div class="admin-card rounded-2xl p-8">
-            {% for message in app.flashes('success') %}
-                <div class="mb-4 rounded-lg border border-admin-success/30 bg-admin-success/10 text-admin-success px-4 py-3 text-sm">{{ message }}</div>
-            {% endfor %}
-            {% if error %}
-                <div class="mb-4 rounded-lg border border-admin-danger/30 bg-admin-danger/10 text-admin-danger px-4 py-3 text-sm">
-                    {{ error.messageKey|trans(error.messageData, 'security') }}
-                </div>
-            {% endif %}
+        <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
 
-            <form method="post" class="space-y-5">
-                <div>
-                    <label for="email" class="block text-xs font-semibold uppercase tracking-wide text-admin-text-muted mb-1.5">Adresse e-mail</label>
-                    <input type="email" id="email" name="email" value="{{ last_username }}" autocomplete="email" required
-                           class="w-full rounded-lg border border-admin-border bg-admin-bg px-3 py-2 text-sm text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-primary-to">
-                </div>
-                <div>
-                    <label for="password" class="block text-xs font-semibold uppercase tracking-wide text-admin-text-muted mb-1.5">Mot de passe</label>
-                    <input type="password" id="password" name="password" autocomplete="current-password" required
-                           class="w-full rounded-lg border border-admin-border bg-admin-bg px-3 py-2 text-sm text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-primary-to">
-                </div>
+        <button type="submit" class="mc-submit">Se connecter</button>
+    </form>
 
-                <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
-
-                <button type="submit" class="w-full rounded-lg admin-gradient px-5 py-2.5 text-sm font-semibold text-white">
-                    Se connecter
-                </button>
-            </form>
-            <a href="{{ path('app_forgot_password_request') }}" class="block text-center mt-5 text-sm text-admin-text-muted hover:text-white">Mot de passe oublié ?</a>
-            <a href="{{ path('portail_inscription') }}" class="block text-center mt-2 text-sm text-admin-text-muted hover:text-white">Pas encore de compte ? Créer un compte boutique</a>
-        </div>
+    <div style="margin-top:18px; padding-top:18px; border-top:1px solid var(--mc-border);" data-controller="passkey"
+         data-passkey-options-url-value="{{ path('portail_webauthn_login_options') }}"
+         data-passkey-finish-url-value="{{ path('portail_webauthn_login_check') }}">
+        <button type="button" data-passkey-target="button" data-action="click->passkey#login" class="mc-btn" style="width:100%; justify-content:center;">
+            <i class="fa-solid fa-fingerprint"></i> Se connecter avec une clé d'accès
+        </button>
+        <p class="mc-err" data-passkey-target="status" style="text-align:center;"></p>
     </div>
-    {{ importmap('public') }}
-</body>
-</html>
+
+    <div class="mc-auth-links">
+        <a href="{{ path('app_forgot_password_request') }}">Mot de passe oublié ?</a>
+        <a href="{{ path('portail_inscription') }}">Pas encore de compte ? <strong>Créer un compte</strong></a>
+    </div>
 {% endblock %}

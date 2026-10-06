@@ -74,6 +74,7 @@ ul { list-style: none; }
 .dd-col a:hover::before { opacity: 1; }
 
 .cart-badge { display: inline-flex; min-width: 18px; height: 18px; align-items: center; justify-content: center; padding: 0 5px; border-radius: 9px; background: var(--red); color: var(--white); font-family: 'Inter', sans-serif; font-weight: 700; font-size: 11px; letter-spacing: 0; }
+.cart-badge[hidden] { display: none; }
 
 /* MOBILE NAV */
 .mobile-nav { display: none; flex-direction: column; background: var(--white); border-top: 1px solid var(--border); overflow-y: auto; max-height: calc(100vh - var(--nav-h)); }
@@ -234,7 +235,7 @@ ul { list-style: none; }
     <div class="nav-item">
       <a href="{{ match_live and match_live.url ? match_live.url : '#' }}"{{ match_live and match_live.url ? ' target="_blank" rel="noopener"' : '' }}>
         Match en Live
-        {% if match_live and match_live.enLigne %}
+        {% if match_live and match_live.enDirect %}
           <span class="on-air">
             <span class="on-air-dot"></span>
             En cours
@@ -250,6 +251,19 @@ ul { list-style: none; }
     <div class="nav-item">
       <a href="{{ path('app_contact') }}">Contact</a>
     </div>
+
+    {% if app.user %}
+    <div class="nav-item">
+      <a href="{{ path('portail_index') }}"><i class="fa-solid fa-user" style="opacity:1; font-size:12px;"></i> Mon compte{% if not is_granted('ROLE_EDITOR') %}{% set unread = chat_unread() %} <span class="cart-badge" data-chat-badge {{ unread == 0 ? 'hidden' }}>{{ unread }}</span>{% endif %}</a>
+    </div>
+    <div class="nav-item">
+      <a href="{{ path('portail_logout') }}"><i class="fa-solid fa-right-from-bracket" style="opacity:1; font-size:12px;"></i> Déconnexion</a>
+    </div>
+    {% else %}
+    <div class="nav-item">
+      <a href="{{ path('portail_login') }}"><i class="fa-solid fa-right-to-bracket" style="opacity:1; font-size:12px;"></i> Se connecter</a>
+    </div>
+    {% endif %}
 
     {% set panier_n = panier_count() %}
     {% if panier_n > 0 %}
@@ -285,7 +299,7 @@ ul { list-style: none; }
 
     <a href="{{ match_live and match_live.url ? match_live.url : '#' }}"{{ match_live and match_live.url ? ' target="_blank" rel="noopener"' : '' }} class="mob-direct">
       Match en Live
-      {% if match_live and match_live.enLigne %}
+      {% if match_live and match_live.enDirect %}
         <span class="on-air" style="margin-left:8px">
           <span class="on-air-dot"></span>
           En cours
@@ -296,6 +310,13 @@ ul { list-style: none; }
     <a href="{{ path('boutique_index') }}" class="mob-direct">Boutique</a>
 
     <a href="{{ path('app_contact') }}" class="mob-direct">Contact</a>
+
+    {% if app.user %}
+    <a href="{{ path('portail_index') }}" class="mob-direct"><i class="fa-solid fa-user"></i> Mon compte{% if not is_granted('ROLE_EDITOR') %} <span class="cart-badge" data-chat-badge {{ chat_unread() == 0 ? 'hidden' }}>{{ chat_unread() }}</span>{% endif %}</a>
+    <a href="{{ path('portail_logout') }}" class="mob-direct"><i class="fa-solid fa-right-from-bracket"></i> Déconnexion</a>
+    {% else %}
+    <a href="{{ path('portail_login') }}" class="mob-direct"><i class="fa-solid fa-right-to-bracket"></i> Se connecter</a>
+    {% endif %}
 
     {% if panier_n > 0 %}
     <a href="{{ path('boutique_panier') }}" class="mob-direct"><i class="fa-solid fa-bag-shopping"></i> Mon panier <span class="cart-badge">{{ panier_n }}</span></a>
@@ -403,5 +424,8 @@ document.addEventListener('keydown', function(e) {
 })();
 </script>
 
+{% if app.user and not is_granted('ROLE_EDITOR') %}
+{% include 'chat/_badge_poller.html.twig' with {url: path('portail_chat_unread')} only %}
+{% endif %}
 </body>
 </html>

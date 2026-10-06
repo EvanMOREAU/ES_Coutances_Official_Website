@@ -7,6 +7,10 @@ import './styles/planning.css';
 import { initCustomSelects } from './custom_select.js';
 import { initCustomDates } from './custom_date.js';
 import { initCustomTimes } from './custom_time.js';
+import { initConfirmForms } from './modal.js';
+
+// Formulaires à confirmer (data-confirm) : fenêtre de confirmation du site.
+initConfirmForms();
 
 // Espace familles / licenciés : messagerie (fenêtres, listes déroulantes) aux couleurs du club.
 const initInputs = () => {

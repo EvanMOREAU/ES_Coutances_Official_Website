@@ -169,7 +169,12 @@ final class RequestAuditSubscriber implements EventSubscriberInterface
         foreach ($request->files->all() as $field => $file) {
             foreach (is_array($file) ? $file : [$file] as $item) {
                 if ($item instanceof UploadedFile) {
-                    $files[$field][] = ['nom' => $item->getClientOriginalName(), 'taille' => $item->getSize(), 'type' => $item->getClientMimeType()];
+                    try {
+                        $size = $item->getSize();
+                    } catch (\RuntimeException) {
+                        $size = null; // le fichier a déjà été déplacé par le contrôleur
+                    }
+                    $files[$field][] = ['nom' => $item->getClientOriginalName(), 'taille' => $size, 'type' => $item->getClientMimeType()];
                 }
             }
         }

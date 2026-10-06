@@ -19,6 +19,13 @@ class MatchLive
     #[ORM\Column(length: 500, nullable: true)]
     private ?string $url = null;
 
+    /** Plage horaire pendant laquelle le match est automatiquement « en direct ». */
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $debutAt = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $finAt = null;
+
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $updatedAt = null;
 
@@ -37,6 +44,50 @@ class MatchLive
         $this->enLigne = $enLigne;
 
         return $this;
+    }
+
+    public function getDebutAt(): ?\DateTimeImmutable
+    {
+        return $this->debutAt;
+    }
+
+    public function setDebutAt(?\DateTimeImmutable $debutAt): static
+    {
+        $this->debutAt = $debutAt;
+
+        return $this;
+    }
+
+    public function getFinAt(): ?\DateTimeImmutable
+    {
+        return $this->finAt;
+    }
+
+    public function setFinAt(?\DateTimeImmutable $finAt): static
+    {
+        $this->finAt = $finAt;
+
+        return $this;
+    }
+
+    /** Une plage est-elle programmée (et pas encore terminée) ? */
+    public function isProgramme(?\DateTimeImmutable $now = null): bool
+    {
+        return $this->debutAt !== null && $this->finAt !== null && $this->finAt > ($now ?? new \DateTimeImmutable());
+    }
+
+    /** Dans la plage horaire programmée à cet instant ? */
+    public function isDansLaPlage(?\DateTimeImmutable $now = null): bool
+    {
+        $now ??= new \DateTimeImmutable();
+
+        return $this->debutAt !== null && $this->finAt !== null && $this->debutAt <= $now && $now < $this->finAt;
+    }
+
+    /** Le site affiche-t-il le match comme étant en direct : activé à la main, ou dans la plage programmée. */
+    public function isEnDirect(?\DateTimeImmutable $now = null): bool
+    {
+        return $this->enLigne || $this->isDansLaPlage($now);
     }
 
     public function getUrl(): ?string

@@ -2,10 +2,11 @@
  Interface de messagerie (admin et espace familles). Variables : chat_base, chat_staff, chat_open.
  Toute la mécanique « en direct » est dans le contrôleur Stimulus « chat ».
 #}
-<div class="ch" data-controller="chat"
+<div class="ch {{ chat_solo|default(false) ? 'is-solo' }}" data-controller="chat"
      data-chat-base-value="{{ chat_base }}"
      data-chat-token-value="{{ csrf_token('chat') }}"
      data-chat-staff-value="{{ chat_staff ? 'true' : 'false' }}"
+     data-chat-solo-value="{{ chat_solo|default(false) ? 'true' : 'false' }}"
      data-chat-open-value="{{ chat_open|default(0) }}"
      data-chat-me-value="{{ app.user.id }}">
 
@@ -28,7 +29,9 @@
             <button type="button" class="ch-btn" data-action="click->chat#openNew"><i class="fa-solid fa-plus"></i> Nouvelle discussion</button>
         </div>
 
-        <div class="ch-conversation" data-chat-target="conversation" hidden>
+        <div class="ch-conversation" data-chat-target="conversation" hidden
+             data-action="dragover->chat#dragOverThread dragleave->chat#dragLeaveThread drop->chat#dropOnThread">
+            <div class="ch-drop" data-chat-target="dropZone" hidden><div><i class="fa-solid fa-cloud-arrow-up"></i><strong>Déposez le document ici</strong><span>Il sera disponible 14 jours dans cette discussion.</span></div></div>
             <div class="ch-header">
                 <button type="button" class="ch-icon-btn ch-back" data-action="click->chat#closeConversation" aria-label="Retour aux discussions"><i class="fa-solid fa-arrow-left"></i></button>
                 <span class="ch-avatar" data-chat-target="headAvatar"></span>
@@ -42,12 +45,49 @@
 
             <button type="button" class="ch-jump" data-chat-target="jump" data-action="click->chat#jumpToEnd" hidden><i class="fa-solid fa-arrow-down"></i> Nouveaux messages</button>
 
+            <div class="ch-staged" data-chat-target="staged" hidden></div>
+
             <form class="ch-composer" data-action="submit->chat#submit">
+                <div class="ch-attach">
+                    <button type="button" class="ch-icon-btn" data-action="click->chat#attach" aria-label="Joindre un document" title="Joindre un document (disponible 14 jours)"><i class="fa-solid fa-paperclip"></i></button>
+                    {% if chat_staff %}
+                        <div class="ch-attach-menu" data-chat-target="attachMenu" hidden>
+                            <button type="button" data-action="click->chat#pickDevice"><i class="fa-solid fa-arrow-up-from-bracket"></i> Depuis mon appareil</button>
+                            <button type="button" data-action="click->chat#openDocs"><i class="fa-regular fa-folder-open"></i> Depuis mes documents</button>
+                        </div>
+                    {% endif %}
+                    <input type="file" hidden multiple data-chat-target="filePicker" data-action="change->chat#filesPicked">
+                </div>
                 <textarea rows="1" maxlength="2000" placeholder="Écrire un message…" data-chat-target="input" data-action="keydown->chat#composerKey input->chat#autosize" aria-label="Votre message"></textarea>
                 <button type="submit" class="ch-send" data-chat-target="send" aria-label="Envoyer" disabled><i class="fa-solid fa-paper-plane"></i></button>
             </form>
         </div>
     </section>
+
+    <dialog class="ch-preview" data-chat-target="previewDialog" data-action="click->chat#previewBackdrop">
+        <header>
+            <strong data-chat-target="previewName"></strong>
+            <div>
+                <a class="ch-icon-btn" data-chat-target="previewDownload" href="#" title="Télécharger" aria-label="Télécharger"><i class="fa-solid fa-download"></i></a>
+                <button type="button" class="ch-icon-btn" data-action="click->chat#closePreview" title="Fermer" aria-label="Fermer"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+        </header>
+        <div class="ch-preview-body" data-chat-target="previewBody"></div>
+    </dialog>
+
+    {% if chat_staff %}
+    <dialog class="admin-modal ch-modal" data-chat-target="docDialog" data-action="click->chat#docsBackdrop">
+        <div class="admin-modal-body">
+            <h2 class="admin-modal-title">Partager un de mes documents</h2>
+            <p class="admin-modal-text">Seuls les documents de votre espace personnel sont proposés. Le partage prend fin au bout de 14 jours ; le fichier d'origine n'est jamais supprimé.</p>
+            <input type="search" class="admin-modal-input" placeholder="Rechercher un document…" data-chat-target="docSearch" data-action="input->chat#renderDocs" autocomplete="off">
+            <div class="ch-docpicks" data-chat-target="docList"></div>
+            <div class="admin-modal-actions">
+                <button type="button" class="admin-btn admin-btn-ghost" data-action="click->chat#closeDocs">Fermer</button>
+            </div>
+        </div>
+    </dialog>
+    {% endif %}
 
     <dialog class="admin-modal ch-modal" data-chat-target="newDialog" data-action="click->chat#dialogBackdrop">
         <form class="admin-modal-body" data-action="submit->chat#createConversation" novalidate>

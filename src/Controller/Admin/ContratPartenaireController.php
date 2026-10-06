@@ -53,6 +53,16 @@ class ContratPartenaireController extends AbstractController
         ]);
     }
 
+    /** Fiche de lecture d'un contrat : aucune modification possible depuis cette page. */
+    #[Route('/{id}', name: 'admin_partenaire_contrat_show', requirements: ['id' => '\d+'], methods: ['GET'])]
+    public function show(ContratPartenaire $contrat): Response
+    {
+        return $this->render('admin/partenaire/contrat/show.html.twig', [
+            'contrat'    => $contrat,
+            'partenaire' => $contrat->getPartenaire(),
+        ]);
+    }
+
     #[Route('/{id}/modifier', name: 'admin_partenaire_contrat_edit', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
     public function edit(Request $request, ContratPartenaire $contrat): Response
     {

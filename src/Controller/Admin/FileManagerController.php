@@ -7,6 +7,8 @@ use App\Entity\User;
 use App\Repository\FileFavoriteRepository;
 use App\Service\FileManager\FileManagerException;
 use App\Service\FileManager\FileStorage;
+use App\Service\FileManager\OrphanFileFinder;
+use App\Service\FileManager\UserDocumentSpace;
 use App\Service\FileManager\ResolvedPath;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -29,6 +31,8 @@ class FileManagerController extends AbstractController
 {
     public function __construct(
         private readonly FileStorage $storage,
+        private readonly OrphanFileFinder $orphans,
+        private readonly UserDocumentSpace $space,
         private readonly FileFavoriteRepository $favorites,
         private readonly EntityManagerInterface $em,
         private readonly string $filesQuotaMb,
@@ -51,12 +55,17 @@ class FileManagerController extends AbstractController
         try {
             $view = (string) $request->query->get('vue', 'all');
             $query = trim((string) $request->query->get('q', ''));
-            $path = $this->storage->resolve((string) $request->query->get('path', ''));
+            $path = $this->resolve((string) $request->query->get('path', ''));
             $user = $this->currentUser();
             $favoritePaths = array_flip($this->favorites->pathsFor($user));
+            if ($path->virtual === UserDocumentSpace::ROOT) {
+                $this->space->ensure($user); // premier passage : le dossier personnel est créé
+            }
 
             if ($view === 'recent') {
                 $entries = $this->storage->recent();
+            } elseif ($view === 'orphans') {
+                $entries = $this->orphans->find();
             } elseif ($view === 'starred') {
                 $entries = $this->starredEntries(array_keys($favoritePaths));
             } elseif ($query !== '') {
@@ -68,12 +77,15 @@ class FileManagerController extends AbstractController
                 $entries = $this->storage->listing($path);
             }
 
+            // Dans « Documents », on ne montre à chacun que ce qui lui appartient (récents, recherche, favoris compris).
+            $entries = array_values(array_filter($entries, fn (array $e) => $this->space->allows($user, (string) $e['path'])));
+
             foreach ($entries as &$entry) {
                 $entry['starred'] = isset($favoritePaths[$entry['path']]);
             }
             unset($entry);
 
-            if ($view === 'starred' && $query !== '') {
+            if (in_array($view, ['starred', 'orphans'], true) && $query !== '') {
                 $entries = array_values(array_filter($entries, static fn (array $e) => str_contains(mb_strtolower($e['name']), mb_strtolower($query))));
             }
 
@@ -101,7 +113,7 @@ class FileManagerController extends AbstractController
     public function createFolder(Request $request): JsonResponse
     {
         return $this->action($request, function (Request $request): array {
-            $parent = $this->storage->resolve((string) $request->request->get('path', ''));
+            $parent = $this->resolve((string) $request->request->get('path', ''));
             $path   = $this->storage->createFolder($parent, (string) $request->request->get('name', ''));
 
             return ['path' => $path];
@@ -112,7 +124,7 @@ class FileManagerController extends AbstractController
     public function upload(Request $request): JsonResponse
     {
         return $this->action($request, function (Request $request): array {
-            $parent = $this->storage->resolve((string) $request->request->get('path', ''));
+            $parent = $this->resolve((string) $request->request->get('path', ''));
 
             $uploaded = [];
             $errors   = [];
@@ -135,7 +147,7 @@ class FileManagerController extends AbstractController
     public function rename(Request $request): JsonResponse
     {
         return $this->action($request, function (Request $request): array {
-            $item = $this->storage->resolve((string) $request->request->get('path', ''));
+            $item = $this->resolve((string) $request->request->get('path', ''));
             $to   = $this->storage->rename($item, (string) $request->request->get('name', ''));
             $this->favorites->move($item->virtual, $to);
 
@@ -147,7 +159,7 @@ class FileManagerController extends AbstractController
     public function delete(Request $request): JsonResponse
     {
         return $this->action($request, function (Request $request): array {
-            $item = $this->storage->resolve((string) $request->request->get('path', ''));
+            $item = $this->resolve((string) $request->request->get('path', ''));
             $this->storage->delete($item);
             $this->favorites->forget($item->virtual);
 
@@ -155,11 +167,34 @@ class FileManagerController extends AbstractController
         });
     }
 
+    /** Supprime d'un coup tous les fichiers morts (la liste est recalculée ici, pas reprise du navigateur). */
+    #[Route('/api/orphelins/supprimer', name: 'admin_files_delete_orphans', methods: ['POST'])]
+    public function deleteOrphans(Request $request): JsonResponse
+    {
+        return $this->action($request, function (): array {
+            $deleted = 0;
+            $freed   = 0;
+            foreach ($this->orphans->find() as $entry) {
+                try {
+                    $item = $this->resolve($entry['path']);
+                    $this->storage->delete($item);
+                    $this->favorites->forget($item->virtual);
+                    ++$deleted;
+                    $freed += (int) ($entry['size'] ?? 0);
+                } catch (FileManagerException) {
+                    // Fichier déjà parti ou verrouillé : on passe au suivant.
+                }
+            }
+
+            return ['deleted' => $deleted, 'freed' => $freed];
+        });
+    }
+
     #[Route('/api/favori', name: 'admin_files_star', methods: ['POST'])]
     public function star(Request $request): JsonResponse
     {
         return $this->action($request, function (Request $request): array {
-            $item = $this->storage->resolve((string) $request->request->get('path', ''));
+            $item = $this->resolve((string) $request->request->get('path', ''));
             if ($item->isVirtualRoot || !$item->exists && $item->real !== null) {
                 throw new FileManagerException('Élément introuvable.');
             }
@@ -193,7 +228,7 @@ class FileManagerController extends AbstractController
     private function serve(Request $request, bool $inline): Response
     {
         try {
-            $file = $this->storage->resolve((string) $request->query->get('path', ''));
+            $file = $this->resolve((string) $request->query->get('path', ''));
         } catch (FileManagerException) {
             throw $this->createNotFoundException();
         }
@@ -257,7 +292,7 @@ class FileManagerController extends AbstractController
         $entries = [];
         foreach ($paths as $virtual) {
             try {
-                $resolved = $this->storage->resolve($virtual);
+                $resolved = $this->resolve($virtual);
             } catch (FileManagerException) {
                 continue;
             }
@@ -269,7 +304,7 @@ class FileManagerController extends AbstractController
                 continue;
             }
 
-            $parent = $this->storage->resolve($resolved->parent());
+            $parent = $this->resolve($resolved->parent());
             foreach ($this->storage->listing($parent) as $entry) {
                 if ($entry['path'] === $resolved->virtual) {
                     $entries[] = $entry;
@@ -300,10 +335,24 @@ class FileManagerController extends AbstractController
             ? match ($segment) {
                 'documents'        => 'Documents',
                 'images'           => 'Images',
-                'fichiers-du-site' => 'Fichiers du site',
+                'fichiers-du-site' => 'Fichiers',
                 default            => $segment,
             }
             : $segment;
+    }
+
+    /**
+     * Résout un chemin du gestionnaire en y ajoutant la règle de « Documents » : chacun n'accède
+     * qu'à son propre dossier, sauf autorisation « fichiers.documents_tous ».
+     */
+    private function resolve(string $virtual): ResolvedPath
+    {
+        $resolved = $this->storage->resolve($virtual);
+        if (!$this->space->allows($this->currentUser(), $resolved->virtual)) {
+            throw new FileManagerException('Chemin non autorisé.');
+        }
+
+        return $resolved;
     }
 
     private function currentUser(): User

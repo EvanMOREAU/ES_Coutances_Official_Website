@@ -1,0 +1,22 @@
+<div style="font-family: 'Inter', Arial, sans-serif; max-width: 520px; margin: 0 auto; background:#f4f4f5; padding:16px;">
+    <div style="background:#C8102E; padding:20px; text-align:center;">
+        <h1 style="color:#fff; font-family: 'Barlow Condensed', Arial, sans-serif; font-size:20px; letter-spacing:.06em; text-transform:uppercase; margin:0;">
+            ES Coutances
+        </h1>
+    </div>
+    <div style="background:#fff; padding:28px; color:#0D0D0D; line-height:1.6; font-size:14px;">
+        <p>Bonjour {{ recipient.prenom ?: recipient.nom ?: '' }},</p>
+        {% if staff and support %}
+            <p>Un client vient d'écrire au support de la boutique. Un membre de l'équipe peut lui répondre depuis la messagerie.</p>
+        {% else %}
+            <p><strong>{{ sender }}</strong> {{ withDocument ? 'vous a envoyé un document' : 'vous a écrit' }}{{ support and not staff ? ' dans votre espace Support' : '' }}.</p>
+        {% endif %}
+        <p style="text-align:center; margin:28px 0;">
+            <a href="{{ staff ? url('admin_chat_index', {c: conversationId}) : url('portail_chat_index', {c: conversationId}) }}"
+               style="background:#C8102E; color:#fff; padding:12px 26px; border-radius:4px; text-decoration:none; font-weight:700; text-transform:uppercase; letter-spacing:.05em; font-size:13px;">
+                Lire le message
+            </a>
+        </p>
+        <p style="color:#71717a; font-size:12px;">Vous recevez cet e-mail car vous n'étiez pas connecté(e) à la messagerie. Pour éviter de vous submerger, nous n'en envoyons qu'un par quart d'heure et par discussion.</p>
+    </div>
+</div>

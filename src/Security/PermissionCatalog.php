@@ -74,10 +74,11 @@ final class PermissionCatalog
                 'categorie'    => ['label' => 'Catégories d\'encadrement', 'actions' => $crud],
                 'fichiers'     => ['label' => 'Fichiers', 'actions' => [
                     self::VOIR => 'Voir et télécharger', 'televerser' => 'Envoyer, créer un dossier', self::MODIFIER => 'Renommer', self::SUPPRIMER => 'Supprimer',
+                    'documents_tous' => 'Voir les documents personnels des autres comptes',
                 ]],
                 'mail'         => ['label' => 'Paramètres e-mail (serveur SMTP)', 'actions' => [self::VOIR => 'Voir', self::MODIFIER => 'Modifier', 'tester' => 'Envoyer un e-mail de test']],
                 'helloasso'    => ['label' => 'Paramètres HelloAsso (paiement en ligne)', 'actions' => [self::VOIR => 'Voir', self::MODIFIER => 'Modifier']],
-                'messagerie'   => ['label' => 'Messagerie', 'actions' => ['utiliser' => 'Utiliser la messagerie']],
+                'messagerie'   => ['label' => 'Messagerie', 'actions' => ['utiliser' => 'Utiliser la messagerie', 'support' => 'Support client (répondre aux clients de la boutique)']],
                 'boutique_maintenance' => ['label' => 'Maintenance de la boutique', 'actions' => [self::VOIR => 'Voir', self::MODIFIER => 'Modifier']],
                 'deploiement'  => ['label' => 'Déploiement', 'actions' => [self::VOIR => 'Voir', 'lancer' => 'Lancer un déploiement']],
                 'journal'      => ['label' => 'Journal d\'activité', 'actions' => [self::VOIR => 'Voir', 'exporter' => 'Exporter en CSV']],

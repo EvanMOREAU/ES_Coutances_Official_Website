@@ -2,32 +2,39 @@
 
 {% block title %}Mes commandes{% endblock %}
 
-{% block body %}
-    <h1>Mes commandes</h1>
+{% block page_head %}
+    <div class="mc-page-head">
+        <span class="mc-eyebrow">Boutique du club</span>
+        <h1>Mes commandes</h1>
+        <p class="mc-sub">Suivez vos commandes et leur règlement.</p>
+    </div>
+{% endblock %}
 
+{% block body %}
     <div class="card">
-        <h2>Boutique du club</h2>
         {% if commandes is empty %}
-            <p>Vous n'avez pas encore passé de commande depuis ce compte.</p>
+            <div class="mc-empty"><i class="fa-solid fa-bag-shopping"></i>Vous n'avez pas encore passé de commande depuis ce compte.</div>
         {% else %}
-            <table>
-                <thead>
-                    <tr><th>Commande</th><th>Date</th><th>Total</th><th>Règlement</th><th>Statut</th><th></th></tr>
-                </thead>
-                <tbody>
-                    {% for commande in commandes %}
-                        <tr>
-                            <td>{{ commande.reference }}</td>
-                            <td>{{ commande.createdAt|date('d/m/Y') }}</td>
-                            <td>{{ commande.totalCentimes|money }}</td>
-                            <td>{% if commande.statut == 'annulee' %}—{% elseif commande.payee %}<span class="badge-ok">Payée</span>{% else %}<span class="badge-ko">À régler</span>{% endif %}</td>
-                            <td>{{ commande.statutLabel }}</td>
-                            <td><a class="bouton" href="{{ path('boutique_commande_suivi', {reference: commande.reference, token: commande.token}) }}">Voir</a></td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+            <div class="mc-table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Commande</th><th>Date</th><th>Total</th><th>Règlement</th><th>Statut</th><th></th></tr>
+                    </thead>
+                    <tbody>
+                        {% for commande in commandes %}
+                            <tr>
+                                <td><strong>{{ commande.reference }}</strong></td>
+                                <td>{{ commande.createdAt|date('d/m/Y') }}</td>
+                                <td>{{ commande.totalCentimes|money }}</td>
+                                <td>{% if commande.statut == 'annulee' %}—{% elseif commande.payee %}<span class="badge-ok">Payée</span>{% else %}<span class="badge-ko">À régler</span>{% endif %}</td>
+                                <td>{{ commande.statutLabel }}</td>
+                                <td><a class="bouton" href="{{ path('boutique_commande_suivi', {reference: commande.reference, token: commande.token}) }}">Voir</a></td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         {% endif %}
-        <p style="margin-top:16px;"><a class="bouton" href="{{ path('boutique_index') }}">Aller à la boutique</a></p>
+        <p style="margin-top:20px;"><a class="bouton is-ghost" href="{{ path('boutique_index') }}"><i class="fa-solid fa-store"></i> Aller à la boutique</a></p>
     </div>
 {% endblock %}

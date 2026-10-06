@@ -52,6 +52,8 @@ security:
             lazy: true
             provider: app_user_provider
             user_checker: App\Security\UserChecker
+            custom_authenticators:
+                - App\Security\Webauthn\PasskeyAuthenticator
             form_login:
                 login_path: portail_login
                 check_path: portail_login
@@ -60,13 +62,24 @@ security:
                 password_parameter: password
             logout:
                 path: portail_logout
-                target: portail_login
+                target: app_home
+            two_factor:
+                auth_form_path: portail_2fa_login
+                check_path: portail_2fa_login_check
+                prepare_on_login: true
+                prepare_on_access_denied: true
+                enable_csrf: true
 
     access_control:
+        # La déconnexion doit rester possible pendant la double authentification (sinon « Annuler et se déconnecter » ne fait rien).
+        - { path: ^/admin/logout$, roles: PUBLIC_ACCESS }
+        - { path: ^/mon-compte/deconnexion$, roles: PUBLIC_ACCESS }
         - { path: ^/admin/login, roles: PUBLIC_ACCESS }
         - { path: ^/admin/webauthn/login, roles: PUBLIC_ACCESS }
         - { path: ^/admin/(2fa$|2fa_check$|2fa/resend-email$), roles: IS_AUTHENTICATED_2FA_IN_PROGRESS }
         - { path: ^/admin, roles: ROLE_EDITOR }
+        - { path: ^/mon-compte/(2fa$|2fa_check$|2fa/resend-email$), roles: IS_AUTHENTICATED_2FA_IN_PROGRESS }
+        - { path: ^/mon-compte/webauthn/login, roles: PUBLIC_ACCESS }
         - { path: ^/mon-compte/connexion, roles: PUBLIC_ACCESS }
         - { path: ^/mon-compte/inscription, roles: PUBLIC_ACCESS }
         - { path: ^/mon-compte, roles: ROLE_USER }

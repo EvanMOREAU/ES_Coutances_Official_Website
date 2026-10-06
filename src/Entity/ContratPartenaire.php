@@ -106,7 +106,7 @@ class ContratPartenaire
         return $this;
     }
 
-    public function removeReglement(ContratPartenaireReglement $r): static { $this->reglements->removeElement($r); return $this; }
+    public function removeReglement(ContratPartenaireReglement $r): static { if (!$r->isLocked()) { $this->reglements->removeElement($r); } return $this; }
 
     /** @return Collection<int, ContratPartenaireTache> */
     public function getTaches(): Collection { return $this->taches; }
@@ -121,7 +121,7 @@ class ContratPartenaire
         return $this;
     }
 
-    public function removeTache(ContratPartenaireTache $t): static { $this->taches->removeElement($t); return $this; }
+    public function removeTache(ContratPartenaireTache $t): static { if (!$t->isLocked()) { $this->taches->removeElement($t); } return $this; }
 
     /** @return Collection<int, ContratPartenaireDocument> */
     public function getDocuments(): Collection { return $this->documents; }

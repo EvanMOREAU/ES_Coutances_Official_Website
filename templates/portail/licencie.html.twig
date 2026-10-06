@@ -3,17 +3,20 @@
 {% block title %}{{ licencie.prenom }} {{ licencie.nom }}{% endblock %}
 
 {% block body %}
-    <p><a class="lien-retour" href="{{ path('portail_index') }}">&larr; Retour à mon espace</a></p>
-    <h1>{{ licencie.prenom }} {{ licencie.nom }}</h1>
+    <a class="lien-retour" href="{{ path('portail_index') }}"><i class="fa-solid fa-arrow-left"></i> Retour à l'accueil</a>
+    <div class="mc-page-head">
+        <span class="mc-eyebrow">Fiche licencié</span>
+        <h1>{{ licencie.prenom }} {{ licencie.nom }}</h1>
+        <p class="mc-sub">{{ licencie.categorie }} · saison {{ licencie.saison }}</p>
+    </div>
 
     <div class="card">
-        <h2>Informations</h2>
-        <table>
-            <tr><th>Date de naissance</th><td>{{ licencie.dateNaissance|date('d/m/Y') }}</td></tr>
-            <tr><th>Famille</th><td>{{ licencie.famille }}</td></tr>
-            <tr><th>Catégorie(s)</th><td>{{ licencie.categorie ~ (licencie.equipes|length ? ' — ' ~ licencie.equipes|map(e => e.nom)|join(', ') : '') }}</td></tr>
-            <tr><th>Saison</th><td>{{ licencie.saison }}</td></tr>
-            <tr><th>Statut</th><td>{{ licencie.actif ? 'Actif' : 'Inactif' }}</td></tr>
-        </table>
+        <div class="card-head"><h2>Informations</h2><span class="{{ licencie.actif ? 'badge-ok' : 'badge-ko' }}">{{ licencie.actif ? 'Actif' : 'Inactif' }}</span></div>
+        <dl class="kv">
+            <dt>Date de naissance</dt><dd>{{ licencie.dateNaissance|date('d/m/Y') }}</dd>
+            <dt>Famille</dt><dd>{{ licencie.famille }}</dd>
+            <dt>Catégorie(s)</dt><dd>{{ licencie.categorie ~ (licencie.equipes|length ? ' — ' ~ licencie.equipes|map(e => e.nom)|join(', ') : '') }}</dd>
+            <dt>Saison</dt><dd>{{ licencie.saison }}</dd>
+        </dl>
     </div>
 {% endblock %}

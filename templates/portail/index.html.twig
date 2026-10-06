@@ -1,91 +1,101 @@
 {% extends 'portail/_layout.html.twig' %}
 
-{% block title %}Mon espace{% endblock %}
+{% block title %}Accueil{% endblock %}
 
 {% block body %}
-    {% if famille %}
-        <h1>Bonjour, {{ famille.nom }}</h1>
+    {% set prenom = famille ? 'famille ' ~ famille.nom|lower|capitalize : (licencie ? licencie.prenom : (app.user.prenom ?: app.user.nomComplet)) %}
 
+    <section class="mc-hero">
+        <span class="mc-eyebrow"><i class="fa-solid fa-hand"></i> Bienvenue</span>
+        <h1>Bonjour, {{ prenom }}</h1>
+        <p>
+            {% if famille %}Retrouvez ici les licenciés de votre famille, le planning des entraînements et vos échanges avec le club.
+            {% elseif licencie %}Retrouvez ici votre fiche, le planning de vos entraînements et vos échanges avec le club.
+            {% elseif portail_est_boutique() %}Ce compte vous permet de commander sur la boutique du club et de suivre vos commandes.
+            {% else %}Aucune information n'est encore rattachée à ce compte.{% endif %}
+        </p>
+        <div class="mc-hero-actions">
+            <a class="bouton" href="{{ path('boutique_index') }}"><i class="fa-solid fa-store"></i> Aller à la boutique</a>
+            {% if famille or licencie %}<a class="bouton is-ghost" href="{{ path('portail_planning') }}"><i class="fa-regular fa-calendar"></i> Voir le planning</a>{% endif %}
+        </div>
+    </section>
+
+    <div class="mc-grid">
+        {% if not portail_est_boutique() %}
+            <a class="mc-tile" href="{{ path('portail_planning') }}"><span class="mc-tile-ico"><i class="fa-regular fa-calendar"></i></span><div><strong>Planning</strong><span>Entraînements et matchs</span></div><i class="fa-solid fa-chevron-right mc-tile-go"></i></a>
+            <a class="mc-tile" href="{{ path('portail_chat_index') }}"><span class="mc-tile-ico"><i class="fa-regular fa-comments"></i></span><div><strong>Messagerie</strong><span>Échanger avec le club</span></div><i class="fa-solid fa-chevron-right mc-tile-go"></i></a>
+            {% if portail_facturation() %}<a class="mc-tile" href="{{ path('portail_factures') }}"><span class="mc-tile-ico"><i class="fa-solid fa-file-invoice"></i></span><div><strong>Factures</strong><span>Licences et règlements</span></div><i class="fa-solid fa-chevron-right mc-tile-go"></i></a>{% endif %}
+        {% endif %}
+        {% if portail_est_boutique() %}
+            <a class="mc-tile" href="{{ path('portail_chat_index') }}"><span class="mc-tile-ico"><i class="fa-solid fa-headset"></i></span><div><strong>Support</strong><span>Une question ? Écrivez-nous</span></div><i class="fa-solid fa-chevron-right mc-tile-go"></i></a>
+        {% endif %}
+        {% if portail_commandes_visible() %}
+            <a class="mc-tile" href="{{ path('portail_commandes') }}"><span class="mc-tile-ico"><i class="fa-solid fa-bag-shopping"></i></span><div><strong>Mes commandes</strong><span>Suivi et historique</span></div><i class="fa-solid fa-chevron-right mc-tile-go"></i></a>
+        {% endif %}
+    </div>
+
+    {% if famille %}
         <div class="card">
-            <h2>Mes informations</h2>
-            <table>
-                <tr><th>Adresse</th><td>{{ famille.adresse ?? '—' }}</td></tr>
-                <tr><th>Code postal / Ville</th><td>{{ famille.codePostal ?? '—' }} {{ famille.ville ?? '' }}</td></tr>
-                <tr><th>Téléphone</th><td>{{ famille.telephone ?? '—' }}</td></tr>
-            </table>
+            <div class="card-head"><h2>Mes informations</h2></div>
+            <dl class="kv">
+                <dt>Adresse</dt><dd>{{ famille.adresse ?? '—' }}</dd>
+                <dt>Code postal / Ville</dt><dd>{{ famille.codePostal ?? '—' }} {{ famille.ville ?? '' }}</dd>
+                <dt>Téléphone</dt><dd>{{ famille.telephone ?? '—' }}</dd>
+            </dl>
         </div>
 
         <div class="card">
-            <h2>Licenciés rattachés</h2>
+            <div class="card-head"><div><h2>Licenciés rattachés</h2><p class="card-sub">{{ famille.licencies|length }} personne{{ famille.licencies|length > 1 ? 's' }}</p></div></div>
             {% if famille.licencies is empty %}
-                <p>Aucun licencié rattaché pour le moment.</p>
+                <div class="mc-empty"><i class="fa-regular fa-user"></i>Aucun licencié rattaché pour le moment.</div>
             {% else %}
-                <table>
-                    <thead>
-                        <tr><th>Nom</th><th>Catégorie(s)</th><th>Saison</th><th>Statut</th><th></th></tr>
-                    </thead>
-                    <tbody>
-                        {% for licencie in famille.licencies %}
-                            <tr>
-                                <td>{{ licencie.prenom }} {{ licencie.nom }}</td>
-                                <td>{{ licencie.categorie ~ (licencie.equipes|length ? ' — ' ~ licencie.equipes|map(e => e.nom)|join(', ') : '') }}</td>
-                                <td>{{ licencie.saison }}</td>
-                                <td>{{ licencie.actif ? 'Actif' : 'Inactif' }}</td>
-                                <td><a class="bouton" href="{{ path('portail_licencie', {id: licencie.id}) }}">Voir</a></td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                <div class="mc-people">
+                    {% for l in famille.licencies %}
+                        <a class="mc-person" href="{{ path('portail_licencie', {id: l.id}) }}">
+                            <span class="mc-avatar">{{ (l.prenom|first ~ l.nom|first)|upper }}</span>
+                            <div>
+                                <strong>{{ l.prenom }} {{ l.nom }}</strong>
+                                <span>{{ l.categorie ~ (l.equipes|length ? ' · ' ~ l.equipes|map(e => e.nom)|join(', ') : '') }} — {{ l.saison }}</span>
+                            </div>
+                            <span class="{{ l.actif ? 'badge-ok' : 'badge-ko' }}" style="margin-left:auto;">{{ l.actif ? 'Actif' : 'Inactif' }}</span>
+                        </a>
+                    {% endfor %}
+                </div>
             {% endif %}
         </div>
     {% elseif licencie %}
-        <h1>Bonjour, {{ licencie.prenom }}</h1>
         <div class="card">
-            <h2>Mes informations</h2>
-            <table>
-                <tr><th>Famille</th><td>{{ licencie.famille }}</td></tr>
-                <tr><th>Catégorie(s)</th><td>{{ licencie.categorie ~ (licencie.equipes|length ? ' — ' ~ licencie.equipes|map(e => e.nom)|join(', ') : '') }}</td></tr>
-                <tr><th>Saison</th><td>{{ licencie.saison }}</td></tr>
-            </table>
-            <p style="margin-top:16px;"><a class="bouton" href="{{ path('portail_licencie', {id: licencie.id}) }}">Voir ma fiche complète</a></p>
+            <div class="card-head"><h2>Mes informations</h2><a class="bouton is-ghost" href="{{ path('portail_licencie', {id: licencie.id}) }}">Fiche complète</a></div>
+            <dl class="kv">
+                <dt>Famille</dt><dd>{{ licencie.famille }}</dd>
+                <dt>Catégorie(s)</dt><dd>{{ licencie.categorie ~ (licencie.equipes|length ? ' — ' ~ licencie.equipes|map(e => e.nom)|join(', ') : '') }}</dd>
+                <dt>Saison</dt><dd>{{ licencie.saison }}</dd>
+            </dl>
         </div>
-    {% elseif portail_est_boutique() %}
-        <h1>Mon espace</h1>
+    {% elseif not portail_est_boutique() %}
         <div class="card">
-            <h2>Compte boutique</h2>
-            <p>Ce compte vous permet de commander sur la boutique du club et de retrouver l'historique de vos commandes.</p>
-            <p style="margin-top:16px;"><a class="bouton" href="{{ path('boutique_index') }}">Aller à la boutique</a></p>
-        </div>
-    {% else %}
-        <h1>Mon espace</h1>
-        <div class="card">
-            <p>Aucune information n'est pour le moment rattachée à ce compte. Contactez le club si vous pensez qu'il s'agit d'une erreur.</p>
+            <div class="mc-empty"><i class="fa-regular fa-circle-question"></i>Aucune information n'est pour le moment rattachée à ce compte. Contactez le club si vous pensez qu'il s'agit d'une erreur.</div>
         </div>
     {% endif %}
 
     {% if famille or licencie %}
         <div class="card">
-            <h2>Prochains entraînements et rencontres</h2>
+            <div class="card-head"><div><h2>Prochains entraînements et rencontres</h2><p class="card-sub">Les 5 prochains rendez-vous</p></div><a class="bouton is-ghost" href="{{ path('portail_planning') }}">Planning complet</a></div>
             {% if entrainements is empty %}
-                <p>Aucun entraînement n'est planifié pour le moment.</p>
+                <div class="mc-empty"><i class="fa-regular fa-calendar-check"></i>Aucun entraînement n'est planifié pour le moment.</div>
             {% else %}
-                <table>
-                    <thead>
-                        <tr><th>Date</th><th>Horaire</th><th>Catégorie</th><th>Lieu</th></tr>
-                    </thead>
-                    <tbody>
-                        {% for e in entrainements %}
-                            <tr>
-                                <td>{{ e.date|date_fr('EEEE d MMMM')|capitalize }}</td>
-                                <td>{{ e.heureDebut|date('H:i') }}{{ e.heureFin ? ' – ' ~ e.heureFin|date('H:i') }}</td>
-                                <td>{{ e.rencontre ? e.titre : e.categories|join(', ') }}</td>
-                                <td>{{ e.lieu ?? '—' }}</td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                <ul class="mc-events">
+                    {% for e in entrainements %}
+                        <li class="mc-event">
+                            <div class="mc-date"><b>{{ e.date|date('d') }}</b><small>{{ e.date|date_fr('MMM') }}</small></div>
+                            <div>
+                                <strong>{{ e.rencontre ? e.titre : e.categories|join(', ') }}</strong>
+                                <span>{{ e.date|date_fr('EEEE')|capitalize }} · {{ e.heureDebut|date('H:i') }}{{ e.heureFin ? ' – ' ~ e.heureFin|date('H:i') }}{{ e.lieu ? ' · ' ~ e.lieu }}</span>
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
             {% endif %}
-            <p style="margin-top:16px;"><a class="bouton" href="{{ path('portail_planning') }}">Voir le planning complet</a></p>
         </div>
     {% endif %}
 {% endblock %}

@@ -15,6 +15,8 @@ use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\UrlType;
+use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
+use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -33,8 +35,9 @@ use Vich\UploaderBundle\Form\Type\VichImageType;
 class ReglagesController extends AbstractController
 {
     #[Route('/accueil', name: 'admin_reglages_accueil', methods: ['GET', 'POST'])]
-    public function accueil(Request $request, HomepageBannerRepository $repo, EntityManagerInterface $em): Response
+    public function accueil(Request $request, HomepageBannerRepository $repo, MatchLiveRepository $matchRepo, EntityManagerInterface $em): Response
     {
+        $match = $matchRepo->getSingleton();
         $entity = $repo->getSingleton();
         if (!$entity) {
             $entity = new HomepageBanner();
@@ -61,13 +64,64 @@ class ReglagesController extends AbstractController
                 'label' => "Afficher la bannière sur la page d'accueil",
                 'required' => false,
             ])
+            ->add('matchDebut', DateTimeType::class, [
+                'mapped' => false,
+                'label' => 'Match en direct — début',
+                'required' => false,
+                'widget' => 'single_text',
+                'input' => 'datetime_immutable',
+                'data' => $match?->isProgramme() ? $match->getDebutAt() : null,
+                'help' => 'Optionnel : le site affichera automatiquement le match « en direct » entre le début et la fin, avec le lien de la bannière.',
+            ])
+            ->add('matchFin', DateTimeType::class, [
+                'mapped' => false,
+                'label' => 'Match en direct — fin',
+                'required' => false,
+                'widget' => 'single_text',
+                'input' => 'datetime_immutable',
+                'data' => $match?->isProgramme() ? $match->getFinAt() : null,
+            ])
+            ->add('matchEnDirect', CheckboxType::class, [
+                'mapped' => false,
+                'label' => 'Un match est actuellement en direct (immédiatement)',
+                'required' => false,
+                'help' => "Si coché, le lien de la bannière devient le lien du direct et le bouton « Match en Live » du site s'active. Laissé décoché, le match en live n'est pas modifié (actuellement : ".($match?->isEnDirect() ? 'en direct' : 'pas de direct').').',
+            ])
             ->add('save', SubmitType::class, ['label' => 'Enregistrer'])
             ->getForm();
 
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $debut = $form->get('matchDebut')->getData();
+            $fin   = $form->get('matchFin')->getData();
+            if (($debut === null) !== ($fin === null)) {
+                $form->get($debut === null ? 'matchDebut' : 'matchFin')->addError(new FormError('Indiquez le début et la fin du direct.'));
+            } elseif ($debut !== null && $fin <= $debut) {
+                $form->get('matchFin')->addError(new FormError('La fin doit être après le début.'));
+            }
+            if (($form->get('matchEnDirect')->getData() || $debut !== null) && !$entity->getUrl()) {
+                $form->get('url')->addError(new FormError('Indiquez le lien du direct (lien de la bannière) pour activer le match en live.'));
+            }
+        }
+
+        if ($form->isSubmitted() && $form->isValid()) {
             $entity->setUpdatedAt(new \DateTimeImmutable());
+            $debut = $form->get('matchDebut')->getData();
+            $fin   = $form->get('matchFin')->getData();
+            if ($form->get('matchEnDirect')->getData() || $debut !== null) {
+                if (!$match) {
+                    $match = new MatchLive();
+                    $em->persist($match);
+                }
+                $match->setUrl($entity->getUrl())->setUpdatedAt(new \DateTimeImmutable());
+                if ($form->get('matchEnDirect')->getData()) {
+                    $match->setEnLigne(true);
+                }
+                if ($debut !== null) {
+                    $match->setDebutAt($debut)->setFinAt($fin);
+                }
+            }
             $em->flush();
             $this->addFlash('success', "Bannière d'accueil mise à jour.");
 
@@ -175,6 +229,19 @@ class ReglagesController extends AbstractController
                 'label' => 'Un match est actuellement en direct',
                 'required' => false,
             ])
+            ->add('debutAt', DateTimeType::class, [
+                'label' => 'Début du direct',
+                'required' => false,
+                'widget' => 'single_text',
+                'input' => 'datetime_immutable',
+                'help' => 'Entre le début et la fin, le site affiche automatiquement le match « en direct ». Laissez vide si vous préférez l\'activer à la main.',
+            ])
+            ->add('finAt', DateTimeType::class, [
+                'label' => 'Fin du direct',
+                'required' => false,
+                'widget' => 'single_text',
+                'input' => 'datetime_immutable',
+            ])
             ->add('url', UrlType::class, [
                 'label' => 'Lien vers le direct',
                 'required' => false,
@@ -184,6 +251,14 @@ class ReglagesController extends AbstractController
             ->getForm();
 
         $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            if (($entity->getDebutAt() === null) !== ($entity->getFinAt() === null)) {
+                $form->get($entity->getDebutAt() === null ? 'debutAt' : 'finAt')->addError(new FormError('Indiquez le début et la fin du direct.'));
+            } elseif ($entity->getDebutAt() !== null && $entity->getFinAt() <= $entity->getDebutAt()) {
+                $form->get('finAt')->addError(new FormError('La fin doit être après le début.'));
+            }
+        }
 
         if ($form->isSubmitted() && $form->isValid()) {
             $entity->setUpdatedAt(new \DateTimeImmutable());

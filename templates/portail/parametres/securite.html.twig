@@ -1,0 +1,120 @@
+{% extends 'portail/parametres/_layout.html.twig' %}
+
+{% block tab_content %}
+    <section class="card">
+        <h2 class="mc-h2">Sécurité</h2>
+        <p class="mc-lead">Protégez votre compte avec une double authentification et des clés d'accès.</p>
+
+        {# --- Application d'authentification (TOTP) --- #}
+        <div class="mc-row" style="flex-wrap: wrap;">
+            <div style="flex:1; min-width: 14rem;">
+                <strong><i class="fa-solid fa-mobile-screen-button"></i> Application d'authentification
+                    {% if user.totpAuthenticationEnabled %}<span class="mc-tag">Activée</span>{% endif %}</strong>
+                <small>Google Authenticator, Bitwarden, 1Password… génère un code à usage unique.</small>
+            </div>
+            {% if user.totpAuthenticationEnabled %}
+                <form method="post" action="{{ path('portail_parametres_securite_totp_desactiver') }}">
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token('securite_totp_desactiver') }}">
+                    <button type="submit" class="mc-btn is-danger">Désactiver</button>
+                </form>
+            {% elseif not pendingTotpSecret %}
+                <form method="post" action="{{ path('portail_parametres_securite_totp_generer') }}">
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token('securite_totp_generer') }}">
+                    <button type="submit" class="mc-btn is-primary">Activer</button>
+                </form>
+            {% endif %}
+        </div>
+        {% if pendingTotpSecret and totpQrDataUri %}
+            <div class="mc-panel">
+                <p>Scannez ce QR code avec votre application, puis saisissez le code à 6 chiffres qu'elle affiche pour confirmer.</p>
+                <div style="display:flex; flex-wrap:wrap; gap:20px; align-items:center;">
+                    <img src="{{ totpQrDataUri }}" alt="QR code d'activation" style="background:#fff; padding:8px; border-radius:12px;" width="200" height="200">
+                    <div style="flex:1; min-width: 14rem;">
+                        <p>Impossible de scanner ? Saisissez ce code manuellement :</p>
+                        <code class="mc-code">{{ pendingTotpSecret }}</code>
+                        <form method="post" action="{{ path('portail_parametres_securite_totp_confirmer') }}" data-controller="otp-input">
+                            <div class="mc-otp">
+                                {% for i in 0..5 %}
+                                    <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" data-otp-input-target="box" data-index="{{ i }}" data-action="input->otp-input#input keydown->otp-input#keydown paste->otp-input#paste" aria-label="Chiffre {{ i + 1 }}">
+                                {% endfor %}
+                            </div>
+                            <input type="hidden" name="code" data-otp-input-target="hidden">
+                            <input type="hidden" name="_csrf_token" value="{{ csrf_token('securite_totp_confirmer') }}">
+                            <button type="submit" class="mc-btn is-primary">Confirmer</button>
+                        </form>
+                        <form method="post" action="{{ path('portail_parametres_securite_totp_annuler') }}" style="margin-top:10px;">
+                            <input type="hidden" name="_csrf_token" value="{{ csrf_token('securite_totp_annuler') }}">
+                            <button type="submit" class="mc-btn" style="border:0; background:none; padding:0; font-weight:500; text-decoration:underline;">Annuler</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        {# --- Code par e-mail --- #}
+        <div class="mc-row">
+            <div>
+                <strong><i class="fa-solid fa-envelope"></i> Code par e-mail</strong>
+                <small>Recevez un code de vérification à {{ user.email }} à chaque connexion.</small>
+            </div>
+            <form method="post" action="{{ path(user.emailAuthEnabled ? 'portail_parametres_securite_email_desactiver' : 'portail_parametres_securite_email_activer') }}">
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token(user.emailAuthEnabled ? 'securite_email_desactiver' : 'securite_email_activer') }}">
+                <input type="checkbox" class="mc-switch" {{ user.emailAuthEnabled ? 'checked' }} onchange="this.form.submit()" aria-label="Code de vérification par e-mail">
+            </form>
+        </div>
+
+        {# --- Codes de secours --- #}
+        <div class="mc-row" style="flex-wrap: wrap;">
+            <div style="flex:1; min-width: 14rem;">
+                <strong><i class="fa-solid fa-key"></i> Codes de secours</strong>
+                <small>10 codes à usage unique, à utiliser si vous perdez l'accès à vos autres méthodes.</small>
+            </div>
+            <form method="post" action="{{ path('portail_parametres_securite_backup_codes_generer') }}"
+                  {% if user.backupCodes|length > 0 %}data-confirm="Générer de nouveaux codes de secours invalidera les codes précédents. Continuer ?" data-confirm-label="Régénérer" data-confirm-neutral{% endif %}>
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token('securite_backup_codes_generer') }}">
+                <button type="submit" class="mc-btn">{{ user.backupCodes|length > 0 ? 'Régénérer' : 'Générer des codes' }}</button>
+            </form>
+        </div>
+        {% if newBackupCodes %}
+            <div class="mc-panel">
+                <p>Notez ces codes dans un endroit sûr : ils ne seront plus affichés ensuite. Chacun ne fonctionne qu'une seule fois.</p>
+                <div class="mc-codes">{% for code in newBackupCodes %}<code>{{ code }}</code>{% endfor %}</div>
+            </div>
+        {% elseif user.backupCodes|length > 0 %}
+            <p class="mc-lead" style="margin: 0 0 8px;">{{ user.backupCodes|length }} code(s) de secours encore disponible(s).</p>
+        {% endif %}
+
+        {# --- Clés d'accès (passkeys) --- #}
+        <div class="mc-row" style="display:block;" data-controller="passkey"
+             data-passkey-options-url-value="{{ path('portail_parametres_securite_webauthn_options') }}"
+             data-passkey-finish-url-value="{{ path('portail_parametres_securite_webauthn_enregistrer') }}"
+             data-passkey-csrf-token-value="{{ csrf_token('securite_webauthn_enregistrer') }}">
+            <strong><i class="fa-solid fa-fingerprint"></i> Clés d'accès (passkeys)</strong>
+            <small>Connexion sans mot de passe via Face ID, Windows Hello, une clé de sécurité ou un gestionnaire de mots de passe.</small>
+            <div class="mc-inline">
+                <input type="text" data-passkey-target="label" placeholder="Nom de la clé (ex. iPhone de Marie)" maxlength="100">
+                <button type="button" class="mc-btn is-primary" data-passkey-target="button" data-action="click->passkey#register">Ajouter une clé</button>
+            </div>
+            <p class="mc-err" data-passkey-target="status"></p>
+            {% if passkeys|length > 0 %}
+                <ul class="mc-passkeys">
+                    {% for passkey in passkeys %}
+                        <li>
+                            <div>
+                                <strong style="display:block; font-size:13.5px;">{{ passkey.label }}</strong>
+                                <small>Ajoutée le {{ passkey.createdAt|date('d/m/Y') }}{% if passkey.lastUsedAt %} · dernière utilisation le {{ passkey.lastUsedAt|date('d/m/Y') }}{% endif %}</small>
+                            </div>
+                            <form method="post" action="{{ path('portail_parametres_securite_webauthn_supprimer', {id: passkey.id}) }}"
+                                  data-confirm="Supprimer cette clé d'accès ? Elle ne pourra plus être utilisée pour se connecter." data-confirm-label="Supprimer">
+                                <input type="hidden" name="_csrf_token" value="{{ csrf_token('securite_webauthn_supprimer') }}">
+                                <button type="submit" class="mc-btn is-danger">Retirer</button>
+                            </form>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <small style="margin-top:10px;">Aucune clé d'accès enregistrée.</small>
+            {% endif %}
+        </div>
+    </section>
+{% endblock %}

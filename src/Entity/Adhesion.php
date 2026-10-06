@@ -138,7 +138,7 @@ class Adhesion
         return $this;
     }
 
-    public function removeReglement(Reglement $r): static { $this->reglements->removeElement($r); return $this; }
+    public function removeReglement(Reglement $r): static { if (!$r->isLocked()) { $this->reglements->removeElement($r); } return $this; }
 
     /** @return Collection<int, AideFinanciere> */
     public function getAides(): Collection { return $this->aides; }
@@ -153,7 +153,7 @@ class Adhesion
         return $this;
     }
 
-    public function removeAide(AideFinanciere $a): static { $this->aides->removeElement($a); return $this; }
+    public function removeAide(AideFinanciere $a): static { if (!$a->isLocked()) { $this->aides->removeElement($a); } return $this; }
 
     // --- Montants (tous en centimes) -----------------------------------------
 

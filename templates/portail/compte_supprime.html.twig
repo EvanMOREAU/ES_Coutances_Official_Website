@@ -1,0 +1,11 @@
+{% extends 'portail/_auth.html.twig' %}
+
+{% block title %}Compte supprimé{% endblock %}
+{% block heading %}Compte supprimé{% endblock %}
+{% block lead %}Vos données personnelles ont été effacées.{% endblock %}
+
+{% block card %}
+    <p class="mc-note" style="margin-bottom: 14px;">Votre compte a été supprimé et vos informations personnelles ont été anonymisées. Seules les factures sont conservées par le club, sans lien avec votre identité.</p>
+    <p class="mc-note">Un e-mail de confirmation vous a été envoyé. Merci d'avoir fait partie de l'ES Coutances.</p>
+    <a class="bouton" href="{{ path('app_home') }}" style="display:flex;">Retour au site</a>
+{% endblock %}

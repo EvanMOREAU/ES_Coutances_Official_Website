@@ -1,0 +1,18 @@
+<div style="font-family: 'Inter', Arial, sans-serif; max-width: 520px; margin: 0 auto; background:#f4f4f5; padding:16px;">
+    <div style="background:#C8102E; padding:20px; text-align:center;">
+        <h1 style="color:#fff; font-family: 'Barlow Condensed', Arial, sans-serif; font-size:20px; letter-spacing:.06em; text-transform:uppercase; margin:0;">ES Coutances</h1>
+    </div>
+    <div style="background:#fff; padding:28px; color:#0D0D0D; line-height:1.6; font-size:14px;">
+        <p>Bonjour {{ recipient.prenom ?: recipient.nom ?: '' }},</p>
+        <p><strong>{{ title }}</strong></p>
+        {% if lines %}
+            <ul style="padding-left:18px; margin:8px 0 0;">
+                {% for line in lines %}<li>{{ line }}</li>{% endfor %}
+            </ul>
+        {% endif %}
+        <p style="text-align:center; margin:28px 0;">
+            <a href="{{ url }}" style="background:#C8102E; color:#fff; padding:12px 26px; border-radius:4px; text-decoration:none; font-weight:700; text-transform:uppercase; letter-spacing:.05em; font-size:13px;">{{ linkLabel }}</a>
+        </p>
+        <p style="color:#71717a; font-size:12px;">Vous recevez cet e-mail d'après vos préférences de notification. Vous pouvez les modifier à tout moment depuis les paramètres de votre compte.</p>
+    </div>
+</div>

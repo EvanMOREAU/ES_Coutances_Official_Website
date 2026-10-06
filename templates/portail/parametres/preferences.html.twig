@@ -1,0 +1,43 @@
+{% extends 'portail/parametres/_layout.html.twig' %}
+
+{% block tab_content %}
+    {% set has_bell = false %}
+    {% for key, section in sections %}{% if 'bell' in section.channels %}{% set has_bell = true %}{% endif %}{% endfor %}
+
+    <section class="card">
+        <form method="post" action="{{ path('portail_parametres_preferences') }}">
+            <h2 class="mc-h2">Notifications</h2>
+            <p class="mc-lead">Choisissez ce dont vous voulez être averti{{ has_bell ? ', dans la cloche du site et par e-mail' : ' par e-mail' }}. Tout est activé par défaut.</p>
+
+            {% if sections is empty %}
+                <div class="mc-empty"><i class="fa-regular fa-bell-slash"></i>Aucune notification à régler pour ce compte.</div>
+            {% else %}
+                <div class="mc-head-cols">
+                    {% if has_bell %}<span>Cloche</span>{% endif %}
+                    <span>E-mail</span>
+                </div>
+                {% for key, section in sections %}
+                    <div class="mc-row">
+                        <div>
+                            <strong>{{ section.label }}</strong>
+                            <small>{{ section.help }}</small>
+                        </div>
+                        <div class="mc-toggles">
+                            {% if has_bell %}
+                                {% if 'bell' in section.channels %}
+                                    <input type="checkbox" class="mc-switch" name="prefs[bell][{{ key }}]" value="1" {{ prefs.wants(app.user, key, 'bell') ? 'checked' }} aria-label="{{ section.label }} — cloche">
+                                {% else %}<span class="mc-dash">—</span>{% endif %}
+                            {% endif %}
+                            {% if 'email' in section.channels %}
+                                <input type="checkbox" class="mc-switch" name="prefs[email][{{ key }}]" value="1" {{ prefs.wants(app.user, key, 'email') ? 'checked' }} aria-label="{{ section.label }} — e-mail">
+                            {% else %}<span class="mc-dash">—</span>{% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token('account_notification_prefs') }}">
+                <div class="mc-actions"><button type="submit" class="mc-btn is-primary">Enregistrer</button></div>
+            {% endif %}
+            <p class="mc-lead" style="margin: 16px 0 0;"><i class="fa-solid fa-circle-info"></i> Les e-mails liés à vos commandes (confirmation, paiement, retrait) et à la sécurité de votre compte sont toujours envoyés.</p>
+        </form>
+    </section>
+{% endblock %}

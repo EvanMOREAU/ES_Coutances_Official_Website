@@ -1,0 +1,31 @@
+{# Gabarit des pages d'authentification du compte (connexion, inscription). Blocs : title, heading, lead, card. #}
+<!DOCTYPE html>
+<html lang="fr" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/png" href="{{ asset('images/favicon.png') }}">
+    <title>{% block title %}Mon compte{% endblock %} — ES Coutances</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="{{ asset('styles/mon-compte.css') }}">
+    {% block head_assets %}{% endblock %}
+</head>
+<body>
+    <div class="mc-auth">
+        <div class="mc-auth-box">
+            <div class="mc-auth-brand">
+                <a href="{{ path('app_home') }}"><img src="https://raw.githubusercontent.com/CylaosICT/escoutances-images/refs/heads/main/logo_hd_trans3_gt.png" alt="ES Coutances"></a>
+                <h1>{% block heading %}Mon compte{% endblock %}</h1>
+                <p class="mc-sub">{% block lead %}{% endblock %}</p>
+            </div>
+            <div class="mc-auth-card">
+                {% block card %}{% endblock %}
+            </div>
+            <div class="mc-auth-links">
+                <a href="{{ path('app_home') }}"><i class="fa-solid fa-arrow-left"></i> Retour au site</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

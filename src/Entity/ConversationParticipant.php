@@ -26,6 +26,13 @@ class ConversationParticipant
     #[ORM\Column]
     private int $lastReadMessageId = 0;
 
+    /** Dernier e-mail « nouveau message » envoyé à ce participant (limite le nombre d'e-mails). */
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $lastNotifiedAt = null;
+
+    public function getLastNotifiedAt(): ?\DateTimeImmutable { return $this->lastNotifiedAt; }
+    public function markNotified(): static { $this->lastNotifiedAt = new \DateTimeImmutable(); return $this; }
+
     public function __construct(Conversation $conversation, User $user)
     {
         $this->conversation = $conversation;

@@ -47,7 +47,7 @@ class Article
 
     /** Prix en centimes d'euro (évite les erreurs d'arrondi). */
     #[ORM\Column]
-    #[Assert\PositiveOrZero(message: 'Le prix ne peut pas être négatif.')]
+    #[Assert\GreaterThanOrEqual(value: 1, message: 'Le prix doit être d\'au moins 0,01 €.')]
     private int $prixCentimes = 0;
 
     #[ORM\Column(length: 255, nullable: true)]

@@ -5,3 +5,11 @@
 
 2fa_login_check:
     path: /admin/2fa_check
+
+portail_2fa_login:
+    path: /mon-compte/2fa
+    defaults:
+        _controller: "scheb_two_factor.form_controller::form"
+
+portail_2fa_login_check:
+    path: /mon-compte/2fa_check

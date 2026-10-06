@@ -7,9 +7,21 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /** Action à réaliser dans le cadre d'un contrat partenaire (ex. envoyer le flocage, poser le panneau). */
 #[ORM\Entity]
+#[ORM\HasLifecycleCallbacks]
 #[ORM\Table(name: 'contrat_partenaire_tache')]
 class ContratPartenaireTache
 {
+    /** Une tâche faite (telle qu'enregistrée en base) est définitive : plus aucun champ ne peut être modifié. */
+    private bool $locked = false;
+
+    #[ORM\PostLoad]
+    public function lockIfDone(): void
+    {
+        $this->locked = $this->fait;
+    }
+
+    public function isLocked(): bool { return $this->locked; }
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -38,14 +50,14 @@ class ContratPartenaireTache
     public function setContrat(?ContratPartenaire $contrat): static { $this->contrat = $contrat; return $this; }
 
     public function getTitre(): ?string { return $this->titre; }
-    public function setTitre(?string $titre): static { $this->titre = $titre; return $this; }
+    public function setTitre(?string $titre): static { if ($this->locked) { return $this; } $this->titre = $titre; return $this; }
 
     public function getEcheance(): ?\DateTimeImmutable { return $this->echeance; }
-    public function setEcheance(?\DateTimeImmutable $echeance): static { $this->echeance = $echeance; return $this; }
+    public function setEcheance(?\DateTimeImmutable $echeance): static { if ($this->locked) { return $this; } $this->echeance = $echeance; return $this; }
 
     public function isFait(): bool { return $this->fait; }
-    public function setFait(bool $fait): static { $this->fait = $fait; return $this; }
+    public function setFait(bool $fait): static { if ($this->locked) { return $this; } $this->fait = $fait; return $this; }
 
     public function getOrdre(): int { return $this->ordre; }
-    public function setOrdre(int $ordre): static { $this->ordre = $ordre; return $this; }
+    public function setOrdre(int $ordre): static { if ($this->locked) { return $this; } $this->ordre = $ordre; return $this; }
 }

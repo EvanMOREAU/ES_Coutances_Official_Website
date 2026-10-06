@@ -5,24 +5,26 @@
 {% block head_assets %}
     {{ importmap('portail') }}
     <style>
-        main { max-width: 1200px; }
         /* La feuille de style du portail réinitialise les titres : on garde la police du calendrier. */
         .pl-layout h2, .pl-layout h3 { font-family: 'Inter', sans-serif; }
         .pl-card { box-shadow: 0 4px 16px rgba(0,0,0,.06); }
     </style>
 {% endblock %}
 
-{% block body %}
-    <h1>Planning des entraînements</h1>
+{% block page_head %}
+    <div class="mc-page-head">
+        <span class="mc-eyebrow">Calendrier</span>
+        <h1>Planning des entraînements</h1>
+        {% if categories is not empty %}<p class="mc-sub">Catégories {{ categories|join(', ') }}.</p>{% endif %}
+    </div>
+{% endblock %}
 
+{% block body %}
     {% if categories is empty %}
         <div class="card">
-            <p>Aucun licencié actif n'est rattaché à ce compte : il n'y a donc pas d'entraînement à afficher. Contactez le club si vous pensez qu'il s'agit d'une erreur.</p>
+            <div class="mc-empty"><i class="fa-regular fa-calendar-xmark"></i>Aucun licencié actif n'est rattaché à ce compte : il n'y a donc pas d'entraînement à afficher. Contactez le club si vous pensez qu'il s'agit d'une erreur.</div>
         </div>
     {% else %}
-        <p style="margin: -8px 0 20px; color:#71717a; font-size:14px;">
-            Entraînements des catégories {{ categories|join(', ') }}.
-        </p>
         <div data-controller="planning"
              data-planning-events-url-value="{{ path('portail_planning_events') }}"
              data-planning-categories-value="{{ categories|json_encode|e('html_attr') }}"

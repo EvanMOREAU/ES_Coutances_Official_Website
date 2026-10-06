@@ -2,15 +2,19 @@
 
 namespace App\Controller;
 
+use App\Entity\ChatAttachment;
 use App\Entity\Conversation;
 use App\Entity\User;
 use App\Service\Chat\ChatException;
 use App\Service\Chat\ChatService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
@@ -38,10 +42,18 @@ class ChatController extends AbstractController
         $isAdmin = str_starts_with((string) $request->attributes->get('_route'), 'admin_');
         $me      = $this->me();
 
+        // Un client n'a qu'une discussion : le support. On l'ouvre directement, sans liste ni « nouvelle discussion ».
+        $solo = !$isAdmin && $this->chat->isClient($me);
+        $open = $request->query->getInt('c');
+        if ($solo) {
+            $open = (int) $this->chat->supportConversationFor($me)->getId();
+        }
+
         return $this->render($isAdmin ? 'admin/chat/index.html.twig' : 'portail/messagerie.html.twig', [
             'chat_base'   => $this->generateUrl($isAdmin ? 'admin_chat_index' : 'portail_chat_index'),
             'chat_staff'  => $me->isStaff(),
-            'chat_open'   => $request->query->getInt('c'),
+            'chat_open'   => $open,
+            'chat_solo'   => $solo,
         ]);
     }
 
@@ -60,7 +72,7 @@ class ChatController extends AbstractController
         $activeId = $request->query->getInt('active');
         if ($activeId > 0) {
             $conversation = $this->em->find(Conversation::class, $activeId);
-            if ($conversation !== null && $conversation->participantFor($me) !== null) {
+            if ($conversation !== null && $this->chat->canAccess($conversation, $me)) {
                 $after  = max(0, $request->query->getInt('after'));
                 $thread = $this->chat->thread($conversation, $me, after: $after);
                 $seen   = $after;
@@ -115,6 +127,69 @@ class ChatController extends AbstractController
         });
     }
 
+    /** Envoi d'un fichier de l'appareil (conservé 14 jours dans l'espace de l'expéditeur) ou partage d'un document de son espace. */
+    #[Route('/admin/messagerie/api/conversations/{id}/documents', name: 'admin_chat_send_document', requirements: ['id' => '\d+'], methods: ['POST'])]
+    #[Route('/mon-compte/messagerie/api/conversations/{id}/documents', name: 'portail_chat_send_document', requirements: ['id' => '\d+'], methods: ['POST'])]
+    public function sendDocument(Request $request, int $id): JsonResponse
+    {
+        return $this->guarded($request, function () use ($request, $id): array {
+            $me           = $this->me();
+            $conversation = $this->conversationFor($id, $me);
+            $comment      = (string) $request->request->get('body', '');
+            $shared       = (string) $request->request->get('path', '');
+            $file         = $request->files->get('file');
+
+            if ($shared !== '') {
+                $message = $this->chat->shareExisting($conversation, $me, $shared, $comment);
+            } elseif ($file instanceof UploadedFile) {
+                $message = $this->chat->sendUpload($conversation, $me, $file, $comment);
+            } else {
+                throw new ChatException('Aucun fichier reçu (dépasse-t-il la taille maximale autorisée par le serveur ?).');
+            }
+
+            return ['message' => $this->chat->serialize($message, $me, $this->chat->readUpTo($conversation, $me))];
+        });
+    }
+
+    /** Documents de l'espace personnel proposés au partage. */
+    #[Route('/admin/messagerie/api/mes-documents', name: 'admin_chat_my_documents', methods: ['GET'])]
+    #[Route('/mon-compte/messagerie/api/mes-documents', name: 'portail_chat_my_documents', methods: ['GET'])]
+    public function myDocuments(): JsonResponse
+    {
+        $me = $this->me();
+
+        return $this->json(['documents' => $me->isStaff() ? $this->chat->shareableDocuments($me) : []], headers: ['Cache-Control' => 'no-store']);
+    }
+
+    /** Téléchargement d'un document joint : réservé aux participants, tant qu'il n'est pas arrivé à échéance. */
+    #[Route('/admin/messagerie/document/{id}', name: 'admin_chat_document', requirements: ['id' => '\d+'], methods: ['GET'])]
+    #[Route('/mon-compte/messagerie/document/{id}', name: 'portail_chat_document', requirements: ['id' => '\d+'], methods: ['GET'])]
+    public function document(Request $request, int $id): Response
+    {
+        $attachment = $this->em->find(ChatAttachment::class, $id);
+        if ($attachment === null || !$this->chat->canAccess($attachment->getMessage()->getConversation(), $this->me())) {
+            throw $this->createNotFoundException();
+        }
+        $path = $this->chat->fileOf($attachment);
+        if ($path === null) {
+            return new Response('Ce document n\'est plus disponible.', Response::HTTP_GONE, ['Content-Type' => 'text/plain; charset=UTF-8']);
+        }
+
+        $response = new BinaryFileResponse($path);
+        $response->headers->set('X-Content-Type-Options', 'nosniff');
+        $response->headers->set('Cache-Control', 'private, no-store');
+        // Aperçu dans le site : uniquement des formats sans script actif (pas de SVG, ni de HTML).
+        $inline = $request->query->getBoolean('inline')
+            && in_array(strtolower(pathinfo($attachment->getName(), \PATHINFO_EXTENSION)), ['pdf', 'png', 'jpg', 'jpeg', 'gif', 'webp', 'txt', 'csv', 'md'], true);
+        $response->setContentDisposition(
+            $inline ? ResponseHeaderBag::DISPOSITION_INLINE : ResponseHeaderBag::DISPOSITION_ATTACHMENT,
+            $attachment->getName(),
+            str_replace(['%', '/', '\\'], '_', preg_replace('/[^\x20-\x7E]/', '_', $attachment->getName()) ?? 'document'),
+        );
+
+        return $response;
+    }
+
     #[Route('/admin/messagerie/api/conversations', name: 'admin_chat_start', methods: ['POST'])]
     #[Route('/mon-compte/messagerie/api/conversations', name: 'portail_chat_start', methods: ['POST'])]
     public function start(Request $request): JsonResponse
@@ -132,6 +207,14 @@ class ChatController extends AbstractController
 
             return ['id' => $conversation->getId()];
         });
+    }
+
+    /** Nombre de messages non lus, interrogé en arrière-plan par toutes les pages pour mettre le badge à jour. */
+    #[Route('/admin/messagerie/api/non-lus', name: 'admin_chat_unread', methods: ['GET'])]
+    #[Route('/mon-compte/messagerie/api/non-lus', name: 'portail_chat_unread', methods: ['GET'])]
+    public function unread(): JsonResponse
+    {
+        return $this->json(['unread' => $this->chat->unreadTotal($this->me())], headers: ['Cache-Control' => 'no-store']);
     }
 
     #[Route('/admin/messagerie/api/contacts', name: 'admin_chat_contacts', methods: ['GET'])]
@@ -155,7 +238,7 @@ class ChatController extends AbstractController
     private function conversationFor(int $id, User $me): Conversation
     {
         $conversation = $this->em->find(Conversation::class, $id);
-        if ($conversation === null || $conversation->participantFor($me) === null) {
+        if ($conversation === null || !$this->chat->canAccess($conversation, $me)) {
             throw $this->createNotFoundException();
         }
 

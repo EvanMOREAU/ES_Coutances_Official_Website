@@ -177,3 +177,8 @@
 .sv-toggle-sm input:checked + .sv-switch::after { transform: translateX(.9rem); }
 .pm-quick { display: flex; align-items: center; gap: 1rem; }
 .pm-rowtoggle { margin-left: .6rem; vertical-align: middle; }
+
+/* Ligne validée (règlement encaissé, tâche faite) : définitive, présentée en lecture seule */
+.ad-row.is-locked { opacity: .75; background-color: color-mix(in srgb, var(--color-admin-text) 4%, transparent); }
+.ad-lock { position: absolute; top: .9rem; right: .9rem; color: var(--color-admin-text-muted); }
+.sv-card.is-locked { opacity: .75; }

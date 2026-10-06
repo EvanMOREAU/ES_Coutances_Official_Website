@@ -31,7 +31,10 @@ class FileStorage
     public const MAX_UPLOAD_BYTES = 25 * 1024 * 1024;
 
     /** Dossiers d'envoi utilisés par l'application (voir vich_uploader.yaml) : jamais supprimables. */
-    private const DECLARED_UPLOAD_DIRS = ['articles', 'avatars', 'banniere', 'membres', 'offres', 'pages', 'partenaires', 'photos', 'rejoindre', 'slides'];
+    private const DECLARED_UPLOAD_DIRS = ['articles', 'avatars', 'banniere', 'contrats-partenaires', 'membres', 'offres', 'pages', 'partenaires', 'photos', 'rejoindre', 'slides'];
+
+    public const FILTER_IMAGES = 'images';
+    public const FILTER_FILES  = 'files';
 
     private const KINDS = [
         'image'   => ['jpg', 'jpeg', 'png', 'gif', 'webp', 'avif', 'svg', 'bmp'],
@@ -45,12 +48,27 @@ class FileStorage
         'audio'   => ['mp3', 'wav', 'ogg'],
     ];
 
-    /** @var array<string, array{label: string, icon: string, real: string, readOnly: bool, private: bool, mounts: list<array{name: string, label: string, real: string}>}> */
+    /** @var array<string, array{label: string, icon: string, real: string, readOnly: bool, private: bool, filter: ?string, mounts: list<array{name: string, label: string, real: string, readOnly: bool, filter: ?string, icon: string}>}> */
     private array $roots;
 
     public function __construct(string $projectDir)
     {
         $root = rtrim(str_replace('\\', '/', $projectDir), '/');
+
+        // « Images » rassemble les images statiques du thème ET toutes les images envoyées sur le site
+        // (articles, avatars, bannière…), présentées comme des sous-dossiers ; « Fichiers » regroupe le
+        // reste des envois (contrats, documents…). Les deux lisent public/uploads, chacun avec son filtre.
+        $uploadMounts = [];
+        foreach (self::DECLARED_UPLOAD_DIRS as $dir) {
+            $uploadMounts[] = [
+                'name'     => $dir,
+                'label'    => $dir,
+                'real'     => $root.'/public/uploads/'.$dir,
+                'readOnly' => false,
+                'filter'   => self::FILTER_IMAGES,
+                'icon'     => 'folder-closed',
+            ];
+        }
 
         $this->roots = [
             'documents' => [
@@ -59,6 +77,7 @@ class FileStorage
                 'real'     => $root.'/var/documents',
                 'readOnly' => false,
                 'private'  => true,
+                'filter'   => null,
                 'mounts'   => [],
             ],
             'images' => [
@@ -67,14 +86,16 @@ class FileStorage
                 'real'     => $root.'/public/images',
                 'readOnly' => false,
                 'private'  => false,
-                'mounts'   => [],
+                'filter'   => self::FILTER_IMAGES,
+                'mounts'   => $uploadMounts,
             ],
             'fichiers-du-site' => [
-                'label'    => 'Fichiers du site',
+                'label'    => 'Fichiers',
                 'icon'     => 'cloud',
                 'real'     => $root.'/public/uploads',
                 'readOnly' => false,
                 'private'  => false,
+                'filter'   => self::FILTER_FILES,
                 'mounts'   => [],
             ],
         ];
@@ -104,12 +125,14 @@ class FileStorage
         $base     = $root['real'];
         $mountKey = null;
         $readOnly = $root['readOnly'];
+        $filter   = $root['filter'];
         if ($segments !== []) {
             foreach ($root['mounts'] as $mount) {
                 if ($mount['name'] === $segments[0]) {
                     $base     = $mount['real'];
                     $mountKey = $mount['name'];
-                    $readOnly = true;
+                    $readOnly = $mount['readOnly'];
+                    $filter   = $mount['filter'];
                     array_shift($segments);
                     break;
                 }
@@ -120,7 +143,7 @@ class FileStorage
         if ($baseReal === false) {
             if ($mountKey !== null && $segments === []) {
                 // Un montage dont le dossier n'existe pas encore (aucun document envoyé) : liste vide.
-                return new ResolvedPath($rootKey.'/'.$mountKey, null, $rootKey, false, true, true, $root['private']);
+                return new ResolvedPath($rootKey.'/'.$mountKey, null, $rootKey, false, $readOnly, true, $root['private'], true, $filter);
             }
             throw new FileManagerException('Dossier introuvable.');
         }
@@ -132,7 +155,7 @@ class FileStorage
         }
 
         $virtualPath = implode('/', array_filter([$rootKey, $mountKey, ...$segments]));
-        $isDeclared  = $segments === [] || ($rootKey === 'fichiers-du-site' && count($segments) === 1 && in_array($segments[0], self::DECLARED_UPLOAD_DIRS, true));
+        $isDeclared  = $segments === [] || ($rootKey === 'documents' && count($segments) === 1) || ($rootKey === 'fichiers-du-site' && count($segments) === 1 && in_array($segments[0], self::DECLARED_UPLOAD_DIRS, true));
 
         return new ResolvedPath(
             virtual: $virtualPath,
@@ -143,6 +166,7 @@ class FileStorage
             isDeclared: $isDeclared,
             isPrivate: $root['private'],
             exists: $resolved !== false,
+            filter: $filter,
         );
     }
 
@@ -215,8 +239,11 @@ class FileStorage
                     continue;
                 }
                 $name     = $item->getFilename();
+                if ($folder->filter !== null && !$this->passesFilter($item, $folder->filter)) {
+                    continue;
+                }
                 $virtual  = $folder->virtual.'/'.$name;
-                $declared = $item->isDir() && $folder->rootKey === 'fichiers-du-site' && $folder->virtual === 'fichiers-du-site' && in_array($name, self::DECLARED_UPLOAD_DIRS, true);
+                $declared = $item->isDir() && $folder->virtual === $folder->rootKey && ($folder->rootKey === 'documents' || ($folder->rootKey === 'fichiers-du-site' && in_array($name, self::DECLARED_UPLOAD_DIRS, true)));
                 $entries[] = $this->entry($virtual, $name, $item->getPathname(), $item->isDir(), $folder->rootKey, $declared, $folder->readOnly);
             }
         }
@@ -224,7 +251,10 @@ class FileStorage
         // Montages (ex. « Licenciés » dans Documents), même si leur dossier réel n'existe pas encore.
         if ($folder->rootKey !== null && $folder->virtual === $folder->rootKey) {
             foreach ($this->roots[$folder->rootKey]['mounts'] as $mount) {
-                $entries[] = $this->entry($folder->virtual.'/'.$mount['name'], $mount['label'], $mount['real'], true, $folder->rootKey, true, true, 'users');
+                if ($mount['filter'] !== null && !$this->hasMatching($mount['real'], $mount['filter'])) {
+                    continue; // pas d'image dans ce dossier d'envoi : inutile de l'afficher
+                }
+                $entries[] = $this->entry($folder->virtual.'/'.$mount['name'], $mount['label'], $mount['real'], true, $folder->rootKey, true, $mount['readOnly'], $mount['icon']);
             }
         }
 
@@ -268,6 +298,40 @@ class FileStorage
         ];
     }
 
+    private function matchesFilter(string $ext, string $filter): bool
+    {
+        $isImage = $this->kindOf(strtolower($ext)) === 'image';
+
+        return $filter === self::FILTER_IMAGES ? $isImage : !$isImage;
+    }
+
+    /** Un élément (fichier, ou dossier contenant au moins un fichier concerné) passe-t-il le filtre ? */
+    private function passesFilter(\SplFileInfo $item, string $filter): bool
+    {
+        if ($item->isDir()) {
+            return $this->hasMatching($item->getPathname(), $filter);
+        }
+
+        return $this->matchesFilter($item->getExtension(), $filter);
+    }
+
+    private function hasMatching(string $dir, string $filter): bool
+    {
+        if (!is_dir($dir)) {
+            return false;
+        }
+        foreach (new \DirectoryIterator($dir) as $child) {
+            if ($child->isDot() || str_starts_with($child->getFilename(), '.')) {
+                continue;
+            }
+            if ($child->isDir() ? $this->hasMatching($child->getPathname(), $filter) : $this->matchesFilter($child->getExtension(), $filter)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public function kindOf(string $ext): string
     {
         foreach (self::KINDS as $kind => $extensions) {
@@ -288,9 +352,9 @@ class FileStorage
     {
         $found = [];
         foreach ($this->roots as $key => $root) {
-            $this->collectFiles($root['real'], $key, $found);
+            $this->collectFiles($root['real'], $key, $found, false, $root['filter']);
             foreach ($root['mounts'] as $mount) {
-                $this->collectFiles($mount['real'], $key.'/'.$mount['name'], $found, true);
+                $this->collectFiles($mount['real'], $key.'/'.$mount['name'], $found, $mount['readOnly'], $mount['filter']);
             }
         }
 
@@ -300,7 +364,7 @@ class FileStorage
     }
 
     /** @param list<array<string, mixed>> $found */
-    private function collectFiles(string $dir, string $virtualBase, array &$found, bool $readOnly = false): void
+    private function collectFiles(string $dir, string $virtualBase, array &$found, bool $readOnly = false, ?string $filter = null): void
     {
         if (!is_dir($dir)) {
             return;
@@ -317,7 +381,7 @@ class FileStorage
 
         $count = 0;
         foreach ($iterator as $file) {
-            if (!$file->isFile() || ++$count > 5000) {
+            if (!$file->isFile() || ($filter !== null && !$this->passesFilter($file, $filter)) || ++$count > 5000) {
                 continue;
             }
             $relative = str_replace('\\', '/', substr($file->getPathname(), strlen($dir) + 1));
@@ -341,12 +405,22 @@ class FileStorage
         )), 0, $limit);
     }
 
+    /**
+     * Tous les fichiers d'un dossier, sous-dossiers compris.
+     *
+     * @return list<array<string, mixed>>
+     */
+    public function filesUnder(ResolvedPath $folder, bool $ignoreFilter = false): array
+    {
+        return $this->recentUnder($folder, $ignoreFilter);
+    }
+
     /** @return list<array<string, mixed>> */
-    private function recentUnder(ResolvedPath $folder): array
+    private function recentUnder(ResolvedPath $folder, bool $ignoreFilter = false): array
     {
         $found = [];
         if ($folder->real !== null) {
-            $this->collectFiles($folder->real, $folder->virtual, $found, $folder->readOnly);
+            $this->collectFiles($folder->real, $folder->virtual, $found, $folder->readOnly, $ignoreFilter ? null : $folder->filter);
         }
 
         return $found;
@@ -359,8 +433,20 @@ class FileStorage
         $dirs = [];
         foreach ($this->roots as $root) {
             $dirs[] = $root['real'];
+        }
+        // Les montages dont le dossier est déjà compté dans une racine (envois du site) ne le sont pas deux fois.
+        foreach ($this->roots as $root) {
             foreach ($root['mounts'] as $mount) {
-                $dirs[] = $mount['real'];
+                $inside = false;
+                foreach ($dirs as $counted) {
+                    if (str_starts_with($mount['real'].'/', rtrim($counted, '/').'/')) {
+                        $inside = true;
+                        break;
+                    }
+                }
+                if (!$inside) {
+                    $dirs[] = $mount['real'];
+                }
             }
         }
         foreach ($dirs as $dir) {
@@ -414,6 +500,12 @@ class FileStorage
         $ext  = strtolower(pathinfo($name, \PATHINFO_EXTENSION));
         if (!$this->isValidName($name) || !in_array($ext, self::ALLOWED_EXTENSIONS, true)) {
             throw new FileManagerException(sprintf('Le type de fichier de « %s » n\'est pas autorisé.', $file->getClientOriginalName()));
+        }
+
+        if ($parent->filter !== null && !$this->matchesFilter($ext, $parent->filter)) {
+            throw new FileManagerException($parent->filter === self::FILTER_IMAGES
+                ? sprintf('« %s » n\'est pas une image : envoyez-la dans « Fichiers » ou « Documents ».', $file->getClientOriginalName())
+                : sprintf('« %s » est une image : envoyez-la dans « Images ».', $file->getClientOriginalName()));
         }
 
         $name = $this->uniqueName($parent->real, $name);

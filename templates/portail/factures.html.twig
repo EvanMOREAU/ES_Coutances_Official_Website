@@ -2,29 +2,35 @@
 
 {% block title %}Mes factures{% endblock %}
 
-{% block body %}
-    <h1>Mes factures</h1>
+{% block page_head %}
+    <div class="mc-page-head">
+        <span class="mc-eyebrow">Licences</span>
+        <h1>Mes factures</h1>
+        <p class="mc-sub">Le détail de vos licences, règlements et aides.</p>
+    </div>
+{% endblock %}
 
+{% block body %}
     {% if adhesions is empty %}
-        <div class="card"><p>Aucune licence n'est encore enregistrée pour votre famille. Le club y ajoutera le détail de vos règlements.</p></div>
+        <div class="card"><div class="mc-empty"><i class="fa-solid fa-file-invoice"></i>Aucune licence n'est encore enregistrée pour votre famille. Le club y ajoutera le détail de vos règlements.</div></div>
     {% endif %}
 
     {% for a in adhesions %}
         <div class="card">
-            <h2>Licence {{ a.saison }} — {{ a.licencie.prenom }} {{ a.licencie.nom }}</h2>
-            <table>
-                <tr><th>Prix de la licence</th><td>{{ a.montantBaseCentimes|money }}</td></tr>
+            <div class="card-head"><div><h2>{{ a.licencie.prenom }} {{ a.licencie.nom }}</h2><p class="card-sub">Licence {{ a.saison }}</p></div><span class="{{ a.resteCentimes > 0 ? 'badge-ko' : 'badge-ok' }}">{{ a.statutPaiementLabel }}</span></div>
+            <dl class="kv">
+                <dt>Prix de la licence</dt><dd>{{ a.montantBaseCentimes|money }}</dd>
                 {% if a.reductionCentimes > 0 %}
-                    <tr><th>Réduction{{ a.reductionMotif ? ' (' ~ a.reductionMotif ~ ')' }}</th><td>− {{ a.reductionCentimes|money }}</td></tr>
+                    <dt>Réduction{{ a.reductionMotif ? ' (' ~ a.reductionMotif ~ ')' }}</dt><dd>− {{ a.reductionCentimes|money }}</dd>
                 {% endif %}
-                <tr><th>Montant à payer</th><td><strong>{{ a.montantDuCentimes|money }}</strong></td></tr>
-                <tr><th>Déjà réglé</th><td>{{ a.recuCentimes|money }}</td></tr>
-                <tr><th>Reste à régler</th><td><span class="{{ a.resteCentimes > 0 ? 'badge-ko' : 'badge-ok' }}">{{ a.resteCentimes|money }}</span> — {{ a.statutPaiementLabel }}</td></tr>
-            </table>
+                <dt>Montant à payer</dt><dd><strong>{{ a.montantDuCentimes|money }}</strong></dd>
+                <dt>Déjà réglé</dt><dd>{{ a.recuCentimes|money }}</dd>
+                <dt>Reste à régler</dt><dd><span class="{{ a.resteCentimes > 0 ? 'badge-ko' : 'badge-ok' }}">{{ a.resteCentimes|money }}</span></dd>
+            </dl>
 
             {% if a.reglements|length %}
-                <h2 style="margin-top:24px; font-size:15px;">Règlements</h2>
-                <table>
+                <h3>Règlements</h3>
+                <div class="mc-table-wrap"><table>
                     <thead><tr><th>Échéance</th><th>Mode</th><th>Montant</th><th>État</th></tr></thead>
                     <tbody>
                         {% for r in a.reglements %}
@@ -32,27 +38,27 @@
                                 <td>{{ r.ordre }}/{{ a.reglements|length }}{{ r.dateEcheance ? ' — ' ~ r.dateEcheance|date('d/m/Y') }}</td>
                                 <td>{{ r.modeLabel }}</td>
                                 <td>{{ r.montantCentimes|money }}</td>
-                                <td>{% if r.recu %}<span class="badge-ok">Reçu{{ r.dateRemise ? ' le ' ~ r.dateRemise|date('d/m/Y') }}</span>{% else %}<span class="badge-ko">En attente</span>{% endif %}</td>
+                                <td>{% if r.recu %}<span class="badge-ok">Reçu{{ r.dateRemise ? ' le ' ~ r.dateRemise|date('d/m/Y') }}</span>{% else %}<span class="badge-wait">En attente</span>{% endif %}</td>
                             </tr>
                         {% endfor %}
                     </tbody>
-                </table>
+                </table></div>
             {% endif %}
 
             {% if a.aides|length %}
-                <h2 style="margin-top:24px; font-size:15px;">Aides</h2>
-                <table>
+                <h3>Aides</h3>
+                <div class="mc-table-wrap"><table>
                     <thead><tr><th>Aide</th><th>Montant</th><th>État</th></tr></thead>
                     <tbody>
                         {% for aide in a.aides %}
                             <tr>
                                 <td>{{ aide.typeLabel }}</td>
                                 <td>{{ aide.montantCentimes|money }}</td>
-                                <td>{% if aide.recue %}<span class="badge-ok">Reçue{{ aide.dateReception ? ' le ' ~ aide.dateReception|date('d/m/Y') }}</span>{% else %}<span class="badge-ko">Attendue</span>{% endif %}</td>
+                                <td>{% if aide.recue %}<span class="badge-ok">Reçue{{ aide.dateReception ? ' le ' ~ aide.dateReception|date('d/m/Y') }}</span>{% else %}<span class="badge-wait">Attendue</span>{% endif %}</td>
                             </tr>
                         {% endfor %}
                     </tbody>
-                </table>
+                </table></div>
             {% endif %}
         </div>
     {% endfor %}

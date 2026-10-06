@@ -1,30 +1,50 @@
 {% extends 'admin/parametres/_layout.html.twig' %}
 
 {% block tab_content %}
-    {% set details = {
-        new_famille: { title: 'Nouvelles familles', desc: "Être averti quand une nouvelle famille est inscrite au club" },
-        weekly_summary: { title: 'Résumé hebdomadaire', desc: "Recevoir chaque semaine un récapitulatif de l'activité du club" },
-    } %}
+    {% set has_bell = false %}
+    {% for key, section in sections %}{% if 'bell' in section.channels %}{% set has_bell = true %}{% endif %}{% endfor %}
 
-    {{ form_start(form) }}
-        <h2 class="text-lg font-bold">Préférences</h2>
-        <p class="text-sm text-admin-text-muted mb-4">Gérez vos préférences de notification et de communication</p>
+    <form method="post" action="{{ path('admin_parametres_preferences') }}">
+        <h2 class="text-lg font-bold">Notifications</h2>
+        <p class="text-sm text-admin-text-muted mb-4">Choisissez ce dont vous voulez être averti, dans la clochette de l'administration et par e-mail. Tout est activé par défaut ; seules les rubriques auxquelles vos autorisations donnent accès sont proposées.</p>
 
-        <div class="divide-y divide-admin-border">
-            {% for child in form.notificationPreferences %}
-                <label class="flex items-center justify-between gap-6 py-4 cursor-pointer">
-                    <span>
-                        <span class="block text-sm font-semibold">{{ details[child.vars.value].title }}</span>
-                        <span class="block text-xs text-admin-text-muted mt-0.5">{{ details[child.vars.value].desc }}</span>
-                    </span>
-                    {{ form_widget(child, {attr: {class: 'admin-switch'}}) }}
-                </label>
-            {% endfor %}
-        </div>
+        {% if sections is empty %}
+            <p class="text-sm text-admin-text-muted py-6 text-center">Aucune notification à régler pour ce compte.</p>
+        {% else %}
+            <div class="flex justify-end gap-3 text-[11px] font-semibold uppercase tracking-wide text-admin-text-muted">
+                {% if has_bell %}<span class="w-14 text-center">Cloche</span>{% endif %}
+                <span class="w-14 text-center">E-mail</span>
+            </div>
+            <div class="divide-y divide-admin-border">
+                {% for key, section in sections %}
+                    <div class="flex items-center justify-between gap-6 py-4">
+                        <span>
+                            <span class="block text-sm font-semibold">{{ section.label }}</span>
+                            <span class="block text-xs text-admin-text-muted mt-0.5">{{ section.help }}</span>
+                        </span>
+                        <span class="flex gap-3 shrink-0">
+                            {% if has_bell %}
+                                <span class="w-14 flex justify-center">
+                                    {% if 'bell' in section.channels %}
+                                        <input type="checkbox" class="admin-switch" name="prefs[bell][{{ key }}]" value="1" {{ prefs.wants(app.user, key, 'bell') ? 'checked' }} aria-label="{{ section.label }} — cloche">
+                                    {% else %}<span class="text-admin-text-muted">—</span>{% endif %}
+                                </span>
+                            {% endif %}
+                            <span class="w-14 flex justify-center">
+                                {% if 'email' in section.channels %}
+                                    <input type="checkbox" class="admin-switch" name="prefs[email][{{ key }}]" value="1" {{ prefs.wants(app.user, key, 'email') ? 'checked' }} aria-label="{{ section.label }} — e-mail">
+                                {% else %}<span class="text-admin-text-muted">—</span>{% endif %}
+                            </span>
+                        </span>
+                    </div>
+                {% endfor %}
+            </div>
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token('account_notification_prefs') }}">
+        {% endif %}
 
         <div class="flex items-center justify-between mt-4">
-            <p class="text-xs text-admin-text-muted">Ces préférences seront appliquées au fur et à mesure de la mise en place des envois automatiques correspondants.</p>
-            <button type="submit" class="rounded-lg admin-gradient px-5 py-2 text-sm font-semibold text-white shrink-0 ml-4">Enregistrer</button>
+            <p class="text-xs text-admin-text-muted">Les e-mails de sécurité (code de connexion, mot de passe) sont toujours envoyés.</p>
+            {% if sections is not empty %}<button type="submit" class="rounded-lg admin-gradient px-5 py-2 text-sm font-semibold text-white shrink-0 ml-4">Enregistrer</button>{% endif %}
         </div>
-    {{ form_end(form) }}
+    </form>
 {% endblock %}

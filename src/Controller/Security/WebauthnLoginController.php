@@ -15,6 +15,7 @@ use Symfony\Component\Routing\Attribute\Route;
 class WebauthnLoginController extends AbstractController
 {
     #[Route('/admin/webauthn/login/options', name: 'admin_webauthn_login_options', methods: ['GET'])]
+    #[Route('/mon-compte/webauthn/login/options', name: 'portail_webauthn_login_options', methods: ['GET'])]
     public function options(WebauthnService $webauthn): JsonResponse
     {
         $options = $webauthn->generateLoginOptions();
@@ -23,6 +24,7 @@ class WebauthnLoginController extends AbstractController
     }
 
     #[Route('/admin/webauthn/login', name: 'admin_webauthn_login_check', methods: ['POST'])]
+    #[Route('/mon-compte/webauthn/login', name: 'portail_webauthn_login_check', methods: ['POST'])]
     public function check(): never
     {
         throw new \LogicException('Cette route est interceptée par PasskeyAuthenticator et ne doit jamais être atteinte.');

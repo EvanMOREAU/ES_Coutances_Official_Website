@@ -25,6 +25,9 @@ class UserChecker implements UserCheckerInterface
 
     public function checkPreAuth(UserInterface $user): void
     {
+        if ($user instanceof User && $user->isAnonymized()) {
+            throw new CustomUserMessageAccountStatusException('Ce compte a été supprimé.');
+        }
         if (!$user instanceof User || $user->isStaff()) {
             return;
         }
