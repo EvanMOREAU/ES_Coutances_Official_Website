@@ -16,6 +16,7 @@
          data-files-rename-value="{{ path('admin_files_rename') }}"
          data-files-remove-value="{{ path('admin_files_delete') }}"
          data-files-star-value="{{ path('admin_files_star') }}"
+         data-files-cleanup-value="{{ path('admin_files_delete_orphans') }}"
          data-files-view-value="{{ path('admin_files_view') }}"
          data-files-download-value="{{ path('admin_files_download') }}"
          data-files-token-value="{{ csrf_token('files') }}"
@@ -26,6 +27,7 @@
                 <button type="button" class="fm-nav-item is-active" data-files-target="nav" data-view="all" data-action="click->files#selectNav"><i class="fa-regular fa-folder-open"></i> Tous les fichiers</button>
                 <button type="button" class="fm-nav-item" data-files-target="nav" data-view="recent" data-action="click->files#selectNav"><i class="fa-regular fa-clock"></i> Récents</button>
                 <button type="button" class="fm-nav-item" data-files-target="nav" data-view="starred" data-action="click->files#selectNav"><i class="fa-regular fa-star"></i> Favoris</button>
+                <button type="button" class="fm-nav-item" data-files-target="nav" data-view="orphans" data-action="click->files#selectNav"><i class="fa-solid fa-broom"></i> Fichiers inutilisés</button>
             </nav>
             <div class="fm-storage">
                 <p class="fm-storage-title"><i class="fa-regular fa-hard-drive"></i> Stockage</p>
@@ -46,6 +48,7 @@
                     <button type="button" data-files-target="modeButton" data-mode="list" data-action="click->files#setMode" aria-label="Liste"><i class="fa-solid fa-list"></i></button>
                 </div>
                 <button type="button" class="admin-btn admin-btn-ghost" data-files-target="newFolder" data-action="click->files#createFolder"><i class="fa-solid fa-folder-plus"></i> <span class="fm-btn-label">Nouveau dossier</span></button>
+                <button type="button" class="admin-btn admin-btn-primary" data-files-target="cleanup" data-action="click->files#deleteOrphans" hidden><i class="fa-solid fa-trash"></i> <span class="fm-btn-label">Tout supprimer</span></button>
                 <button type="button" class="admin-btn admin-btn-primary" data-files-target="upload" data-action="click->files#pick"><i class="fa-solid fa-arrow-up-from-bracket"></i> <span class="fm-btn-label">Envoyer</span></button>
                 <input type="file" multiple hidden data-files-target="picker" data-action="change->files#picked" accept="{{ allowed_extensions|map(e => '.' ~ e)|join(',') }}">
             </div>

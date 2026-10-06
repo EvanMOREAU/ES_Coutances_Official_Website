@@ -1,0 +1,43 @@
+{% extends 'portail/_layout.html.twig' %}
+
+{% block title %}Paramètres{% endblock %}
+
+{% block head_assets %}
+    {{ importmap('portail') }}
+{% endblock %}
+
+{% block page_head %}
+    <div class="mc-page-head">
+        <span class="mc-eyebrow">Mon compte</span>
+        <h1>Paramètres</h1>
+        <p class="mc-sub">Gérez votre compte et personnalisez l'affichage.</p>
+    </div>
+{% endblock %}
+
+{% block body %}
+    {% set tabs = [
+        { id: 'profil', label: 'Profil', desc: 'Informations et mot de passe', icon: 'fa-user', route: 'portail_parametres_profil' },
+        { id: 'securite', label: 'Sécurité', desc: 'Double authentification', icon: 'fa-shield-halved', route: 'portail_parametres_securite' },
+        { id: 'preferences', label: 'Notifications', desc: 'Alertes et e-mails', icon: 'fa-bell', route: 'portail_parametres_preferences' },
+        { id: 'apparence', label: 'Apparence', desc: 'Thème et affichage', icon: 'fa-palette', route: 'portail_parametres_apparence' },
+        { id: 'confidentialite', label: 'Confidentialité', desc: 'Vos données et votre compte', icon: 'fa-user-lock', route: 'portail_parametres_confidentialite' },
+    ] %}
+    <div class="mc-set">
+        <nav class="mc-set-nav" aria-label="Paramètres">
+            {% for tab in tabs %}
+                <a href="{{ path(tab.route) }}" class="{{ active_tab == tab.id ? 'is-active' }}">
+                    <i class="fa-solid {{ tab.icon }}"></i>
+                    <span><strong>{{ tab.label }}</strong><small>{{ tab.desc }}</small></span>
+                </a>
+            {% endfor %}
+        </nav>
+        <div class="mc-set-body">
+            {% for type, label in {success: 'ok', error: 'ko'} %}
+                {% for message in app.flashes(type) %}
+                    <div class="mc-alert {{ label }}">{{ message }}</div>
+                {% endfor %}
+            {% endfor %}
+            {% block tab_content %}{% endblock %}
+        </div>
+    </div>
+{% endblock %}

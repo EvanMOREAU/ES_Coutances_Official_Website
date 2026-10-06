@@ -16,6 +16,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use Vich\UploaderBundle\Mapping\Attribute as Vich;
 
 #[Vich\Uploadable]
+#[ORM\HasLifecycleCallbacks]
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
 #[UniqueEntity(fields: ['email'], message: 'Cet email est déjà utilisé.')]
@@ -62,8 +63,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, TotpTwo
     #[ORM\Column(length: 20)]
     private string $density = 'comfortable';
 
+    /** Choix de notification : ['bell' => [clé => bool], 'email' => [clé => bool]] (voir NotificationPreferences). */
     #[ORM\Column]
-    private array $notificationPreferences = ['new_famille'];
+    private array $notificationPreferences = [];
+
+    /** Date d'anonymisation du compte (RGPD) : le compte est vidé de ses données personnelles, les factures restent. */
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $anonymizedAt = null;
 
     /**
      * Préférences d'affichage des tableaux de l'admin, par tableau :
@@ -216,7 +222,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, TotpTwo
 
     public function getNotificationPreferences(): array { return $this->notificationPreferences; }
     public function setNotificationPreferences(array $notificationPreferences): static { $this->notificationPreferences = $notificationPreferences; return $this; }
-    public function hasNotificationPreference(string $key): bool { return in_array($key, $this->notificationPreferences, true); }
+    /** Un nouveau compte hors équipe (famille, licencié, client) démarre en thème clair, comme l'espace Mon compte d'origine. */
+    #[ORM\PrePersist]
+    public function defaultPortalTheme(): void
+    {
+        if (!$this->isStaff() && 'dark' === $this->theme) {
+            $this->theme = 'light';
+        }
+    }
+
+    public function isAnonymized(): bool { return $this->anonymizedAt !== null; }
+    public function getAnonymizedAt(): ?\DateTimeImmutable { return $this->anonymizedAt; }
+    public function markAnonymized(): static { $this->anonymizedAt = new \DateTimeImmutable(); return $this; }
 
     public function getTablePreferences(): array { return $this->tablePreferences ?? []; }
     public function setTablePreferences(?array $tablePreferences): static { $this->tablePreferences = $tablePreferences; return $this; }

@@ -1,0 +1,49 @@
+{% extends 'portail/parametres/_layout.html.twig' %}
+
+{% block tab_content %}
+    <section class="card">
+        {{ form_start(form, {attr: {novalidate: 'novalidate'}}) }}
+            <h2 class="mc-h2">Profil</h2>
+            <p class="mc-lead">Vos informations personnelles{{ is_client ? '' : ' et votre photo de profil' }}.</p>
+
+            {% if form.avatarFile is defined %}
+                {% do form.avatarFile.setRendered %}
+                <div class="mc-profile-photo" data-controller="avatar-upload">
+                    <span class="mc-avatar">
+                        <img data-avatar-upload-target="image" src="{{ app.user.avatarName ? asset('uploads/avatars/' ~ app.user.avatarName) : '' }}" class="{{ app.user.avatarName ? '' : 'hidden' }}" alt="">
+                        {% if not app.user.avatarName %}<span data-avatar-upload-target="initial">{{ app.user.initiale }}</span>{% endif %}
+                    </span>
+                    <div>
+                        <label for="{{ form.avatarFile.vars.id }}" class="mc-btn" style="cursor:pointer;">Changer de photo</label>
+                        <input type="file" id="{{ form.avatarFile.vars.id }}" name="{{ form.avatarFile.vars.full_name }}" accept="image/png,image/jpeg,image/gif" class="sr-only" data-avatar-upload-target="input" data-action="change->avatar-upload#preview">
+                        <small data-avatar-upload-target="hint">JPG, PNG ou GIF. 2 Mo maximum.</small>
+                        {{ form_errors(form.avatarFile) }}
+                    </div>
+                </div>
+            {% endif %}
+
+            <div class="mc-grid2">
+                <div class="mc-field">{{ form_label(form.prenom) }}{{ form_widget(form.prenom) }}{{ form_errors(form.prenom) }}</div>
+                <div class="mc-field">{{ form_label(form.nom) }}{{ form_widget(form.nom) }}{{ form_errors(form.nom) }}</div>
+            </div>
+            <div class="mc-field">{{ form_label(form.email) }}{{ form_widget(form.email) }}{{ form_errors(form.email) }}</div>
+            <div class="mc-field">{{ form_label(form.currentPassword) }}{{ form_widget(form.currentPassword) }}{{ form_errors(form.currentPassword) }}</div>
+
+            <div class="mc-actions"><button type="submit" class="mc-btn is-primary">Enregistrer</button></div>
+        {{ form_end(form) }}
+    </section>
+
+    <section class="card">
+        {{ form_start(passwordForm, {attr: {novalidate: 'novalidate'}}) }}
+            <h2 class="mc-h2">Mot de passe</h2>
+            <p class="mc-lead">Choisissez un mot de passe d'au moins 8 caractères.</p>
+            <div class="mc-field">{{ form_label(passwordForm.currentPassword) }}{{ form_widget(passwordForm.currentPassword) }}{{ form_errors(passwordForm.currentPassword) }}</div>
+            <div class="mc-grid2">
+                <div class="mc-field">{{ form_label(passwordForm.newPassword.first) }}{{ form_widget(passwordForm.newPassword.first) }}{{ form_errors(passwordForm.newPassword.first) }}</div>
+                <div class="mc-field">{{ form_label(passwordForm.newPassword.second) }}{{ form_widget(passwordForm.newPassword.second) }}{{ form_errors(passwordForm.newPassword.second) }}</div>
+            </div>
+            {% do passwordForm.save.setRendered %}
+            <div class="mc-actions"><button type="submit" class="mc-btn is-primary">Mettre à jour le mot de passe</button></div>
+        {{ form_end(passwordForm) }}
+    </section>
+{% endblock %}

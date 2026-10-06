@@ -36,4 +36,17 @@
             {% endif %}
         </div>
     </div>
+
+    {% if famille.user and not famille.user.staff and not famille.user.anonymized and can_url(path('admin_compte_anonymiser', {id: famille.user.id}), 'POST') %}
+        <section class="admin-card rounded-2xl p-6 mt-6" style="border-color: color-mix(in srgb, var(--color-admin-danger) 35%, transparent);">
+            <h2 class="font-bold mb-1">Anonymiser le compte</h2>
+            <p class="text-sm text-admin-text-muted mb-4">Efface les données personnelles de {{ famille.user.nomComplet ?: famille.user.email }} (compte, famille, licenciés, messages, documents) à sa demande (RGPD). Les factures — licences, règlements, commandes — sont conservées, sans lien avec une identité.</p>
+            <form method="post" action="{{ path('admin_compte_anonymiser', {id: famille.user.id}) }}"
+                  data-confirm="Les données personnelles de ce compte seront définitivement effacées ; seules les factures seront conservées. Cette action est irréversible." data-confirm-title="Anonymiser ce compte ?" data-confirm-label="Anonymiser">
+                <input type="hidden" name="_token" value="{{ csrf_token('anonymize-compte-' ~ famille.user.id) }}">
+                <input type="hidden" name="retour" value="{{ path('admin_famille_index') }}">
+                <button type="submit" class="rounded-lg border border-admin-danger/40 text-admin-danger px-4 py-2 text-sm font-semibold hover:bg-admin-danger/10"><i class="fa-solid fa-user-slash"></i> Anonymiser le compte</button>
+            </form>
+        </section>
+    {% endif %}
 {% endblock %}

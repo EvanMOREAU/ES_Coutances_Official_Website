@@ -30,7 +30,7 @@ class PasskeyAuthenticator extends AbstractAuthenticator
 
     public function supports(Request $request): ?bool
     {
-        return 'admin_webauthn_login_check' === $request->attributes->get('_route') && $request->isMethod('POST');
+        return in_array($request->attributes->get('_route'), ['admin_webauthn_login_check', 'portail_webauthn_login_check'], true) && $request->isMethod('POST');
     }
 
     public function authenticate(Request $request): Passport
@@ -54,7 +54,7 @@ class PasskeyAuthenticator extends AbstractAuthenticator
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
     {
-        return new JsonResponse(['redirect' => $this->router->generate('admin')]);
+        return new JsonResponse(['redirect' => $this->router->generate('portail_webauthn_login_check' === $request->attributes->get('_route') ? 'portail_index' : 'admin')]);
     }
 
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): ?Response

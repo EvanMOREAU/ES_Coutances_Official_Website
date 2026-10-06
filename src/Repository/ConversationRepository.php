@@ -36,6 +36,66 @@ class ConversationRepository extends ServiceEntityRepository
             ->getResult();
     }
 
+    /**
+     * Toutes les discussions de support (visibles de l'équipe habilitée), avec leurs participants.
+     *
+     * @return list<Conversation>
+     */
+    public function findSupport(): array
+    {
+        return $this->createQueryBuilder('c')
+            ->addSelect('p', 'pu', 'cu')
+            ->leftJoin('c.participants', 'p')
+            ->leftJoin('p.user', 'pu')
+            ->leftJoin('c.customer', 'cu')
+            ->where('c.support = true')
+            ->orderBy('c.updatedAt', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function findSupportOf(User $customer): ?Conversation
+    {
+        return $this->createQueryBuilder('c')
+            ->where('c.support = true')
+            ->andWhere('c.customer = :u')
+            ->setParameter('u', $customer)
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
+    /**
+     * Messages des clients restés sans lecture pour un membre de l'équipe qui n'a pas encore ouvert la discussion de support.
+     *
+     * @param list<int> $conversationIds
+     *
+     * @return array<int, int>
+     */
+    public function supportUnreadForStaff(array $conversationIds): array
+    {
+        if ($conversationIds === []) {
+            return [];
+        }
+        $rows = $this->getEntityManager()->createQueryBuilder()
+            ->select('IDENTITY(m.conversation) AS conversation', 'COUNT(m.id) AS unread')
+            ->from(\App\Entity\Message::class, 'm')
+            ->innerJoin('m.conversation', 'c')
+            ->where('IDENTITY(m.conversation) IN (:ids)')
+            ->andWhere('m.author = c.customer')
+            ->groupBy('m.conversation')
+            ->setParameter('ids', $conversationIds)
+            ->getQuery()
+            ->getArrayResult();
+
+        $counts = [];
+        foreach ($rows as $row) {
+            $counts[(int) $row['conversation']] = (int) $row['unread'];
+        }
+
+        return $counts;
+    }
+
     /** Discussion à deux déjà ouverte entre ces deux personnes, s'il y en a une. */
     public function findDirect(User $a, User $b): ?Conversation
     {

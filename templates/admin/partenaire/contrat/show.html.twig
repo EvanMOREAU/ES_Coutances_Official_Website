@@ -1,0 +1,100 @@
+{% extends 'admin/_layout.html.twig' %}
+
+{% block title %}Contrat {{ contrat.titre }}{% endblock %}
+
+{% block body %}
+    <a href="{{ path('admin_partenaire_show', {id: partenaire.id}) }}" class="text-sm text-admin-text-muted hover:text-admin-text"><i class="fa-solid fa-arrow-left"></i> {{ partenaire.nom }}</a>
+    <div class="flex flex-wrap items-center gap-3 mt-3 mb-5">
+        <h1 class="text-2xl font-black" style="font-family:'Barlow Condensed',sans-serif;">{{ contrat.titre }}</h1>
+        <span class="badge badge-pay-{{ contrat.statutPaiement }}">{{ contrat.statutPaiementLabel }}</span>
+        {% if can_url(path('admin_partenaire_contrat_edit', {id: contrat.id})) %}
+            <a href="{{ path('admin_partenaire_contrat_edit', {id: contrat.id}) }}" class="ml-auto admin-btn admin-btn-ghost admin-btn-sm"><i class="fa-solid fa-pen"></i> Modifier le contrat</a>
+        {% endif %}
+    </div>
+
+    <div class="ad-tiles">
+        <div class="ad-tile"><span>Montant du contrat</span><strong>{{ contrat.montantCentimes|money }}</strong></div>
+        <div class="ad-tile"><span>Encaissé</span><strong>{{ contrat.reglementsRecusCentimes|money }}</strong></div>
+        <div class="ad-tile"><span>Reste à encaisser</span><strong>{{ contrat.resteCentimes|money }}</strong></div>
+        <div class="ad-tile"><span>Tâches restantes</span><strong>{{ contrat.tachesRestantes }} / {{ contrat.tachesTotal }}</strong></div>
+    </div>
+
+    <div class="grid gap-6 lg:grid-cols-3 items-start">
+        <div class="lg:col-span-2 space-y-6">
+            <section class="admin-card rounded-2xl p-6">
+                <h2 class="font-semibold mb-4">Contrat</h2>
+                <dl class="grid sm:grid-cols-2 gap-x-6 gap-y-3 text-sm">
+                    <div><dt class="text-admin-text-muted text-xs">Intitulé</dt><dd class="font-medium">{{ contrat.titre }}</dd></div>
+                    <div><dt class="text-admin-text-muted text-xs">Montant</dt><dd class="font-medium">{{ contrat.montantCentimes|money }}</dd></div>
+                    <div><dt class="text-admin-text-muted text-xs">Début</dt><dd class="font-medium">{{ contrat.dateDebut ? contrat.dateDebut|date('d/m/Y') : '—' }}</dd></div>
+                    <div><dt class="text-admin-text-muted text-xs">Fin</dt><dd class="font-medium">{{ contrat.dateFin ? contrat.dateFin|date('d/m/Y') : '—' }}</dd></div>
+                </dl>
+            </section>
+
+            <section class="admin-card rounded-2xl p-6">
+                <h2 class="font-semibold mb-4">Règlements</h2>
+                {% if contrat.reglements is empty %}
+                    <p class="text-sm text-admin-text-muted">Aucun règlement enregistré.</p>
+                {% else %}
+                    <ul class="divide-y divide-admin-border text-sm">
+                        {% for r in contrat.reglements %}
+                            <li class="flex flex-wrap items-center gap-x-4 gap-y-1 py-3">
+                                <span class="font-medium w-8">{{ r.ordre }}/{{ contrat.reglements|length }}</span>
+                                <span>{{ r.modeLabel }}</span>
+                                <strong>{{ r.montantCentimes|money }}</strong>
+                                <span class="text-admin-text-muted">{{ r.dateEcheance ? 'Échéance ' ~ r.dateEcheance|date('d/m/Y') : 'Sans échéance' }}</span>
+                                {% if r.reference %}<span class="text-admin-text-muted">Réf. {{ r.reference }}</span>{% endif %}
+                                <span class="ml-auto {{ r.recu ? 'text-admin-success' : 'text-admin-text-muted' }}">
+                                    {% if r.recu %}<i class="fa-solid fa-circle-check"></i> Encaissé{{ r.dateRemise ? ' le ' ~ r.dateRemise|date('d/m/Y') }}{% else %}<i class="fa-regular fa-clock"></i> En attente{% endif %}
+                                </span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </section>
+
+            <section class="admin-card rounded-2xl p-6">
+                <h2 class="font-semibold mb-4">Tâches à réaliser</h2>
+                {% if contrat.taches is empty %}
+                    <p class="text-sm text-admin-text-muted">Aucune tâche enregistrée.</p>
+                {% else %}
+                    <ul class="divide-y divide-admin-border text-sm">
+                        {% for t in contrat.taches %}
+                            <li class="flex flex-wrap items-center gap-x-4 gap-y-1 py-3">
+                                <span class="{{ t.fait ? 'text-admin-success' : 'text-admin-text-muted' }}"><i class="fa-{{ t.fait ? 'solid fa-circle-check' : 'regular fa-circle' }}"></i></span>
+                                <span class="font-medium {{ t.fait ? 'line-through text-admin-text-muted' }}">{{ t.titre }}</span>
+                                {% if t.echeance %}<span class="ml-auto text-admin-text-muted">Échéance {{ t.echeance|date('d/m/Y') }}</span>{% endif %}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </section>
+
+            {% if contrat.notes %}
+                <section class="admin-card rounded-2xl p-6">
+                    <h2 class="font-semibold mb-3">Notes</h2>
+                    <p class="text-sm whitespace-pre-line">{{ contrat.notes }}</p>
+                </section>
+            {% endif %}
+        </div>
+
+        <aside class="space-y-6">
+            <section class="admin-card rounded-2xl p-6">
+                <h2 class="font-semibold mb-3">Partenaire</h2>
+                <p class="text-sm">{{ partenaire.nom }}</p>
+            </section>
+            <section class="admin-card rounded-2xl p-6">
+                <h2 class="font-semibold mb-3">Documents</h2>
+                {% if contrat.documents is empty %}
+                    <p class="text-sm text-admin-text-muted">Aucun document hébergé.</p>
+                {% else %}
+                    <ul class="text-sm space-y-2">
+                        {% for document in contrat.documents %}
+                            <li><a href="{{ asset('uploads/contrats-partenaires/' ~ document.fichierName) }}" target="_blank" rel="noopener" class="hover:underline"><i class="fa-regular fa-file-lines"></i> {{ document.nomOriginal ?? document.fichierName }}</a></li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </section>
+        </aside>
+    </div>
+{% endblock %}

@@ -1,131 +1,50 @@
+{# Gabarit commun de l'espace « Mon compte ». Blocs : title, head_assets, page_head (facultatif), body. #}
+{% set route = app.request.attributes.get('_route') ?? '' %}
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" {% if app.user and app.user.theme != 'system' %}data-theme="{{ app.user.theme }}"{% endif %} data-scheme="{{ app.user ? app.user.colorScheme : 'rouge' }}" data-density="{{ app.user ? app.user.density : 'comfortable' }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" type="image/png" href="{{ asset('images/favicon.png') }}">
-    <title>{% block title %}Espace Familles &amp; Licenciés{% endblock %} — ES Coutances</title>
+    <title>{% block title %}Mon compte{% endblock %} — ES Coutances</title>
     {% block head_assets %}{% endblock %}
-    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-    <style>
-        /* Couleurs lues par les composants partagés avec l'admin (fenêtres, listes déroulantes, messagerie) : thème clair, rouge du club. */
-        :root {
-            --color-admin-bg: #f4f4f5;
-            --color-admin-surface: #ffffff;
-            --color-admin-surface-hover: #f0f0f3;
-            --color-admin-border: rgba(10, 10, 15, 0.12);
-            --color-admin-text: #18181b;
-            --color-admin-text-muted: #71717a;
-            --color-admin-primary-from: #C8102E;
-            --color-admin-primary-to: #9E0C23;
-            --color-admin-success: #16a34a;
-            --color-admin-danger: #dc2626;
-        }
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Inter', sans-serif; background: #f4f4f5; color: #18181b; }
-        header {
-            background: #0D0D0D;
-            padding: 16px 24px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        header img { height: 40px; }
-        header .titre {
-            font-family: 'Barlow Condensed', sans-serif;
-            font-weight: 800;
-            letter-spacing: .06em;
-            text-transform: uppercase;
-            color: #fff;
-            font-size: 16px;
-        }
-        header a.logout {
-            color: #f4f4f5;
-            font-size: 13px;
-            text-decoration: none;
-            border: 1px solid #444;
-            padding: 8px 14px;
-            border-radius: 4px;
-        }
-        header .entete-liens { display: flex; align-items: center; gap: 8px; }
-        header a.lien-nav { color: #f4f4f5; font-size: 13px; text-decoration: none; padding: 8px 12px; border-radius: 4px; }
-        header a.lien-nav:hover { background: rgba(255,255,255,.1); }
-        .pastille { display: inline-block; min-width: 18px; margin-left: 6px; padding: 1px 6px; font-size: 11px; font-weight: 700; text-align: center; color: #fff; background: #C8102E; border-radius: 9999px; }
-        .pastille[hidden] { display: none; }
-        header a.logout:hover { border-color: #C8102E; color: #C8102E; }
-        main { max-width: 900px; margin: 32px auto; padding: 0 24px; }
-        h1 {
-            font-family: 'Barlow Condensed', sans-serif;
-            font-weight: 900;
-            text-transform: uppercase;
-            letter-spacing: .04em;
-            font-size: 28px;
-            margin-bottom: 20px;
-            color: #0D0D0D;
-        }
-        .card {
-            background: #fff;
-            border-radius: 8px;
-            box-shadow: 0 4px 16px rgba(0,0,0,.06);
-            padding: 24px;
-            margin-bottom: 24px;
-        }
-        .card h2 {
-            font-family: 'Barlow Condensed', sans-serif;
-            font-weight: 800;
-            text-transform: uppercase;
-            font-size: 18px;
-            margin-bottom: 16px;
-            color: #C8102E;
-        }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #eee; font-size: 14px; }
-        th { color: #71717a; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; }
-        a.bouton {
-            display: inline-block;
-            background: #C8102E;
-            color: #fff;
-            text-decoration: none;
-            padding: 8px 16px;
-            border-radius: 4px;
-            font-size: 13px;
-            font-weight: 600;
-        }
-        a.bouton:hover { background: #9E0C23; }
-        a.lien-retour { color: #666; font-size: 13px; text-decoration: none; }
-        a.lien-retour:hover { color: #C8102E; }
-        /* Petits écrans : la barre du haut passe à la ligne au lieu de déborder. */
-        @media (max-width: 760px) {
-            header { flex-wrap: wrap; gap: 10px; padding: 12px 16px; }
-            header .titre { font-size: 14px; }
-            header .entete-liens { flex-wrap: wrap; width: 100%; gap: 4px; }
-            main { margin: 24px auto; padding: 0 16px; }
-        }
-        .badge-ok { color: #166534; }
-        .badge-ko { color: #991b1b; }
-    </style>
+    <link rel="stylesheet" href="{{ asset('styles/mon-compte.css') }}">
 </head>
 <body>
-    <header>
-        <div style="display:flex; align-items:center; gap:12px;">
-            <img src="https://raw.githubusercontent.com/CylaosICT/escoutances-images/refs/heads/main/logo_hd_trans3_gt.png" alt="ES Coutances">
-            <span class="titre">Espace Familles &amp; Licenciés</span>
+    <header class="mc-top">
+        <div class="mc-top-in">
+            <a class="mc-brand" href="{{ path('portail_index') }}">
+                <img src="https://raw.githubusercontent.com/CylaosICT/escoutances-images/refs/heads/main/logo_hd_trans3_gt.png" alt="ES Coutances">
+                <span>Mon compte<small>ES Coutances</small></span>
+            </a>
+            <nav class="mc-nav" aria-label="Navigation du compte">
+                <a href="{{ path('portail_index') }}" class="{{ route in ['portail_index', 'portail_licencie'] ? 'is-active' }}"><i class="fa-solid fa-house"></i> Accueil</a>
+                {% if not portail_est_boutique() %}
+                    <a href="{{ path('portail_planning') }}" class="{{ route starts with 'portail_planning' ? 'is-active' }}"><i class="fa-regular fa-calendar"></i> Planning</a>
+                    {% if portail_facturation() %}<a href="{{ path('portail_factures') }}" class="{{ route starts with 'portail_factures' ? 'is-active' }}"><i class="fa-solid fa-file-invoice"></i> Factures</a>{% endif %}
+                    <a href="{{ path('portail_chat_index') }}" class="{{ route starts with 'portail_chat' ? 'is-active' }}"><i class="fa-regular fa-comments"></i> Messagerie{% set unread = chat_unread() %}<span class="pastille" data-chat-badge {{ unread == 0 ? 'hidden' }}>{{ unread }}</span></a>
+                {% endif %}
+                {% if portail_est_boutique() %}
+                    <a href="{{ path('portail_chat_index') }}" class="{{ route starts with 'portail_chat' ? 'is-active' }}"><i class="fa-solid fa-headset"></i> Support{% set unread = chat_unread() %}<span class="pastille" data-chat-badge {{ unread == 0 ? 'hidden' }}>{{ unread }}</span></a>
+                {% endif %}
+                {% if portail_commandes_visible() %}<a href="{{ path('portail_commandes') }}" class="{{ route starts with 'portail_commandes' ? 'is-active' }}"><i class="fa-solid fa-bag-shopping"></i> Commandes</a>{% endif %}
+                <a href="{{ path('boutique_index') }}"><i class="fa-solid fa-store"></i> Boutique</a>
+            </nav>
+            <div class="mc-user">
+                <a class="mc-user-link" href="{{ path('portail_parametres_profil') }}" title="Paramètres du compte">
+                    <span class="mc-avatar" aria-hidden="true">{% if app.user.avatarName %}<img src="{{ asset('uploads/avatars/' ~ app.user.avatarName) }}" alt="">{% else %}{{ app.user.initiale }}{% endif %}</span>
+                    <span class="mc-user-name">{{ app.user.nomComplet ?: app.user.email }}</span>
+                </a>
+                <a class="mc-logout" href="{{ path('portail_logout') }}" title="Se déconnecter" aria-label="Se déconnecter"><i class="fa-solid fa-right-from-bracket"></i></a>
+            </div>
         </div>
-        <nav class="entete-liens">
-            <a class="lien-nav" href="{{ path('portail_index') }}">Mon espace</a>
-            {% if not portail_est_boutique() %}
-                <a class="lien-nav" href="{{ path('portail_planning') }}">Planning</a>
-                {% if portail_facturation() %}<a class="lien-nav" href="{{ path('portail_factures') }}">Factures</a>{% endif %}
-                <a class="lien-nav" href="{{ path('portail_chat_index') }}">Messagerie{% set unread = chat_unread() %}<span class="pastille" data-chat-badge {{ unread == 0 ? 'hidden' }}>{{ unread }}</span></a>
-            {% endif %}
-            {% if portail_commandes_visible() %}<a class="lien-nav" href="{{ path('portail_commandes') }}">Commandes</a>{% endif %}
-            <a class="lien-nav" href="{{ path('boutique_index') }}">Boutique</a>
-            <a class="logout" href="{{ path('portail_logout') }}">Déconnexion</a>
-        </nav>
     </header>
-    <main>
+    <main class="mc-main">
+        {% block page_head %}{% endblock %}
         {% block body %}{% endblock %}
     </main>
+    {% include 'chat/_badge_poller.html.twig' with {url: path('portail_chat_unread')} only %}
 </body>
 </html>

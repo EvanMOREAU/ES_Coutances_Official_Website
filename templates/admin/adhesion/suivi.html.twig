@@ -27,7 +27,7 @@
         <section data-suivi-target="step">
             <p class="text-sm text-admin-text-muted mb-3">Cochez chaque règlement à sa réception et indiquez la date de remise en banque (chèques, espèces) ou de paiement (carte).</p>
             {% for r in adhesion.reglements %}
-                <div class="sv-card {{ r.recu ? 'is-done' }}" data-suivi-target="reglement" data-amount="{{ r.montantCentimes }}">
+                <div class="sv-card {{ r.recu ? 'is-done' }} {{ r.locked ? 'is-locked' }}" {% if r.locked %}inert title="Règlement encaissé : définitif"{% endif %} data-suivi-target="reglement" data-amount="{{ r.montantCentimes }}">
                     <label class="sv-toggle">
                         <input type="checkbox" name="reglements[{{ r.id }}][recu]" value="1" {{ r.recu ? 'checked' }} data-action="change->suivi#toggle">
                         <span class="sv-switch"></span>
@@ -48,7 +48,7 @@
         <section data-suivi-target="step" hidden>
             <p class="text-sm text-admin-text-muted mb-3">Une aide reste « attendue » jusqu'à sa réception. Cochez-la quand elle arrive, avec la date.</p>
             {% for a in adhesion.aides %}
-                <div class="sv-card {{ a.recue ? 'is-done' }}" data-suivi-target="aide" data-amount="{{ a.montantCentimes }}">
+                <div class="sv-card {{ a.recue ? 'is-done' }} {{ a.locked ? 'is-locked' }}" {% if a.locked %}inert title="Aide reçue : définitive"{% endif %} data-suivi-target="aide" data-amount="{{ a.montantCentimes }}">
                     <label class="sv-toggle">
                         <input type="checkbox" name="aides[{{ a.id }}][recue]" value="1" {{ a.recue ? 'checked' }} data-action="change->suivi#toggle">
                         <span class="sv-switch"></span>

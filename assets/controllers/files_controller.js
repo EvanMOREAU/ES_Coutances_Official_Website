@@ -15,7 +15,8 @@ const KIND_ICONS = {
     other: 'fa-file',
 };
 
-const VIEW_TITLES = { recent: 'Récents', starred: 'Favoris' };
+const VIEW_TITLES = { recent: 'Récents', starred: 'Favoris', orphans: 'Fichiers inutilisés' };
+const VIEW_ICONS = { recent: 'fa-clock', starred: 'fa-star', orphans: 'fa-broom' };
 
 /**
  * Gestionnaire de fichiers : navigation dans les dossiers exposés par le
@@ -25,7 +26,7 @@ const VIEW_TITLES = { recent: 'Récents', starred: 'Favoris' };
  * ce contrôleur ne fait que présenter ce que le serveur autorise.
  */
 export default class extends Controller {
-    static targets = ['content', 'crumbs', 'search', 'nav', 'modeButton', 'back', 'newFolder', 'upload', 'picker', 'drop', 'usageBar', 'usageText', 'viewer', 'viewerBody', 'viewerName', 'viewerMeta', 'viewerDownload', 'viewerPrev', 'viewerNext'];
+    static targets = ['content', 'crumbs', 'search', 'nav', 'modeButton', 'back', 'newFolder', 'upload', 'cleanup', 'picker', 'drop', 'usageBar', 'usageText', 'viewer', 'viewerBody', 'viewerName', 'viewerMeta', 'viewerDownload', 'viewerPrev', 'viewerNext'];
     static values = {
         list: String,
         usage: String,
@@ -34,6 +35,7 @@ export default class extends Controller {
         rename: String,
         remove: String,
         star: String,
+        cleanup: String,
         view: String,
         download: String,
         token: String,
@@ -64,7 +66,7 @@ export default class extends Controller {
 
     applyHash() {
         const hash = decodeURIComponent(window.location.hash.replace(/^#/, ''));
-        if (hash === 'recent' || hash === 'starred') {
+        if (hash === 'recent' || hash === 'starred' || hash === 'orphans') {
             this.state = { view: hash, path: '', query: '' };
         } else {
             this.state = { view: 'all', path: hash.replace(/^\/+/, ''), query: '' };
@@ -194,6 +196,7 @@ export default class extends Controller {
         this.uploadTarget.hidden = this.state.view !== 'all';
         this.newFolderTarget.disabled = !this.canWrite;
         this.uploadTarget.disabled = !this.canWrite;
+        this.cleanupTarget.hidden = this.state.view !== 'orphans' || this.entries.length === 0;
         this.renderCrumbs();
         this.renderEntries();
     }
@@ -221,7 +224,7 @@ export default class extends Controller {
         };
 
         if (this.state.view !== 'all') {
-            add(VIEW_TITLES[this.state.view], { current: true, icon: this.state.view === 'recent' ? 'fa-clock' : 'fa-star' });
+            add(VIEW_TITLES[this.state.view], { current: true, icon: VIEW_ICONS[this.state.view] });
 
             return;
         }
@@ -270,6 +273,10 @@ export default class extends Controller {
             icon = 'fa-star';
             title = 'Aucun favori';
             hint = 'Ajoutez un fichier ou un dossier aux favoris depuis son menu « … ».';
+        } else if (this.state.view === 'orphans') {
+            icon = 'fa-circle-check';
+            title = 'Aucun fichier inutilisé';
+            hint = 'Tous les fichiers envoyés sont utilisés sur le site.';
         } else if (this.state.view === 'recent') {
             icon = 'fa-clock';
             title = 'Aucun fichier récent';
@@ -459,7 +466,7 @@ export default class extends Controller {
             title: isFolder ? 'Supprimer ce dossier ?' : 'Supprimer ce fichier ?',
             message: isFolder
                 ? `Le dossier « ${entry.name} » et tout ce qu'il contient seront supprimés définitivement.`
-                : `« ${entry.name} » sera supprimé définitivement.${entry.path.startsWith('fichiers-du-site/') ? ' Attention : ce fichier est peut-être utilisé sur le site (slide, logo, photo…).' : ''}`,
+                : `« ${entry.name} » sera supprimé définitivement.${!entry.path.startsWith('documents/') ? ' Attention : ce fichier est peut-être utilisé sur le site (slide, logo, photo…).' : ''}`,
             confirmLabel: 'Supprimer',
             danger: true,
         });
@@ -469,6 +476,28 @@ export default class extends Controller {
         try {
             await this.api(this.removeValue, { method: 'POST', body: this.form({ path: entry.path }) });
             this.toast('Supprimé.');
+            this.load(false);
+            this.loadUsage();
+        } catch (error) {
+            this.toast(error.message, true);
+        }
+    }
+
+    async deleteOrphans() {
+        const count = this.entries.length;
+        const total = this.entries.reduce((sum, entry) => sum + (entry.size ?? 0), 0);
+        const ok = await adminConfirm({
+            title: 'Supprimer tous les fichiers inutilisés ?',
+            message: `${count} fichier${count > 1 ? 's' : ''} (${this.formatSize(total)}) qu'aucune fiche du site n'utilise ${count > 1 ? 'seront supprimés' : 'sera supprimé'} définitivement.`,
+            confirmLabel: 'Tout supprimer',
+            danger: true,
+        });
+        if (!ok) {
+            return;
+        }
+        try {
+            const data = await this.api(this.cleanupValue, { method: 'POST', body: this.form({}) });
+            this.toast(`${data.deleted} fichier${data.deleted > 1 ? 's' : ''} supprimé${data.deleted > 1 ? 's' : ''} (${this.formatSize(data.freed)} libérés).`);
             this.load(false);
             this.loadUsage();
         } catch (error) {

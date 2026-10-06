@@ -1,0 +1,56 @@
+{% extends 'portail/_auth.html.twig' %}
+
+{% block title %}Vérification en deux étapes{% endblock %}
+{% block heading %}Vérification en deux étapes{% endblock %}
+{% block lead %}
+    {% if twoFactorProvider == 'totp' %}Saisissez le code affiché dans votre application d'authentification.
+    {% elseif twoFactorProvider == 'email' %}Saisissez le code que nous venons de vous envoyer par e-mail.
+    {% else %}Saisissez votre code de vérification.{% endif %}
+{% endblock %}
+
+{% block head_assets %}{{ importmap('portail') }}{% endblock %}
+
+{% block card %}
+    {% for message in app.flashes('success') %}<div class="mc-alert ok">{{ message }}</div>{% endfor %}
+    {% if authenticationError %}
+        <div class="mc-alert ko">{{ authenticationError|trans(authenticationErrorData, 'SchebTwoFactorBundle') }}</div>
+    {% endif %}
+
+    <form method="post" action="{{ checkPathUrl ? checkPathUrl : path(checkPathRoute) }}" data-controller="otp-input">
+        <div data-otp-input-target="boxes" class="mc-otp" style="justify-content:center; margin-bottom:18px;">
+            {% for i in 0..5 %}
+                <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" autocomplete="{{ i == 0 ? 'one-time-code' : 'off' }}"
+                       data-otp-input-target="box" data-index="{{ i }}"
+                       data-action="input->otp-input#input keydown->otp-input#keydown paste->otp-input#paste" aria-label="Chiffre {{ i + 1 }}">
+            {% endfor %}
+        </div>
+        <div data-otp-input-target="backup" class="hidden mc-field">
+            <input type="text" autocomplete="off" placeholder="Code de secours" data-action="input->otp-input#backupInput" style="text-align:center; letter-spacing:.1em;">
+        </div>
+
+        <input type="hidden" name="{{ authCodeParameterName }}" data-otp-input-target="hidden">
+        {% if isCsrfProtectionEnabled %}<input type="hidden" name="{{ csrfParameterName }}" value="{{ csrf_token(csrfTokenId) }}">{% endif %}
+        {% if displayTrustedOption %}
+            <label style="display:flex; gap:8px; justify-content:center; font-size:13px; margin-bottom:14px; color:var(--mc-muted);"><input type="checkbox" name="{{ trustedParameterName }}"> Faire confiance à cet appareil</label>
+        {% endif %}
+        <button type="submit" class="mc-submit">Vérifier</button>
+    </form>
+
+    <div class="mc-auth-links">
+        {% if twoFactorProvider == 'email' %}
+            <form method="post" action="{{ path('portail_2fa_resend_email') }}">
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token('2fa_resend_email') }}">
+                <button type="submit" style="border:0; background:none; font:inherit; color:var(--mc-muted); cursor:pointer;">Renvoyer le code</button>
+            </form>
+        {% endif %}
+        {% if availableTwoFactorProviders|length > 1 %}
+            {% for provider in availableTwoFactorProviders %}
+                {% if provider != twoFactorProvider %}
+                    <a href="{{ path('portail_2fa_login', {preferProvider: provider}) }}">{% if provider == 'totp' %}Utiliser l'application{% elseif provider == 'email' %}Recevoir un code par e-mail{% else %}{{ provider }}{% endif %}</a>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+        <a href="#" data-action="otp-input#toggleBackup">Utiliser un code de secours</a>
+        <a href="{{ logoutPath }}">Annuler et se déconnecter</a>
+    </div>
+{% endblock %}

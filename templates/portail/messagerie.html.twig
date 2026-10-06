@@ -5,18 +5,33 @@
 {% block head_assets %}
     {{ importmap('portail') }}
     <style>
-        main { max-width: 1100px; }
-        .ch { height: clamp(26rem, calc(100vh - 17rem), 50rem); box-shadow: 0 4px 16px rgba(0,0,0,.06); }
-        /* La feuille de style partagée réinitialise les titres du portail : on garde la police du site. */
+        .ch { height: clamp(26rem, calc(100vh - 15rem), 50rem); box-shadow: var(--mc-shadow); border-radius: var(--mc-radius); }
         .ch, .admin-modal { font-family: 'Inter', sans-serif; }
         .admin-modal h2 { font-family: 'Inter', sans-serif; text-transform: none; color: inherit; font-size: 1.05rem; letter-spacing: 0; margin: 0; }
         dialog { color: #18181b; }
+        {% if chat_solo %}
+        /* Page « Support » : tout tient à l'écran, la discussion occupe la place restante (pas de défilement de la page). */
+        body { display: flex; height: 100vh; flex-direction: column; overflow: hidden; }
+        main.mc-main { display: flex; width: 100%; min-height: 0; flex: 1; flex-direction: column; padding-top: 20px; padding-bottom: 20px; }
+        main.mc-main .ch { height: auto !important; min-height: 0; flex: 1; }
+        .mc-page-head { margin-bottom: 14px; }
+        .mc-info { display: flex; align-items: flex-start; gap: 8px; margin-top: 8px; font-size: 12.5px; color: var(--mc-muted); }
+        .mc-info i { margin-top: 3px; color: var(--mc-red); }
+        {% endif %}
     </style>
 {% endblock %}
 
-{% block body %}
-    <h1>Messagerie</h1>
-    <p style="margin: -8px 0 20px; color:#71717a; font-size:14px;">Écrivez aux responsables du club : ils vous répondent ici, sans recharger la page.</p>
+{% block page_head %}
+    <div class="mc-page-head">
+        <span class="mc-eyebrow">Échanges</span>
+        <h1>{{ chat_solo ? 'Support' : 'Messagerie' }}</h1>
+        <p class="mc-sub">{{ chat_solo ? 'Une question, un souci avec une commande ? Écrivez-nous : l\'équipe vous répond ici.' : 'Écrivez aux responsables du club : ils vous répondent ici, sans recharger la page.' }}</p>
+        {% if chat_solo %}
+            <p class="mc-info"><i class="fa-solid fa-circle-info"></i><span>Nos réponses peuvent prendre un peu de temps. Chaque message que vous recevez vous est aussi signalé par e-mail.</span></p>
+        {% endif %}
+    </div>
+{% endblock %}
 
+{% block body %}
     {% include 'chat/_chat.html.twig' %}
 {% endblock %}

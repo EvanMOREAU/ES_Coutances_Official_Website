@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+{% if (checkPathRoute ?? '') starts with 'portail' %}{% include 'security/2fa_portail.html.twig' %}{% else %}<!DOCTYPE html>
 <html lang="fr" class="h-full">
 <head>
     <meta charset="UTF-8">
@@ -99,3 +99,4 @@
     </div>
 </body>
 </html>
+{% endif %}

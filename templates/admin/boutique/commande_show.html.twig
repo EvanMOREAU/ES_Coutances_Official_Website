@@ -116,4 +116,17 @@
             </section>
         </div>
     </div>
+
+    {% if commande.user and not commande.user.staff and not commande.user.anonymized and can_url(path('admin_compte_anonymiser', {id: commande.user.id}), 'POST') %}
+        <section class="admin-card rounded-2xl p-6 mt-6" style="border-color: color-mix(in srgb, var(--color-admin-danger) 35%, transparent);">
+            <h2 class="font-semibold mb-1">Anonymiser le compte client</h2>
+            <p class="text-sm text-admin-text-muted mb-4">À la demande du client (RGPD) : efface les données personnelles de son compte et de ses commandes. Les commandes (références, articles, montants) sont conservées pour la comptabilité, sans lien avec son identité.</p>
+            <form method="post" action="{{ path('admin_compte_anonymiser', {id: commande.user.id}) }}"
+                  data-confirm="Les données personnelles de ce client seront définitivement effacées ; seules les commandes (sans identité) seront conservées. Cette action est irréversible." data-confirm-title="Anonymiser ce compte ?" data-confirm-label="Anonymiser">
+                <input type="hidden" name="_token" value="{{ csrf_token('anonymize-compte-' ~ commande.user.id) }}">
+                <input type="hidden" name="retour" value="{{ path('admin_commande_index') }}">
+                <button type="submit" class="rounded-lg border border-admin-danger/40 text-admin-danger px-4 py-2 text-sm font-semibold hover:bg-admin-danger/10"><i class="fa-solid fa-user-slash"></i> Anonymiser le compte</button>
+            </form>
+        </section>
+    {% endif %}
 {% endblock %}

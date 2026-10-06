@@ -95,6 +95,8 @@ final class RoutePermissions
         'admin_files_upload'           => 'fichiers.televerser',
         'admin_files_rename'           => 'fichiers.modifier',
         'admin_files_delete'           => 'fichiers.supprimer',
+        'admin_files_delete_orphans'   => 'fichiers.supprimer',
+        'admin_compte_anonymiser'      => 'utilisateur.supprimer',
         'admin_categorie_reorder'      => 'categorie.modifier',
         'admin_deploy_index'           => 'deploiement.voir',
         'admin_deploy_check'           => 'deploiement.voir',
@@ -141,7 +143,7 @@ final class RoutePermissions
             return self::HUBS[$route];
         }
         if (str_starts_with($route, 'admin_chat_')) {
-            return 'messagerie.utiliser';
+            return 'messagerie.utiliser,messagerie.support';
         }
         if ('admin_mail_settings' === $route) {
             return 'GET' === $method || 'HEAD' === $method ? 'mail.voir' : 'mail.modifier';

@@ -130,7 +130,7 @@ class SiteVitrineController extends AbstractController
             'value'  => null,
             'visual' => [
                 'type'     => 'status',
-                'on'       => (bool) $match?->isEnLigne(),
+                'on'       => (bool) $match?->isEnDirect(),
                 'onLabel'  => 'En direct',
                 'offLabel' => 'Hors ligne',
                 'detail'   => $match?->getUrl() ?: 'Aucun lien de diffusion',

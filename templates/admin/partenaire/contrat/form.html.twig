@@ -3,26 +3,39 @@
 
 {% block title %}{{ contrat.id ? 'Contrat ' ~ contrat.titre : 'Nouveau contrat' }}{% endblock %}
 
+{# Un règlement encaissé est définitif : champs grisés (le serveur ignore de toute façon toute modification). #}
 {% macro reglement_row(row) %}
-    <div class="ad-row" data-contrat-partenaire-form-target="reglement">
-        <div class="ad-cell">{{ form_label(row.mode) }}{{ form_widget(row.mode) }}{{ form_errors(row.mode) }}</div>
-        <div class="ad-cell">{{ form_label(row.montantCentimes) }}{{ form_widget(row.montantCentimes) }}{{ form_errors(row.montantCentimes) }}</div>
-        <div class="ad-cell">{{ form_label(row.dateEcheance) }}{{ form_widget(row.dateEcheance) }}</div>
-        <div class="ad-cell ad-check"><label class="sv-toggle">{{ form_widget(row.recu) }}<span class="sv-switch"></span><span>Encaissé</span></label></div>
-        <div class="ad-cell">{{ form_label(row.dateRemise) }}{{ form_widget(row.dateRemise) }}</div>
-        <div class="ad-cell">{{ form_label(row.reference) }}{{ form_widget(row.reference) }}</div>
+    {% set locked = row.vars.data is not null and row.vars.data.locked %}
+    {% set lock = locked ? {disabled: 'disabled'} : {} %}
+    <div class="ad-row {{ locked ? 'is-locked' }}" data-contrat-partenaire-form-target="reglement">
+        <div class="ad-cell">{{ form_label(row.mode) }}{{ form_widget(row.mode, {attr: lock}) }}{{ form_errors(row.mode) }}</div>
+        <div class="ad-cell">{{ form_label(row.montantCentimes) }}{{ form_widget(row.montantCentimes, {attr: lock}) }}{{ form_errors(row.montantCentimes) }}</div>
+        <div class="ad-cell">{{ form_label(row.dateEcheance) }}{{ form_widget(row.dateEcheance, {attr: lock}) }}</div>
+        <div class="ad-cell ad-check"><label class="sv-toggle">{{ form_widget(row.recu, {attr: lock}) }}<span class="sv-switch"></span><span>Encaissé</span></label></div>
+        <div class="ad-cell">{{ form_label(row.dateRemise) }}{{ form_widget(row.dateRemise, {attr: lock}) }}</div>
+        <div class="ad-cell">{{ form_label(row.reference) }}{{ form_widget(row.reference, {attr: lock}) }}</div>
         {{ form_widget(row.ordre) }}
-        <button type="button" class="var-remove" data-action="contrat-partenaire-form#remove" title="Retirer" aria-label="Retirer ce règlement"><i class="fa-solid fa-xmark"></i></button>
+        {% if locked %}
+            <span class="ad-lock" title="Règlement validé : il n'est plus modifiable"><i class="fa-solid fa-lock"></i></span>
+        {% else %}
+            <button type="button" class="var-remove" data-action="contrat-partenaire-form#remove" title="Retirer" aria-label="Retirer ce règlement"><i class="fa-solid fa-xmark"></i></button>
+        {% endif %}
     </div>
 {% endmacro %}
 
 {% macro tache_row(row) %}
-    <div class="ad-row" data-contrat-partenaire-form-target="tache">
-        <div class="ad-cell ad-wide">{{ form_label(row.titre) }}{{ form_widget(row.titre) }}{{ form_errors(row.titre) }}</div>
-        <div class="ad-cell">{{ form_label(row.echeance) }}{{ form_widget(row.echeance) }}</div>
-        <div class="ad-cell ad-check"><label class="sv-toggle">{{ form_widget(row.fait) }}<span class="sv-switch"></span><span>Faite</span></label></div>
+    {% set locked = row.vars.data is not null and row.vars.data.locked %}
+    {% set lock = locked ? {disabled: 'disabled'} : {} %}
+    <div class="ad-row {{ locked ? 'is-locked' }}" data-contrat-partenaire-form-target="tache">
+        <div class="ad-cell ad-wide">{{ form_label(row.titre) }}{{ form_widget(row.titre, {attr: lock}) }}{{ form_errors(row.titre) }}</div>
+        <div class="ad-cell">{{ form_label(row.echeance) }}{{ form_widget(row.echeance, {attr: lock}) }}</div>
+        <div class="ad-cell ad-check"><label class="sv-toggle">{{ form_widget(row.fait, {attr: lock}) }}<span class="sv-switch"></span><span>Faite</span></label></div>
         {{ form_widget(row.ordre) }}
-        <button type="button" class="var-remove" data-action="contrat-partenaire-form#remove" title="Retirer" aria-label="Retirer cette tâche"><i class="fa-solid fa-xmark"></i></button>
+        {% if locked %}
+            <span class="ad-lock" title="Tâche faite : elle n'est plus modifiable"><i class="fa-solid fa-lock"></i></span>
+        {% else %}
+            <button type="button" class="var-remove" data-action="contrat-partenaire-form#remove" title="Retirer" aria-label="Retirer cette tâche"><i class="fa-solid fa-xmark"></i></button>
+        {% endif %}
     </div>
 {% endmacro %}
 
@@ -66,7 +79,7 @@
 
                 <section class="admin-card rounded-2xl p-6">
                     <h2 class="font-semibold mb-1">Règlements</h2>
-                    <p class="text-xs text-admin-text-muted mb-4">Une ligne par échéance. Cochez « Encaissé » à la réception, et indiquez la date d'encaissement.</p>
+                    <p class="text-xs text-admin-text-muted mb-4">Une ligne par échéance. Cochez « Encaissé » à la réception, et indiquez la date d'encaissement. Une fois enregistré comme encaissé, un règlement est définitif et n'est plus modifiable.</p>
                     <div data-contrat-partenaire-form-target="reglements">
                         {% for row in form.reglements %}{{ _self.reglement_row(row) }}{% endfor %}
                     </div>
@@ -77,7 +90,7 @@
 
                 <section class="admin-card rounded-2xl p-6">
                     <h2 class="font-semibold mb-1">Tâches à réaliser</h2>
-                    <p class="text-xs text-admin-text-muted mb-4">Ex. envoyer le flocage, poser le panneau publicitaire, inviter à l'assemblée générale…</p>
+                    <p class="text-xs text-admin-text-muted mb-4">Ex. envoyer le flocage, poser le panneau publicitaire, inviter à l'assemblée générale… Une tâche enregistrée comme faite n'est plus modifiable.</p>
                     <div data-contrat-partenaire-form-target="taches">
                         {% for row in form.taches %}{{ _self.tache_row(row) }}{% endfor %}
                     </div>

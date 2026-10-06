@@ -81,7 +81,7 @@
                 </div>
                 {% endif %}
 
-                {% if can('messagerie.utiliser') %}
+                {% if can('messagerie.utiliser,messagerie.support') %}
                 <div data-controller="nav-section" data-nav-section-id-value="echanges">
                     {{ _self.nav_section_label('Échanges') }}
                     <div class="space-y-1" data-nav-section-target="links">
@@ -237,6 +237,9 @@
         </div>
     </div>
 
+    {% if can('messagerie.utiliser,messagerie.support') %}
+        {% include 'chat/_badge_poller.html.twig' with {url: path('admin_chat_unread')} only %}
+    {% endif %}
 </body>
 </html>
 

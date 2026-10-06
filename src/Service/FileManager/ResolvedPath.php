@@ -17,6 +17,8 @@ final class ResolvedPath
         public readonly bool $isDeclared,
         public readonly bool $isPrivate,
         public readonly bool $exists = true,
+        /** Restriction d'affichage et d'envoi : « images », « files » (tout sauf les images) ou null. */
+        public readonly ?string $filter = null,
     ) {
     }
 

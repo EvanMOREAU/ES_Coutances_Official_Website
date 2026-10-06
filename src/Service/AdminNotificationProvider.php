@@ -3,6 +3,11 @@
 namespace App\Service;
 
 use App\Entity\Famille;
+use App\Repository\EntrainementRepository;
+use App\Repository\LicencieRepository;
+use App\Repository\UserRepository;
+use App\Service\Chat\ChatService;
+use App\Service\Notification\NotificationPreferences;
 use App\Entity\NotificationState;
 use App\Entity\User;
 use App\Repository\CommandeRepository;
@@ -37,6 +42,12 @@ class AdminNotificationProvider
         private readonly UrlGeneratorInterface $urls,
         private readonly SiteAdvisor $advisor,
         private readonly PermissionChecker $permissions,
+        private readonly NotificationPreferences $prefs,
+        private readonly LicencieRepository $licencieRepository,
+        private readonly UserRepository $userRepository,
+        private readonly EntrainementRepository $entrainementRepository,
+        private readonly PlanningService $planning,
+        private readonly ChatService $chat,
     ) {
     }
 
@@ -127,9 +138,43 @@ class AdminNotificationProvider
     private function compute(): array
     {
         $notifications = [];
+        $me    = $this->security->getUser();
+        $wants = fn (string $key): bool => $me instanceof User && $this->prefs->wants($me, $key, NotificationPreferences::BELL);
+
+        // Messages non lus (messagerie).
+        if ($me instanceof User && $wants('messages') && $this->permissions->can('messagerie.utiliser,messagerie.support')) {
+            $unread = $this->chat->unreadTotal($me);
+            if ($unread > 0) {
+                $notifications[] = [
+                    'key'  => 'messages:'.$unread,
+                    'icon' => 'fa-comments',
+                    'text' => sprintf('%d message%s non lu%s', $unread, $unread > 1 ? 's' : '', $unread > 1 ? 's' : ''),
+                    'meta' => 'Messagerie',
+                    'url'  => $this->urls->generate('admin_chat_index'),
+                ];
+            }
+        }
+
+        // Prochains événements du planning qui concernent ce compte (3 jours).
+        if ($me instanceof User && $wants('planning') && $this->permissions->can('planning.voir')) {
+            $shown = 0;
+            foreach ($this->entrainementRepository->between(new \DateTimeImmutable('today'), new \DateTimeImmutable('+3 days')) as $event) {
+                if (!$this->planning->visibleEvenement($event, $me) || $shown >= 3) {
+                    continue;
+                }
+                ++$shown;
+                $notifications[] = [
+                    'key'  => 'planning:'.$event->getId(),
+                    'icon' => 'fa-calendar-day',
+                    'text' => sprintf('%s — %s', $event->getTitre(), $event->getDate()?->format('d/m').' à '.$event->getHeureDebut()?->format('H:i')),
+                    'meta' => 'Planning',
+                    'url'  => $this->urls->generate('admin_planning_index'),
+                ];
+            }
+        }
 
         // Commandes de la boutique à préparer.
-        foreach ($this->permissions->can('commande.voir') ? $this->commandeRepository->findAPreparer(5) : [] as $commande) {
+        foreach ($wants('commandes') && $this->permissions->can('commande.voir') ? $this->commandeRepository->findAPreparer(5) : [] as $commande) {
             $notifications[] = [
                 'key'  => 'commande:' . $commande->getId(),
                 'icon' => 'fa-bag-shopping',
@@ -151,7 +196,7 @@ class AdminNotificationProvider
             SiteAdvisor::HUB_PARTENAIRE => 'partenaire.voir',
         ];
         foreach ($hubs as $hub => [$slug, $label, $url]) {
-            if (!$this->permissions->can($hubPermission[$hub])) {
+            if (!$wants('conseils') || !$this->permissions->can($hubPermission[$hub])) {
                 continue;
             }
             $count = $this->advisor->count($hub);
@@ -169,7 +214,7 @@ class AdminNotificationProvider
         // Familles sans email exploitable (adresse invalide, ou provisoire générée par un import) :
         // la clé inclut le compte pour que la notification réapparaisse si elle a été masquée puis
         // que le nombre de familles concernées change à nouveau.
-        if ($this->permissions->can('famille.voir')) {
+        if ($wants('conseils') && $this->permissions->can('famille.voir')) {
             $sansEmailValide = array_filter($this->familleRepository->findAll(), static fn (Famille $f) => !$f->hasEmailValide());
             $count = count($sansEmailValide);
             if ($count > 0) {
@@ -183,7 +228,7 @@ class AdminNotificationProvider
             }
         }
 
-        foreach ($this->permissions->can('famille.voir') ? $this->familleRepository->findBy([], ['id' => 'DESC'], 3) : [] as $famille) {
+        foreach ($wants('familles') && $this->permissions->can('famille.voir') ? $this->familleRepository->findBy([], ['id' => 'DESC'], 3) : [] as $famille) {
             $notifications[] = [
                 'key'  => 'famille:' . $famille->getId(),
                 'icon' => 'fa-house-user',
@@ -191,6 +236,35 @@ class AdminNotificationProvider
                 'meta' => 'Famille',
                 'url'  => '/admin/familles/' . $famille->getId(),
             ];
+        }
+
+        foreach ($wants('licencies') && $this->permissions->can('licencie.voir') ? $this->licencieRepository->findBy([], ['id' => 'DESC'], 3) : [] as $licencie) {
+            $notifications[] = [
+                'key'  => 'licencie:' . $licencie->getId(),
+                'icon' => 'fa-id-card',
+                'text' => sprintf('Nouveau licencié : %s %s', $licencie->getPrenom(), $licencie->getNom()),
+                'meta' => 'Licencié',
+                'url'  => '/admin/licencies/' . $licencie->getId(),
+            ];
+        }
+
+        if ($wants('utilisateurs') && $this->permissions->can('utilisateur.voir')) {
+            $latest = $this->userRepository->createQueryBuilder('u')
+                ->where('u.anonymizedAt IS NULL')
+                ->andWhere("u.roles NOT LIKE '%ROLE_EDITOR%' AND u.roles NOT LIKE '%ROLE_ADMIN%' AND u.roles NOT LIKE '%ROLE_DEV%'")
+                ->orderBy('u.id', 'DESC')
+                ->setMaxResults(3)
+                ->getQuery()
+                ->getResult();
+            foreach ($latest as $account) {
+                $notifications[] = [
+                    'key'  => 'compte:' . $account->getId(),
+                    'icon' => 'fa-user-plus',
+                    'text' => sprintf('Nouveau compte : %s', $account->getNomComplet() ?: $account->getEmail()),
+                    'meta' => 'Compte utilisateur',
+                    'url'  => $this->urls->generate('admin_user_index'),
+                ];
+            }
         }
 
         return $notifications;

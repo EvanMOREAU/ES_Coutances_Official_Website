@@ -7,6 +7,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /** Une échéance de règlement d'une licence (espèces, carte ou chèque), à encaisser puis à remettre en banque. */
 #[ORM\Entity]
+#[ORM\HasLifecycleCallbacks]
 #[ORM\Table(name: 'reglement')]
 class Reglement
 {
@@ -19,6 +20,17 @@ class Reglement
         self::MODE_CARTE   => 'Carte bancaire',
         self::MODE_CHEQUE  => 'Chèque',
     ];
+
+    /** Un règlement encaissé (tel qu'enregistré en base) est définitif : remise en banque, date, référence et montant ne bougent plus. */
+    private bool $locked = false;
+
+    #[ORM\PostLoad]
+    public function lockIfValidated(): void
+    {
+        $this->locked = $this->recu;
+    }
+
+    public function isLocked(): bool { return $this->locked; }
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -63,24 +75,24 @@ class Reglement
     public function setAdhesion(?Adhesion $adhesion): static { $this->adhesion = $adhesion; return $this; }
 
     public function getMode(): string { return $this->mode; }
-    public function setMode(string $mode): static { $this->mode = $mode; return $this; }
+    public function setMode(string $mode): static { if ($this->locked) { return $this; } $this->mode = $mode; return $this; }
     public function getModeLabel(): string { return self::MODES[$this->mode] ?? $this->mode; }
 
     public function getMontantCentimes(): int { return $this->montantCentimes; }
-    public function setMontantCentimes(?int $c): static { $this->montantCentimes = max(0, (int) $c); return $this; }
+    public function setMontantCentimes(?int $c): static { if ($this->locked) { return $this; } $this->montantCentimes = max(0, (int) $c); return $this; }
 
     public function getOrdre(): int { return $this->ordre; }
-    public function setOrdre(int $ordre): static { $this->ordre = $ordre; return $this; }
+    public function setOrdre(int $ordre): static { if ($this->locked) { return $this; } $this->ordre = $ordre; return $this; }
 
     public function getDateEcheance(): ?\DateTimeImmutable { return $this->dateEcheance; }
-    public function setDateEcheance(?\DateTimeImmutable $d): static { $this->dateEcheance = $d; return $this; }
+    public function setDateEcheance(?\DateTimeImmutable $d): static { if ($this->locked) { return $this; } $this->dateEcheance = $d; return $this; }
 
     public function isRecu(): bool { return $this->recu; }
-    public function setRecu(bool $recu): static { $this->recu = $recu; return $this; }
+    public function setRecu(bool $recu): static { if ($this->locked) { return $this; } $this->recu = $recu; return $this; }
 
     public function getDateRemise(): ?\DateTimeImmutable { return $this->dateRemise; }
-    public function setDateRemise(?\DateTimeImmutable $d): static { $this->dateRemise = $d; return $this; }
+    public function setDateRemise(?\DateTimeImmutable $d): static { if ($this->locked) { return $this; } $this->dateRemise = $d; return $this; }
 
     public function getReference(): ?string { return $this->reference; }
-    public function setReference(?string $reference): static { $this->reference = $reference; return $this; }
+    public function setReference(?string $reference): static { if ($this->locked) { return $this; } $this->reference = $reference; return $this; }
 }

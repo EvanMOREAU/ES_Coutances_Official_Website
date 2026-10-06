@@ -3,8 +3,10 @@
 
 {% block title %}{{ adhesion.id ? 'Licence ' ~ adhesion.saison : 'Nouvelle licence' }}{% endblock %}
 
+{# Règlement encaissé / aide reçue : définitifs. La ligne est rendue inerte (non éditable, mais toujours envoyée) et le serveur ignore toute modification. #}
 {% macro reglement_row(row) %}
-    <div class="ad-row" data-adhesion-form-target="reglement">
+    {% set locked = row.vars.data is not null and row.vars.data.locked %}
+    <div class="ad-row {{ locked ? 'is-locked' }}" data-adhesion-form-target="reglement" {{ locked ? 'inert' }}>
         <div class="ad-cell">{{ form_label(row.mode) }}{{ form_widget(row.mode) }}{{ form_errors(row.mode) }}</div>
         <div class="ad-cell">{{ form_label(row.montantCentimes) }}{{ form_widget(row.montantCentimes) }}{{ form_errors(row.montantCentimes) }}</div>
         <div class="ad-cell">{{ form_label(row.dateEcheance) }}{{ form_widget(row.dateEcheance) }}</div>
@@ -12,18 +14,19 @@
         <div class="ad-cell">{{ form_label(row.dateRemise) }}{{ form_widget(row.dateRemise) }}</div>
         <div class="ad-cell">{{ form_label(row.reference) }}{{ form_widget(row.reference) }}</div>
         {{ form_widget(row.ordre) }}
-        <button type="button" class="var-remove" data-action="adhesion-form#remove" title="Retirer" aria-label="Retirer ce règlement"><i class="fa-solid fa-xmark"></i></button>
+        {% if locked %}<span class="ad-lock" title="Règlement encaissé : il n'est plus modifiable"><i class="fa-solid fa-lock"></i></span>{% else %}<button type="button" class="var-remove" data-action="adhesion-form#remove" title="Retirer" aria-label="Retirer ce règlement"><i class="fa-solid fa-xmark"></i></button>{% endif %}
     </div>
 {% endmacro %}
 
 {% macro aide_row(row) %}
-    <div class="ad-row" data-adhesion-form-target="aide">
+    {% set locked = row.vars.data is not null and row.vars.data.locked %}
+    <div class="ad-row {{ locked ? 'is-locked' }}" data-adhesion-form-target="aide" {{ locked ? 'inert' }}>
         <div class="ad-cell">{{ form_label(row.type) }}{{ form_widget(row.type) }}{{ form_errors(row.type) }}</div>
         <div class="ad-cell">{{ form_label(row.montantCentimes) }}{{ form_widget(row.montantCentimes) }}{{ form_errors(row.montantCentimes) }}</div>
         <div class="ad-cell">{{ form_label(row.statut) }}{{ form_widget(row.statut) }}</div>
         <div class="ad-cell">{{ form_label(row.dateReception) }}{{ form_widget(row.dateReception) }}</div>
         <div class="ad-cell ad-wide">{{ form_label(row.note) }}{{ form_widget(row.note) }}</div>
-        <button type="button" class="var-remove" data-action="adhesion-form#remove" title="Retirer" aria-label="Retirer cette aide"><i class="fa-solid fa-xmark"></i></button>
+        {% if locked %}<span class="ad-lock" title="Aide reçue : elle n'est plus modifiable"><i class="fa-solid fa-lock"></i></span>{% else %}<button type="button" class="var-remove" data-action="adhesion-form#remove" title="Retirer" aria-label="Retirer cette aide"><i class="fa-solid fa-xmark"></i></button>{% endif %}
     </div>
 {% endmacro %}
 
@@ -68,7 +71,7 @@
 
                 <section class="admin-card rounded-2xl p-6">
                     <h2 class="font-semibold mb-1">Aides</h2>
-                    <p class="text-xs text-admin-text-muted mb-4">Pass'Sport, Spot 50, Atout Normandie, Bourse Évasion, chèques vacances, coupons sport… Une aide reste « attendue » jusqu'à sa réception : notez la date quand elle arrive.</p>
+                    <p class="text-xs text-admin-text-muted mb-4">Pass'Sport, Spot 50, Atout Normandie, Bourse Évasion, chèques vacances, coupons sport… Une aide reste « attendue » jusqu'à sa réception : notez la date quand elle arrive. Une fois enregistrée comme reçue, elle est définitive.</p>
                     <div data-adhesion-form-target="aides">
                         {% for row in form.aides %}{{ _self.aide_row(row) }}{% endfor %}
                     </div>

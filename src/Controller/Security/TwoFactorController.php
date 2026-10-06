@@ -17,10 +17,12 @@ use Symfony\Component\Routing\Attribute\Route;
 class TwoFactorController extends AbstractController
 {
     #[Route('/admin/2fa/resend-email', name: '2fa_resend_email', methods: ['POST'])]
+    #[Route('/mon-compte/2fa/resend-email', name: 'portail_2fa_resend_email', methods: ['POST'])]
     public function resendEmail(Request $request, Security $security, CodeGeneratorInterface $codeGenerator): RedirectResponse
     {
+        $login = 'portail_2fa_resend_email' === $request->attributes->get('_route') ? 'portail_2fa_login' : '2fa_login';
         if (!$this->isCsrfTokenValid('2fa_resend_email', (string) $request->request->get('_csrf_token'))) {
-            return $this->redirectToRoute('2fa_login');
+            return $this->redirectToRoute($login);
         }
 
         $user = $security->getUser();
@@ -29,6 +31,6 @@ class TwoFactorController extends AbstractController
             $this->addFlash('success', 'Un nouveau code vous a été envoyé par e-mail.');
         }
 
-        return $this->redirectToRoute('2fa_login');
+        return $this->redirectToRoute($login);
     }
 }

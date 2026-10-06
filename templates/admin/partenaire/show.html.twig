@@ -39,7 +39,7 @@
                 <ul class="text-sm space-y-3">
                     {% for contrat in partenaire.contrats %}
                         <li>
-                            <a href="{{ path('admin_partenaire_contrat_edit', {id: contrat.id}) }}" class="block rounded-xl border border-admin-border p-4 hover:border-admin-text-muted transition-colors">
+                            <a href="{{ path('admin_partenaire_contrat_show', {id: contrat.id}) }}" class="block rounded-xl border border-admin-border p-4 hover:border-admin-text-muted transition-colors">
                                 <div class="flex items-center justify-between gap-3 mb-1">
                                     <span class="font-medium">{{ contrat.titre }}</span>
                                     <span class="badge badge-pay-{{ contrat.statutPaiement }}">{{ contrat.statutPaiementLabel }}</span>

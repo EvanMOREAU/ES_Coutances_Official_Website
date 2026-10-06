@@ -4,9 +4,10 @@ namespace App\Controller\Admin;
 
 use App\Entity\User;
 use App\Form\AppearanceType;
-use App\Form\NotificationPreferencesType;
 use App\Form\ProfileType;
 use App\Repository\UserRepository;
+use App\Service\Chat\ChatService;
+use App\Service\Notification\NotificationPreferences;
 use App\Repository\WebauthnCredentialRepository;
 use App\Security\TwoFactor\PendingTotpSecret;
 use App\Service\Webauthn\WebauthnService;
@@ -32,24 +33,53 @@ use Symfony\Component\Validator\Constraints\NotBlank;
  * préférences de notification) — distinct de "Réglages" qui configure le
  * site du club, accessible à tous les utilisateurs authentifiés.
  */
-#[Route('/admin/parametres')]
 #[IsGranted('ROLE_USER')]
 class AccountSettingsController extends AbstractController
 {
-    #[Route('/profil', name: 'admin_parametres_profil', methods: ['GET', 'POST'])]
+    /** Les mêmes réglages servent l'administration et l'espace « Mon compte » : deux séries de routes, deux habillages. */
+    private function zone(Request $request): string
+    {
+        return str_starts_with((string) $request->attributes->get('_route'), 'portail_') ? 'portail' : 'admin';
+    }
+
+    private function to(Request $request, string $page): Response
+    {
+        return $this->redirectToRoute($this->zone($request).'_parametres_'.$page);
+    }
+
+    private function tpl(Request $request, string $page): string
+    {
+        return $this->zone($request).'/parametres/'.$page.'.html.twig';
+    }
+
+    #[Route('/admin/parametres/profil', name: 'admin_parametres_profil', methods: ['GET', 'POST'])]
+    #[Route('/mon-compte/parametres/profil', name: 'portail_parametres_profil', methods: ['GET', 'POST'])]
     public function profil(
         Request $request,
         EntityManagerInterface $em,
         UserRepository $userRepository,
         UserPasswordHasherInterface $hasher,
+        ChatService $chat,
     ): Response {
         /** @var User $user */
-        $user = $this->getUser();
+        $user   = $this->getUser();
+        $portal = 'portail' === $this->zone($request);
+        $client = $portal && $chat->isClient($user);
+        $oldEmail = (string) $user->getEmail();
 
-        $form = $this->createForm(ProfileType::class, $user);
+        $form = $this->createForm(ProfileType::class, $user, [
+            'with_avatar'      => !$client,
+            'with_bio'         => !$portal,
+            'confirm_password' => $portal,
+        ]);
         $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
+        if ($form->isSubmitted() && $form->isValid() && $portal && $user->getEmail() !== $oldEmail
+            && !$hasher->isPasswordValid($user, (string) $form->get('currentPassword')->getData())) {
+            // Changer d'adresse exige le mot de passe actuel : on annule la modification en mémoire.
+            $user->setEmail($oldEmail);
+            $this->addFlash('error', 'Pour changer d\'adresse e-mail, saisissez votre mot de passe actuel.');
+        } elseif ($form->isSubmitted() && $form->isValid()) {
             $conflict = $userRepository->createQueryBuilder('u')
                 ->andWhere('u.email = :email')
                 ->andWhere('u.id != :id')
@@ -64,7 +94,7 @@ class AccountSettingsController extends AbstractController
                 $em->flush();
                 $this->addFlash('success', 'Profil mis à jour.');
 
-                return $this->redirectToRoute('admin_parametres_profil');
+                return $this->to($request, 'profil');
             }
         }
 
@@ -92,18 +122,20 @@ class AccountSettingsController extends AbstractController
                 $em->flush();
                 $this->addFlash('success', 'Votre mot de passe a bien été mis à jour.');
 
-                return $this->redirectToRoute('admin_parametres_profil');
+                return $this->to($request, 'profil');
             }
         }
 
-        return $this->render('admin/parametres/profil.html.twig', [
+        return $this->render($this->tpl($request, 'profil'), [
             'form'          => $form,
             'passwordForm'  => $passwordForm,
             'active_tab'    => 'profil',
+            'is_client'     => $client,
         ]);
     }
 
-    #[Route('/apparence', name: 'admin_parametres_apparence', methods: ['GET', 'POST'])]
+    #[Route('/admin/parametres/apparence', name: 'admin_parametres_apparence', methods: ['GET', 'POST'])]
+    #[Route('/mon-compte/parametres/apparence', name: 'portail_parametres_apparence', methods: ['GET', 'POST'])]
     public function apparence(Request $request, EntityManagerInterface $em): Response
     {
         /** @var User $user */
@@ -115,37 +147,42 @@ class AccountSettingsController extends AbstractController
             $em->flush();
             $this->addFlash('success', 'Préférences d\'apparence mises à jour.');
 
-            return $this->redirectToRoute('admin_parametres_apparence');
+            return $this->to($request, 'apparence');
         }
 
-        return $this->render('admin/parametres/apparence.html.twig', [
+        return $this->render($this->tpl($request, 'apparence'), [
             'form'       => $form,
             'active_tab' => 'apparence',
         ]);
     }
 
-    #[Route('/preferences', name: 'admin_parametres_preferences', methods: ['GET', 'POST'])]
-    public function preferences(Request $request, EntityManagerInterface $em): Response
+    #[Route('/admin/parametres/preferences', name: 'admin_parametres_preferences', methods: ['GET', 'POST'])]
+    #[Route('/mon-compte/parametres/preferences', name: 'portail_parametres_preferences', methods: ['GET', 'POST'])]
+    public function preferences(Request $request, EntityManagerInterface $em, NotificationPreferences $prefs): Response
     {
         /** @var User $user */
         $user = $this->getUser();
-        $form = $this->createForm(NotificationPreferencesType::class, $user);
-        $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
+        if ($request->isMethod('POST')) {
+            if (!$this->isCsrfTokenValid('account_notification_prefs', (string) $request->request->get('_csrf_token'))) {
+                throw $this->createAccessDeniedException();
+            }
+            $prefs->save($user, (array) $request->request->all('prefs'));
             $em->flush();
             $this->addFlash('success', 'Préférences de notification mises à jour.');
 
-            return $this->redirectToRoute('admin_parametres_preferences');
+            return $this->to($request, 'preferences');
         }
 
-        return $this->render('admin/parametres/preferences.html.twig', [
-            'form'       => $form,
+        return $this->render($this->tpl($request, 'preferences'), [
+            'prefs'      => $prefs,
+            'sections'   => $prefs->availableFor($user),
             'active_tab' => 'preferences',
         ]);
     }
 
-    #[Route('/securite', name: 'admin_parametres_securite', methods: ['GET'])]
+    #[Route('/admin/parametres/securite', name: 'admin_parametres_securite', methods: ['GET'])]
+    #[Route('/mon-compte/parametres/securite', name: 'portail_parametres_securite', methods: ['GET'])]
     public function securite(Request $request, TotpAuthenticatorInterface $totpAuthenticator, WebauthnCredentialRepository $webauthnCredentials): Response
     {
         /** @var User $user */
@@ -164,7 +201,7 @@ class AccountSettingsController extends AbstractController
         $newBackupCodes = $session->get('new_backup_codes');
         $session->remove('new_backup_codes');
 
-        return $this->render('admin/parametres/securite.html.twig', [
+        return $this->render($this->tpl($request, 'securite'), [
             'active_tab'         => 'securite',
             'user'               => $user,
             'pendingTotpSecret'  => $pendingTotpSecret,
@@ -176,7 +213,8 @@ class AccountSettingsController extends AbstractController
 
     // --- Clés d'accès (passkeys) --------------------------------------------
 
-    #[Route('/securite/webauthn/options', name: 'admin_parametres_securite_webauthn_options', methods: ['GET'])]
+    #[Route('/admin/parametres/securite/webauthn/options', name: 'admin_parametres_securite_webauthn_options', methods: ['GET'])]
+    #[Route('/mon-compte/parametres/securite/webauthn/options', name: 'portail_parametres_securite_webauthn_options', methods: ['GET'])]
     public function webauthnOptions(WebauthnService $webauthn): JsonResponse
     {
         /** @var User $user */
@@ -186,7 +224,8 @@ class AccountSettingsController extends AbstractController
         return JsonResponse::fromJsonString($webauthn->optionsToJson($options));
     }
 
-    #[Route('/securite/webauthn/enregistrer', name: 'admin_parametres_securite_webauthn_enregistrer', methods: ['POST'])]
+    #[Route('/admin/parametres/securite/webauthn/enregistrer', name: 'admin_parametres_securite_webauthn_enregistrer', methods: ['POST'])]
+    #[Route('/mon-compte/parametres/securite/webauthn/enregistrer', name: 'portail_parametres_securite_webauthn_enregistrer', methods: ['POST'])]
     public function webauthnEnregistrer(Request $request, WebauthnService $webauthn): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
@@ -209,7 +248,8 @@ class AccountSettingsController extends AbstractController
         return new JsonResponse(['ok' => true]);
     }
 
-    #[Route('/securite/webauthn/{id}/supprimer', name: 'admin_parametres_securite_webauthn_supprimer', requirements: ['id' => '\d+'], methods: ['POST'])]
+    #[Route('/admin/parametres/securite/webauthn/{id}/supprimer', name: 'admin_parametres_securite_webauthn_supprimer', requirements: ['id' => '\d+'], methods: ['POST'])]
+    #[Route('/mon-compte/parametres/securite/webauthn/{id}/supprimer', name: 'portail_parametres_securite_webauthn_supprimer', requirements: ['id' => '\d+'], methods: ['POST'])]
     public function webauthnSupprimer(Request $request, int $id, WebauthnCredentialRepository $webauthnCredentials, EntityManagerInterface $em): Response
     {
         if (!$this->isCsrfTokenValid('securite_webauthn_supprimer', (string) $request->request->get('_csrf_token'))) {
@@ -225,10 +265,11 @@ class AccountSettingsController extends AbstractController
             $this->addFlash('success', 'Clé d\'accès supprimée.');
         }
 
-        return $this->redirectToRoute('admin_parametres_securite');
+        return $this->to($request, 'securite');
     }
 
-    #[Route('/securite/totp/generer', name: 'admin_parametres_securite_totp_generer', methods: ['POST'])]
+    #[Route('/admin/parametres/securite/totp/generer', name: 'admin_parametres_securite_totp_generer', methods: ['POST'])]
+    #[Route('/mon-compte/parametres/securite/totp/generer', name: 'portail_parametres_securite_totp_generer', methods: ['POST'])]
     public function totpGenerer(Request $request, TotpAuthenticatorInterface $totpAuthenticator): Response
     {
         if (!$this->isCsrfTokenValid('securite_totp_generer', (string) $request->request->get('_csrf_token'))) {
@@ -237,10 +278,11 @@ class AccountSettingsController extends AbstractController
 
         $request->getSession()->set('totp_pending_secret', $totpAuthenticator->generateSecret());
 
-        return $this->redirectToRoute('admin_parametres_securite');
+        return $this->to($request, 'securite');
     }
 
-    #[Route('/securite/totp/confirmer', name: 'admin_parametres_securite_totp_confirmer', methods: ['POST'])]
+    #[Route('/admin/parametres/securite/totp/confirmer', name: 'admin_parametres_securite_totp_confirmer', methods: ['POST'])]
+    #[Route('/mon-compte/parametres/securite/totp/confirmer', name: 'portail_parametres_securite_totp_confirmer', methods: ['POST'])]
     public function totpConfirmer(Request $request, TotpAuthenticatorInterface $totpAuthenticator, EntityManagerInterface $em): Response
     {
         if (!$this->isCsrfTokenValid('securite_totp_confirmer', (string) $request->request->get('_csrf_token'))) {
@@ -256,14 +298,14 @@ class AccountSettingsController extends AbstractController
         if (!is_string($pendingSecret)) {
             $this->addFlash('error', "Aucune activation en cours. Recommencez l'opération.");
 
-            return $this->redirectToRoute('admin_parametres_securite');
+            return $this->to($request, 'securite');
         }
 
         $pending = new PendingTotpSecret((string) $user->getEmail(), $pendingSecret);
         if (!$totpAuthenticator->checkCode($pending, $code)) {
             $this->addFlash('error', 'Code invalide. Vérifiez l\'heure de votre appareil et réessayez.');
 
-            return $this->redirectToRoute('admin_parametres_securite');
+            return $this->to($request, 'securite');
         }
 
         $user->setTotpSecret($pendingSecret);
@@ -271,10 +313,11 @@ class AccountSettingsController extends AbstractController
         $em->flush();
         $this->addFlash('success', "L'application d'authentification est activée.");
 
-        return $this->redirectToRoute('admin_parametres_securite');
+        return $this->to($request, 'securite');
     }
 
-    #[Route('/securite/totp/annuler', name: 'admin_parametres_securite_totp_annuler', methods: ['POST'])]
+    #[Route('/admin/parametres/securite/totp/annuler', name: 'admin_parametres_securite_totp_annuler', methods: ['POST'])]
+    #[Route('/mon-compte/parametres/securite/totp/annuler', name: 'portail_parametres_securite_totp_annuler', methods: ['POST'])]
     public function totpAnnuler(Request $request): Response
     {
         if (!$this->isCsrfTokenValid('securite_totp_annuler', (string) $request->request->get('_csrf_token'))) {
@@ -283,10 +326,11 @@ class AccountSettingsController extends AbstractController
 
         $request->getSession()->remove('totp_pending_secret');
 
-        return $this->redirectToRoute('admin_parametres_securite');
+        return $this->to($request, 'securite');
     }
 
-    #[Route('/securite/totp/desactiver', name: 'admin_parametres_securite_totp_desactiver', methods: ['POST'])]
+    #[Route('/admin/parametres/securite/totp/desactiver', name: 'admin_parametres_securite_totp_desactiver', methods: ['POST'])]
+    #[Route('/mon-compte/parametres/securite/totp/desactiver', name: 'portail_parametres_securite_totp_desactiver', methods: ['POST'])]
     public function totpDesactiver(Request $request, EntityManagerInterface $em): Response
     {
         if (!$this->isCsrfTokenValid('securite_totp_desactiver', (string) $request->request->get('_csrf_token'))) {
@@ -299,10 +343,11 @@ class AccountSettingsController extends AbstractController
         $em->flush();
         $this->addFlash('success', "L'application d'authentification est désactivée.");
 
-        return $this->redirectToRoute('admin_parametres_securite');
+        return $this->to($request, 'securite');
     }
 
-    #[Route('/securite/email/activer', name: 'admin_parametres_securite_email_activer', methods: ['POST'])]
+    #[Route('/admin/parametres/securite/email/activer', name: 'admin_parametres_securite_email_activer', methods: ['POST'])]
+    #[Route('/mon-compte/parametres/securite/email/activer', name: 'portail_parametres_securite_email_activer', methods: ['POST'])]
     public function emailActiver(Request $request, EntityManagerInterface $em): Response
     {
         if (!$this->isCsrfTokenValid('securite_email_activer', (string) $request->request->get('_csrf_token'))) {
@@ -315,10 +360,11 @@ class AccountSettingsController extends AbstractController
         $em->flush();
         $this->addFlash('success', 'Le code de vérification par e-mail est activé.');
 
-        return $this->redirectToRoute('admin_parametres_securite');
+        return $this->to($request, 'securite');
     }
 
-    #[Route('/securite/email/desactiver', name: 'admin_parametres_securite_email_desactiver', methods: ['POST'])]
+    #[Route('/admin/parametres/securite/email/desactiver', name: 'admin_parametres_securite_email_desactiver', methods: ['POST'])]
+    #[Route('/mon-compte/parametres/securite/email/desactiver', name: 'portail_parametres_securite_email_desactiver', methods: ['POST'])]
     public function emailDesactiver(Request $request, EntityManagerInterface $em): Response
     {
         if (!$this->isCsrfTokenValid('securite_email_desactiver', (string) $request->request->get('_csrf_token'))) {
@@ -331,10 +377,11 @@ class AccountSettingsController extends AbstractController
         $em->flush();
         $this->addFlash('success', 'Le code de vérification par e-mail est désactivé.');
 
-        return $this->redirectToRoute('admin_parametres_securite');
+        return $this->to($request, 'securite');
     }
 
-    #[Route('/securite/codes-secours/generer', name: 'admin_parametres_securite_backup_codes_generer', methods: ['POST'])]
+    #[Route('/admin/parametres/securite/codes-secours/generer', name: 'admin_parametres_securite_backup_codes_generer', methods: ['POST'])]
+    #[Route('/mon-compte/parametres/securite/codes-secours/generer', name: 'portail_parametres_securite_backup_codes_generer', methods: ['POST'])]
     public function backupCodesGenerer(Request $request, EntityManagerInterface $em): Response
     {
         if (!$this->isCsrfTokenValid('securite_backup_codes_generer', (string) $request->request->get('_csrf_token'))) {
@@ -355,6 +402,6 @@ class AccountSettingsController extends AbstractController
         $request->getSession()->set('new_backup_codes', $plainCodes);
         $this->addFlash('success', 'De nouveaux codes de secours ont été générés. Notez-les, ils ne seront plus affichés.');
 
-        return $this->redirectToRoute('admin_parametres_securite');
+        return $this->to($request, 'securite');
     }
 }
