@@ -234,6 +234,27 @@ final class FileStorageTest extends TestCase
         self::assertContains('a.txt', $names);
     }
 
+    public function testImagesAreListedFlatWithoutTheUploadSubfolders(): void
+    {
+        mkdir($this->project.'/public/uploads/avatars', 0775, true);
+        file_put_contents($this->project.'/public/images/logo.png', 'png');
+        file_put_contents($this->project.'/public/uploads/articles/maillot.jpg', 'jpg');
+        file_put_contents($this->project.'/public/uploads/avatars/alice.webp', 'webp');
+        file_put_contents($this->project.'/public/uploads/articles/notes.pdf', 'pdf'); // pas une image : absent d'« Images »
+
+        $entries = $this->storage->listing($this->storage->resolve('images'));
+
+        self::assertSame(['alice.webp', 'logo.png', 'maillot.jpg'], array_column($entries, 'name'));
+        self::assertSame(['file'], array_values(array_unique(array_column($entries, 'type'))), 'Aucun sous-dossier (articles, avatars…) n\'est affiché.');
+        // Chaque image reste adressable (aperçu, renommage, suppression) par son chemin d'origine.
+        $byName = array_column($entries, 'path', 'name');
+        self::assertSame('images/articles/maillot.jpg', $byName['maillot.jpg']);
+        self::assertSame(str_replace('\\', '/', (string) realpath($this->project)).'/public/uploads/articles/maillot.jpg', str_replace('\\', '/', (string) $this->storage->resolve($byName['maillot.jpg'])->real));
+
+        $root = array_column($this->storage->listing($this->storage->resolve('')), null, 'path');
+        self::assertSame(3, $root['images']['count']);
+    }
+
     public function testUsageCountsFiles(): void
     {
         $this->storage->upload($this->storage->resolve('documents'), $this->upload('a.txt', str_repeat('x', 1000)));

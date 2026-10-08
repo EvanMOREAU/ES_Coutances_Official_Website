@@ -6,6 +6,7 @@ use App\Entity\User;
 use App\Repository\CommandeRepository;
 use App\Service\AdminNotificationProvider;
 use App\Service\ChangelogFile;
+use App\Service\Deploy\UpdateWatcher;
 use App\Service\SiteAdvisor;
 use Symfony\Bundle\SecurityBundle\Security;
 use Twig\Extension\AbstractExtension;
@@ -19,6 +20,7 @@ class AdminNotificationsExtension extends AbstractExtension
         private readonly CommandeRepository $commandes,
         private readonly ChangelogFile $changelog,
         private readonly Security $security,
+        private readonly UpdateWatcher $updates,
     ) {
     }
 
@@ -34,7 +36,14 @@ class AdminNotificationsExtension extends AbstractExtension
             new TwigFunction('advice_count', [$this->advisor, 'count']),
             // Pastille « nouvelle version » du menu Changelog : 1 si la dernière version n'a pas été vue.
             new TwigFunction('changelog_non_lu', $this->changelogNonLu(...)),
+            // Pastille « mise à jour disponible » du menu Mise à jour (développeurs).
+            new TwigFunction('update_pending', $this->updatePending(...)),
         ];
+    }
+
+    public function updatePending(): int
+    {
+        return $this->security->isGranted('ROLE_DEV') ? $this->updates->pendingCount() : 0;
     }
 
     public function changelogNonLu(): int

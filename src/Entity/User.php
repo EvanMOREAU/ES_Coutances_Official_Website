@@ -81,6 +81,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, TotpTwo
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $anonymizedAt = null;
 
+    /** Acceptation des conditions et de la politique de confidentialité à la création du compte (date et version du texte). */
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $consentAt = null;
+
+    #[ORM\Column(length: 20, nullable: true)]
+    private ?string $consentVersion = null;
+
+    /** Dernière connexion réussie : sert à anonymiser les comptes inactifs depuis plus de 3 ans (app:rgpd:purger-inactifs). */
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $lastLoginAt = null;
+
     /**
      * Préférences d'affichage des tableaux de l'admin, par tableau :
      * ['famille' => ['hidden' => ['ville'], 'perPage' => 25], ...].
@@ -390,6 +401,33 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, TotpTwo
         if (!$this->isStaff() && 'dark' === $this->theme) {
             $this->theme = 'light';
         }
+    }
+
+    public function getLastLoginAt(): ?\DateTimeImmutable
+    {
+        return $this->lastLoginAt;
+    }
+    public function setLastLoginAt(?\DateTimeImmutable $lastLoginAt): static
+    {
+        $this->lastLoginAt = $lastLoginAt;
+
+        return $this;
+    }
+
+    public function getConsentAt(): ?\DateTimeImmutable
+    {
+        return $this->consentAt;
+    }
+    public function getConsentVersion(): ?string
+    {
+        return $this->consentVersion;
+    }
+    public function recordConsent(string $version): static
+    {
+        $this->consentAt      = new \DateTimeImmutable();
+        $this->consentVersion = $version;
+
+        return $this;
     }
 
     public function isAnonymized(): bool

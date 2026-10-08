@@ -18,7 +18,7 @@
   <div class="container">
     <div class="prose">
       {% block legal_content %}{% endblock %}
-      <p><em>Dernière mise à jour : octobre 2026.</em></p>
+      <p><em>Dernière mise à jour : {{ legal_date is defined ? legal_date|date('d/m/Y') : '08/10/2026' }}{% if legal_version is defined %} (version {{ legal_version }}){% endif %}.</em></p>
     </div>
   </div>
 </section>

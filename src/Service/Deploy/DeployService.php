@@ -5,6 +5,8 @@ namespace App\Service\Deploy;
 use App\Entity\Deployment;
 use App\Entity\User;
 use App\Repository\DeploymentRepository;
+use App\Service\Backup\DatabaseBackup;
+use App\Service\Backup\SiteFilesBackup;
 use App\Service\ProductionChecklist;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
@@ -18,13 +20,19 @@ use Symfony\Component\Process\Process;
 /**
  * Mise à jour du site depuis le dépôt Git (GitHub) en un clic.
  *
- * Le déploiement est lancé dans un processus indépendant (`app:deploy <id>`),
+ * La mise à jour est lancée dans un processus indépendant (`app:deploy <id>`),
  * pour ne pas dépendre de la durée de la requête web et survivre au vidage du
  * cache. Sa progression est écrite dans l'entité Deployment, que l'interface
  * relit toutes les secondes.
  *
- * Étapes : récupération du code (fast-forward uniquement, jamais de fusion
- * automatique) → dépendances Composer → migrations → styles → cache.
+ * Étapes : récupération du code → SAUVEGARDE de la base puis des fichiers du site →
+ * application du code (fast-forward uniquement, jamais de fusion automatique) →
+ * dépendances Composer → migrations → styles → cache.
+ *
+ * Si une étape échoue après que le code a changé, le site est remis automatiquement dans son
+ * état d'avant (code, dépendances et — si les migrations avaient commencé — base de données).
+ * La sauvegarde de la base n'est jamais supprimée ; celle des fichiers l'est seulement sur
+ * validation de l'utilisateur (purgeFilesBackup).
  * Le changelog vient du fichier changelog/releases.yaml, déployé avec le code.
  */
 class DeployService
@@ -43,6 +51,8 @@ class DeployService
         private readonly string $mailerFromAddress,
         private readonly string $mailerFromName,
         private readonly ProductionChecklist $checklist,
+        private readonly DatabaseBackup $dbBackup,
+        private readonly SiteFilesBackup $siteBackup,
     ) {
     }
 
@@ -133,29 +143,53 @@ class DeployService
         $this->em->persist($deployment);
         $this->em->flush();
 
-        $this->spawn($deployment);
+        $this->spawnConsole('app:deploy', [(string) $deployment->getId()]);
 
         return $deployment;
     }
 
-    private function spawn(Deployment $deployment): void
+    /**
+     * Lance une commande de la console dans un processus détaché (la requête web n'attend pas sa fin).
+     *
+     * @param list<string> $arguments
+     */
+    public function spawnConsole(string $command, array $arguments = []): void
     {
-        $php = $this->phpBinary();
-        $arguments = sprintf(
-            '%s %s app:deploy %d --env=%s',
-            escapeshellarg($php),
+        $line = sprintf(
+            '%s %s %s%s --env=%s',
+            escapeshellarg($this->phpBinary()),
             escapeshellarg($this->projectDir.'/bin/console'),
-            $deployment->getId(),
+            $command,
+            implode('', array_map(static fn (string $argument) => ' '.escapeshellarg($argument), $arguments)),
             escapeshellarg($this->kernelEnvironment),
         );
 
-        // Détaché du processus web : la commande rend la main immédiatement.
-        $command = \PHP_OS_FAMILY === 'Windows'
-            ? sprintf('start /B "" %s > NUL 2>&1', $arguments)
-            : sprintf('nohup %s > /dev/null 2>&1 < /dev/null &', $arguments);
+        $shell = \PHP_OS_FAMILY === 'Windows'
+            ? sprintf('start /B "" %s > NUL 2>&1', $line)
+            : sprintf('nohup %s > /dev/null 2>&1 < /dev/null &', $line);
 
-        $process = Process::fromShellCommandline($command, $this->projectDir, null, null, 20);
+        $process = Process::fromShellCommandline($shell, $this->projectDir, null, null, 20);
         $process->run();
+    }
+
+    /**
+     * Supprime l'archive des fichiers d'une mise à jour, une fois l'utilisateur sûr que le site fonctionne.
+     * La sauvegarde de la base de données, elle, n'est jamais supprimée.
+     *
+     * @throws \RuntimeException
+     */
+    public function purgeFilesBackup(Deployment $deployment): void
+    {
+        if ($deployment->isRunning()) {
+            throw new \RuntimeException('Cette mise à jour est encore en cours.');
+        }
+        if (!$deployment->hasFilesBackup()) {
+            throw new \RuntimeException('Il n\'y a pas (ou plus) de sauvegarde des fichiers pour cette mise à jour.');
+        }
+
+        $this->siteBackup->delete((string) $deployment->getFilesBackup());
+        $deployment->setFilesBackupDeletedAt(new \DateTimeImmutable());
+        $this->em->flush();
     }
 
     // -- Exécution (dans le processus `app:deploy`) -----------------------------
@@ -168,6 +202,10 @@ class DeployService
         $php     = $this->phpBinary();
         $console = [$php, $this->projectDir.'/bin/console', '--no-interaction', '--env='.$this->kernelEnvironment];
         $isProd  = $this->kernelEnvironment === 'prod';
+
+        $from        = null;
+        $codeChanged = false; // le code du site a été remplacé : un échec déclenche le retour arrière
+        $dataTouched = false; // les migrations ont commencé : la base peut avoir changé, elle sera restaurée aussi
 
         try {
             $branch = $this->git->branch();
@@ -193,6 +231,22 @@ class DeployService
             foreach (array_reverse($commits) as $commit) {
                 $this->log($deployment, sprintf('  · %s  %s', $commit['short'], $commit['subject']));
             }
+
+            // Rien n'est modifié tant que les deux sauvegardes ne sont pas terminées.
+            $label = $this->git->shortHash($from);
+
+            $this->step($deployment, 'Sauvegarde de la base de données');
+            $database = $this->dbBackup->create(DatabaseBackup::KIND_UPDATE, $label);
+            $deployment->setDbBackup($database['file']);
+            $this->log($deployment, sprintf('✓ %s (%s) — conservée définitivement, téléchargeable depuis Développeur > Sauvegardes.', $database['file'], $this->size($database['size'])));
+
+            $this->step($deployment, 'Sauvegarde des fichiers du site');
+            $files = $this->siteBackup->create($label);
+            $deployment->setFilesBackup($files['file'])->setFilesBackupSize($files['size']);
+            $this->log($deployment, sprintf('✓ %s (%d fichiers, %s) — à supprimer depuis l\'historique une fois la mise à jour validée.', $files['file'], $files['files'], $this->size($files['size'])));
+
+            $this->step($deployment, 'Application du code');
+            $codeChanged = true;
             $this->git->fastForwardTo($branch);
             $deployment->setToCommit($this->git->head());
             $this->log($deployment, 'Code à jour : '.$this->git->shortHash($deployment->getToCommit()).'.');
@@ -202,6 +256,7 @@ class DeployService
             $this->exec($deployment, [...$composer, 'install', '--no-interaction', '--no-progress', ...($isProd ? ['--no-dev', '--optimize-autoloader'] : [])], 900);
 
             $this->step($deployment, 'Migrations de la base de données');
+            $dataTouched = true;
             $this->exec($deployment, [...$console, 'doctrine:migrations:migrate', '--allow-no-migration'], 600);
 
             $this->step($deployment, 'Compilation des styles');
@@ -224,22 +279,124 @@ class DeployService
 
             $this->step($deployment, 'Terminé');
             $this->log($deployment, "\n✓ Mise à jour déployée avec succès.");
+            $this->log($deployment, 'Vérifiez le site, puis supprimez la sauvegarde des fichiers depuis l\'historique (la sauvegarde de la base est conservée).');
             $this->finish($deployment, Deployment::STATUS_SUCCESS);
 
             return true;
         } catch (\Throwable $e) {
-            $this->log($deployment, "\n✗ Échec à l'étape « ".$deployment->getStep().' » : '.$e->getMessage());
-            if ($deployment->getToCommit() !== null) {
-                $this->log($deployment, sprintf(
-                    'Le code est déjà à jour (%s). Pour revenir en arrière : git reset --hard %s, puis composer install et cache:clear.',
-                    $this->git->shortHash($deployment->getToCommit()),
-                    $this->git->shortHash($deployment->getFromCommit()),
-                ));
+            $this->safeLog($deployment, "\n✗ Échec à l'étape « ".$deployment->getStep().' » : '.$e->getMessage());
+
+            if ($codeChanged) {
+                $deployment = $this->rollback($deployment, $from, $dataTouched, $console, $isProd);
+            } else {
+                $this->safeLog($deployment, 'Aucune modification n\'a été faite : le site est resté dans son état d\'origine.');
             }
             $this->finish($deployment, Deployment::STATUS_FAILED);
 
             return false;
         }
+    }
+
+    /**
+     * Remet le site dans son état d'avant la mise à jour : base de données (seulement si les migrations
+     * avaient commencé, pour ne pas écraser inutilement les données saisies entre-temps), code Git, puis
+     * fichiers et dépendances depuis l'archive. Ne lève jamais d'exception : l'issue est écrite dans le journal.
+     *
+     * @param list<string> $console
+     *
+     * @return Deployment le déploiement à terminer (rechargé si la restauration de la base l'a remplacé)
+     */
+    private function rollback(Deployment $deployment, ?string $from, bool $restoreDatabase, array $console, bool $isProd): Deployment
+    {
+        try {
+            $this->step($deployment, 'Retour arrière automatique');
+            $this->log($deployment, 'La mise à jour a échoué : remise du site dans son état d\'avant.');
+
+            if ($restoreDatabase) {
+                $file = (string) $deployment->getDbBackup();
+                $path = $this->dbBackup->path($file) ?? throw new \RuntimeException("Sauvegarde de la base introuvable : $file");
+                $this->log($deployment, "Restauration de la base de données ($file)…");
+                $this->dbBackup->restore($path);
+                // La table des déploiements vient d'être remplacée par son contenu d'avant : on y réécrit celui-ci.
+                $deployment = $this->reattach($deployment);
+                $this->log($deployment, '✓ Base de données restaurée.');
+            } else {
+                $this->log($deployment, 'La base de données n\'avait pas encore été modifiée : aucune restauration nécessaire.');
+            }
+
+            if ($from !== null) {
+                $this->git->resetHard($from);
+                $this->log($deployment, '✓ Code remis au commit '.$this->git->shortHash($from).'.');
+            }
+            $archive  = (string) $deployment->getFilesBackup();
+            $restored = $this->siteBackup->restore($archive);
+            $this->log($deployment, sprintf('✓ %d fichiers du site restaurés depuis %s (dépendances comprises).', $restored, $archive));
+
+            $this->step($deployment, 'Reconstruction du site');
+            $rebuild = [['Styles', [...$console, 'tailwind:build', ...($isProd ? ['--minify'] : [])], 300]];
+            if ($isProd) {
+                $rebuild[] = ['Assets', [...$console, 'asset-map:compile'], 300];
+            }
+            $rebuild[] = ['Cache', [...$console, 'cache:clear'], 300];
+            foreach ($rebuild as [$label, $command, $timeout]) {
+                try {
+                    $this->exec($deployment, $command, $timeout);
+                } catch (\Throwable $e) {
+                    $this->log($deployment, "⚠ $label : ".$e->getMessage());
+                }
+            }
+
+            $deployment->setRolledBack(true);
+            $this->log($deployment, "\n✓ Retour arrière terminé : le site fonctionne de nouveau avec la version précédente.");
+            $this->log($deployment, 'Les deux sauvegardes sont conservées (la sauvegarde des fichiers peut être supprimée depuis l\'historique).');
+        } catch (\Throwable $e) {
+            $this->logger->critical('Retour arrière automatique impossible : {message}', ['message' => $e->getMessage(), 'exception' => $e]);
+            $this->safeLog($deployment, sprintf(
+                "\n✗ Retour arrière automatique IMPOSSIBLE : %s\nLe site est peut-être dans un état incohérent. Les sauvegardes sont intactes :\n  · base : var/backups/db/%s (commande : php bin/console app:db:restaurer %s)\n  · fichiers : var/backups/site/%s\n  · code : git reset --hard %s",
+                $e->getMessage(),
+                $deployment->getDbBackup() ?? '?',
+                $deployment->getDbBackup() ?? '?',
+                $deployment->getFilesBackup() ?? '?',
+                $from ?? '?',
+            ));
+        }
+
+        return $deployment;
+    }
+
+    /**
+     * Après une restauration de la base, retrouve (ou recrée) la ligne du déploiement et y reporte l'état
+     * en mémoire : celui de la sauvegarde est antérieur à la fin de la mise à jour.
+     */
+    private function reattach(Deployment $current): Deployment
+    {
+        $id = $current->getId();
+        $this->em->clear();
+
+        $fresh = null !== $id ? $this->deployments->find($id) : null;
+        if (!$fresh instanceof Deployment) {
+            $fresh = new Deployment();
+            $this->em->persist($fresh);
+        }
+        $fresh->restoreFrom($current);
+        $this->em->flush();
+
+        return $fresh;
+    }
+
+    /** Écrit dans le journal sans jamais lever d'exception (base de données éventuellement indisponible). */
+    private function safeLog(Deployment $deployment, string $line): void
+    {
+        try {
+            $this->log($deployment, $line);
+        } catch (\Throwable $e) {
+            $this->logger->error('Journal de déploiement non enregistré : {message} — {line}', ['message' => $e->getMessage(), 'line' => $line]);
+        }
+    }
+
+    private function size(int $bytes): string
+    {
+        return $bytes >= 1048576 ? round($bytes / 1048576, 1).' Mo' : max(1, (int) round($bytes / 1024)).' Ko';
     }
 
     /** @return list<string> */
@@ -359,13 +516,13 @@ class DeployService
             $success = Deployment::STATUS_SUCCESS === $deployment->getStatus();
             $short   = static fn (?string $hash): string => null === $hash ? '—' : substr($hash, 0, 7);
             $body    = sprintf(
-                "Déploiement n°%d : %s
+                "Mise à jour n°%d : %s
 
-Lancé par : %s
+Lancée par : %s
 Début : %s
 Commit : %s → %s
-
-Journal complet : Administration > Développeur > Déploiement.
+%s
+Journal complet : Administration > Développeur > Mise à jour.
 
 Si vous n'êtes pas à l'origine de cette mise à jour, changez immédiatement les mots de passe des comptes développeur.",
                 $deployment->getId(),
@@ -374,15 +531,20 @@ Si vous n'êtes pas à l'origine de cette mise à jour, changez immédiatement l
                 $deployment->getStartedAt()->format('d/m/Y H:i'),
                 $short($deployment->getFromCommit()),
                 $short($deployment->getToCommit()),
+                match (true) {
+                    $success => $deployment->getDbBackup() ? sprintf("Sauvegarde de la base : %s (conservée).\nSauvegarde des fichiers : à supprimer depuis l'historique une fois la mise à jour validée.\n", $deployment->getDbBackup()) : '',
+                    $deployment->isRolledBack() => "Le site a été remis automatiquement dans son état d'avant la mise à jour.\n",
+                    default => "Le retour arrière automatique n'a pas abouti ou n'était pas nécessaire : consultez le journal.\n",
+                },
             );
 
             $this->mailer->send((new Email())
                 ->from(new Address($this->mailerFromAddress, $this->mailerFromName))
                 ->to(...$recipients)
-                ->subject(sprintf('[ES Coutances] Déploiement %s', $success ? 'réussi' : 'en échec'))
+                ->subject(sprintf('[ES Coutances] Mise à jour %s', $success ? 'réussie' : 'en échec'))
                 ->text($body));
         } catch (\Throwable $e) {
-            $this->logger->warning('Notification de déploiement non envoyée : {message}', ['message' => $e->getMessage()]);
+            $this->logger->warning('Notification de mise à jour non envoyée : {message}', ['message' => $e->getMessage()]);
         }
     }
 }

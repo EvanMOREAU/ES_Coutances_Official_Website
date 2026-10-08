@@ -7,6 +7,36 @@
 #   version : numéro (ex. 1.2.0)      date : AAAA-MM-JJ      titre : résumé court (facultatif)
 #   added / improved / fixed / removed : listes de phrases (Ajouté / Amélioré / Corrigé / Retiré)
 
+- version: "1.0.11"
+  date: "2026-10-08"
+  titre: "Mises à jour sécurisées : sauvegardes, retour arrière automatique et notification"
+  added:
+    - "Avant chaque mise à jour, la base de données et les fichiers du site sont sauvegardés (var/backups). Si la mise à jour échoue, le site est remis automatiquement dans son état d'avant : code, dépendances et — si les migrations avaient commencé — base de données. Si une sauvegarde échoue, la mise à jour ne démarre pas."
+    - "Historique des mises à jour : la sauvegarde de la base est conservée définitivement (téléchargeable) ; un bouton « Supprimer » sur la ligne de la mise à jour, après confirmation, supprime la sauvegarde des fichiers de l'ancienne version."
+    - "Pastille « mise à jour disponible » sur le menu Mise à jour, sur la rubrique Développeur et dans la cloche : GitHub est interrogé automatiquement (au plus toutes les 10 minutes), sans cliquer sur « Vérifier »."
+    - "Développeur > Sauvegardes : extraction de la base à la demande et téléchargement des sauvegardes (.sql.gz). Réservé au rôle développeur, aucune autorisation ne peut l'ouvrir à un autre compte ; aucune restauration ni suppression depuis le site. Chaque téléchargement est tracé dans le journal d'activité."
+    - "Commandes app:db:sauvegarder (sauvegarde automatique, à planifier : 30 sauvegardes automatiques conservées), app:db:restaurer (restauration en ligne de commande uniquement) et app:update:verifier."
+  improved:
+    - "« Déploiement » devient « Mise à jour » dans le menu et les écrans ; l'adresse de la page est /admin/mise-a-jour."
+    - "Gestionnaire de fichiers, dossier Images : les images des articles, avatars, bannière, etc. s'affichent directement, sans sous-dossiers."
+
+- version: "1.0.10"
+  date: "2026-10-08"
+  titre: "Conformité : consentements, factures, droit à l'image et durées de conservation"
+  added:
+    - "Boutique : case obligatoire d'acceptation des conditions de vente et de la politique de confidentialité, bouton « Commander avec obligation de paiement » ; la date, la version du texte et l'adresse IP sont enregistrées avec la commande."
+    - "Création de compte : case de consentement obligatoire, date et version enregistrées."
+    - "Factures numérotées (FAC-AAAA-NNNNN) attribuées à l'encaissement, imprimables depuis la page de suivi de la commande ; les commandes déjà encaissées sont numérotées par la migration."
+    - "Fiche licencié : droit à l'image (autorisé / refusé / non renseigné) et date de l'autorisation parentale."
+    - "Commande app:rgpd:purger-inactifs : anonymise les comptes sans connexion depuis 36 mois (option --dry-run)."
+    - "Dossier de conformité (docs/conformite) : registre des traitements, sous-traitants, violations, demandes de droits, charte des bénévoles, reprise d'activité."
+    - "Contrôle de production : mentions légales (responsable, association, hébergeur) obligatoires, médiateur et contact RGPD signalés."
+  improved:
+    - "Conditions de vente complétées : formulaire type de rétractation, frais de retour, exceptions, garanties, médiation et plateforme européenne de règlement des litiges."
+    - "Politique de confidentialité : durées de conservation précises, droit à l'image, sous-traitants, transferts, droits des personnes et violations."
+    - "La carte OpenStreetMap de la page Contact n'est chargée qu'après un clic du visiteur."
+    - "Les pages légales affichent leur date et leur version."
+
 - version: "1.0.9"
   date: "2026-10-08"
   titre: "Sécurité renforcée, pages légales, référencement et procédures d'exploitation"

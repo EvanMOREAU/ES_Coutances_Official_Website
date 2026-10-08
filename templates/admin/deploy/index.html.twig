@@ -1,14 +1,17 @@
 {% extends 'admin/_layout.html.twig' %}
 
-{% block title %}Déploiement{% endblock %}
+{% block title %}Mise à jour{% endblock %}
 
 {% block body %}
     <div class="flex flex-wrap items-start justify-between gap-4 mb-6">
         <div>
-            <h1 class="text-2xl font-black" style="font-family:'Barlow Condensed',sans-serif;">Déploiement</h1>
-            <p class="text-sm text-admin-text-muted">Mettre le site à jour depuis le dépôt GitHub, en un clic.</p>
+            <h1 class="text-2xl font-black" style="font-family:'Barlow Condensed',sans-serif;">Mise à jour</h1>
+            <p class="text-sm text-admin-text-muted">Mettre le site à jour depuis le dépôt GitHub, en un clic. La base de données et les fichiers sont sauvegardés avant chaque mise à jour, et restaurés automatiquement en cas d'échec.</p>
         </div>
-        {% if can('changelog.voir') %}<a href="{{ path('admin_changelog_index') }}" class="admin-btn admin-btn-ghost"><i class="fa-solid fa-clock-rotate-left"></i> Changelog</a>{% endif %}
+        <div class="flex flex-wrap gap-2">
+            {% if is_granted('ROLE_DEV') %}<a href="{{ path('admin_dev_backup_index') }}" class="admin-btn admin-btn-ghost"><i class="fa-solid fa-database"></i> Sauvegardes</a>{% endif %}
+            {% if can('changelog.voir') %}<a href="{{ path('admin_changelog_index') }}" class="admin-btn admin-btn-ghost"><i class="fa-solid fa-clock-rotate-left"></i> Changelog</a>{% endif %}
+        </div>
     </div>
 
     <div data-controller="deploy"
@@ -35,78 +38,117 @@
                     </div>
                     <div class="dy-version-actions">
                         <button type="button" class="admin-btn admin-btn-ghost" data-deploy-target="checkButton" data-action="click->deploy#check">
-                            <i class="fa-solid fa-arrows-rotate"></i> Vérifier les mises à jour
+                            <i class="fa-solid fa-arrows-rotate"></i> Vérifier maintenant
                         </button>
-                        <button type="button" class="admin-btn admin-btn-primary" data-deploy-target="deployButton" data-action="click->deploy#deploy" disabled>
-                            <i class="fa-solid fa-rocket"></i> Déployer
+                        <button type="button" class="admin-btn admin-btn-primary" data-deploy-target="deployButton" data-action="click->deploy#deploy" {{ status.pending is empty or status.dirty ? 'disabled' }}>
+                            <i class="fa-solid fa-rocket"></i> Mettre à jour
                         </button>
                     </div>
                 </div>
 
                 <p class="dy-summary" data-deploy-target="summary">
                     {% if status.dirty %}
-                        Des fichiers ont été modifiés à la main sur le serveur : le déploiement est bloqué tant qu'ils ne sont pas validés (commit) ou annulés.
+                        Des fichiers ont été modifiés à la main sur le serveur : la mise à jour est bloquée tant qu'ils ne sont pas validés (commit) ou annulés.
                     {% elseif status.pending is not empty %}
-                        {{ status.pending|length }} mise{{ status.pending|length > 1 ? 's' }} à jour connue{{ status.pending|length > 1 ? 's' }} — cliquez sur « Vérifier » pour interroger GitHub.
+                        {{ status.pending|length }} mise{{ status.pending|length > 1 ? 's' }} à jour disponible{{ status.pending|length > 1 ? 's' }}.
                     {% else %}
-                        Cliquez sur « Vérifier les mises à jour » pour interroger GitHub.
+                        Le site est à jour. GitHub est interrogé automatiquement toutes les 10 minutes ; « Vérifier maintenant » force la vérification.
                     {% endif %}
                 </p>
 
-                <div data-deploy-target="pending" hidden>
-                    <h2 class="text-sm font-semibold mb-2">Ce qui sera déployé</h2>
-                    <ul class="dy-commits" data-deploy-target="pendingList"></ul>
+                <div data-deploy-target="pending" {{ status.pending is empty ? 'hidden' }}>
+                    <h2 class="text-sm font-semibold mb-2">Ce qui sera mis à jour</h2>
+                    <ul class="dy-commits" data-deploy-target="pendingList">
+                        {% for commit in status.pending %}
+                            <li class="dy-commit">
+                                <code>{{ commit.short }}</code>
+                                <span class="dy-commit-text">{{ commit.subject }}</span>
+                                <span class="dy-commit-meta">{{ commit.author }} · {{ commit.date|date('d/m/Y H:i') }}</span>
+                            </li>
+                        {% endfor %}
+                    </ul>
                 </div>
             {% endif %}
         </section>
 
         <section class="admin-card rounded-2xl p-0 overflow-hidden mb-6" data-deploy-target="console" {% if not running %}hidden{% endif %}>
             <div class="dy-console-head">
-                <span><i class="fa-solid fa-terminal"></i> Journal du déploiement</span>
+                <span><i class="fa-solid fa-terminal"></i> Journal de la mise à jour</span>
                 <span class="dy-state" data-deploy-target="state" data-status="running">En cours…</span>
             </div>
             <pre class="dy-log" data-deploy-target="log">Démarrage…</pre>
             <div class="dy-result" data-deploy-target="result" hidden></div>
         </section>
-    </div>
 
-    <section class="admin-card rounded-2xl p-6">
-        <h2 class="text-lg font-bold mb-1">Historique</h2>
-        <p class="text-sm text-admin-text-muted mb-4">{{ total }} mise{{ total > 1 ? 's' }} à jour déployée{{ total > 1 ? 's' }} depuis l'admin.</p>
+        <section class="admin-card rounded-2xl p-6">
+            <h2 class="text-lg font-bold mb-1">Historique</h2>
+            <p class="text-sm text-admin-text-muted mb-4">
+                {{ total }} mise{{ total > 1 ? 's' }} à jour lancée{{ total > 1 ? 's' }} depuis l'administration.
+                La sauvegarde de la base de données est conservée définitivement ; celle des fichiers du site se supprime ici, une fois la mise à jour vérifiée.
+            </p>
 
-        {% if history is empty %}
-            <p class="text-sm text-admin-text-muted">Aucun déploiement pour le moment.</p>
-        {% else %}
-            <div class="dt-scroll">
-                <table class="dt-table">
-                    <thead>
-                        <tr><th>Date</th><th>Par</th><th>De</th><th>Vers</th><th>Statut</th></tr>
-                    </thead>
-                    <tbody>
-                        {% for d in history %}
-                            <tr>
-                                <td>{{ d.startedAt|date('d/m/Y H:i') }}</td>
-                                <td>{{ d.triggeredBy ?? '—' }}</td>
-                                <td><code class="dy-hash">{{ d.fromCommit ? d.fromCommit|slice(0, 7) : '—' }}</code></td>
-                                <td><code class="dy-hash">{{ d.toCommit ? d.toCommit|slice(0, 7) : '—' }}</code></td>
-                                <td>
-                                    {% if d.status == 'success' %}<span class="badge badge-active">Réussi</span>
-                                    {% elseif d.status == 'failed' %}<span class="badge badge-danger">Échec</span>
-                                    {% else %}<span class="badge badge-draft">En cours</span>{% endif %}
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+            {% if history is empty %}
+                <p class="text-sm text-admin-text-muted">Aucune mise à jour pour le moment.</p>
+            {% else %}
+                <div class="dt-scroll">
+                    <table class="dt-table">
+                        <thead>
+                            <tr><th>Date</th><th>Par</th><th>De</th><th>Vers</th><th>Statut</th><th>Sauvegardes</th></tr>
+                        </thead>
+                        <tbody>
+                            {% for d in history %}
+                                <tr>
+                                    <td>{{ d.startedAt|date('d/m/Y H:i') }}</td>
+                                    <td>{{ d.triggeredBy ?? '—' }}</td>
+                                    <td><code class="dy-hash">{{ d.fromCommit ? d.fromCommit|slice(0, 7) : '—' }}</code></td>
+                                    <td><code class="dy-hash">{{ d.toCommit ? d.toCommit|slice(0, 7) : '—' }}</code></td>
+                                    <td>
+                                        {% if d.status == 'success' %}<span class="badge badge-active">Réussie</span>
+                                        {% elseif d.status == 'failed' %}
+                                            <span class="badge badge-danger">Échec</span>
+                                            {% if d.rolledBack %}<span class="dy-note">site restauré</span>{% endif %}
+                                        {% else %}<span class="badge badge-draft">En cours</span>{% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="dy-backups">
+                                            {% if d.dbBackup %}
+                                                <span class="dy-backup" title="Sauvegarde de la base de données, conservée définitivement">
+                                                    <i class="fa-solid fa-database"></i> Base conservée
+                                                    {% if is_granted('ROLE_DEV') %}<a href="{{ path('admin_dev_backup_download', {file: d.dbBackup}) }}" class="dy-backup-link">Télécharger</a>{% endif %}
+                                                </span>
+                                            {% endif %}
+                                            {% if d.hasFilesBackup %}
+                                                <span class="dy-backup" title="{{ d.filesBackup }}">
+                                                    <i class="fa-solid fa-folder-open"></i> Fichiers{% if d.filesBackupSize %} ({{ (d.filesBackupSize / 1048576)|round(1) }} Mo){% endif %}
+                                                    {% if not d.running and can('deploiement.lancer') %}
+                                                        <button type="button" class="admin-btn admin-btn-danger admin-btn-sm"
+                                                                data-action="click->deploy#purge"
+                                                                data-deploy-url-param="{{ path('admin_deploy_backup_purge', {id: d.id}) }}"
+                                                                data-deploy-failed-param="{{ d.status == 'success' ? '0' : '1' }}">
+                                                            <i class="fa-solid fa-trash"></i> Supprimer
+                                                        </button>
+                                                    {% endif %}
+                                                </span>
+                                            {% elseif d.filesBackupDeletedAt %}
+                                                <span class="dy-note">Fichiers supprimés le {{ d.filesBackupDeletedAt|date('d/m/Y') }}</span>
+                                            {% endif %}
+                                            {% if not d.dbBackup and not d.filesBackup %}<span class="dy-note">—</span>{% endif %}
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
 
-            {% if pages > 1 %}
-                <nav class="jr-pager" aria-label="Pages">
-                    {% if page > 1 %}<a href="{{ path('admin_deploy_index', {page: page - 1}) }}" class="admin-btn admin-btn-ghost admin-btn-sm">← Plus récentes</a>{% endif %}
-                    <span>Page {{ page }} sur {{ pages }}</span>
-                    {% if page < pages %}<a href="{{ path('admin_deploy_index', {page: page + 1}) }}" class="admin-btn admin-btn-ghost admin-btn-sm">Plus anciennes →</a>{% endif %}
-                </nav>
+                {% if pages > 1 %}
+                    <nav class="jr-pager" aria-label="Pages">
+                        {% if page > 1 %}<a href="{{ path('admin_deploy_index', {page: page - 1}) }}" class="admin-btn admin-btn-ghost admin-btn-sm">← Plus récentes</a>{% endif %}
+                        <span>Page {{ page }} sur {{ pages }}</span>
+                        {% if page < pages %}<a href="{{ path('admin_deploy_index', {page: page + 1}) }}" class="admin-btn admin-btn-ghost admin-btn-sm">Plus anciennes →</a>{% endif %}
+                    </nav>
+                {% endif %}
             {% endif %}
-        {% endif %}
-    </section>
+        </section>
+    </div>
 {% endblock %}

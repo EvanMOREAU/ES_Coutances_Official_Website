@@ -13,6 +13,7 @@ use App\Repository\NotificationStateRepository;
 use App\Repository\UserRepository;
 use App\Security\PermissionChecker;
 use App\Service\Chat\ChatService;
+use App\Service\Deploy\UpdateWatcher;
 use App\Service\Notification\NotificationPreferences;
 use Doctrine\ORM\EntityManagerInterface;
 use SortDirection;
@@ -49,6 +50,7 @@ class AdminNotificationProvider
         private readonly EntrainementRepository $entrainementRepository,
         private readonly PlanningService $planning,
         private readonly ChatService $chat,
+        private readonly UpdateWatcher $updates,
     ) {
     }
 
@@ -152,6 +154,20 @@ class AdminNotificationProvider
                     'text' => sprintf('%d message%s non lu%s', $unread, $unread > 1 ? 's' : '', $unread > 1 ? 's' : ''),
                     'meta' => 'Messagerie',
                     'url'  => $this->urls->generate('admin_chat_index'),
+                ];
+            }
+        }
+
+        // Mise à jour du site disponible (développeurs) ; la clé change avec le nombre, une nouvelle version redevient non lue.
+        if ($me instanceof User && $this->security->isGranted('ROLE_DEV')) {
+            $pending = $this->updates->pendingCount();
+            if ($pending > 0) {
+                $notifications[] = [
+                    'key'  => 'maj:'.$pending,
+                    'icon' => 'fa-rocket',
+                    'text' => sprintf('%d mise%s à jour disponible%s', $pending, $pending > 1 ? 's' : '', $pending > 1 ? 's' : ''),
+                    'meta' => 'Développeur · Mise à jour du site',
+                    'url'  => $this->urls->generate('admin_deploy_index'),
                 ];
             }
         }

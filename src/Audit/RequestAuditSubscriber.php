@@ -24,7 +24,7 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 final class RequestAuditSubscriber implements EventSubscriberInterface
 {
     /** Routes GET à tracer (consultation de documents). */
-    private const TRACKED_GET = ['admin_files_download', 'admin_files_view'];
+    private const TRACKED_GET = ['admin_files_download', 'admin_files_view', 'admin_dev_backup_download'];
 
     /** Routes jamais tracées (interrogations régulières, préférences d'affichage). */
     private const IGNORED = ['admin_table_preferences', 'admin_notification_read', 'admin_notification_dismiss', 'admin_chat_sync', 'portail_chat_sync', 'admin_chat_thread', 'portail_chat_thread'];
@@ -150,6 +150,7 @@ final class RequestAuditSubscriber implements EventSubscriberInterface
             str_starts_with($route, 'admin_article') => 'Boutique — articles',
             str_starts_with($route, 'admin_commande') => 'Boutique — commandes',
             str_starts_with($route, 'admin_files')    => 'Fichiers',
+            str_starts_with($route, 'admin_dev_')     => 'Système',
             str_starts_with($route, 'admin_chat')     => 'Messagerie',
             str_starts_with($route, 'admin_import')   => 'Import',
             str_starts_with($route, 'admin_adhesion') => 'Paiements des licences',

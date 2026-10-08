@@ -48,7 +48,7 @@ class FileStorage
         'audio'   => ['mp3', 'wav', 'ogg'],
     ];
 
-    /** @var array<string, array{label: string, icon: string, real: string, readOnly: bool, private: bool, filter: ?string, mounts: list<array{name: string, label: string, real: string, readOnly: bool, filter: ?string, icon: string}>}> */
+    /** @var array<string, array{label: string, icon: string, real: string, readOnly: bool, private: bool, filter: ?string, flatten: bool, mounts: list<array{name: string, label: string, real: string, readOnly: bool, filter: ?string, icon: string}>}> */
     private array $roots;
 
     public function __construct(string $projectDir)
@@ -56,7 +56,7 @@ class FileStorage
         $root = rtrim(str_replace('\\', '/', $projectDir), '/');
 
         // « Images » rassemble les images statiques du thème ET toutes les images envoyées sur le site
-        // (articles, avatars, bannière…), présentées comme des sous-dossiers ; « Fichiers » regroupe le
+        // (articles, avatars, bannière…), affichées à plat, sans les sous-dossiers d'envoi ; « Fichiers » regroupe le
         // reste des envois (contrats, documents…). Les deux lisent public/uploads, chacun avec son filtre.
         $uploadMounts = [];
         foreach (self::DECLARED_UPLOAD_DIRS as $dir) {
@@ -78,6 +78,7 @@ class FileStorage
                 'readOnly' => false,
                 'private'  => true,
                 'filter'   => null,
+                'flatten'  => false,
                 'mounts'   => [],
             ],
             'images' => [
@@ -87,6 +88,7 @@ class FileStorage
                 'readOnly' => false,
                 'private'  => false,
                 'filter'   => self::FILTER_IMAGES,
+                'flatten'  => true,
                 'mounts'   => $uploadMounts,
             ],
             'fichiers-du-site' => [
@@ -96,6 +98,7 @@ class FileStorage
                 'readOnly' => false,
                 'private'  => false,
                 'filter'   => self::FILTER_FILES,
+                'flatten'  => false,
                 'mounts'   => [],
             ],
         ];
@@ -228,7 +231,11 @@ class FileStorage
 
         if ($folder->isVirtualRoot) {
             foreach ($this->roots as $key => $root) {
-                $entries[] = $this->entry($key, $root['label'], $root['real'], true, $key, true, $root['readOnly'], $root['icon']);
+                $entry = $this->entry($key, $root['label'], $root['real'], true, $key, true, $root['readOnly'], $root['icon']);
+                if ($root['flatten']) {
+                    $entry['count'] = count($this->listing($this->resolve($key))); // images des dossiers d'envoi comprises
+                }
+                $entries[] = $entry;
             }
 
             return $entries;
@@ -251,7 +258,15 @@ class FileStorage
 
         // Montages (ex. « Licenciés » dans Documents), même si leur dossier réel n'existe pas encore.
         if ($folder->rootKey !== null && $folder->virtual === $folder->rootKey) {
+            $flatten = $this->roots[$folder->rootKey]['flatten'];
             foreach ($this->roots[$folder->rootKey]['mounts'] as $mount) {
+                if ($flatten) {
+                    // « Images » : pas de sous-dossiers (articles, avatars, bannière…), directement les images qu'ils contiennent.
+                    $files = [];
+                    $this->collectFiles($mount['real'], $folder->virtual.'/'.$mount['name'], $files, $mount['readOnly'], $mount['filter']);
+                    array_push($entries, ...$files);
+                    continue;
+                }
                 if ($mount['filter'] !== null && !$this->hasMatching($mount['real'], $mount['filter'])) {
                     continue; // pas d'image dans ce dossier d'envoi : inutile de l'afficher
                 }

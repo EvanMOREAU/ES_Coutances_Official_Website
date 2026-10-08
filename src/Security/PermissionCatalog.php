@@ -80,7 +80,7 @@ final class PermissionCatalog
                 'helloasso'    => ['label' => 'Paramètres HelloAsso (paiement en ligne)', 'actions' => [self::VOIR => 'Voir', self::MODIFIER => 'Modifier']],
                 'messagerie'   => ['label' => 'Messagerie', 'actions' => ['utiliser' => 'Utiliser la messagerie', 'support' => 'Support client (répondre aux clients de la boutique)']],
                 'boutique_maintenance' => ['label' => 'Maintenance de la boutique', 'actions' => [self::VOIR => 'Voir', self::MODIFIER => 'Modifier']],
-                'deploiement'  => ['label' => 'Déploiement', 'actions' => [self::VOIR => 'Voir', 'lancer' => 'Lancer un déploiement']],
+                'deploiement'  => ['label' => 'Mise à jour du site', 'actions' => [self::VOIR => 'Voir', 'lancer' => 'Lancer une mise à jour (et supprimer la sauvegarde des fichiers)']],
                 'journal'      => ['label' => 'Journal d\'activité', 'actions' => [self::VOIR => 'Voir', 'exporter' => 'Exporter en CSV']],
                 'changelog'    => ['label' => 'Changelog', 'actions' => [self::VOIR => 'Voir']],
             ],

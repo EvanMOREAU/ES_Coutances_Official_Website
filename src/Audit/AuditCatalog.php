@@ -46,7 +46,7 @@ final class AuditCatalog
         'User'              => ['Utilisateur', 'Utilisateurs et autorisations'],
         'ProfilAutorisation' => ['Profil d\'autorisation', 'Utilisateurs et autorisations'],
         'MailSettings'      => ['Paramètres e-mail', 'Paramètres'],
-        'Deployment'        => ['Déploiement', 'Système'],
+        'Deployment'        => ['Mise à jour du site', 'Système'],
     ];
 
     /** @return array{0: string, 1: string} [libellé, rubrique] */

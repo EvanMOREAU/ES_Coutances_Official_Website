@@ -137,11 +137,13 @@
 
                 {% if is_granted('ROLE_DEV') %}
                 <div data-controller="nav-section" data-nav-section-id-value="developpeur">
-                    {{ _self.nav_section_label('Développeur') }}
+                    {% set update_count = update_pending() %}
+                    {{ _self.nav_section_label('Développeur', 'data-update-dot', update_count) }}
                     <div class="space-y-1" data-nav-section-target="links">
                         {{ _self.nav_link('admin_configuration_hub', ['admin_configuration_hub', 'admin_mail_settings', 'admin_categorie_index', 'admin_helloasso_settings'], 'fa-gears', 'Configuration') }}
                         {{ _self.nav_link('admin_boutique_maintenance', 'admin_boutique_maintenance', 'fa-shop-slash', 'Maintenance boutique') }}
-                        {{ _self.nav_link('admin_deploy_index', 'admin_deploy', 'fa-rocket', 'Déploiement') }}
+                        {{ _self.nav_link('admin_deploy_index', 'admin_deploy', 'fa-rocket', 'Mise à jour', false, update_count, true, 'mise(s) à jour disponible(s)', 'data-update-badge') }}
+                        {{ _self.nav_link('admin_dev_backup_index', 'admin_dev_backup', 'fa-database', 'Sauvegardes') }}
                         {{ _self.nav_link('admin_journal_index', 'admin_journal', 'fa-scroll', "Journal d'activité") }}
                         {{ _self.nav_link('admin_changelog_index', 'admin_changelog', 'fa-clock-rotate-left', 'Changelog', false, changelog_non_lu(), false, 'nouvelle version') }}
                         {{ _self.nav_link('admin_categorie_partenaire_index', 'admin_categorie_partenaire', 'fa-tags', 'Catégories de partenaires') }}
@@ -241,18 +243,21 @@
     {% if can('messagerie.utiliser,messagerie.support') %}
         {% include 'chat/_badge_poller.html.twig' with {url: path('admin_chat_unread')} only %}
     {% endif %}
+    {% if is_granted('ROLE_DEV') %}
+        {% include 'admin/deploy/_update_poller.html.twig' with {url: path('admin_deploy_pending')} only %}
+    {% endif %}
 </body>
 </html>
 
-{% macro nav_section_label(label) %}
+{% macro nav_section_label(label, dot_attr = '', dot_count = 0) %}
     <button type="button" data-admin-sidebar-target="label" data-action="click->nav-section#toggle"
             class="flex w-full items-center justify-between px-4 mb-2 text-[11px] font-semibold uppercase tracking-widest text-admin-text-muted whitespace-nowrap">
-        <span>{{ label }}</span>
+        <span>{{ label }}{% if dot_attr == 'data-update-dot' %} <i data-update-dot {{ dot_count > 0 ? '' : 'hidden' }} class="ml-1 inline-block h-2 w-2 rounded-full admin-gradient align-middle" title="Une mise à jour est disponible"></i>{% endif %}</span>
         <i data-nav-section-target="icon" class="fa-solid fa-chevron-down text-[9px] transition-transform duration-150"></i>
     </button>
 {% endmacro %}
 
-{% macro nav_link(route, prefix, icon, label, exact = false, badge = 0, live = false, badge_title = '') %}
+{% macro nav_link(route, prefix, icon, label, exact = false, badge = 0, live = false, badge_title = '', live_attr = 'data-chat-badge') %}
     {% set current = app.request.attributes.get('_route') %}
     {% set prefixes = prefix is iterable ? prefix : [prefix] %}
     {% set active = prefixes|filter(p => exact ? current == p : current starts with p)|length > 0 %}
@@ -261,7 +266,7 @@
         <span class="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-1 rounded-full transition-all duration-150 {{ active ? 'admin-gradient' : 'bg-transparent group-hover:bg-admin-text-muted/40' }}"></span>
         <i class="fa-solid {{ icon }} w-4 text-center shrink-0"></i> <span data-admin-sidebar-target="label" class="whitespace-nowrap">{{ label }}</span>
         {% if live|default(false) %}
-            <span data-admin-sidebar-target="label" data-chat-badge {{ badge|default(0) == 0 ? 'hidden' }} class="ml-auto rounded-full admin-gradient px-1.5 text-[10px] font-bold leading-4 text-white" title="Messages non lus">{{ badge|default(0) }}</span>
+            <span data-admin-sidebar-target="label" {{ live_attr == 'data-update-badge' ? 'data-update-badge' : 'data-chat-badge' }} {{ badge|default(0) == 0 ? 'hidden' }} class="ml-auto rounded-full admin-gradient px-1.5 text-[10px] font-bold leading-4 text-white" title="{{ badge_title is empty ? 'Messages non lus' : badge_title }}">{{ badge|default(0) }}</span>
         {% elseif badge|default(0) > 0 %}<span data-admin-sidebar-target="label" class="ml-auto rounded-full admin-gradient px-1.5 text-[10px] font-bold leading-4 text-white" title="{{ badge_title is empty ? badge ~ ' suggestion' ~ (badge > 1 ? 's') ~ ' de configuration' : badge ~ ' ' ~ badge_title }}">{{ badge }}</span>{% endif %}
     </a>
 {% endmacro %}

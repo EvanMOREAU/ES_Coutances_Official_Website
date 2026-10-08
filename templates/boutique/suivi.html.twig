@@ -80,6 +80,7 @@
       <h2>Informations</h2>
       <div class="sum-row"><span>Statut</span><span class="tag {{ {nouvelle: 'tag-wait', prete: 'tag-blue', retiree: 'tag-ok', annulee: 'tag-ko'}[statut] }}">{{ commande.statutLabel }}</span></div>
       <div class="sum-row"><span>Règlement</span><span class="tag {{ commande.payee ? 'tag-ok' : 'tag-wait' }}">{{ commande.payee ? 'Payée' : 'En attente' }}</span></div>
+      {% if commande.numeroFacture %}<p style="margin-top:12px;"><a href="{{ path('boutique_commande_facture', {reference: commande.reference, token: commande.token}) }}"><i class="fa-solid fa-file-invoice"></i> Facture {{ commande.numeroFacture }}</a></p>{% endif %}
       <div class="sum-row"><span>Mode</span><span>{{ commande.modePaiementLabel }}</span></div>
       <div class="sum-row"><span>Client</span><span>{{ commande.nomComplet }}</span></div>
       <div class="sum-row"><span>E-mail</span><span style="overflow-wrap:anywhere; text-align:right;">{{ commande.email }}</span></div>

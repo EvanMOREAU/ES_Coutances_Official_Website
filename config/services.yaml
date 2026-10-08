@@ -26,6 +26,9 @@ parameters:
     env(LEGAL_ASSOCIATION_ID): ''
     env(LEGAL_HOST): ''
     env(LEGAL_CONSUMER_MEDIATOR): ''
+    # Mention de TVA des factures de la boutique : à confirmer avec le trésorier / l'expert-comptable.
+    env(LEGAL_VAT_MENTION): 'TVA non applicable, article 293 B du CGI'
+    env(LEGAL_DPO_CONTACT): ''
 
 services:
     # default configuration for services in *this* file

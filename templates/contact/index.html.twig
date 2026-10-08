@@ -229,6 +229,29 @@
   border: 1px solid var(--border);
   height: 220px;
 }
+.carte-osm-consent {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 16px;
+  text-align: center;
+  font-size: 13px;
+  color: #555;
+  background: #f4f4f4;
+}
+.carte-osm-consent button {
+  font: inherit;
+  font-weight: 600;
+  padding: 8px 16px;
+  border: 0;
+  border-radius: 6px;
+  background: var(--red, #c8102e);
+  color: #fff;
+  cursor: pointer;
+}
 .carte-osm iframe {
   width: 100%;
   height: 100%;
@@ -408,13 +431,21 @@
         </div>
 
         {# Carte OpenStreetMap #}
-        <div class="carte-osm">
-          <iframe
-            src="https://www.openstreetmap.org/export/embed.html?bbox=-1.4560%2C49.0520%2C-1.4360%2C49.0620&layer=mapnik&marker=49.0570%2C-1.4460"
-            title="Localisation ES Coutances — Stade Paul-Maundrell"
-            loading="lazy"
-          ></iframe>
+        <div class="carte-osm" id="carte-osm" data-src="https://www.openstreetmap.org/export/embed.html?bbox=-1.4560%2C49.0520%2C-1.4360%2C49.0620&amp;layer=mapnik&amp;marker=49.0570%2C-1.4460">
+          <div class="carte-osm-consent">
+            <p>Cette carte est fournie par OpenStreetMap. L'afficher transmet votre adresse IP à ce service (voir la page <a href="{{ path('app_legal_cookies') }}">Cookies</a>).</p>
+            <button type="button" id="carte-osm-load">Afficher la carte</button>
+          </div>
         </div>
+        <script nonce="{{ csp_nonce() }}">
+        document.getElementById('carte-osm-load').addEventListener('click', function () {
+          var box = document.getElementById('carte-osm');
+          var frame = document.createElement('iframe');
+          frame.src = box.dataset.src;
+          frame.title = 'Localisation ES Coutances — Stade Paul-Maundrell';
+          box.replaceChildren(frame);
+        });
+        </script>
         <div style="text-align:right;margin-top:-16px">
           <a
             href="https://www.openstreetmap.org/?mlat=49.0570&mlon=-1.4460#map=15/49.0570/-1.4460"

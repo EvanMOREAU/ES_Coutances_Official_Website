@@ -1,0 +1,54 @@
+{% extends 'admin/_layout.html.twig' %}
+
+{% block title %}Sauvegardes de la base{% endblock %}
+
+{% block body %}
+    <div class="flex flex-wrap items-start justify-between gap-4 mb-6">
+        <div>
+            <h1 class="text-2xl font-black" style="font-family:'Barlow Condensed',sans-serif;">Sauvegardes de la base de données</h1>
+            <p class="text-sm text-admin-text-muted">Extraction et téléchargement de la base. Réservé au rôle développeur : aucune autorisation ne permet d'y donner accès.</p>
+        </div>
+        <form method="post" action="{{ path('admin_dev_backup_create') }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('dev-backup') }}">
+            <button type="submit" class="admin-btn admin-btn-primary"><i class="fa-solid fa-database"></i> Extraire la base maintenant</button>
+        </form>
+    </div>
+
+    <section class="admin-card rounded-2xl p-6 mb-6">
+        <h2 class="text-sm font-semibold mb-2">Comment ça marche</h2>
+        <ul class="text-sm text-admin-text-muted list-disc pl-5 space-y-1">
+            <li><strong>Avant une mise à jour</strong> : prise automatiquement avant chaque mise à jour du site, et <strong>jamais supprimée</strong>.</li>
+            <li><strong>Automatique</strong> : prise par la tâche planifiée <code>app:db:sauvegarder</code> (voir <code>deploy/crontab.example</code>) ; seules les plus anciennes sont purgées.</li>
+            <li><strong>Manuelle</strong> : prise depuis cette page, jamais purgée.</li>
+            <li>Chaque fichier est un script SQL compressé (<code>.sql.gz</code>) qui contient <strong>toutes les données personnelles du site</strong> : stockez-le de façon sécurisée et ne le transmettez pas.</li>
+            <li>La restauration ne peut pas se faire depuis le site. En cas de besoin, en ligne de commande : <code>php bin/console app:db:restaurer &lt;fichier&gt;</code>.</li>
+        </ul>
+    </section>
+
+    <section class="admin-card rounded-2xl p-6">
+        <h2 class="text-lg font-bold mb-4">{{ backups|length }} sauvegarde{{ backups|length > 1 ? 's' }}</h2>
+
+        {% if backups is empty %}
+            <p class="text-sm text-admin-text-muted">Aucune sauvegarde pour le moment.</p>
+        {% else %}
+            <div class="dt-scroll">
+                <table class="dt-table">
+                    <thead>
+                        <tr><th>Date</th><th>Origine</th><th>Fichier</th><th>Taille</th><th></th></tr>
+                    </thead>
+                    <tbody>
+                        {% for b in backups %}
+                            <tr>
+                                <td>{{ b.createdAt|date('d/m/Y H:i') }}</td>
+                                <td><span class="bk-kind">{{ b.kindLabel }}</span></td>
+                                <td><code class="dy-hash">{{ b.file }}</code></td>
+                                <td>{{ b.size >= 1048576 ? (b.size / 1048576)|round(1) ~ ' Mo' : max(1, (b.size / 1024)|round) ~ ' Ko' }}</td>
+                                <td class="text-right"><a href="{{ path('admin_dev_backup_download', {file: b.file}) }}" class="admin-btn admin-btn-ghost admin-btn-sm"><i class="fa-solid fa-download"></i> Télécharger</a></td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </section>
+{% endblock %}

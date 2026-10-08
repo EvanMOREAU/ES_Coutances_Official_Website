@@ -231,6 +231,7 @@ class AccountDataService
             foreach (['telephone', 'note', 'livraisonAdresse', 'livraisonComplement', 'livraisonCodePostal', 'livraisonVille', 'livraisonTelephone', 'livraisonInstructions'] as $field) {
                 $meta->setFieldValue($commande, $field, null);
             }
+            $meta->setFieldValue($commande, 'cgvAcceptedIp', null); // la preuve (date, version) reste, pas l'adresse IP
             $commande->setUser(null);
         }
         $this->em->flush();
@@ -263,6 +264,9 @@ class AccountDataService
         foreach (['numeroPersonne', 'numeroLicence', 'civilite', 'lieuNaissance', 'sexe', 'nationalite', 'telephone', 'emailIndividuel'] as $field) {
             $meta->setFieldValue($licencie, $field, null);
         }
+        $meta->setFieldValue($licencie, 'droitImage', null);
+        $meta->setFieldValue($licencie, 'droitImageAt', null);
+        $meta->setFieldValue($licencie, 'autorisationParentaleAt', null);
         $meta->setFieldValue($licencie, 'actif', false);
 
         // Les licences gardent leurs montants ; on retire seulement le nom recopié dans l'intitulé.

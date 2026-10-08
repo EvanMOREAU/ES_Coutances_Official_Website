@@ -11,6 +11,7 @@ use App\Repository\ArticleVarianteRepository;
 use App\Repository\CategorieArticleRepository;
 use App\Repository\CodePromoRepository;
 use App\Repository\CommandeRepository;
+use App\Repository\ContactSettingsRepository;
 use App\Repository\FamilleRepository;
 use App\Service\Boutique\CommandeMailer;
 use App\Service\Boutique\CommandeService;
@@ -22,6 +23,7 @@ use App\Service\HelloAsso\HelloAssoException;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -50,6 +52,8 @@ class BoutiqueController extends AbstractController
         private readonly HelloAssoClient $helloAsso,
         private readonly EntityManagerInterface $em,
         private readonly LoggerInterface $logger,
+        #[Autowire('%env(LEGAL_ASSOCIATION_ID)%')] private readonly string $associationId,
+        #[Autowire('%env(LEGAL_VAT_MENTION)%')] private readonly string $vatMention,
     ) {
     }
 
@@ -179,7 +183,7 @@ class BoutiqueController extends AbstractController
             }
 
             try {
-                $commande = $this->passerCommande($detail, $client, $user instanceof User ? $user : null);
+                $commande = $this->passerCommande($detail, $client, $user instanceof User ? $user : null, $request->getClientIp());
             } catch (StockInsuffisantException $e) {
                 $this->addFlash('boutique_error', $e->getMessage() . ' Votre panier a été mis à jour.');
 
@@ -251,7 +255,7 @@ class BoutiqueController extends AbstractController
             $client = array_merge($client, $form->getData());
 
             try {
-                $commande = $this->passerCommande($detail, $client, $user instanceof User ? $user : null);
+                $commande = $this->passerCommande($detail, $client, $user instanceof User ? $user : null, $request->getClientIp());
             } catch (StockInsuffisantException $e) {
                 $session->remove(self::SESSION_CHECKOUT);
                 $this->addFlash('boutique_error', $e->getMessage() . ' Votre panier a été mis à jour.');
@@ -276,6 +280,23 @@ class BoutiqueController extends AbstractController
     public function suivi(string $reference, string $token, CommandeRepository $commandes): Response
     {
         return $this->render('boutique/suivi.html.twig', ['commande' => $this->findCommande($commandes, $reference, $token)]);
+    }
+
+    /** Facture imprimable (« Enregistrer au format PDF » du navigateur) : n'existe qu'une fois la commande réglée. */
+    #[Route('/commande/{reference}/{token}/facture', name: 'boutique_commande_facture', methods: ['GET'])]
+    public function facture(string $reference, string $token, CommandeRepository $commandes, ContactSettingsRepository $contact): Response
+    {
+        $commande = $this->findCommande($commandes, $reference, $token);
+        if (null === $commande->getNumeroFacture()) {
+            throw $this->createNotFoundException();
+        }
+
+        return $this->render('boutique/facture.html.twig', [
+            'commande'       => $commande,
+            'contact'        => $contact->getSingleton(),
+            'association_id' => $this->associationId,
+            'vat_mention'    => $this->vatMention,
+        ]);
     }
 
     /**
@@ -441,14 +462,14 @@ class BoutiqueController extends AbstractController
      * @throws StockInsuffisantException
      * @throws PromoCodeException
      */
-    private function passerCommande(array $detail, array $client, ?User $user): Commande
+    private function passerCommande(array $detail, array $client, ?User $user, ?string $clientIp): Commande
     {
         $quantites = [];
         foreach ($detail['lignes'] as $ligne) {
             $quantites[$ligne['variante']->getId()] = $ligne['quantite'];
         }
 
-        return $this->commandes->passer($quantites, $client, $user);
+        return $this->commandes->passer($quantites, $client, $user, $clientIp);
     }
 
     /**

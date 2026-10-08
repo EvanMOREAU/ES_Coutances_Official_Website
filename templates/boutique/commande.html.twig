@@ -33,6 +33,12 @@
 .summary .sum-row[hidden] { display: none; }
 .mini-line { display: flex; justify-content: space-between; gap: 12px; padding: 6px 0; font-size: 14px; }
 .mini-line span:first-child { color: #444; }
+.cgv-check { display: flex; align-items: flex-start; gap: 12px; padding: 12px 14px; font-size: 13px; line-height: 1.5; color: #444; background: #fff; border: 1.5px solid var(--border); border-radius: 8px; cursor: pointer; transition: border-color .15s, background .15s; }
+.cgv-check:hover { border-color: #d0ccc8; }
+.cgv-check:has(input:checked) { border-color: var(--red); background: rgba(200,16,46,.04); }
+.cgv-check:has(input:focus-visible) { outline: 2px solid var(--dark); outline-offset: 2px; }
+.cgv-check input { flex: 0 0 auto; width: 18px; height: 18px; margin-top: 2px; accent-color: var(--red); cursor: pointer; }
+.cgv-check a { color: var(--red); font-weight: 600; }
 .pickup { display: flex; gap: 10px; margin-top: 16px; padding: 12px 14px; border-radius: 6px; background: var(--grey); font-size: 13px; color: #555; }
 .pickup i { color: var(--red); margin-top: 3px; }
 </style>
@@ -120,7 +126,11 @@
       {% endfor %}
       <div class="sum-row total"><span>Total</span><span class="price">{{ total|money }}</span></div>
       <div class="pickup"><i class="fa-solid fa-store"></i><span><strong>Retrait au club</strong> — pas de livraison. Nous vous prévenons par e-mail dès que votre commande est prête.</span></div>
-      <button type="submit" class="btn btn-primary btn-block" style="margin-top:18px;"><i class="fa-solid fa-lock"></i> Valider la commande</button>
+      <div class="f-group" style="margin-top:16px;">
+        <label class="cgv-check">{{ form_widget(form.cgv) }}<span>J'ai lu et j'accepte les <a href="{{ path('app_legal_cgv') }}" target="_blank" rel="noopener" >conditions de vente</a> (dont le droit de rétractation) et la <a href="{{ path('app_legal_confidentialite') }}" target="_blank" rel="noopener">politique de confidentialité</a>.</span></label>
+        {{ form_errors(form.cgv) }}
+      </div>
+      <button type="submit" class="btn btn-primary btn-block" style="margin-top:18px;"><i class="fa-solid fa-lock"></i> Commander avec obligation de paiement</button>
       <p style="margin-top:12px; text-align:center;"><a href="{{ path('boutique_panier') }}" class="note"><i class="fa-solid fa-arrow-left"></i> Modifier mon panier</a></p>
     </aside>
   </div>

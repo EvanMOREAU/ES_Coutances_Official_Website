@@ -2,29 +2,35 @@
 {% set heading = 'Conditions de vente' %}
 
 {% block legal_content %}
-<p>Ces conditions s'appliquent aux achats effectués sur la boutique en ligne de l'Entente Sportive Coutançaise (le « Club »).</p>
+<p>Ces conditions s'appliquent aux achats effectués sur la boutique en ligne de l'Entente Sportive Coutançaise (le « Club »){% if association_id %} — {{ association_id }}{% endif %}. En validant une commande, vous reconnaissez les avoir lues et acceptées ; la date et la version acceptées sont enregistrées avec la commande.</p>
 
 <h2>1. Produits et prix</h2>
-<p>Les produits sont ceux présentés sur la boutique au moment de la commande, dans la limite des stocks disponibles. Les prix sont indiqués en euros, toutes taxes comprises. Le Club peut modifier ses prix à tout moment ; le prix applicable est celui affiché lors de la validation de la commande.</p>
+<p>Les produits sont ceux présentés sur la boutique au moment de la commande, dans la limite des stocks disponibles. Les prix sont indiqués en euros, toutes taxes comprises. Le Club peut modifier ses prix à tout moment ; le prix applicable est celui affiché lors de la validation de la commande. Il n'y a pas de frais de livraison : les commandes se retirent au club.</p>
 
 <h2>2. Commande</h2>
-<p>La commande est enregistrée après validation du panier et confirmation par e-mail. Le Club peut refuser ou annuler une commande en cas d'indisponibilité d'un produit ou d'anomalie manifeste de prix ; vous êtes alors intégralement remboursé.</p>
+<p>La commande est enregistrée après validation du panier, acceptation des présentes conditions et clic sur le bouton « Commander avec obligation de paiement » ; elle est confirmée par e-mail. Le Club peut refuser ou annuler une commande en cas d'indisponibilité d'un produit ou d'anomalie manifeste de prix ; vous êtes alors intégralement remboursé.</p>
 
 <h2>3. Paiement</h2>
-<p>Le règlement s'effectue au choix : <strong>par carte bancaire en ligne</strong> via le service sécurisé HelloAsso (le Club n'a jamais connaissance de votre numéro de carte), ou <strong>en espèces ou par chèque</strong> (à l'ordre de l'ES Coutances) lors du retrait de la commande. Une commande réglée au club et non retirée dans un délai raisonnable peut être annulée.</p>
+<p>Le règlement s'effectue au choix : par carte bancaire en ligne via le service sécurisé HelloAsso (le Club n'a jamais connaissance de votre numéro de carte), ou en espèces ou par chèque (à l'ordre de l'ES Coutances) lors du retrait de la commande. Une commande réglée au club et non retirée dans un délai raisonnable peut être annulée. Une facture numérotée est disponible depuis la page de suivi de la commande une fois celle-ci réglée.</p>
 
 <h2>4. Retrait des commandes</h2>
-<p>Il n'y a <strong>pas de livraison</strong> : les commandes sont à retirer au club, sans frais. Vous êtes prévenu par e-mail dès que la commande est prête.</p>
+<p>Il n'y a pas de livraison (sauf code de livraison communiqué par le Club) : les commandes sont à retirer au club, sans frais. Vous êtes prévenu par e-mail dès que la commande est prête.</p>
 
 <h2>5. Droit de rétractation</h2>
-<p>Conformément au Code de la consommation, vous disposez de <strong>14 jours</strong> à compter du retrait de votre commande pour vous rétracter, sans avoir à justifier de motif, en le notifiant au Club{% if contact and contact.email %} par e-mail à <a href="mailto:{{ contact.email }}">{{ contact.email }}</a>{% endif %}. Les articles doivent être rendus neufs, non portés, dans leur état d'origine. Ce droit ne s'applique pas aux articles personnalisés (flocage, marquage au nom du client). Le remboursement intervient dans les 14 jours suivant la réception du retour, par le même moyen de paiement.</p>
+<p>Conformément aux articles L221-18 et suivants du Code de la consommation, vous disposez de <strong>14 jours</strong> à compter de la remise de votre commande pour vous rétracter, sans avoir à justifier de motif, en notifiant votre décision au Club{% if contact and contact.email %} par e-mail à {{ contact.email }}{% endif %} au moyen du formulaire ci-dessous ou de toute déclaration dénuée d'ambiguïté. Les articles doivent être rendus neufs, non portés, dans leur état d'origine, au club, <strong>sans frais de retour</strong> (le retour s'effectue en main propre au club). Le remboursement intervient au plus tard dans les 14 jours suivant la communication de votre décision de vous rétracter, par le même moyen de paiement que celui utilisé pour la commande ; le Club peut différer le remboursement jusqu'à la récupération des articles.</p>
+<p><strong>Exceptions</strong> (article L221-28) : le droit de rétractation ne s'applique pas aux articles confectionnés selon vos spécifications ou nettement personnalisés (flocage, marquage au nom du client).</p>
+
+<h3>Formulaire type de rétractation</h3>
+<p>À l'attention de l'Entente Sportive Coutançaise{% if contact and contact.adresse %}, {{ contact.adresse|replace({"\n": ' ', "\r": ''}) }}{% endif %}{% if contact and contact.email %}, {{ contact.email }}{% endif %} :</p>
+<p>« Je/nous (*) vous notifie/notifions (*) par la présente ma/notre (*) rétractation du contrat portant sur la vente de l'article ci-dessous : commande n° …, passée le …/reçue le … (*), nom du/des consommateur(s) …, adresse du/des consommateur(s) …, date et signature (uniquement en cas de notification sur papier). »</p>
+<p><small>(*) Rayez la mention inutile.</small></p>
 
 <h2>6. Garanties</h2>
-<p>Les produits bénéficient de la garantie légale de conformité (articles L.217-3 et suivants du Code de la consommation) et de la garantie des vices cachés (articles 1641 et suivants du Code civil).</p>
+<p>Les produits bénéficient de la garantie légale de conformité (articles L217-3 et suivants du Code de la consommation, durée de 2 ans à compter de la délivrance) et de la garantie des vices cachés (articles 1641 et suivants du Code civil). En cas de défaut, contactez le Club : il procède, au choix, à la réparation, au remplacement ou au remboursement.</p>
 
 <h2>7. Données personnelles</h2>
-<p>Les informations recueillies servent uniquement au traitement de la commande ; voir la <a href="{{ path('app_legal_confidentialite') }}">politique de confidentialité</a>.</p>
+<p>Les informations recueillies servent au traitement de la commande, à sa facturation et au respect des obligations comptables ; voir la <a href="{{ path('app_legal_confidentialite') }}">politique de confidentialité</a>.</p>
 
-<h2>8. Litiges</h2>
-<p>Les présentes conditions sont soumises au droit français. En cas de litige, contactez d'abord le Club pour trouver une solution amiable.{% if mediator %} Vous pouvez ensuite recourir gratuitement au médiateur de la consommation : {{ mediator }}.{% endif %}</p>
+<h2>8. Litiges et médiation</h2>
+<p>Les présentes conditions sont soumises au droit français. En cas de litige, contactez d'abord le Club pour trouver une solution amiable. Conformément aux articles L611-1 et suivants du Code de la consommation, vous pouvez ensuite recourir gratuitement à un médiateur de la consommation{% if mediator %} : {{ mediator }}{% endif %}. Vous pouvez aussi déposer votre réclamation sur la plateforme européenne de règlement en ligne des litiges : <a href="https://ec.europa.eu/consumers/odr" rel="noopener" target="_blank">ec.europa.eu/consumers/odr</a>.</p>
 {% endblock %}

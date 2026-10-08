@@ -5,6 +5,7 @@ namespace App\Service;
 use App\Entity\User;
 use App\Repository\WebauthnCredentialRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
  * Contrôle de configuration d'un site en production : ce qui ne se voit pas à l'écran mais expose
@@ -23,6 +24,11 @@ final class ProductionChecklist
         private readonly string $secret,
         private readonly bool $debug,
         private readonly bool $privilegedTwoFactorEnforced,
+        #[Autowire('%env(LEGAL_PUBLICATION_DIRECTOR)%')] private readonly string $legalDirector = '',
+        #[Autowire('%env(LEGAL_ASSOCIATION_ID)%')] private readonly string $legalAssociationId = '',
+        #[Autowire('%env(LEGAL_HOST)%')] private readonly string $legalHost = '',
+        #[Autowire('%env(LEGAL_CONSUMER_MEDIATOR)%')] private readonly string $legalMediator = '',
+        #[Autowire('%env(LEGAL_DPO_CONTACT)%')] private readonly string $legalDpo = '',
     ) {
     }
 
@@ -36,6 +42,12 @@ final class ProductionChecklist
             $this->check('Doubles authentifications obligatoires (ENFORCE_PRIVILEGED_2FA)', $this->privilegedTwoFactorEnforced, 'Retirer ENFORCE_PRIVILEGED_2FA=0 de la configuration.', true),
             $this->check('Dossier des envois protégé (public/uploads/.htaccess)', is_file($this->projectDir.'/public/uploads/.htaccess'), 'Fichier absent : voir deploy/nginx.conf.example si le serveur est Nginx (aucun script ne doit s\'exécuter dans /uploads).', false),
             $this->check('Variables compilées (.env.local.php)', is_file($this->projectDir.'/.env.local.php'), 'Lancer « composer dump-env prod » : démarrage plus rapide, configuration figée.', false),
+            // Mentions obligatoires (LCEN art. 6, Code de la consommation) : sans elles, les pages légales sont incomplètes.
+            $this->check('Mentions légales : responsable de la publication (LEGAL_PUBLICATION_DIRECTOR)', '' !== trim($this->legalDirector), 'Renseigner le nom du responsable de la publication dans .env.local.', true),
+            $this->check("Mentions légales : identité de l'association (LEGAL_ASSOCIATION_ID)", '' !== trim($this->legalAssociationId), "Renseigner le n° RNA / SIRET de l'association dans .env.local.", true),
+            $this->check('Mentions légales : hébergeur (LEGAL_HOST)', '' !== trim($this->legalHost), "Renseigner le nom, l'adresse et le téléphone de l'hébergeur dans .env.local.", true),
+            $this->check('Conditions de vente : médiateur de la consommation (LEGAL_CONSUMER_MEDIATOR)', '' !== trim($this->legalMediator), 'Désigner un médiateur de la consommation (obligatoire pour la vente à des consommateurs) et le renseigner dans .env.local.', false),
+            $this->check('Politique de confidentialité : contact RGPD (LEGAL_DPO_CONTACT)', '' !== trim($this->legalDpo), 'Renseigner un e-mail dédié aux demandes RGPD dans .env.local.', false),
         ];
 
         $unprotected = $this->privilegedWithoutSecondFactor();
