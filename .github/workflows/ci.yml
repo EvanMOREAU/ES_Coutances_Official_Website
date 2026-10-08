@@ -89,7 +89,7 @@ jobs:
           COVERAGE_MIN: '0'
         run: php deploy/coverage-check.php var/clover.xml
       - name: Sauvegarde du rapport de couverture
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: couverture
           path: var/clover.xml
