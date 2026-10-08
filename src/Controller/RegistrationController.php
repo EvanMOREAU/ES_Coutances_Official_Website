@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Form\RegistrationType;
+use App\Legal\LegalVersion;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -30,6 +31,7 @@ class RegistrationController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $user->recordConsent(LegalVersion::CURRENT);
             $user->setRoles([]); // compte boutique : aucun rôle particulier, seulement ROLE_USER (implicite)
             $user->setPassword($hasher->hashPassword($user, (string) $form->get('plainPassword')->getData()));
             $em->persist($user);

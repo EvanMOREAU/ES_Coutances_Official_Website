@@ -5,7 +5,7 @@ Application web de l'**Entente Sportive Coutançaise** (Coutances, Manche) :
 - **site public** : accueil, pages du club, encadrement, sponsors, contact, matchs en direct ;
 - **boutique en ligne** : catalogue, panier, commande, paiement par carte (HelloAsso) ou au retrait ;
 - **espace familles et licenciés** (`/mon-compte`) : licences, factures, planning, messagerie, commandes ;
-- **back-office** (`/admin`) : licenciés, familles, saisons, adhésions, planning, boutique, partenaires, contrats, imports FootClub, fichiers, journal d'activité, déploiement.
+- **back-office** (`/admin`) : licenciés, familles, saisons, adhésions, planning, boutique, partenaires, contrats, imports FootClub, fichiers, journal d'activité, mises à jour du site (avec sauvegardes et retour arrière automatique), sauvegardes de la base.
 
 Développé par **Evan MOREAU**. Licence propriétaire (voir [LICENSE](LICENSE)).
 
@@ -60,7 +60,7 @@ Règles à connaître :
 
 | Rôle | Accès |
 |---|---|
-| `ROLE_DEV` | Tout, y compris déploiement, boutique en maintenance, comptes |
+| `ROLE_DEV` | Tout, y compris mises à jour, sauvegardes de la base (réservées à ce rôle), boutique en maintenance, comptes |
 | `ROLE_ADMIN` | Back-office complet (restreignable par profil d'autorisation) |
 | `ROLE_EDITOR` | Back-office selon son profil d'autorisation (`Administration > Accès`) |
 | `ROLE_FAMILLE` / `ROLE_LICENCIE` / compte boutique | Espace `/mon-compte` uniquement |
@@ -77,10 +77,11 @@ Les comptes **développeur et administrateur doivent activer une double authenti
 | `DATABASE_URL` | Connexion à la base |
 | `MAILER_DSN`, `MAILER_FROM_ADDRESS`, `MAILER_FROM_NAME` | E-mails (le SMTP peut aussi être réglé dans l'admin) |
 | `MAINTENANCE_FLAG_PATH` | Fichier dont l'existence active la page de maintenance 503 |
-| `DEPLOY_BRANCH`, `COMPOSER_BIN`, `PHP_CLI_BIN` | Déploiement depuis l'admin |
+| `DEPLOY_BRANCH`, `COMPOSER_BIN`, `PHP_CLI_BIN` | Mise à jour depuis l'admin |
 | `FILES_QUOTA_MB` | Quota du gestionnaire de fichiers |
 | `ENFORCE_PRIVILEGED_2FA` | `0` pour suspendre la double authentification obligatoire des comptes privilégiés |
-| `LEGAL_PUBLICATION_DIRECTOR`, `LEGAL_ASSOCIATION_ID`, `LEGAL_HOST`, `LEGAL_CONSUMER_MEDIATOR` | Mentions légales et conditions de vente (laisser vide pour masquer la ligne) |
+| `LEGAL_PUBLICATION_DIRECTOR`, `LEGAL_ASSOCIATION_ID`, `LEGAL_HOST` | Mentions légales obligatoires : `app:securite:verifier` échoue si elles sont vides |
+| `LEGAL_CONSUMER_MEDIATOR`, `LEGAL_DPO_CONTACT`, `LEGAL_VAT_MENTION` | Médiateur de la consommation (obligatoire pour vendre à des consommateurs), contact RGPD, mention de TVA des factures |
 
 HelloAsso (paiement en ligne) se configure dans l'admin (`Configuration > HelloAsso`) ; renseigner l'URL de notification `…/boutique/helloasso/notification` côté HelloAsso.
 
@@ -94,12 +95,16 @@ HelloAsso (paiement en ligne) se configure dans l'admin (`Configuration > HelloA
 - **Content-Security-Policy** stricte (`SecurityHeadersListener`) : scripts limités au site et à ceux portant le *nonce* de la requête, aucune ressource externe (polices, icônes et éditeur Trix sont locaux) ; autres en-têtes : HSTS, `X-Frame-Options`, `Referrer-Policy`, `Permissions-Policy`, `nosniff` ;
 - double authentification, clés d'accès, codes de secours ; mots de passe hachés (`auto`) ;
 - journal d'activité (`/admin/journal`), conservé 12 mois (`app:audit:purger`) ;
-- déploiement : un e-mail récapitulatif part vers tous les comptes développeur à chaque mise à jour, réussie ou non ;
+- mise à jour : un e-mail récapitulatif part vers tous les comptes développeur à chaque mise à jour, réussie ou non ;
 - RGPD : export des données et suppression/anonymisation du compte depuis l'espace connecté.
+
+## Conformité
+
+Consentements enregistrés (CGV, création de compte), factures numérotées, droit à l'image, purge des comptes inactifs et dossier RGPD (registre des traitements, sous-traitants, violations, demandes de droits, charte) : voir **[docs/conformite/](docs/conformite/README.md)**, qui liste aussi ce qu'il reste à faire côté club.
 
 ## Exploitation
 
-Voir **[docs/EXPLOITATION.md](docs/EXPLOITATION.md)** : mise en production, déploiement et retour arrière, tâches planifiées, sauvegardes et restauration, supervision, procédure en cas d'incident.
+Voir **[docs/EXPLOITATION.md](docs/EXPLOITATION.md)** : mise en production, mise à jour, sauvegardes et retour arrière automatique, tâches planifiées, sauvegardes et restauration, supervision, procédure en cas d'incident.
 
 Fichiers de référence : [`deploy/nginx.conf.example`](deploy/nginx.conf.example), [`public/.htaccess`](public/.htaccess) (Apache), [`deploy/backup.sh`](deploy/backup.sh), [`deploy/crontab.example`](deploy/crontab.example).
 

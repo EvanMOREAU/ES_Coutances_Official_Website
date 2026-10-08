@@ -114,12 +114,15 @@ final class ShopFlowTest extends DatabaseTestCase
             'checkout[nom]' => 'Martin',
             'checkout[email]' => 'alice@test.local',
             'checkout[modePaiement]' => Commande::PAIEMENT_ESPECES,
+            'checkout[cgv]' => true,
         ]);
         $this->client->submit($form);
 
         $commande = $this->em->getRepository(Commande::class)->findOneBy(['email' => 'alice@test.local']);
         self::assertNotNull($commande);
         self::assertSame(5000, $commande->getTotalCentimes());
+        self::assertNotNull($commande->getCgvAcceptedAt());
+        self::assertSame(\App\Legal\LegalVersion::CURRENT, $commande->getCgvVersion());
         self::assertSame($user->getId(), $commande->getUser()?->getId());
         self::assertResponseRedirects(sprintf('/boutique/commande/%s/%s', $commande->getReference(), $commande->getToken()));
         self::assertSame(3, $this->em->find(ArticleVariante::class, $variante->getId())->getStock());

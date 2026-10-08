@@ -27,7 +27,7 @@ final class RoutePermissions
     ];
 
     /** Routes déjà réservées aux développeurs par leur contrôleur. */
-    private const DEV_PREFIXES = [];
+    private const DEV_PREFIXES = ['admin_dev_'];
 
     /** Préfixe de route => ressource du catalogue. */
     private const RESOURCES = [
@@ -101,7 +101,9 @@ final class RoutePermissions
         'admin_deploy_index'           => 'deploiement.voir',
         'admin_deploy_check'           => 'deploiement.voir',
         'admin_deploy_status'          => 'deploiement.voir',
+        'admin_deploy_pending'         => 'deploiement.voir',
         'admin_deploy_start'           => 'deploiement.lancer',
+        'admin_deploy_backup_purge'    => 'deploiement.lancer',
         'admin_journal_index'          => 'journal.voir',
         'admin_journal_show'           => 'journal.voir',
         'admin_journal_export'         => 'journal.exporter',

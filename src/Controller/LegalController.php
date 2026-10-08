@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Legal\LegalVersion;
 use App\Repository\ContactSettingsRepository;
 use App\Repository\PageContenuRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -27,6 +28,7 @@ final class LegalController extends AbstractController
         #[Autowire('%env(LEGAL_ASSOCIATION_ID)%')] private readonly string $associationId,
         #[Autowire('%env(LEGAL_HOST)%')] private readonly string $host,
         #[Autowire('%env(LEGAL_CONSUMER_MEDIATOR)%')] private readonly string $mediator,
+        #[Autowire('%env(LEGAL_DPO_CONTACT)%')] private readonly string $dpo,
     ) {
     }
 
@@ -67,6 +69,9 @@ final class LegalController extends AbstractController
             'association_id' => $this->associationId,
             'host'           => $this->host,
             'mediator'       => $this->mediator,
+            'dpo'            => $this->dpo,
+            'legal_version'  => LegalVersion::CURRENT,
+            'legal_date'     => LegalVersion::date(),
         ]);
     }
 }

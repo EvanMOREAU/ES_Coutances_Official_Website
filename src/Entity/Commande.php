@@ -136,6 +136,20 @@ class Commande
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $payeeLe = null;
 
+    /** Numéro de facture, séquentiel et sans trou (FAC-AAAA-00001), attribué à l'encaissement. */
+    #[ORM\Column(length: 20, unique: true, nullable: true)]
+    private ?string $numeroFacture = null;
+
+    /** Preuve de l'acceptation des conditions de vente : date, version du texte et adresse IP. */
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $cgvAcceptedAt = null;
+
+    #[ORM\Column(length: 20, nullable: true)]
+    private ?string $cgvVersion = null;
+
+    #[ORM\Column(length: 45, nullable: true)]
+    private ?string $cgvAcceptedIp = null;
+
     /** @var Collection<int, CommandeLigne> */
     #[ORM\OneToMany(targetEntity: CommandeLigne::class, mappedBy: 'commande', cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $lignes;
@@ -299,6 +313,42 @@ class Commande
     public function getPayeeLe(): ?\DateTimeImmutable
     {
         return $this->payeeLe;
+    }
+
+    public function getNumeroFacture(): ?string
+    {
+        return $this->numeroFacture;
+    }
+
+    public function setNumeroFacture(?string $numeroFacture): static
+    {
+        $this->numeroFacture = $numeroFacture;
+
+        return $this;
+    }
+
+    public function getCgvAcceptedAt(): ?\DateTimeImmutable
+    {
+        return $this->cgvAcceptedAt;
+    }
+
+    public function getCgvVersion(): ?string
+    {
+        return $this->cgvVersion;
+    }
+
+    public function getCgvAcceptedIp(): ?string
+    {
+        return $this->cgvAcceptedIp;
+    }
+
+    public function enregistrerAcceptationCgv(string $version, ?string $ip): static
+    {
+        $this->cgvAcceptedAt = new \DateTimeImmutable();
+        $this->cgvVersion    = $version;
+        $this->cgvAcceptedIp = $ip;
+
+        return $this;
     }
 
     public function getTotalCentimes(): int

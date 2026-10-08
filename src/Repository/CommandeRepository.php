@@ -25,6 +25,25 @@ class CommandeRepository extends ServiceEntityRepository
         return $reference;
     }
 
+    /**
+     * Prochain numéro de facture : FAC-AAAA-00001, séquentiel et sans trou au sein de l'année.
+     * À appeler dans la transaction qui enregistre le numéro (contrainte d'unicité en base).
+     */
+    public function prochainNumeroFacture(?\DateTimeImmutable $at = null): string
+    {
+        $annee  = ($at ?? new \DateTimeImmutable())->format('Y');
+        $prefix = sprintf('FAC-%s-', $annee);
+        $dernier = $this->createQueryBuilder('c')
+            ->select('MAX(c.numeroFacture)')
+            ->andWhere('c.numeroFacture LIKE :p')
+            ->setParameter('p', $prefix.'%')
+            ->getQuery()->getSingleScalarResult();
+
+        $suite = null === $dernier ? 1 : (int) substr((string) $dernier, \strlen($prefix)) + 1;
+
+        return sprintf('%s%05d', $prefix, $suite);
+    }
+
     /** Commandes à traiter par le club (à préparer, ou prêtes mais pas encore retirées). */
     public function countAPreparer(): int
     {

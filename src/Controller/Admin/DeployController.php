@@ -6,14 +6,15 @@ use App\Entity\Deployment;
 use App\Entity\User;
 use App\Repository\DeploymentRepository;
 use App\Service\Deploy\DeployService;
+use App\Service\Deploy\UpdateWatcher;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-/** Mise à jour du site depuis le dépôt GitHub. */
-#[Route('/admin/deploiement')]
+/** Mise à jour du site depuis le dépôt GitHub (menu « Mise à jour »). */
+#[Route('/admin/mise-a-jour')]
 class DeployController extends AbstractController
 {
     #[Route('', name: 'admin_deploy_index', methods: ['GET'])]
@@ -30,6 +31,21 @@ class DeployController extends AbstractController
             'pages'       => max(1, (int) ceil($result['total'] / DeploymentRepository::PER_PAGE)),
             'total'       => $result['total'],
         ]);
+    }
+
+    /**
+     * Nombre de mises à jour disponibles, interrogé en arrière-plan par toutes les pages du back-office pour
+     * afficher la pastille du menu. Déclenche (au plus toutes les 10 minutes) la vérification auprès de GitHub.
+     */
+    #[Route('/etat', name: 'admin_deploy_pending', methods: ['GET'])]
+    public function pending(UpdateWatcher $watcher, DeployService $deploy): JsonResponse
+    {
+        $watcher->refreshIfStale();
+
+        return $this->json(
+            ['pending' => $watcher->pendingCount(), 'running' => null !== $deploy->running()],
+            headers: ['Cache-Control' => 'no-store'],
+        );
     }
 
     /** Interroge GitHub (git fetch) et renvoie les commits pas encore déployés. */
@@ -78,6 +94,21 @@ class DeployController extends AbstractController
             'log'      => $deployment->getLog(),
             'to'       => $deployment->getToCommit() ? substr($deployment->getToCommit(), 0, 7) : null,
         ]);
+    }
+
+    /** Supprime l'archive des fichiers d'une mise à jour, après validation de l'utilisateur (la sauvegarde de la base est conservée). */
+    #[Route('/{id}/sauvegarde/supprimer', name: 'admin_deploy_backup_purge', requirements: ['id' => '\d+'], methods: ['POST'])]
+    public function purgeBackup(Deployment $deployment, Request $request, DeployService $deploy): JsonResponse
+    {
+        $this->denyUnlessCsrf($request);
+
+        try {
+            $deploy->purgeFilesBackup($deployment);
+        } catch (\RuntimeException $e) {
+            return $this->json(['error' => $e->getMessage()], Response::HTTP_CONFLICT);
+        }
+
+        return $this->json(['ok' => true]);
     }
 
     private function denyUnlessCsrf(Request $request): void

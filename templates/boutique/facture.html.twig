@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Facture {{ commande.numeroFacture }} — ES Coutances</title>
+<style>
+body { font: 14px/1.5 Arial, Helvetica, sans-serif; color: #111; margin: 0; background: #f3f3f3; }
+.sheet { max-width: 800px; margin: 24px auto; background: #fff; padding: 48px; box-shadow: 0 2px 12px rgba(0,0,0,.1); }
+h1 { font-size: 26px; margin: 0 0 4px; }
+.meta { color: #555; margin-bottom: 32px; }
+.parties { display: flex; justify-content: space-between; gap: 32px; margin-bottom: 32px; }
+.parties h2 { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: #777; margin: 0 0 6px; }
+table { width: 100%; border-collapse: collapse; margin-bottom: 16px; }
+th, td { padding: 8px 6px; border-bottom: 1px solid #ddd; text-align: left; }
+th { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: #555; }
+td.num, th.num { text-align: right; white-space: nowrap; }
+tfoot td { border-bottom: 0; font-weight: 700; }
+.mentions { margin-top: 32px; font-size: 12px; color: #555; }
+.actions { max-width: 800px; margin: 16px auto 0; text-align: right; }
+.actions button, .actions a { font: inherit; padding: 8px 14px; margin-left: 8px; border: 1px solid #999; background: #fff; cursor: pointer; text-decoration: none; color: #111; border-radius: 4px; }
+@media print { body { background: #fff; } .sheet { box-shadow: none; margin: 0; padding: 0; max-width: none; } .actions { display: none; } }
+</style>
+</head>
+<body>
+<div class="actions">
+  <a href="{{ path('boutique_commande_suivi', {reference: commande.reference, token: commande.token}) }}">Retour à la commande</a>
+  <button type="button" id="print-invoice">Imprimer / enregistrer en PDF</button>
+</div>
+<div class="sheet">
+  <h1>Facture {{ commande.numeroFacture }}</h1>
+  <p class="meta">Commande {{ commande.reference }} du {{ commande.createdAt|date('d/m/Y') }} · réglée le {{ commande.payeeLe|date('d/m/Y') }} ({{ commande.modePaiementLabel|lower }})</p>
+
+  <div class="parties">
+    <div>
+      <h2>Vendeur</h2>
+      <strong>Entente Sportive Coutançaise</strong><br>
+      {% if contact and contact.adresse %}{{ contact.adresse|nl2br }}<br>{% else %}Coutances (50200){% endif %}
+      {% if association_id %}{{ association_id }}<br>{% endif %}
+      {% if contact and contact.email %}{{ contact.email }}{% endif %}
+    </div>
+    <div>
+      <h2>Client</h2>
+      <strong>{{ commande.nomComplet }}</strong><br>
+      {{ commande.email }}
+    </div>
+  </div>
+
+  <table>
+    <thead><tr><th>Désignation</th><th class="num">Qté</th><th class="num">Prix unitaire</th><th class="num">Total</th></tr></thead>
+    <tbody>
+    {% for ligne in commande.lignes %}
+      <tr><td>{{ ligne.libelle }}</td><td class="num">{{ ligne.quantite }}</td><td class="num">{{ ligne.prixCentimes|money }}</td><td class="num">{{ ligne.totalCentimes|money }}</td></tr>
+    {% endfor %}
+    </tbody>
+    <tfoot>
+      {% if commande.reductionCentimes > 0 %}
+        <tr><td colspan="3">Sous-total</td><td class="num">{{ commande.sousTotalCentimes|money }}</td></tr>
+        <tr><td colspan="3">Réduction</td><td class="num">− {{ commande.reductionCentimes|money }}</td></tr>
+      {% endif %}
+      <tr><td colspan="3">Total à payer (TTC)</td><td class="num">{{ commande.totalCentimes|money }}</td></tr>
+    </tfoot>
+  </table>
+
+  <p class="mentions">
+    {% if vat_mention %}{{ vat_mention }}.<br>{% endif %}
+    Facture acquittée. Aucun escompte pour paiement anticipé. Document à conserver : le Club en garde un exemplaire pendant 10 ans.
+  </p>
+</div>
+<script nonce="{{ csp_nonce() }}">
+document.getElementById('print-invoice').addEventListener('click', function () { window.print(); });
+</script>
+</body>
+</html>

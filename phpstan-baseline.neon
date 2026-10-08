@@ -91,12 +91,6 @@ parameters:
 			path: src/Repository/MessageRepository.php
 
 		-
-			message: '#^Empty array passed to foreach\.$#'
-			identifier: foreach.emptyArray
-			count: 1
-			path: src/Security/RoutePermissions.php
-
-		-
 			message: '#^Call to function is_array\(\) with Doctrine\\ORM\\Mapping\\FieldMapping will always evaluate to false\.$#'
 			identifier: function.impossibleType
 			count: 2

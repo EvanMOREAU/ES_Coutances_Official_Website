@@ -8,9 +8,9 @@
     <div class="flex flex-wrap items-start justify-between gap-4 mb-5">
         <div>
             <h1 class="text-2xl font-black" style="font-family:'Barlow Condensed',sans-serif;">Changelog</h1>
-            <p class="text-sm text-admin-text-muted">Chaque amélioration, correction et nouveauté du site, version après version. Le journal vient du fichier <code>changelog/releases.yaml</code> : il se met à jour à chaque déploiement.</p>
+            <p class="text-sm text-admin-text-muted">Chaque amélioration, correction et nouveauté du site, version après version. Le journal vient du fichier <code>changelog/releases.yaml</code> : il se met à jour à chaque mise à jour du site.</p>
         </div>
-        {% if can('deploiement.voir') %}<a href="{{ path('admin_deploy_index') }}" class="admin-btn admin-btn-ghost"><i class="fa-solid fa-rocket"></i> Déploiement</a>{% endif %}
+        {% if can('deploiement.voir') %}<a href="{{ path('admin_deploy_index') }}" class="admin-btn admin-btn-ghost"><i class="fa-solid fa-rocket"></i> Mise à jour</a>{% endif %}
     </div>
 
     <div class="cl-stats">

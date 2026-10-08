@@ -4,28 +4,34 @@
 {% block legal_content %}
 <p>L'ES Coutances attache de l'importance à la protection de vos données personnelles et applique le Règlement général sur la protection des données (RGPD) ainsi que la loi « Informatique et Libertés ».</p>
 
-<h2>Responsable du traitement</h2>
-<p>Entente Sportive Coutançaise{% if contact and contact.email %} — <a href="mailto:{{ contact.email }}">{{ contact.email }}</a>{% endif %}.</p>
+<h2>Responsable du traitement et contact</h2>
+<p>Entente Sportive Coutançaise{% if association_id %} — {{ association_id }}{% endif %}{% if contact and contact.adresse %}, {{ contact.adresse|replace({"\n": ' ', "\r": ''}) }}{% endif %}{% if contact and contact.email %} — {{ contact.email }}{% endif %}.</p>
+{% if dpo %}<p>Contact pour les questions relatives aux données personnelles : {{ dpo }}.</p>{% endif %}
 
-<h2>Données collectées et finalités</h2>
+<h2>Données collectées, finalités et durées de conservation</h2>
 <table>
   <thead><tr><th>Traitement</th><th>Données</th><th>Base légale</th><th>Conservation</th></tr></thead>
   <tbody>
-    <tr><td>Formulaire de contact</td><td>Nom, e-mail, téléphone, message</td><td>Intérêt légitime (répondre à votre demande)</td><td>Le temps du traitement de la demande</td></tr>
-    <tr><td>Compte et espace famille</td><td>Identité, e-mail, mot de passe (chiffré), famille et licenciés rattachés, messages</td><td>Exécution du contrat d'adhésion</td><td>Durée de l'adhésion, puis suppression sur demande</td></tr>
-    <tr><td>Licences, inscriptions, règlements</td><td>Identité, date de naissance, catégorie, informations d'adhésion, montants</td><td>Obligation légale et contrat</td><td>Durée de l'adhésion puis délais comptables légaux (10 ans pour les pièces comptables)</td></tr>
-    <tr><td>Boutique</td><td>Identité, coordonnées, commande, mode de règlement</td><td>Exécution du contrat de vente</td><td>Commande conservée 10 ans (obligation comptable)</td></tr>
+    <tr><td>Formulaire de contact</td><td>Nom, e-mail, téléphone, message</td><td>Intérêt légitime (répondre à votre demande)</td><td>Le temps du traitement de la demande, puis 6 mois au plus</td></tr>
+    <tr><td>Compte boutique</td><td>Identité, e-mail, mot de passe (haché)</td><td>Exécution du contrat ; acceptation à la création du compte</td><td>Jusqu'à la suppression du compte ; anonymisation automatique après 3 ans sans connexion</td></tr>
+    <tr><td>Compte famille / licencié, adhésions</td><td>Identité, coordonnées, date et lieu de naissance, catégorie, informations de licence, messages</td><td>Exécution du contrat d'adhésion</td><td>Durée de l'adhésion, puis anonymisation après 3 ans d'inactivité ; les pièces comptables sont conservées 10 ans sous forme anonymisée</td></tr>
+    <tr><td>Droit à l'image</td><td>Autorisation ou refus de publication de photos/vidéos, date de l'autorisation</td><td>Consentement du licencié ou de son représentant légal</td><td>Jusqu'au retrait du consentement ou à la fin de l'adhésion</td></tr>
+    <tr><td>Boutique et facturation</td><td>Identité, e-mail, commande, mode de règlement, preuve d'acceptation des conditions (date, version, adresse IP)</td><td>Exécution du contrat de vente ; obligation légale</td><td>10 ans (obligations comptables et commerciales)</td></tr>
     <tr><td>Sécurité</td><td>Adresse IP, journal des connexions et des actions des comptes de gestion</td><td>Intérêt légitime (sécurité du site)</td><td>12 mois</td></tr>
+    <tr><td>Messagerie</td><td>Messages et documents échangés</td><td>Exécution du contrat</td><td>Documents joints : 14 jours ; messages : jusqu'à la suppression du compte</td></tr>
   </tbody>
 </table>
-<p>Les données concernant des mineurs sont fournies et gérées par leurs représentants légaux.</p>
+<p>Les données concernant des mineurs sont fournies et gérées par leurs représentants légaux, dont l'autorisation est recueillie à l'inscription. Ce site ne traite aucune donnée de santé ; si le Club devait recueillir un certificat médical, il le conserverait selon les règles de la fédération et uniquement pour la durée nécessaire.</p>
 
-<h2>Destinataires</h2>
-<p>Vos données sont accessibles aux seuls membres habilités du club. Elles ne sont ni vendues ni cédées. Des prestataires techniques interviennent en sous-traitance : hébergeur du site, service de paiement <strong>HelloAsso</strong> (paiement par carte, qui reçoit les informations nécessaires au règlement) et, selon les besoins, la Fédération Française de Football pour la délivrance des licences.</p>
+<h2>Destinataires et sous-traitants</h2>
+<p>Vos données sont accessibles aux seuls membres habilités du club. Elles ne sont ni vendues ni cédées. Des prestataires interviennent en sous-traitance, liés au Club par un engagement conforme à l'article 28 du RGPD : l'hébergeur du site{% if host %} ({{ host }}){% endif %}, le prestataire d'envoi d'e-mails, le service de paiement HelloAsso (qui reçoit les informations nécessaires au règlement par carte) et, pour la délivrance des licences, la Fédération Française de Football. Si un prestataire devait transférer des données hors de l'Union européenne, ce serait avec les garanties prévues par le RGPD (décision d'adéquation ou clauses contractuelles types).</p>
 
 <h2>Vos droits</h2>
-<p>Vous disposez d'un droit d'accès, de rectification, d'effacement, de limitation, d'opposition et de portabilité. Depuis votre espace connecté (<em>Paramètres &gt; Confidentialité</em>), vous pouvez <strong>télécharger vos données</strong> et <strong>supprimer votre compte</strong>. Pour toute autre demande, écrivez-nous{% if contact and contact.email %} à <a href="mailto:{{ contact.email }}">{{ contact.email }}</a>{% endif %}. En cas de difficulté, vous pouvez saisir la CNIL (<a href="https://www.cnil.fr" rel="noopener">cnil.fr</a>).</p>
+<p>Vous disposez d'un droit d'accès, de rectification, d'effacement, de limitation, d'opposition et de portabilité, du droit de retirer à tout moment un consentement (par exemple le droit à l'image) et de définir des directives sur le sort de vos données après votre décès. Depuis votre espace connecté (Paramètres &gt; Confidentialité), vous pouvez télécharger vos données et supprimer votre compte. Pour toute autre demande, écrivez-nous{% if dpo %} à {{ dpo }}{% elseif contact and contact.email %} à {{ contact.email }}{% endif %} : nous répondons dans un délai d'un mois. En cas de difficulté, vous pouvez saisir la CNIL (<a href="https://www.cnil.fr/fr/plaintes" rel="noopener" target="_blank">cnil.fr/fr/plaintes</a>).</p>
 
 <h2>Sécurité</h2>
-<p>Connexion chiffrée (HTTPS), mots de passe chiffrés, double authentification disponible (application, e-mail, clé d'accès), contrôle des droits par profil et journal des actions.</p>
+<p>Connexion chiffrée (HTTPS), mots de passe hachés, double authentification (application, e-mail, clé d'accès) obligatoire pour les comptes de gestion, contrôle des droits par profil, journal des actions, sauvegardes. En cas de violation de données susceptible d'engendrer un risque pour vos droits, le Club en informe la CNIL sous 72 heures et, si le risque est élevé, les personnes concernées.</p>
+
+<h2>Cookies et contenus de tiers</h2>
+<p>Voir la page <a href="{{ path('app_legal_cookies') }}">Cookies</a> : aucun traceur publicitaire ni de mesure d'audience, et la carte OpenStreetMap n'est chargée qu'à votre demande.</p>
 {% endblock %}

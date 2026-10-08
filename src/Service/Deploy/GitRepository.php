@@ -142,6 +142,12 @@ class GitRepository
         $this->run(['merge', '--ff-only', 'origin/'.$branch], 120);
     }
 
+    /** Remet le code suivi par Git exactement dans l'état d'un commit (retour arrière d'une mise à jour échouée). */
+    public function resetHard(string $commit): void
+    {
+        $this->run(['reset', '--hard', $commit], 120);
+    }
+
     public function shortHash(?string $hash): string
     {
         return $hash !== null ? substr($hash, 0, 7) : '—';

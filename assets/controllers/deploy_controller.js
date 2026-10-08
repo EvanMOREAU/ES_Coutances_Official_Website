@@ -2,9 +2,10 @@ import { Controller } from '@hotwired/stimulus';
 import { adminConfirm } from '../modal.js';
 
 /**
- * Page « Déploiement » : vérifie les mises à jour disponibles sur GitHub,
- * lance le déploiement et affiche sa progression en direct (le déploiement
- * tourne en arrière-plan côté serveur, on relit son journal toutes les secondes).
+ * Page « Mise à jour » : vérifie les mises à jour disponibles sur GitHub,
+ * lance la mise à jour et affiche sa progression en direct (elle tourne en
+ * arrière-plan côté serveur, on relit son journal toutes les secondes).
+ * Permet aussi de supprimer, après validation, la sauvegarde des fichiers d'une mise à jour.
  */
 export default class extends Controller {
     static targets = ['checkButton', 'deployButton', 'pending', 'pendingList', 'summary', 'console', 'log', 'state', 'result'];
@@ -97,9 +98,9 @@ export default class extends Controller {
 
     async deploy() {
         const ok = await adminConfirm({
-            title: 'Déployer la mise à jour ?',
-            message: 'Le code du site va être mis à jour depuis GitHub, la base de données migrée et le cache vidé. Le site reste accessible, mais quelques secondes de lenteur sont possibles.',
-            confirmLabel: 'Déployer',
+            title: 'Mettre le site à jour ?',
+            message: "La base de données et les fichiers du site vont d'abord être sauvegardés, puis le code sera mis à jour depuis GitHub, la base migrée et le cache vidé. Si une étape échoue, le site est remis automatiquement dans son état d'avant. Le site reste accessible, mais quelques secondes de lenteur sont possibles.",
+            confirmLabel: 'Mettre à jour',
         });
         if (ok) {
             this.start();
@@ -116,6 +117,28 @@ export default class extends Controller {
             this.summaryTarget.textContent = error.message;
             this.summaryTarget.classList.add('is-error');
             this.checkButtonTarget.disabled = false;
+        }
+    }
+
+    /** Supprime l'archive des fichiers d'une mise à jour, après confirmation (la sauvegarde de la base est conservée). */
+    async purge(event) {
+        const { url, failed } = event.params;
+        const ok = await adminConfirm({
+            title: 'Supprimer la sauvegarde des fichiers ?',
+            message: failed
+                ? "Cette mise à jour a échoué. La sauvegarde des fichiers de l'ancienne version sera définitivement supprimée. La sauvegarde de la base de données est conservée."
+                : "Le site fonctionne-t-il correctement avec la nouvelle version ? La sauvegarde des fichiers de l'ancienne version sera définitivement supprimée (retour arrière manuel impossible ensuite). La sauvegarde de la base de données est conservée.",
+            confirmLabel: 'Supprimer',
+            danger: true,
+        });
+        if (!ok) {
+            return;
+        }
+        try {
+            await this.request(url, { method: 'POST' });
+            window.location.reload();
+        } catch (error) {
+            window.alert(error.message);
         }
     }
 
@@ -154,8 +177,8 @@ export default class extends Controller {
         this.resultTarget.replaceChildren();
         const text = document.createElement('span');
         text.textContent = data.status === 'success'
-            ? 'Mise à jour déployée. Rechargez la page pour voir le nouvel état.'
-            : 'Le déploiement a échoué : consultez le journal ci-dessus.';
+            ? 'Mise à jour terminée. Vérifiez le site, puis rechargez cette page pour supprimer la sauvegarde des fichiers depuis l'historique.'
+            : 'La mise à jour a échoué : consultez le journal ci-dessus (le site a été remis dans son état d'avant si le retour arrière a abouti).';
         this.resultTarget.appendChild(text);
 
         const reload = document.createElement('button');

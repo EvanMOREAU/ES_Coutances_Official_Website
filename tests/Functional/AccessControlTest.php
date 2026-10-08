@@ -38,7 +38,7 @@ final class AccessControlTest extends DatabaseTestCase
 
     private function urlFor(Route $route): string
     {
-        $values = ['type' => 'famille', 'action' => 'payer', 'key' => 'liste', 'token' => 'abc', 'reference' => 'REF', 'slug' => 'inconnu'];
+        $values = ['type' => 'famille', 'action' => 'payer', 'key' => 'liste', 'token' => 'abc', 'reference' => 'REF', 'slug' => 'inconnu', 'file' => 'manuel-20260101-000000.sql.gz'];
 
         return preg_replace_callback('/\{(\w+)\}/', static function (array $m) use ($values, $route): string {
             $requirement = $route->getRequirement($m[1]);

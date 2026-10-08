@@ -6,6 +6,7 @@ use App\Entity\ArticleVariante;
 use App\Entity\Commande;
 use App\Entity\CommandeLigne;
 use App\Entity\User;
+use App\Legal\LegalVersion;
 use App\Repository\CodePromoRepository;
 use App\Repository\CommandeRepository;
 use Doctrine\DBAL\LockMode;
@@ -33,7 +34,7 @@ class CommandeService
      * @param array<int, int> $quantites id de variante => quantité
      * @param array{
      *     prenom: string, nom: string, email: string, telephone: ?string, note: ?string, modePaiement: string,
-     *     codePromo?: ?string,
+     *     codePromo?: ?string, cgv?: bool,
      *     livraisonAdresse?: ?string, livraisonComplement?: ?string, livraisonCodePostal?: ?string,
      *     livraisonVille?: ?string, livraisonTelephone?: ?string, livraisonInstructions?: ?string,
      * } $client
@@ -41,14 +42,14 @@ class CommandeService
      * @throws StockInsuffisantException
      * @throws PromoCodeException
      */
-    public function passer(array $quantites, array $client, ?User $user): Commande
+    public function passer(array $quantites, array $client, ?User $user, ?string $clientIp = null): Commande
     {
         if ([] === $quantites) {
             throw new StockInsuffisantException('Votre panier est vide.');
         }
         ksort($quantites); // ordre de verrouillage constant : évite les blocages croisés
 
-        return $this->em->wrapInTransaction(function () use ($quantites, $client, $user): Commande {
+        return $this->em->wrapInTransaction(function () use ($quantites, $client, $user, $clientIp): Commande {
             $commande = (new Commande())
                 ->setReference($this->commandes->nouvelleReference())
                 ->setPrenom($client['prenom'])
@@ -58,6 +59,11 @@ class CommandeService
                 ->setNote($client['note'] ?: null)
                 ->setModePaiement($client['modePaiement'])
                 ->setUser($user);
+
+            // Preuve d'acceptation des conditions de vente (case obligatoire du formulaire).
+            if (!empty($client['cgv'])) {
+                $commande->enregistrerAcceptationCgv(LegalVersion::CURRENT, $clientIp);
+            }
 
             foreach ($quantites as $id => $quantite) {
                 $variante = $this->em->find(ArticleVariante::class, $id);
@@ -152,6 +158,15 @@ class CommandeService
             throw new \DomainException('Une commande annulée ne peut pas être payée.');
         }
         $commande->marquerPayee();
+        $this->numeroter($commande);
+    }
+
+    /** Une facture n'existe qu'une fois la commande encaissée ; son numéro ne change plus ensuite. */
+    private function numeroter(Commande $commande): void
+    {
+        if (null === $commande->getNumeroFacture() && $commande->isPayee()) {
+            $commande->setNumeroFacture($this->commandes->prochainNumeroFacture($commande->getPayeeLe()));
+        }
     }
 
     private function preparer(Commande $commande): void
@@ -169,6 +184,7 @@ class CommandeService
             throw new \DomainException('Cette commande ne peut plus être remise.');
         }
         $commande->marquerPayee();
+        $this->numeroter($commande);
         $commande->setStatut(Commande::STATUT_RETIREE);
     }
 

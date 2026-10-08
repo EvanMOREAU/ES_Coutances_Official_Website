@@ -102,9 +102,61 @@ class Licencie
     #[ORM\Column(length: 180, nullable: true)]
     private ?string $emailIndividuel = null;
 
+    /**
+     * Droit à l'image : null = non renseigné (traité comme un refus), true = autorisation de
+     * publier des photos/vidéos du licencié (site, matchs en direct), false = refus. Pour un mineur,
+     * l'autorisation est donnée par le représentant légal.
+     */
+    #[ORM\Column(nullable: true)]
+    private ?bool $droitImage = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $droitImageAt = null;
+
+    /** Date à laquelle l'autorisation parentale d'inscription a été recueillie (licencié mineur). */
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $autorisationParentaleAt = null;
+
     public function __construct()
     {
         $this->equipes = new ArrayCollection();
+    }
+
+    public function getDroitImage(): ?bool
+    {
+        return $this->droitImage;
+    }
+
+    public function setDroitImage(?bool $droitImage): static
+    {
+        if ($droitImage !== $this->droitImage) {
+            $this->droitImageAt = null === $droitImage ? null : new \DateTimeImmutable();
+        }
+        $this->droitImage = $droitImage;
+
+        return $this;
+    }
+
+    public function getDroitImageAt(): ?\DateTimeImmutable
+    {
+        return $this->droitImageAt;
+    }
+
+    public function getAutorisationParentaleAt(): ?\DateTimeImmutable
+    {
+        return $this->autorisationParentaleAt;
+    }
+
+    public function setAutorisationParentaleAt(?\DateTimeImmutable $at): static
+    {
+        $this->autorisationParentaleAt = $at;
+
+        return $this;
+    }
+
+    public function isMineur(?\DateTimeImmutable $at = null): bool
+    {
+        return null !== $this->dateNaissance && $this->dateNaissance->diff($at ?? new \DateTimeImmutable())->y < 18;
     }
 
     public function __toString(): string

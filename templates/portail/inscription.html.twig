@@ -16,6 +16,11 @@
         <div class="mc-field">{{ form_label(form.plainPassword.first) }}{{ form_widget(form.plainPassword.first) }}{{ form_errors(form.plainPassword.first) }}</div>
         <div class="mc-field">{{ form_label(form.plainPassword.second) }}{{ form_widget(form.plainPassword.second) }}{{ form_errors(form.plainPassword.second) }}</div>
 
+        <div class="mc-field">
+            <label class="mc-check">{{ form_widget(form.consent) }}<span>J'ai lu et j'accepte la <a href="{{ path('app_legal_confidentialite') }}" target="_blank" rel="noopener">politique de confidentialité</a> et les <a href="{{ path('app_legal_cgv') }}" target="_blank" rel="noopener">conditions de vente</a>.</span></label>
+            {{ form_errors(form.consent) }}
+        </div>
+
         <button type="submit" class="mc-submit">Créer mon compte</button>
     {{ form_end(form) }}
 

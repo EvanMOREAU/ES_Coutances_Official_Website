@@ -89,6 +89,20 @@ class LicencieType extends AbstractType
                 'attr'         => ['data-placeholder' => 'Choisir une ou plusieurs équipes'],
                 'required'     => false,
             ])
+            ->add('droitImage', ChoiceType::class, [
+                'label'       => "Droit à l'image",
+                'choices'     => ['Autorisé' => true, 'Refusé' => false],
+                'placeholder' => 'Non renseigné (traité comme un refus)',
+                'required'    => false,
+                'help'        => 'Autorisation de publier des photos/vidéos du licencié (site, matchs en direct). Pour un mineur : celle de son représentant légal, recueillie par écrit.',
+            ])
+            ->add('autorisationParentaleAt', DateType::class, [
+                'label'    => 'Autorisation parentale recueillie le',
+                'widget'   => 'single_text',
+                'input'    => 'datetime_immutable',
+                'required' => false,
+                'help'     => "Licencié mineur : date à laquelle l'autorisation écrite d'inscription du représentant légal a été reçue.",
+            ])
             ->add('statut', StatutChoiceType::class)
         ;
     }

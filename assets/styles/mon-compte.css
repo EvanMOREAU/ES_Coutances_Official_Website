@@ -210,6 +210,14 @@ td a.bouton { padding: 6px 12px; font-size: 12px; box-shadow: none; }
 .mc-field input, .mc-field select, .mc-field textarea { width: 100%; padding: 11px 14px; font: inherit; font-size: 14px; color: var(--mc-text); background: var(--mc-field-bg); border: 1px solid var(--mc-field-border); border-radius: 12px; transition: border-color .15s, box-shadow .15s, background .15s; }
 .mc-field input:focus, .mc-field select:focus, .mc-field textarea:focus { outline: none; background: var(--mc-surface); border-color: var(--mc-red); box-shadow: 0 0 0 4px color-mix(in srgb, var(--mc-red) 16%, transparent); }
 .mc-field ul { list-style: none; margin-top: 6px; font-size: 12.5px; color: var(--mc-ko); }
+
+/* Case à cocher de consentement (création de compte) */
+.mc-field label.mc-check, .mc-check { display: flex; align-items: flex-start; gap: 12px; padding: 12px 14px; font-size: 13.5px; line-height: 1.5; font-weight: 400; margin-bottom: 0; color: var(--mc-text); background: var(--mc-field-bg); border: 1px solid var(--mc-field-border); border-radius: 12px; cursor: pointer; transition: border-color .15s, box-shadow .15s, background .15s; }
+.mc-check:hover { border-color: color-mix(in srgb, var(--mc-red) 45%, var(--mc-field-border)); }
+.mc-check:has(input:checked) { border-color: var(--mc-red); background: color-mix(in srgb, var(--mc-red) 6%, var(--mc-field-bg)); }
+.mc-check:has(input:focus-visible) { box-shadow: 0 0 0 4px color-mix(in srgb, var(--mc-red) 16%, transparent); }
+.mc-field .mc-check input[type=checkbox] { flex: 0 0 auto; width: 20px; height: 20px; margin: 1px 0 0; padding: 0; accent-color: var(--mc-red); cursor: pointer; }
+.mc-check a { color: var(--mc-red); font-weight: 600; text-decoration: underline; text-underline-offset: 2px; }
 .mc-two { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 @media (max-width: 480px) { .mc-two { grid-template-columns: 1fr; } .mc-auth-card { padding: 24px 20px; } }
 .mc-submit { width: 100%; padding: 12px; border: 0; border-radius: 12px; font: inherit; font-size: 14px; font-weight: 600; color: #fff; cursor: pointer; background: linear-gradient(135deg, var(--mc-red), var(--mc-red-dark)); box-shadow: 0 10px 22px -10px color-mix(in srgb, var(--mc-red) 75%, transparent); transition: filter .15s, transform .12s; }
