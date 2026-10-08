@@ -4,7 +4,7 @@
 {% block heading %}Connexion{% endblock %}
 {% block lead %}Accédez à votre compte pour commander à la boutique et suivre vos commandes.{% endblock %}
 
-{% block head_assets %}{{ importmap('portail') }}{% endblock %}
+{% block head_assets %}{{ include('_importmap.html.twig', {entry: 'portail'}) }}{% endblock %}
 
 {% block card %}
     {% for message in app.flashes('success') %}

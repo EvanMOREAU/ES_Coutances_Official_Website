@@ -1,6 +1,9 @@
 {% extends 'boutique/_layout.html.twig' %}
 
 {% block boutique_title %}{{ article.nom }}{% endblock %}
+{% block meta_description %}{% set resume = (article.description ?: "Article de la boutique officielle de l'ES Coutances.")|striptags|trim %}{{ article.nom }} — {{ resume|length > 150 ? resume|slice(0, 150) ~ "…" : resume }}{% endblock %}
+{% block og_type %}product{% endblock %}
+{% block og_image %}{% if article.imageName %}{{ absolute_url(asset('uploads/articles/' ~ article.imageName)) }}{% else %}{{ parent() }}{% endif %}{% endblock %}
 {% block breadcrumb %}<a href="{{ path('boutique_index') }}">Boutique</a> <i class="fa-solid fa-chevron-right"></i> <span>{{ article.nom }}</span>{% endblock %}
 {% block hero_title %}{{ article.nom }}{% endblock %}
 
@@ -94,7 +97,7 @@
     </div>
   </div>
 
-  <script>
+  <script nonce="{{ csp_nonce() }}">
     (function () {
       var form = document.querySelector('[data-shop-form]');
       if (!form) return;

@@ -1,0 +1,25 @@
+{% extends 'club/_layout.html.twig' %}
+
+{% block title %}{{ heading }} — ES Coutances{% endblock %}
+
+{% block body %}
+<section class="page-hero">
+  <div class="container page-hero-inner">
+    <div class="breadcrumb">
+      <a href="{{ path('app_home') }}">Accueil</a>
+      <i class="fa-solid fa-chevron-right"></i>
+      <span>{{ heading }}</span>
+    </div>
+    <h1>{{ heading }}</h1>
+  </div>
+</section>
+
+<section class="page-content">
+  <div class="container">
+    <div class="prose">
+      {% block legal_content %}{% endblock %}
+      <p><em>Dernière mise à jour : octobre 2026.</em></p>
+    </div>
+  </div>
+</section>
+{% endblock %}

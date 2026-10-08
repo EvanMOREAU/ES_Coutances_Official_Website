@@ -59,7 +59,7 @@
             </div>
             <form method="post" action="{{ path(user.emailAuthEnabled ? 'portail_parametres_securite_email_desactiver' : 'portail_parametres_securite_email_activer') }}">
                 <input type="hidden" name="_csrf_token" value="{{ csrf_token(user.emailAuthEnabled ? 'securite_email_desactiver' : 'securite_email_activer') }}">
-                <input type="checkbox" class="mc-switch" {{ user.emailAuthEnabled ? 'checked' }} onchange="this.form.submit()" aria-label="Code de vérification par e-mail">
+                <input type="checkbox" class="mc-switch" {{ user.emailAuthEnabled ? 'checked' }} data-auto-submit aria-label="Code de vérification par e-mail">
             </form>
         </div>
 

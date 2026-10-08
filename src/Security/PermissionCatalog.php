@@ -107,7 +107,12 @@ final class PermissionCatalog
         return in_array($code, self::all(), true);
     }
 
-    /** Ne garde que les codes connus (les données stockées peuvent contenir d'anciens codes). @param iterable<mixed> $codes @return list<string> */
+    /**
+     * Ne garde que les codes connus (les données stockées peuvent contenir d'anciens codes).
+     *
+     * @param iterable<mixed> $codes
+     * @return list<string>
+     */
     public static function sanitize(iterable $codes): array
     {
         $known = array_flip(self::all());

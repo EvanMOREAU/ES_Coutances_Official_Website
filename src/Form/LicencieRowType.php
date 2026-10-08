@@ -26,6 +26,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * les champs obligatoires doivent donc porter leur contrainte explicitement,
  * sous peine de crasher plus loin (setter d'entité non-nullable appelé avec
  * null) au lieu d'afficher une erreur de formulaire.
+ * @extends AbstractType<mixed>
  */
 class LicencieRowType extends AbstractType
 {

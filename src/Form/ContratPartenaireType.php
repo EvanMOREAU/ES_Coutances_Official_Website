@@ -14,7 +14,9 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
-/** Contrat d'un partenaire : intitulé, montant, période, règlements échelonnés et tâches. */
+/** Contrat d'un partenaire : intitulé, montant, période, règlements échelonnés et tâches.
+ * @extends AbstractType<mixed>
+ */
 class ContratPartenaireType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void

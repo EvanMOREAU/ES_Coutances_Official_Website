@@ -1,25 +1,31 @@
-
+# Environnement de développement local : base MariaDB (même version qu'en production) et boîte
+# de réception de test pour les e-mails (Mailpit, interface sur http://localhost:8025).
+#   docker compose up -d
+# Les identifiants correspondent à ceux de .env (DATABASE_URL) et MAILER_DSN.
 services:
-###> doctrine/doctrine-bundle ###
   database:
-    image: postgres:${POSTGRES_VERSION:-16}-alpine
+    image: mariadb:10.11
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-app}
-      # You should definitely change the password in production
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-!ChangeMe!}
-      POSTGRES_USER: ${POSTGRES_USER:-app}
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD:-root}
+      MARIADB_DATABASE: ${MARIADB_DATABASE:-escoutances_symfony}
     healthcheck:
-      test: ["CMD", "pg_isready", "-d", "${POSTGRES_DB:-app}", "-U", "${POSTGRES_USER:-app}"]
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
       timeout: 5s
-      retries: 5
-      start_period: 60s
+      retries: 10
+    ports:
+      - "127.0.0.1:3306:3306"
     volumes:
-      - database_data:/var/lib/postgresql/data:rw
-      # You may use a bind-mounted host directory instead, so that it is harder to accidentally remove the volume and lose all your data!
-      # - ./docker/db/data:/var/lib/postgresql/data:rw
-###< doctrine/doctrine-bundle ###
+      - database_data:/var/lib/mysql:rw
+
+  mailer:
+    image: axllent/mailpit
+    ports:
+      - "127.0.0.1:1025:1025"
+      - "127.0.0.1:8025:8025"
+    environment:
+      MP_SMTP_AUTH_ACCEPT_ANY: 1
+      MP_SMTP_AUTH_ALLOW_INSECURE: 1
 
 volumes:
-###> doctrine/doctrine-bundle ###
   database_data:
-###< doctrine/doctrine-bundle ###

@@ -36,7 +36,13 @@ class AuditLogRepository extends ServiceEntityRepository
         return ['rows' => $rows, 'total' => $total];
     }
 
-    /** @param array<string, string> $filters @return iterable<AuditLog> pour l'export, plafonné */
+    /**
+     * Lignes du journal pour l'export, plafonnées.
+     *
+     * @param array<string, string> $filters
+     *
+     * @return iterable<AuditLog>
+     */
     public function export(array $filters, int $limit = 20000): iterable
     {
         return $this->filtered($filters)->orderBy('a.occurredAt', SortDirection::Descending)->addOrderBy('a.id', SortDirection::Descending)

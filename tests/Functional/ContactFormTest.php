@@ -66,4 +66,24 @@ final class ContactFormTest extends DatabaseTestCase
 
         self::assertEmailCount(0);
     }
+
+    public function testFilledHoneypotIsRejected(): void
+    {
+        $this->submit(['siteWeb' => 'http://spam.example'] + $this->valid());
+
+        self::assertEmailCount(0);
+    }
+
+    public function testTooManyMessagesFromTheSameIpAreThrottled(): void
+    {
+        for ($i = 0; $i < 5; ++$i) {
+            $this->submit($this->valid());
+            self::assertResponseIsSuccessful();
+        }
+
+        $this->submit($this->valid());
+
+        self::assertResponseStatusCodeSame(429);
+        self::assertEmailCount(0);
+    }
 }

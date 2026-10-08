@@ -166,7 +166,11 @@ class SiteVitrineController extends AbstractController
         ]);
     }
 
-    /** Carte « actifs / inactifs » avec barre de répartition. */
+    /**
+     * Carte « actifs / inactifs » avec barre de répartition.
+     *
+     * @return array<string, mixed>
+     */
     private function split(string $key, string $icon, string $title, string $indexRoute, string $newRoute, int $active, int $inactive): array
     {
         return [
@@ -183,6 +187,7 @@ class SiteVitrineController extends AbstractController
         ];
     }
 
+    /** @return array<string, mixed> */
     private function encadrement(MembreRepository $membres, CategorieRepository $categories): array
     {
         $items = [];

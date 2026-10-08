@@ -83,6 +83,11 @@ jobs:
         run: composer test:setup
       - name: Tests
         run: php bin/console cache:warmup --env=test && vendor/bin/phpunit --coverage-text --coverage-clover=var/clover.xml
+      - name: Taux de couverture (seuil minimal COVERAGE_MIN)
+        env:
+          # Seuil bloquant : à relever au fil du temps (mesurer d'abord le taux actuel dans le résumé du job).
+          COVERAGE_MIN: '0'
+        run: php deploy/coverage-check.php var/clover.xml
       - name: Sauvegarde du rapport de couverture
         uses: actions/upload-artifact@v4
         with:

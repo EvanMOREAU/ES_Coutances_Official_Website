@@ -19,7 +19,7 @@ final class PublicPagesTest extends DatabaseTestCase
     /** @return iterable<string, array{string}> */
     public static function publicUrls(): iterable
     {
-        foreach (['/', '/club/encadrement', '/contact', '/boutique', '/boutique/panier', '/admin/login', '/mon-compte/connexion', '/mon-compte/inscription', '/reset-password'] as $url) {
+        foreach (['/', '/club/encadrement', '/contact', '/boutique', '/boutique/panier', '/admin/login', '/mon-compte/connexion', '/mon-compte/inscription', '/reset-password', '/mentions-legales', '/politique-de-confidentialite', '/conditions-de-vente', '/cookies'] as $url) {
             yield $url => [$url];
         }
     }
@@ -67,5 +67,53 @@ final class PublicPagesTest extends DatabaseTestCase
         self::assertResponseIsSuccessful();
         self::assertGreaterThan(0, $crawler->filter('title')->count());
         self::assertStringContainsString('lang="fr"', (string) $this->client->getResponse()->getContent());
+    }
+
+    public function testLegalPageCanBeReplacedFromTheAdmin(): void
+    {
+        $this->em->persist((new PageContenu())->setSlug('mentions-legales')->setTitre('Mentions personnalisées')->setContenu('<p>Texte du club</p>'));
+        $this->em->flush();
+
+        $this->client->request('GET', '/mentions-legales');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('body', 'Texte du club');
+    }
+
+    public function testRobotsTxtPointsToTheSitemapAndHidesPrivateAreas(): void
+    {
+        $this->client->request('GET', '/robots.txt');
+
+        self::assertResponseIsSuccessful();
+        $body = (string) $this->client->getResponse()->getContent();
+        self::assertStringContainsString('Disallow: /admin', $body);
+        self::assertStringContainsString('Sitemap: http://localhost/sitemap.xml', $body);
+    }
+
+    public function testSitemapListsPublicPagesAndShopArticles(): void
+    {
+        $article = $this->createArticle('Maillot domicile');
+        $this->em->persist((new PageContenu())->setSlug('ma-page')->setTitre('Ma page'));
+        $this->em->flush();
+
+        $this->client->request('GET', '/sitemap.xml');
+
+        self::assertResponseIsSuccessful();
+        self::assertResponseHeaderSame('Content-Type', 'application/xml; charset=UTF-8');
+        $xml = (string) $this->client->getResponse()->getContent();
+        self::assertStringContainsString('<loc>http://localhost/contact</loc>', $xml);
+        self::assertStringContainsString('/page/ma-page</loc>', $xml);
+        self::assertStringContainsString('/boutique/article/'.$article->getSlug().'</loc>', $xml);
+        self::assertStringNotContainsString('/admin', $xml);
+    }
+
+    public function testHomePageHasSeoMetadata(): void
+    {
+        $this->client->request('GET', '/');
+
+        self::assertSelectorExists('meta[name=description]');
+        self::assertSelectorExists('link[rel=canonical][href="http://localhost/"]');
+        self::assertSelectorExists('meta[property="og:title"]');
+        self::assertSelectorExists('script[type="application/ld+json"]');
     }
 }

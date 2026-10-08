@@ -80,7 +80,7 @@
   </div>
 </section>
 
-<main class="shop">
+<div class="shop">
   <div class="container">
     {% if boutique_en_maintenance() and is_granted('ROLE_DEV') %}
       <div class="shop-flash warning" role="status">
@@ -100,6 +100,6 @@
 
     {% block shop_body %}{% endblock %}
   </div>
-</main>
-{{ importmap('public') }}
+</div>
+{{ include('_importmap.html.twig', {entry: 'public'}) }}
 {% endblock %}

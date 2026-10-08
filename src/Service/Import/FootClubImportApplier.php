@@ -34,7 +34,7 @@ class FootClubImportApplier
     }
 
     /**
-     * @param array{groups: array<int, array>, summary: array} $preview
+     * @param array{groups: array<int, array<string, mixed>>, summary: array<string, int>} $preview
      *
      * @return array{famillesCreees: int, famillesMisesAJour: int, licenciesCrees: int, licenciesMisAJour: int}
      */

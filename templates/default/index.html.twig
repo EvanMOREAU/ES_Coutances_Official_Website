@@ -1,6 +1,20 @@
 {% extends 'base.html.twig' %}
 
 {% block title %}ES Coutances — Entente Sportive Coutançaise{% endblock %}
+{% block structured_data %}
+  <script type="application/ld+json">{{ {
+    '@context': 'https://schema.org',
+    '@type': 'SportsClub',
+    'name': 'Entente Sportive Coutançaise',
+    'alternateName': 'ES Coutances',
+    'sport': 'Football',
+    'foundingDate': '1961',
+    'url': absolute_url(path('app_home')),
+    'logo': absolute_url(asset('images/logo_hd_trans3_gt.png')),
+    'address': {'@type': 'PostalAddress', 'addressLocality': 'Coutances', 'postalCode': '50200', 'addressRegion': 'Normandie', 'addressCountry': 'FR'},
+    'sameAs': ['https://www.facebook.com/ententesportivecoutancaise', 'https://www.instagram.com/escoutances/']
+  }|json_encode(constant('JSON_UNESCAPED_UNICODE') b-or constant('JSON_UNESCAPED_SLASHES'))|raw }}</script>
+{% endblock %}
 
 {% block stylesheets %}
 <style>
@@ -460,7 +474,7 @@ a.homepage-banner:hover img { transform: scale(1.02); }
 {% endblock %}
 
 {% block javascripts %}
-<script>
+<script nonce="{{ csp_nonce() }}">
 /* ---- Carousel hero ---- */
 (function() {
   const track = document.getElementById('slidesTrack');

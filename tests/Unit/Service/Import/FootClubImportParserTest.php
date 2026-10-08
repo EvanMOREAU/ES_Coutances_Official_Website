@@ -3,6 +3,7 @@
 namespace App\Tests\Unit\Service\Import;
 
 use App\Service\Import\FootClubImportParser;
+use App\Service\Import\FootClubImportRow;
 use App\Tests\Support\FootClubSpreadsheet;
 use PHPUnit\Framework\TestCase;
 
@@ -18,7 +19,12 @@ final class FootClubImportParserTest extends TestCase
         }
     }
 
-    /** @param list<list<string|int|null>> $rows @param list<string> $headers */
+    /**
+     * @param list<list<string|int|null>> $rows
+     * @param list<string>                $headers
+     *
+     * @return list<FootClubImportRow>
+     */
     private function parse(array $rows, array $headers = FootClubSpreadsheet::HEADERS): array
     {
         $this->files[] = $file = FootClubSpreadsheet::create($rows, $headers);

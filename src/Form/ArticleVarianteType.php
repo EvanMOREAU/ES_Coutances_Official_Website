@@ -9,7 +9,9 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-/** Une taille (ou déclinaison) d'un article et son stock. */
+/** Une taille (ou déclinaison) d'un article et son stock.
+ * @extends AbstractType<mixed>
+ */
 class ArticleVarianteType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void

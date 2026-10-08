@@ -36,7 +36,11 @@ class PlanningService
     ) {
     }
 
-    /** Profils d'autorisation proposés dans le formulaire de partage d'un événement. @return list<array{id: int, nom: string}> */
+    /**
+     * Profils d'autorisation proposés dans le formulaire de partage d'un événement.
+     *
+     * @return list<array{id: int, nom: string}>
+     */
     public function profilChoices(): array
     {
         $choices = [];
@@ -47,7 +51,11 @@ class PlanningService
         return $choices;
     }
 
-    /** Comptes du back-office proposés dans le formulaire de partage d'un événement à des personnes précises. @return list<array{id: int, nom: string}> */
+    /**
+     * Comptes du back-office proposés dans le formulaire de partage d'un événement à des personnes précises.
+     *
+     * @return list<array{id: int, nom: string}>
+     */
     public function userChoices(): array
     {
         $choices = [];
@@ -74,7 +82,11 @@ class PlanningService
         return $this->equipes;
     }
 
-    /** Équipes actives proposées dans le formulaire du calendrier. @return list<array{id: int, nom: string, categorie: string}> */
+    /**
+     * Équipes actives proposées dans le formulaire du calendrier.
+     *
+     * @return list<array{id: int, nom: string, categorie: string}>
+     */
     public function equipeChoices(): array
     {
         $choices = [];

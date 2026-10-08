@@ -79,7 +79,7 @@
             {% if page < pages %}<a href="{{ path('admin_journal_index', active|merge({page: page + 1})) }}" class="admin-btn admin-btn-ghost admin-btn-sm">Plus anciennes →</a>{% endif %}
         </nav>
     {% endif %}
-    <script>
+    <script nonce="{{ csp_nonce() }}">
         document.querySelectorAll('.jr-row').forEach(function (row) {
             row.addEventListener('click', function (e) { if (!e.target.closest('a')) window.location.href = row.dataset.href; });
         });

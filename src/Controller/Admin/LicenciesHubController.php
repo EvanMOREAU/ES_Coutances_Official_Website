@@ -143,7 +143,11 @@ class LicenciesHubController extends AbstractController
         ]);
     }
 
-    /** @param list<array{label: string, value: int}> $items */
+    /**
+     * @param list<array{label: string, value: int}> $items
+     *
+     * @return array{type: string, caption: string, items: list<array{label: string, value: int}>, max: int}
+     */
     private function bars(string $caption, array $items): array
     {
         return [

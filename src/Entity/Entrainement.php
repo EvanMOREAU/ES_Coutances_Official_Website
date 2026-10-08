@@ -79,7 +79,11 @@ class Entrainement
     #[ORM\Column(type: 'json')]
     private array $partageRoles = [];
 
-    /** Événement interne uniquement : comptes précis auxquels il est partagé. @var list<int> identifiants de User */
+    /**
+     * Événement interne uniquement : comptes précis auxquels il est partagé.
+     *
+     * @var list<int> identifiants de User
+     */
     #[ORM\Column(type: 'json')]
     private array $partageUtilisateurs = [];
 

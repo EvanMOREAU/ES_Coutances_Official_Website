@@ -16,6 +16,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
  * Formulaire des comptes "staff" (back-office) : développeur, administrateur,
  * éditeur. Les comptes famille/licencié sont créés depuis leurs propres écrans
  * (Familles / Licenciés), pas ici.
+ * @extends AbstractType<mixed>
  */
 class UserType extends AbstractType
 {

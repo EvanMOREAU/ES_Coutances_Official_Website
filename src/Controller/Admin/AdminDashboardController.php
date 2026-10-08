@@ -84,6 +84,7 @@ class AdminDashboardController extends AbstractController
      * saison précédente. Retourne null tant qu'il n'y a pas deux saisons à
      * comparer (pas de donnée fabriquée).
      */
+    /** @return array{value: string, positive: bool, label: string}|null */
     private function licenciesTrend(LicencieRepository $licencieRepository, SaisonRepository $saisonRepository): ?array
     {
         $saisonActive = $saisonRepository->findActive();

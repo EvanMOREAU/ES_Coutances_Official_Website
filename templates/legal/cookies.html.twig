@@ -1,0 +1,18 @@
+{% extends 'legal/_layout.html.twig' %}
+{% set heading = 'Cookies' %}
+
+{% block legal_content %}
+<p>Ce site n'utilise <strong>aucun cookie publicitaire, de mesure d'audience ou de traçage</strong>, et n'inclut aucun contenu de réseau social. Il n'a donc pas à vous demander votre consentement : seuls des cookies strictement nécessaires à son fonctionnement sont déposés.</p>
+
+<h2>Cookies déposés</h2>
+<ul>
+  <li><strong>Session</strong> (<code>PHPSESSID</code>) : conserve votre panier de la boutique et, si vous êtes connecté, votre identification et la protection contre les envois de formulaires frauduleux (jeton CSRF). Supprimé à la fermeture du navigateur.</li>
+  <li><strong>Préférences d'affichage</strong> (espace connecté) : mémorisent par exemple le thème clair ou sombre, stockées dans votre navigateur.</li>
+</ul>
+
+<h2>Contenus de tiers</h2>
+<p>Les polices de caractères et les icônes sont hébergées sur le site lui-même : aucune requête n'est envoyée à Google ou à un autre tiers lorsque vous naviguez. La page Contact affiche un plan <strong>OpenStreetMap</strong> : en l'affichant, votre navigateur contacte les serveurs d'OpenStreetMap, qui peuvent enregistrer votre adresse IP. Lors du paiement par carte, vous êtes redirigé vers <strong>HelloAsso</strong>, qui applique sa propre politique.</p>
+
+<h2>Gérer les cookies</h2>
+<p>Vous pouvez à tout moment supprimer ou bloquer les cookies dans les réglages de votre navigateur ; le panier et la connexion ne fonctionneront alors plus.</p>
+{% endblock %}

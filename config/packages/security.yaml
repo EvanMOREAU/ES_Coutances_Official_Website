@@ -40,6 +40,9 @@ security:
             logout:
                 path: app_logout
                 target: app_login
+            login_throttling:
+                max_attempts: 5
+                interval: '15 minutes'
             two_factor:
                 auth_form_path: 2fa_login
                 check_path: 2fa_login_check
@@ -63,6 +66,9 @@ security:
             logout:
                 path: portail_logout
                 target: app_home
+            login_throttling:
+                max_attempts: 5
+                interval: '15 minutes'
             two_factor:
                 auth_form_path: portail_2fa_login
                 check_path: portail_2fa_login_check

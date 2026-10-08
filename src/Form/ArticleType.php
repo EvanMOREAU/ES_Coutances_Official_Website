@@ -13,6 +13,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\Count;
 use Vich\UploaderBundle\Form\Type\VichImageType;
 
+/** @extends AbstractType<mixed> */
 class ArticleType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void

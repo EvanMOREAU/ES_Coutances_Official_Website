@@ -120,7 +120,11 @@ class HelloAssoClient
         return $settings->isSandbox() ? 'https://api.helloasso-sandbox.com' : 'https://api.helloasso.com';
     }
 
-    /** @return array<string, mixed> */
+    /**
+     * @param array<string, mixed> $options
+     *
+     * @return array<string, mixed>
+     */
     private function request(string $method, HelloAssoSettings $settings, string $path, array $options = []): array
     {
         $options['auth_bearer'] = $this->accessToken($settings);

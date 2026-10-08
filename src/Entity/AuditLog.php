@@ -81,11 +81,19 @@ class AuditLog
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $entityLabel = null;
 
-    /** Valeurs modifiées : champ => [avant, après]. @var array<string, mixed>|null */
+    /**
+     * Valeurs modifiées : champ => [avant, après].
+     *
+     * @var array<string, mixed>|null
+     */
     #[ORM\Column(type: Types::JSON, nullable: true)]
     private ?array $changes = null;
 
-    /** Détails complémentaires (paramètres envoyés, destinataires, motif…). @var array<string, mixed>|null */
+    /**
+     * Détails complémentaires (paramètres envoyés, destinataires, motif…).
+     *
+     * @var array<string, mixed>|null
+     */
     #[ORM\Column(type: Types::JSON, nullable: true)]
     private ?array $context = null;
 

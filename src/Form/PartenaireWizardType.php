@@ -18,6 +18,7 @@ use Vich\UploaderBundle\Form\Type\VichImageType;
  * Création guidée d'un partenaire, en une fois : ses informations, un premier contrat
  * (montant, période, document), ses règlements échelonnés, ses tâches et ses notes.
  * Affiché en plusieurs étapes par templates/admin/partenaire/wizard.html.twig.
+ * @extends AbstractType<mixed>
  */
 class PartenaireWizardType extends AbstractType
 {

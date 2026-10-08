@@ -5,17 +5,18 @@
       data-density="{{ app.user ? app.user.density : 'comfortable' }}">
 <head>
     <meta charset="UTF-8">
+    <meta name="csp-nonce" content="{{ csp_nonce() }}">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" type="image/png" href="{{ asset('images/favicon.png') }}">
     <title>{% block title %}Tableau de bord{% endblock %} — ES Coutances Admin</title>
-    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/trix@2.1.15/dist/trix.css">
-    <script src="https://cdn.jsdelivr.net/npm/trix@2.1.15/dist/trix.umd.min.js" defer></script>
+    <link rel="stylesheet" href="{{ asset('fonts/fonts.css') }}">
+    <link rel="stylesheet" href="{{ asset('vendor/fontawesome/all.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('vendor/trix/trix.css') }}">
+    <script src="{{ asset('vendor/trix/trix.umd.min.js') }}" defer></script>
     <script src="{{ asset('js/admin-trix-upload.js') }}" defer></script>
     {# Page affichée dans la grande fenêtre du « Site vitrine » (iframe) : on masque menu et barre du haut. #}
-    <script>if (window.self !== window.top) document.documentElement.classList.add('is-embedded');</script>
-    {{ importmap('admin') }}
+    <script nonce="{{ csp_nonce() }}">if (window.self !== window.top) document.documentElement.classList.add('is-embedded');</script>
+    {{ include('_importmap.html.twig', {entry: 'admin'}) }}
     <style>
         body { font-family: 'Inter', sans-serif; }
         trix-editor {
@@ -49,7 +50,7 @@
                class="admin-chrome fixed inset-y-0 left-0 z-40 w-64 lg:w-64 -translate-x-full transform border-r border-admin-border bg-admin-surface transition-all duration-200 lg:static lg:translate-x-0 flex flex-col">
             {# Même hauteur fixe que la barre du haut, pour que les deux filets horizontaux soient alignés #}
             <div class="relative flex h-[4.5rem] shrink-0 items-center gap-3 px-5 border-b border-admin-border">
-                <img src="https://raw.githubusercontent.com/CylaosICT/escoutances-images/refs/heads/main/logo_hd_trans3_gt.png" alt="ES Coutances" class="h-9 shrink-0">
+                <img src="{{ asset('images/logo_hd_trans3_gt.png') }}" alt="ES Coutances" class="h-9 shrink-0">
                 <div data-admin-sidebar-target="label">
                     <p class="font-black uppercase tracking-wide text-sm whitespace-nowrap" style="font-family:'Barlow Condensed',sans-serif;">ES Coutances</p>
                     <p class="text-[11px] uppercase tracking-widest text-admin-text-muted whitespace-nowrap">Admin</p>
@@ -267,7 +268,7 @@
 
 {% macro avatar(user, size) %}
     {% if user and user.avatarName %}
-        <img src="{{ asset('uploads/avatars/' ~ user.avatarName) }}" class="{{ size }} rounded-full object-cover">
+        <img src="{{ asset('uploads/avatars/' ~ user.avatarName) }}" class="{{ size }} rounded-full object-cover" alt="">
     {% else %}
         <span class="flex {{ size }} items-center justify-center rounded-full admin-gradient font-bold text-white">
             {{ user ? user.initiale : '?' }}

@@ -1,6 +1,7 @@
 {% extends 'club/_layout.html.twig' %}
 
 {% block title %}{{ page.titre }} — ES Coutances{% endblock %}
+{% block meta_description %}{% set resume = (page.chapo ?: page.contenu ?: "")|striptags|trim %}{% if resume %}{{ resume|length > 155 ? resume|slice(0, 155) ~ "…" : resume }}{% else %}{{ parent() }}{% endif %}{% endblock %}
 
 {% block body %}
 

@@ -13,6 +13,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 /**
  * Adresse de livraison, demandée uniquement quand le code de réduction saisi
  * l'autorise : étape intercalée entre les coordonnées et la confirmation.
+ * @extends AbstractType<mixed>
  */
 class LivraisonType extends AbstractType
 {

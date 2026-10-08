@@ -1,0 +1,10 @@
+{#- Point d'entrée JavaScript + feuilles de style associées. Les CSS ne sont pas importées depuis le JS : AssetMapper les chargerait via une URL « data: », refusée par la Content-Security-Policy. -#}
+{% set styles = {
+    admin: ['styles/admin.css'],
+    portail: ['styles/custom-select.css', 'styles/admin-components.css', 'styles/admin-files.css', 'styles/chat.css', 'styles/planning.css'],
+    public: ['styles/custom-select.css'],
+} %}
+{% for stylesheet in styles[entry] ?? [] %}
+<link rel="stylesheet" href="{{ asset(stylesheet) }}">
+{% endfor %}
+{{ importmap(entry, {nonce: csp_nonce()}) }}

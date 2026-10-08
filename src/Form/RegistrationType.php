@@ -14,7 +14,9 @@ use Symfony\Component\Validator\Constraints\Email;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
-/** Création libre d'un compte boutique (voir RegistrationController) : pas de famille, pas de licencié. */
+/** Création libre d'un compte boutique (voir RegistrationController) : pas de famille, pas de licencié.
+ * @extends AbstractType<mixed>
+ */
 class RegistrationType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void

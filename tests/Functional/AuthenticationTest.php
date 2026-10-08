@@ -39,6 +39,20 @@ final class AuthenticationTest extends DatabaseTestCase
         self::assertResponseRedirects('http://localhost/admin/login');
     }
 
+    public function testRepeatedFailuresLockLoginEvenWithTheRightPassword(): void
+    {
+        $user = $this->createUser(['ROLE_EDITOR']);
+
+        for ($i = 0; $i < 5; ++$i) {
+            $this->submitLogin('/admin/login', (string) $user->getEmail(), 'mauvais-mot-de-passe');
+        }
+        $this->submitLogin('/admin/login', (string) $user->getEmail(), self::PASSWORD);
+
+        self::assertResponseRedirects('http://localhost/admin/login');
+        $this->client->request('GET', '/admin');
+        self::assertResponseRedirects('http://localhost/admin/login');
+    }
+
     public function testUnknownAccountIsRejectedWithTheSameResponse(): void
     {
         $this->submitLogin('/admin/login', 'inconnu@test.local', self::PASSWORD);

@@ -5,7 +5,12 @@ namespace App\Service\Deploy;
 use App\Entity\Deployment;
 use App\Entity\User;
 use App\Repository\DeploymentRepository;
+use App\Service\ProductionChecklist;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mime\Address;
+use Symfony\Component\Mime\Email;
 use Symfony\Component\Process\ExecutableFinder;
 use Symfony\Component\Process\PhpExecutableFinder;
 use Symfony\Component\Process\Process;
@@ -33,6 +38,11 @@ class DeployService
         private readonly EntityManagerInterface $em,
         private readonly string $projectDir,
         private readonly string $kernelEnvironment,
+        private readonly MailerInterface $mailer,
+        private readonly LoggerInterface $logger,
+        private readonly string $mailerFromAddress,
+        private readonly string $mailerFromName,
+        private readonly ProductionChecklist $checklist,
     ) {
     }
 
@@ -77,7 +87,11 @@ class DeployService
         return $status;
     }
 
-    /** Commits en attente d'après les références déjà connues (sans contacter GitHub). */
+    /**
+     * Commits en attente d'après les références déjà connues (sans contacter GitHub).
+     *
+     * @return list<array{hash: string, short: string, author: string, date: \DateTimeImmutable, subject: string}>
+     */
     private function safePending(string $branch): array
     {
         try {
@@ -201,6 +215,13 @@ class DeployService
             $this->step($deployment, 'Vidage du cache');
             $this->exec($deployment, [...$console, 'cache:clear'], 300);
 
+            if ($isProd) {
+                $this->step($deployment, 'Contrôle de la configuration');
+                foreach ($this->checklist->run() as $check) {
+                    $this->log($deployment, sprintf('  %s %s%s', $check['ok'] ? '✓' : '⚠', $check['label'], $check['ok'] ? '' : ' — '.$check['advice']));
+                }
+            }
+
             $this->step($deployment, 'Terminé');
             $this->log($deployment, "\n✓ Mise à jour déployée avec succès.");
             $this->finish($deployment, Deployment::STATUS_SUCCESS);
@@ -313,5 +334,55 @@ class DeployService
     {
         $deployment->setStatus($status)->setFinishedAt(new \DateTimeImmutable());
         $this->em->flush();
+
+        $this->notify($deployment);
+    }
+
+    /**
+     * Prévient par e-mail tous les comptes développeur de l'issue de chaque déploiement : un
+     * déploiement lancé à l'insu de l'équipe (compte compromis) ou raté ne passe pas inaperçu.
+     * Un échec d'envoi ne doit jamais faire échouer le déploiement.
+     */
+    private function notify(Deployment $deployment): void
+    {
+        try {
+            $recipients = array_filter(array_map(
+                static fn (User $user): ?string => $user->getEmail(),
+                $this->em->getRepository(User::class)->createQueryBuilder('u')
+                    ->where('u.roles LIKE :dev')->setParameter('dev', '%ROLE_DEV%')
+                    ->getQuery()->getResult(),
+            ));
+            if ([] === $recipients) {
+                return;
+            }
+
+            $success = Deployment::STATUS_SUCCESS === $deployment->getStatus();
+            $short   = static fn (?string $hash): string => null === $hash ? '—' : substr($hash, 0, 7);
+            $body    = sprintf(
+                "Déploiement n°%d : %s
+
+Lancé par : %s
+Début : %s
+Commit : %s → %s
+
+Journal complet : Administration > Développeur > Déploiement.
+
+Si vous n'êtes pas à l'origine de cette mise à jour, changez immédiatement les mots de passe des comptes développeur.",
+                $deployment->getId(),
+                $success ? 'réussi' : 'ÉCHEC',
+                $deployment->getTriggeredBy() ?? 'inconnu',
+                $deployment->getStartedAt()->format('d/m/Y H:i'),
+                $short($deployment->getFromCommit()),
+                $short($deployment->getToCommit()),
+            );
+
+            $this->mailer->send((new Email())
+                ->from(new Address($this->mailerFromAddress, $this->mailerFromName))
+                ->to(...$recipients)
+                ->subject(sprintf('[ES Coutances] Déploiement %s', $success ? 'réussi' : 'en échec'))
+                ->text($body));
+        } catch (\Throwable $e) {
+            $this->logger->warning('Notification de déploiement non envoyée : {message}', ['message' => $e->getMessage()]);
+        }
     }
 }

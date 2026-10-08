@@ -3,7 +3,7 @@
 {% block title %}Planning{% endblock %}
 
 {% block head_assets %}
-    {{ importmap('portail') }}
+    {{ include('_importmap.html.twig', {entry: 'portail'}) }}
     <style>
         /* La feuille de style du portail réinitialise les titres : on garde la police du calendrier. */
         .pl-layout h2, .pl-layout h3 { font-family: 'Inter', sans-serif; }

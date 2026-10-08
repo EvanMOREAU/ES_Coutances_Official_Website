@@ -15,7 +15,9 @@ use Symfony\Component\Validator\Constraints\Email;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
-/** Coordonnées du client et mode de règlement, à la dernière étape de la commande. */
+/** Coordonnées du client et mode de règlement, à la dernière étape de la commande.
+ * @extends AbstractType<mixed>
+ */
 class CheckoutType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void

@@ -8,7 +8,9 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-/** Nom et description d'un profil ; les autorisations sont cochées dans la matrice (champ permissions[]). */
+/** Nom et description d'un profil ; les autorisations sont cochées dans la matrice (champ permissions[]).
+ * @extends AbstractType<mixed>
+ */
 class ProfilAutorisationType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void

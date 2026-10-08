@@ -1,14 +1,15 @@
 import './stimulus_bootstrap.js';
-import './styles/admin.css';
 import { initCustomSelects } from './custom_select.js';
 import { initCustomDates } from './custom_date.js';
 import { initCustomTimes } from './custom_time.js';
 import { initCustomNumbers } from './custom_number.js';
 import { initCustomCombobox } from './custom_combobox.js';
 import { initConfirmForms } from './modal.js';
+import { initAutoSubmit } from './auto_submit.js';
 
 // Listes déroulantes, sélecteurs de date/heure, champs numériques, combobox « choisir ou créer » et fenêtres de confirmation (data-confirm) personnalisés.
 initConfirmForms();
+initAutoSubmit();
 const initInputs = () => {
     initCustomSelects();
     initCustomDates();
