@@ -177,8 +177,8 @@ export default class extends Controller {
         this.resultTarget.replaceChildren();
         const text = document.createElement('span');
         text.textContent = data.status === 'success'
-            ? 'Mise à jour terminée. Vérifiez le site, puis rechargez cette page pour supprimer la sauvegarde des fichiers depuis l'historique.'
-            : 'La mise à jour a échoué : consultez le journal ci-dessus (le site a été remis dans son état d'avant si le retour arrière a abouti).';
+            ? "Mise à jour terminée. Vérifiez le site, puis rechargez cette page pour supprimer la sauvegarde des fichiers depuis l'historique."
+            : "La mise à jour a échoué : consultez le journal ci-dessus (le site a été remis dans son état d'avant si le retour arrière a abouti).";
         this.resultTarget.appendChild(text);
 
         const reload = document.createElement('button');
