@@ -41,20 +41,53 @@ class ProfilAutorisation
         $this->createdAt = new \DateTimeImmutable();
     }
 
-    public function __toString(): string { return (string) $this->nom; }
+    public function __toString(): string
+    {
+        return (string) $this->nom;
+    }
 
-    public function getId(): ?int { return $this->id; }
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
 
-    public function getNom(): ?string { return $this->nom; }
-    public function setNom(?string $nom): static { $this->nom = $nom; return $this; }
+    public function getNom(): ?string
+    {
+        return $this->nom;
+    }
+    public function setNom(?string $nom): static
+    {
+        $this->nom = $nom;
 
-    public function getDescription(): ?string { return $this->description; }
-    public function setDescription(?string $description): static { $this->description = $description; return $this; }
+        return $this;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+    public function setDescription(?string $description): static
+    {
+        $this->description = $description;
+
+        return $this;
+    }
 
     /** @return list<string> */
-    public function getPermissions(): array { return $this->permissions; }
+    public function getPermissions(): array
+    {
+        return $this->permissions;
+    }
     /** @param iterable<string> $permissions */
-    public function setPermissions(iterable $permissions): static { $this->permissions = PermissionCatalog::sanitize($permissions); return $this; }
+    public function setPermissions(iterable $permissions): static
+    {
+        $this->permissions = PermissionCatalog::sanitize($permissions);
 
-    public function getCreatedAt(): ?\DateTimeImmutable { return $this->createdAt; }
+        return $this;
+    }
+
+    public function getCreatedAt(): ?\DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
 }

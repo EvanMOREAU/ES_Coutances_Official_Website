@@ -113,3 +113,7 @@ yarn-error.log*
 *.rar
 .phpunit.result.cache
 /phpunit.xml
+###> friendsofphp/php-cs-fixer ###
+/.php-cs-fixer.php
+/.php-cs-fixer.cache
+###< friendsofphp/php-cs-fixer ###

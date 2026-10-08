@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>{% block title %}Une erreur est survenue{% endblock %} — ES Coutances</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: #0D0D0D;
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 24px;
+    }
+    .box { max-width: 480px; }
+    .code { font-size: 4rem; font-weight: 800; color: #C8102E; line-height: 1; margin-bottom: 8px; }
+    h1 { font-size: 1.5rem; margin-bottom: 12px; }
+    p { color: #ccc; line-height: 1.6; margin-bottom: 24px; }
+    a { display: inline-block; background: #C8102E; color: #fff; text-decoration: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; }
+    a:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+  </style>
+</head>
+<body>
+  <main class="box">
+    <div class="code">{{ status_code }}</div>
+    <h1>{% block heading %}Une erreur est survenue{% endblock %}</h1>
+    <p>{% block message %}Un problème est survenu de notre côté. Réessayez dans quelques instants ; s'il persiste, contactez le club.{% endblock %}</p>
+    <a href="/">Retour à l'accueil</a>
+  </main>
+</body>
+</html>

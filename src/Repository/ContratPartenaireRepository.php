@@ -6,6 +6,7 @@ use App\Entity\ContratPartenaire;
 use App\Entity\ContratPartenaireTache;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use SortDirection;
 
 /**
  * @extends ServiceEntityRepository<ContratPartenaire>
@@ -35,7 +36,7 @@ class ContratPartenaireRepository extends ServiceEntityRepository
     public function findAvecResteAPayer(int $page = 1, int $perPage = 10): array
     {
         $contrats = $this->createQueryBuilder('c')
-            ->orderBy('c.dateFin', 'ASC')
+            ->orderBy('c.dateFin', SortDirection::Ascending)
             ->getQuery()->getResult();
 
         $avecReste = array_values(array_filter($contrats, static fn (ContratPartenaire $c) => $c->getResteCentimes() > 0));
@@ -59,7 +60,7 @@ class ContratPartenaireRepository extends ServiceEntityRepository
             ->andWhere('t.fait = false');
 
         $total = (int) (clone $qb)->select('COUNT(t.id)')->getQuery()->getSingleScalarResult();
-        $rows  = $qb->orderBy('t.echeance', 'ASC')
+        $rows  = $qb->orderBy('t.echeance', SortDirection::Ascending)
             ->setFirstResult(max(0, $page - 1) * $perPage)->setMaxResults($perPage)
             ->getQuery()->getResult();
 

@@ -71,6 +71,7 @@ class CommandeService
                 }
                 if ($variante->getStock() < $quantite) {
                     $nom = $article->isSansDeclinaison() ? $article->getNom() : sprintf('%s (%s)', $article->getNom(), $variante->getLibelle());
+
                     throw new StockInsuffisantException(
                         $variante->getStock() > 0
                             ? sprintf('Il ne reste que %d exemplaire%s de « %s ».', $variante->getStock(), $variante->getStock() > 1 ? 's' : '', $nom)

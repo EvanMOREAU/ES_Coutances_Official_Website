@@ -26,13 +26,13 @@ final class DefaultController extends AbstractController
         // Slides actifs, triés par ordre
         $slides = $slideRepo->findBy(
             ['actif' => true],
-            ['ordre' => 'ASC']
+            ['ordre' => 'ASC'],
         );
 
         // Partenaires actifs pour le carrousel
         $partenairesCarousel = $partenaireRepo->findBy(
             ['actif' => true],
-            ['ordre' => 'ASC']
+            ['ordre' => 'ASC'],
         );
 
         // Offres d'emploi actives
@@ -47,7 +47,7 @@ final class DefaultController extends AbstractController
         // Cartes "Nous rejoindre" actives, les plus récemment créées en premier
         $rejoindreCards = $rejoindreRepo->findBy(
             ['actif' => true],
-            ['id' => 'DESC']
+            ['id' => 'DESC'],
         );
 
         // Render + cache HTTP 5 minutes

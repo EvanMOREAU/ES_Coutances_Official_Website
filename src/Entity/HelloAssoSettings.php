@@ -49,32 +49,84 @@ class HelloAssoSettings
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $updatedAt = null;
 
-    public function getId(): ?int { return $this->id; }
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
 
-    public function isActif(): bool { return $this->actif; }
-    public function setActif(bool $actif): static { $this->actif = $actif; return $this; }
+    public function isActif(): bool
+    {
+        return $this->actif;
+    }
+    public function setActif(bool $actif): static
+    {
+        $this->actif = $actif;
 
-    public function getEnvironnement(): string { return $this->environnement; }
+        return $this;
+    }
+
+    public function getEnvironnement(): string
+    {
+        return $this->environnement;
+    }
     public function setEnvironnement(string $environnement): static
     {
         $this->environnement = isset(self::ENVIRONNEMENTS[$environnement]) ? $environnement : self::ENV_SANDBOX;
 
         return $this;
     }
-    public function isSandbox(): bool { return self::ENV_SANDBOX === $this->environnement; }
+    public function isSandbox(): bool
+    {
+        return self::ENV_SANDBOX === $this->environnement;
+    }
 
-    public function getClientId(): ?string { return $this->clientId; }
-    public function setClientId(?string $clientId): static { $this->clientId = '' === trim((string) $clientId) ? null : trim((string) $clientId); return $this; }
+    public function getClientId(): ?string
+    {
+        return $this->clientId;
+    }
+    public function setClientId(?string $clientId): static
+    {
+        $this->clientId = '' === trim((string) $clientId) ? null : trim((string) $clientId);
 
-    public function getClientSecretChiffre(): ?string { return $this->clientSecretChiffre; }
-    public function setClientSecretChiffre(?string $value): static { $this->clientSecretChiffre = $value; return $this; }
-    public function hasClientSecret(): bool { return null !== $this->clientSecretChiffre; }
+        return $this;
+    }
 
-    public function getOrganisationSlug(): ?string { return $this->organisationSlug; }
-    public function setOrganisationSlug(?string $slug): static { $this->organisationSlug = '' === trim((string) $slug) ? null : trim((string) $slug); return $this; }
+    public function getClientSecretChiffre(): ?string
+    {
+        return $this->clientSecretChiffre;
+    }
+    public function setClientSecretChiffre(?string $value): static
+    {
+        $this->clientSecretChiffre = $value;
 
-    public function getUpdatedAt(): ?\DateTimeImmutable { return $this->updatedAt; }
-    public function touch(): static { $this->updatedAt = new \DateTimeImmutable(); return $this; }
+        return $this;
+    }
+    public function hasClientSecret(): bool
+    {
+        return null !== $this->clientSecretChiffre;
+    }
+
+    public function getOrganisationSlug(): ?string
+    {
+        return $this->organisationSlug;
+    }
+    public function setOrganisationSlug(?string $slug): static
+    {
+        $this->organisationSlug = '' === trim((string) $slug) ? null : trim((string) $slug);
+
+        return $this;
+    }
+
+    public function getUpdatedAt(): ?\DateTimeImmutable
+    {
+        return $this->updatedAt;
+    }
+    public function touch(): static
+    {
+        $this->updatedAt = new \DateTimeImmutable();
+
+        return $this;
+    }
 
     /** Réglages complets et activés : utilisables pour créer une intention de paiement. */
     public function isUtilisable(): bool

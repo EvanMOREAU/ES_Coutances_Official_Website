@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\CategoriePartenaireRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Catégorie (rôle) d'un partenaire : gold, argent, fournisseur, institutionnel…
@@ -19,6 +20,8 @@ class CategoriePartenaire
     private ?int $id = null;
 
     #[ORM\Column(length: 100)]
+    #[Assert\NotBlank(message: 'Donnez un nom à la catégorie.')]
+    #[Assert\Length(max: 100, maxMessage: 'Maximum 100 caractères.')]
     private ?string $nom = null;
 
     #[ORM\Column]
@@ -29,11 +32,30 @@ class CategoriePartenaire
         return $this->nom ?? '';
     }
 
-    public function getId(): ?int { return $this->id; }
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
 
-    public function getNom(): ?string { return $this->nom; }
-    public function setNom(string $nom): static { $this->nom = $nom; return $this; }
+    public function getNom(): ?string
+    {
+        return $this->nom;
+    }
+    public function setNom(string $nom): static
+    {
+        $this->nom = $nom;
 
-    public function getOrdre(): int { return $this->ordre; }
-    public function setOrdre(int $ordre): static { $this->ordre = $ordre; return $this; }
+        return $this;
+    }
+
+    public function getOrdre(): int
+    {
+        return $this->ordre;
+    }
+    public function setOrdre(int $ordre): static
+    {
+        $this->ordre = $ordre;
+
+        return $this;
+    }
 }

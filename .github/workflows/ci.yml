@@ -1,0 +1,90 @@
+name: CI
+
+on:
+  push:
+    branches: [main, v3]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    name: Qualité du code
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: ctype, iconv, intl, mbstring, pdo_mysql, openssl, zip, gd
+          coverage: none
+          tools: composer:v2
+
+      - name: Cache Composer
+        uses: actions/cache@v4
+        with:
+          path: ~/.composer/cache
+          key: composer-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-
+
+      - run: composer install --no-interaction --no-progress --prefer-dist
+      - run: composer validate --no-check-publish
+      - run: composer audit
+      - name: Style du code
+        run: composer cs
+      - name: Lint (YAML, Twig, conteneur)
+        run: composer lint
+      - name: Analyse statique
+        run: composer stan
+
+  tests:
+    name: Tests automatisés
+    runs-on: ubuntu-latest
+    services:
+      mariadb:
+        image: mariadb:10.11
+        env:
+          MARIADB_ROOT_PASSWORD: root
+          MARIADB_DATABASE: escoutances_symfony
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+    env:
+      APP_ENV: test
+      DATABASE_URL: mysql://root:root@127.0.0.1:3306/escoutances_symfony?serverVersion=10.11.2-MariaDB&charset=utf8mb4
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: ctype, iconv, intl, mbstring, pdo_mysql, openssl, zip, gd
+          coverage: pcov
+          tools: composer:v2
+
+      - name: Cache Composer
+        uses: actions/cache@v4
+        with:
+          path: ~/.composer/cache
+          key: composer-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-
+
+      - run: composer install --no-interaction --no-progress --prefer-dist
+      - name: Compilation Tailwind (requise par AssetMapper)
+        run: php bin/console tailwind:build --env=test
+      - name: Base de données de test (migrations rejouées depuis zéro)
+        run: composer test:setup
+      - name: Tests
+        run: php bin/console cache:warmup --env=test && vendor/bin/phpunit --coverage-text --coverage-clover=var/clover.xml
+      - name: Sauvegarde du rapport de couverture
+        uses: actions/upload-artifact@v4
+        with:
+          name: couverture
+          path: var/clover.xml

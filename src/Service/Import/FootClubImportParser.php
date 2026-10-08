@@ -78,7 +78,7 @@ class FootClubImportParser
         }
 
         if (!isset($columnIndexByField['numeroPersonne'], $columnIndexByField['nom'], $columnIndexByField['prenom'])) {
-            throw new \RuntimeException("Le fichier ne ressemble pas à un export Foot Club (colonnes attendues introuvables : Numéro personne, Nom, Prénom).");
+            throw new \RuntimeException('Le fichier ne ressemble pas à un export Foot Club (colonnes attendues introuvables : Numéro personne, Nom, Prénom).');
         }
 
         $rows = [];
@@ -296,7 +296,7 @@ class FootClubImportParser
                     'level'   => 'conflict',
                     'message' => sprintf(
                         "Ces licenciés étaient jusqu'ici rattachés à %d familles différentes en base : vérifiez le regroupement avant de confirmer.",
-                        count($matchedExistingFamilles)
+                        count($matchedExistingFamilles),
                     ),
                 ];
             } elseif ($existingFamille && isset($matchedExistingFamilles[$existingFamille->getId()])) {

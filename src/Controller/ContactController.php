@@ -52,7 +52,7 @@ class ContactController extends AbstractController
                     htmlspecialchars($data['telephone'] ?? 'Non renseigné'),
                     htmlspecialchars($data['type']),
                     htmlspecialchars($data['sujet']),
-                    nl2br(htmlspecialchars($data['message']))
+                    nl2br(htmlspecialchars($data['message'])),
                 ));
 
             $mailer->send($email);

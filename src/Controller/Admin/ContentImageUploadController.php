@@ -7,7 +7,6 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\String\Slugger\AsciiSlugger;
 
 /**
@@ -34,7 +33,7 @@ class ContentImageUploadController extends AbstractController
             $message = match ($error) {
                 UPLOAD_ERR_INI_SIZE, UPLOAD_ERR_FORM_SIZE => sprintf(
                     'Fichier trop volumineux pour la configuration du serveur (limite actuelle : %s). Réduisez la taille de l\'image ou contactez l\'administrateur du serveur.',
-                    ini_get('upload_max_filesize')
+                    ini_get('upload_max_filesize'),
                 ),
                 UPLOAD_ERR_PARTIAL => 'Le fichier n\'a été envoyé que partiellement, réessayez.',
                 default => 'Fichier invalide (erreur d\'upload).',

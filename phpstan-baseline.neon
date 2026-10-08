@@ -1,0 +1,127 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Cannot use array destructuring on Doctrine\\ORM\\PersistentCollection\|list\<mixed\>\.$#'
+			identifier: offsetAccess.nonArray
+			count: 2
+			path: src/Audit/EntityAuditListener.php
+
+		-
+			message: '#^Instanceof between Doctrine\\ORM\\PersistentCollection\<\(int\|string\), object\> and Doctrine\\ORM\\PersistentCollection will always evaluate to true\.$#'
+			identifier: instanceof.alwaysTrue
+			count: 1
+			path: src/Audit/EntityAuditListener.php
+
+		-
+			message: '#^Method App\\Audit\\EntityAuditListener\:\:identifier\(\) never returns int so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: src/Audit/EntityAuditListener.php
+
+		-
+			message: '#^Property Doctrine\\ORM\\Mapping\\AssociationMapping\:\:\$fieldName \(string\) on left side of \?\? is not nullable\.$#'
+			identifier: nullCoalesce.property
+			count: 1
+			path: src/Audit/EntityAuditListener.php
+
+		-
+			message: '#^Using nullsafe method call on non\-nullable type App\\Entity\\Categorie\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: src/Controller/Admin/CategorieController.php
+
+		-
+			message: '#^Using nullsafe method call on non\-nullable type App\\Entity\\CategoriePartenaire\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: src/Controller/Admin/CategoriePartenaireController.php
+
+		-
+			message: '#^Match expression does not handle remaining value\: string$#'
+			identifier: match.unhandled
+			count: 1
+			path: src/Controller/Admin/CommandeController.php
+
+		-
+			message: '#^Match arm comparison between ''image/webp'' and ''image/webp'' is always true\.$#'
+			identifier: match.alwaysTrue
+			count: 1
+			path: src/Controller/Admin/ContentImageUploadController.php
+
+		-
+			message: '#^Call to an undefined method Symfony\\Component\\HttpFoundation\\File\\File\:\:getClientOriginalName\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Controller/Admin/ContratPartenaireController.php
+
+		-
+			message: '#^Call to an undefined method Symfony\\Component\\HttpFoundation\\File\\File\:\:getClientOriginalName\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Controller/Admin/PartenaireController.php
+
+		-
+			message: '#^Using nullsafe method call on non\-nullable type App\\Entity\\Partenaire\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: src/Controller/Admin/PartenaireController.php
+
+		-
+			message: '#^Using nullsafe method call on non\-nullable type App\\Entity\\SlideCarousel\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: src/Controller/Admin/SlideCarouselController.php
+
+		-
+			message: '#^Offset ''state'' on array\{state\: string\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 2
+			path: src/Controller/BoutiqueController.php
+
+		-
+			message: '#^Parameter \#1 \$array \(list\<string\>\) of array_values is already a list, call has no effect\.$#'
+			identifier: arrayValues.list
+			count: 3
+			path: src/Entity/User.php
+
+		-
+			message: '#^Parameter \#1 \$array \(list\<App\\Entity\\Message\>\) of array_values is already a list, call has no effect\.$#'
+			identifier: arrayValues.list
+			count: 1
+			path: src/Repository/MessageRepository.php
+
+		-
+			message: '#^Empty array passed to foreach\.$#'
+			identifier: foreach.emptyArray
+			count: 1
+			path: src/Security/RoutePermissions.php
+
+		-
+			message: '#^Call to function is_array\(\) with Doctrine\\ORM\\Mapping\\FieldMapping will always evaluate to false\.$#'
+			identifier: function.impossibleType
+			count: 2
+			path: src/Service/FileManager/OrphanFileFinder.php
+
+		-
+			message: '#^Parameter \#1 \$array \(array\{0\: non\-falsy\-string, 1\?\: non\-falsy\-string\}\) of array_values is already a list, call has no effect\.$#'
+			identifier: arrayValues.list
+			count: 1
+			path: src/Service/Notification/NotificationMailer.php
+
+		-
+			message: '#^Property App\\Service\\SiteAdvisor\:\:\$licencies is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: src/Service/SiteAdvisor.php
+
+		-
+			message: '#^Call to an undefined method Symfony\\Component\\Routing\\RouterInterface\:\:matchRequest\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Twig/PermissionExtension.php
+
+		-
+			message: '#^Call to function method_exists\(\) with ''Symfony\\\\Component\\\\Dotenv\\\\Dotenv'' and ''bootEnv'' will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: tests/bootstrap.php

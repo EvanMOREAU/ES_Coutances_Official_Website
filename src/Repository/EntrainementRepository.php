@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\Entrainement;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use SortDirection;
 
 /** @extends ServiceEntityRepository<Entrainement> */
 class EntrainementRepository extends ServiceEntityRepository
@@ -27,8 +28,8 @@ class EntrainementRepository extends ServiceEntityRepository
             ->andWhere('e.date >= :from AND e.date <= :to')
             ->setParameter('from', $from->format('Y-m-d'))
             ->setParameter('to', $to->format('Y-m-d'))
-            ->orderBy('e.date', 'ASC')
-            ->addOrderBy('e.heureDebut', 'ASC');
+            ->orderBy('e.date', SortDirection::Ascending)
+            ->addOrderBy('e.heureDebut', SortDirection::Ascending);
 
         if (null === $categories && null !== $limit) {
             $qb->setMaxResults($limit);
@@ -57,7 +58,7 @@ class EntrainementRepository extends ServiceEntityRepository
             ->andWhere('e.serie = :serie AND e.date >= :from')
             ->setParameter('serie', $serie)
             ->setParameter('from', $from->format('Y-m-d'))
-            ->orderBy('e.date', 'ASC')
+            ->orderBy('e.date', SortDirection::Ascending)
             ->getQuery()->getResult();
     }
 }

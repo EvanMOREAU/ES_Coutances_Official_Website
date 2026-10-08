@@ -5,6 +5,7 @@ namespace App\Form;
 use App\Entity\CategoriePartenaire;
 use App\Entity\Partenaire;
 use Doctrine\ORM\EntityRepository;
+use SortDirection;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -31,7 +32,7 @@ class PartenaireWizardType extends AbstractType
                 'label'         => 'Catégorie',
                 'required'      => false,
                 'placeholder'   => 'Aucune',
-                'query_builder' => static fn (EntityRepository $er) => $er->createQueryBuilder('c')->orderBy('c.ordre', 'ASC'),
+                'query_builder' => static fn (EntityRepository $er) => $er->createQueryBuilder('c')->orderBy('c.ordre', SortDirection::Ascending),
             ])
             ->add('statut', StatutChoiceType::class)
             ->add('contrat', ContratPartenaireType::class, ['mapped' => false, 'label' => false])

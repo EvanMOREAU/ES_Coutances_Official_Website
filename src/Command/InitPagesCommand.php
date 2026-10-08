@@ -50,6 +50,7 @@ class InitPagesCommand extends Command
         }
 
         $this->em->flush();
+
         return Command::SUCCESS;
     }
 }

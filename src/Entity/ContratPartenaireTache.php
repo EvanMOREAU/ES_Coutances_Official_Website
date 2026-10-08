@@ -20,7 +20,10 @@ class ContratPartenaireTache
         $this->locked = $this->fait;
     }
 
-    public function isLocked(): bool { return $this->locked; }
+    public function isLocked(): bool
+    {
+        return $this->locked;
+    }
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -44,20 +47,71 @@ class ContratPartenaireTache
     #[ORM\Column(options: ['default' => 0])]
     private int $ordre = 0;
 
-    public function getId(): ?int { return $this->id; }
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
 
-    public function getContrat(): ?ContratPartenaire { return $this->contrat; }
-    public function setContrat(?ContratPartenaire $contrat): static { $this->contrat = $contrat; return $this; }
+    public function getContrat(): ?ContratPartenaire
+    {
+        return $this->contrat;
+    }
+    public function setContrat(?ContratPartenaire $contrat): static
+    {
+        $this->contrat = $contrat;
 
-    public function getTitre(): ?string { return $this->titre; }
-    public function setTitre(?string $titre): static { if ($this->locked) { return $this; } $this->titre = $titre; return $this; }
+        return $this;
+    }
 
-    public function getEcheance(): ?\DateTimeImmutable { return $this->echeance; }
-    public function setEcheance(?\DateTimeImmutable $echeance): static { if ($this->locked) { return $this; } $this->echeance = $echeance; return $this; }
+    public function getTitre(): ?string
+    {
+        return $this->titre;
+    }
+    public function setTitre(?string $titre): static
+    {
+        if ($this->locked) {
+            return $this;
+        } $this->titre = $titre;
 
-    public function isFait(): bool { return $this->fait; }
-    public function setFait(bool $fait): static { if ($this->locked) { return $this; } $this->fait = $fait; return $this; }
+        return $this;
+    }
 
-    public function getOrdre(): int { return $this->ordre; }
-    public function setOrdre(int $ordre): static { if ($this->locked) { return $this; } $this->ordre = $ordre; return $this; }
+    public function getEcheance(): ?\DateTimeImmutable
+    {
+        return $this->echeance;
+    }
+    public function setEcheance(?\DateTimeImmutable $echeance): static
+    {
+        if ($this->locked) {
+            return $this;
+        } $this->echeance = $echeance;
+
+        return $this;
+    }
+
+    public function isFait(): bool
+    {
+        return $this->fait;
+    }
+    public function setFait(bool $fait): static
+    {
+        if ($this->locked) {
+            return $this;
+        } $this->fait = $fait;
+
+        return $this;
+    }
+
+    public function getOrdre(): int
+    {
+        return $this->ordre;
+    }
+    public function setOrdre(int $ordre): static
+    {
+        if ($this->locked) {
+            return $this;
+        } $this->ordre = $ordre;
+
+        return $this;
+    }
 }

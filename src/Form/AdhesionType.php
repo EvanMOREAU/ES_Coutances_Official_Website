@@ -5,6 +5,7 @@ namespace App\Form;
 use App\Entity\Adhesion;
 use App\Entity\Licencie;
 use App\Entity\Saison;
+use SortDirection;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
@@ -24,7 +25,7 @@ class AdhesionType extends AbstractType
                 ->add('licencie', EntityType::class, [
                     'class'         => Licencie::class,
                     'choice_label'  => static fn (Licencie $l) => sprintf('%s %s (%s)', $l->getNom(), $l->getPrenom(), $l->getFamille()),
-                    'query_builder' => static fn ($repo) => $repo->createQueryBuilder('l')->orderBy('l.nom', 'ASC')->addOrderBy('l.prenom', 'ASC'),
+                    'query_builder' => static fn ($repo) => $repo->createQueryBuilder('l')->orderBy('l.nom', SortDirection::Ascending)->addOrderBy('l.prenom', SortDirection::Ascending),
                     'label'         => 'Licencié',
                     'required'      => false,
                     'placeholder'   => 'Choisir un licencié',

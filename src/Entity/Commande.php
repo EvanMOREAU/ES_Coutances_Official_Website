@@ -147,34 +147,102 @@ class Commande
         $this->token     = bin2hex(random_bytes(20));
     }
 
-    public function getId(): ?int { return $this->id; }
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
 
-    public function getReference(): ?string { return $this->reference; }
-    public function setReference(string $reference): static { $this->reference = $reference; return $this; }
+    public function getReference(): ?string
+    {
+        return $this->reference;
+    }
+    public function setReference(string $reference): static
+    {
+        $this->reference = $reference;
 
-    public function getToken(): ?string { return $this->token; }
+        return $this;
+    }
 
-    public function getUser(): ?User { return $this->user; }
-    public function setUser(?User $user): static { $this->user = $user; return $this; }
+    public function getToken(): ?string
+    {
+        return $this->token;
+    }
 
-    public function getPrenom(): ?string { return $this->prenom; }
-    public function setPrenom(string $prenom): static { $this->prenom = $prenom; return $this; }
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+    public function setUser(?User $user): static
+    {
+        $this->user = $user;
 
-    public function getNom(): ?string { return $this->nom; }
-    public function setNom(string $nom): static { $this->nom = $nom; return $this; }
+        return $this;
+    }
 
-    public function getNomComplet(): string { return trim($this->prenom . ' ' . $this->nom); }
+    public function getPrenom(): ?string
+    {
+        return $this->prenom;
+    }
+    public function setPrenom(string $prenom): static
+    {
+        $this->prenom = $prenom;
 
-    public function getEmail(): ?string { return $this->email; }
-    public function setEmail(string $email): static { $this->email = $email; return $this; }
+        return $this;
+    }
 
-    public function getTelephone(): ?string { return $this->telephone; }
-    public function setTelephone(?string $telephone): static { $this->telephone = $telephone; return $this; }
+    public function getNom(): ?string
+    {
+        return $this->nom;
+    }
+    public function setNom(string $nom): static
+    {
+        $this->nom = $nom;
 
-    public function getNote(): ?string { return $this->note; }
-    public function setNote(?string $note): static { $this->note = $note; return $this; }
+        return $this;
+    }
 
-    public function getStatut(): string { return $this->statut; }
+    public function getNomComplet(): string
+    {
+        return trim($this->prenom . ' ' . $this->nom);
+    }
+
+    public function getEmail(): ?string
+    {
+        return $this->email;
+    }
+    public function setEmail(string $email): static
+    {
+        $this->email = $email;
+
+        return $this;
+    }
+
+    public function getTelephone(): ?string
+    {
+        return $this->telephone;
+    }
+    public function setTelephone(?string $telephone): static
+    {
+        $this->telephone = $telephone;
+
+        return $this;
+    }
+
+    public function getNote(): ?string
+    {
+        return $this->note;
+    }
+    public function setNote(?string $note): static
+    {
+        $this->note = $note;
+
+        return $this;
+    }
+
+    public function getStatut(): string
+    {
+        return $this->statut;
+    }
     public function setStatut(string $statut): static
     {
         if (!isset(self::STATUTS[$statut])) {
@@ -184,9 +252,15 @@ class Commande
 
         return $this;
     }
-    public function getStatutLabel(): string { return self::STATUTS[$this->statut]; }
+    public function getStatutLabel(): string
+    {
+        return self::STATUTS[$this->statut];
+    }
 
-    public function getModePaiement(): string { return $this->modePaiement; }
+    public function getModePaiement(): string
+    {
+        return $this->modePaiement;
+    }
     public function setModePaiement(string $modePaiement): static
     {
         if (!isset(self::MODES_PAIEMENT[$modePaiement])) {
@@ -196,11 +270,23 @@ class Commande
 
         return $this;
     }
-    public function getModePaiementLabel(): string { return self::MODES_PAIEMENT[$this->modePaiement]; }
+    public function getModePaiementLabel(): string
+    {
+        return self::MODES_PAIEMENT[$this->modePaiement];
+    }
 
-    public function getReglement(): string { return $this->reglement; }
-    public function getReglementLabel(): string { return self::REGLEMENTS[$this->reglement]; }
-    public function isPayee(): bool { return self::REGLEMENT_PAYE === $this->reglement; }
+    public function getReglement(): string
+    {
+        return $this->reglement;
+    }
+    public function getReglementLabel(): string
+    {
+        return self::REGLEMENTS[$this->reglement];
+    }
+    public function isPayee(): bool
+    {
+        return self::REGLEMENT_PAYE === $this->reglement;
+    }
 
     public function marquerPayee(): static
     {
@@ -210,9 +296,15 @@ class Commande
         return $this;
     }
 
-    public function getPayeeLe(): ?\DateTimeImmutable { return $this->payeeLe; }
+    public function getPayeeLe(): ?\DateTimeImmutable
+    {
+        return $this->payeeLe;
+    }
 
-    public function getTotalCentimes(): int { return $this->totalCentimes; }
+    public function getTotalCentimes(): int
+    {
+        return $this->totalCentimes;
+    }
 
     /** Total des lignes, avant application de la réduction. */
     public function getSousTotalCentimes(): int
@@ -220,9 +312,18 @@ class Commande
         return array_sum($this->lignes->map(static fn (CommandeLigne $l) => $l->getTotalCentimes())->toArray());
     }
 
-    public function getCodePromo(): ?CodePromo { return $this->codePromo; }
-    public function getCodePromoCode(): ?string { return $this->codePromoCode; }
-    public function getReductionCentimes(): int { return $this->reductionCentimes; }
+    public function getCodePromo(): ?CodePromo
+    {
+        return $this->codePromo;
+    }
+    public function getCodePromoCode(): ?string
+    {
+        return $this->codePromoCode;
+    }
+    public function getReductionCentimes(): int
+    {
+        return $this->reductionCentimes;
+    }
 
     /** Applique (ou retire, avec null) un code de réduction et recalcule le total. */
     public function appliquerReduction(?CodePromo $codePromo, int $reductionCentimes): static
@@ -235,13 +336,34 @@ class Commande
         return $this;
     }
 
-    public function isLivraisonDemandee(): bool { return $this->livraisonDemandee; }
-    public function getLivraisonAdresse(): ?string { return $this->livraisonAdresse; }
-    public function getLivraisonComplement(): ?string { return $this->livraisonComplement; }
-    public function getLivraisonCodePostal(): ?string { return $this->livraisonCodePostal; }
-    public function getLivraisonVille(): ?string { return $this->livraisonVille; }
-    public function getLivraisonTelephone(): ?string { return $this->livraisonTelephone; }
-    public function getLivraisonInstructions(): ?string { return $this->livraisonInstructions; }
+    public function isLivraisonDemandee(): bool
+    {
+        return $this->livraisonDemandee;
+    }
+    public function getLivraisonAdresse(): ?string
+    {
+        return $this->livraisonAdresse;
+    }
+    public function getLivraisonComplement(): ?string
+    {
+        return $this->livraisonComplement;
+    }
+    public function getLivraisonCodePostal(): ?string
+    {
+        return $this->livraisonCodePostal;
+    }
+    public function getLivraisonVille(): ?string
+    {
+        return $this->livraisonVille;
+    }
+    public function getLivraisonTelephone(): ?string
+    {
+        return $this->livraisonTelephone;
+    }
+    public function getLivraisonInstructions(): ?string
+    {
+        return $this->livraisonInstructions;
+    }
 
     /** Enregistre l'adresse de livraison fournie par le client (code promo « bon de livraison »). */
     public function setLivraison(
@@ -263,13 +385,27 @@ class Commande
         return $this;
     }
 
-    public function getHelloAssoCheckoutIntentId(): ?int { return $this->helloAssoCheckoutIntentId; }
-    public function setHelloAssoCheckoutIntentId(?int $id): static { $this->helloAssoCheckoutIntentId = $id; return $this; }
+    public function getHelloAssoCheckoutIntentId(): ?int
+    {
+        return $this->helloAssoCheckoutIntentId;
+    }
+    public function setHelloAssoCheckoutIntentId(?int $id): static
+    {
+        $this->helloAssoCheckoutIntentId = $id;
 
-    public function getCreatedAt(): ?\DateTimeImmutable { return $this->createdAt; }
+        return $this;
+    }
+
+    public function getCreatedAt(): ?\DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
 
     /** @return Collection<int, CommandeLigne> */
-    public function getLignes(): Collection { return $this->lignes; }
+    public function getLignes(): Collection
+    {
+        return $this->lignes;
+    }
 
     public function addLigne(CommandeLigne $ligne): static
     {
@@ -293,7 +429,10 @@ class Commande
     }
 
     /** Commande encore en cours (ni retirée ni annulée). */
-    public function isEnCours(): bool { return $this->isAnnulable(); }
+    public function isEnCours(): bool
+    {
+        return $this->isAnnulable();
+    }
 
     /** Le client doit encore régler quelque chose. */
     public function isReglementDu(): bool

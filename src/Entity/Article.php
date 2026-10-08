@@ -8,6 +8,7 @@ use App\Repository\ArticleRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use SortDirection;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\String\Slugger\AsciiSlugger;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -66,7 +67,7 @@ class Article
 
     /** @var Collection<int, ArticleVariante> */
     #[ORM\OneToMany(targetEntity: ArticleVariante::class, mappedBy: 'article', cascade: ['persist', 'remove'], orphanRemoval: true)]
-    #[ORM\OrderBy(['ordre' => 'ASC', 'id' => 'ASC'])]
+    #[ORM\OrderBy(['ordre' => SortDirection::Ascending, 'id' => SortDirection::Ascending])]
     #[Assert\Valid]
     private Collection $variantes;
 
@@ -75,15 +76,37 @@ class Article
         $this->variantes = new ArrayCollection();
     }
 
-    public function __toString(): string { return $this->nom ?? ''; }
+    public function __toString(): string
+    {
+        return $this->nom ?? '';
+    }
 
-    public function getId(): ?int { return $this->id; }
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
 
-    public function getNom(): ?string { return $this->nom; }
-    public function setNom(?string $nom): static { $this->nom = $nom; return $this; }
+    public function getNom(): ?string
+    {
+        return $this->nom;
+    }
+    public function setNom(?string $nom): static
+    {
+        $this->nom = $nom;
 
-    public function getSlug(): ?string { return $this->slug; }
-    public function setSlug(string $slug): static { $this->slug = $slug; return $this; }
+        return $this;
+    }
+
+    public function getSlug(): ?string
+    {
+        return $this->slug;
+    }
+    public function setSlug(string $slug): static
+    {
+        $this->slug = $slug;
+
+        return $this;
+    }
 
     /** Base de slug ; l'unicité est garantie par ArticleRepository::uniqueSlug(). */
     public function slugBase(): string
@@ -91,16 +114,43 @@ class Article
         return (new AsciiSlugger('fr'))->slug((string) $this->nom)->lower()->toString() ?: 'article';
     }
 
-    public function getDescription(): ?string { return $this->description; }
-    public function setDescription(?string $description): static { $this->description = $description; return $this; }
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+    public function setDescription(?string $description): static
+    {
+        $this->description = $description;
 
-    public function getPrixCentimes(): int { return $this->prixCentimes; }
-    public function setPrixCentimes(int $prixCentimes): static { $this->prixCentimes = max(0, $prixCentimes); return $this; }
+        return $this;
+    }
 
-    public function getImageName(): ?string { return $this->imageName; }
-    public function setImageName(?string $imageName): static { $this->imageName = $imageName; return $this; }
+    public function getPrixCentimes(): int
+    {
+        return $this->prixCentimes;
+    }
+    public function setPrixCentimes(?int $prixCentimes): static
+    {
+        $this->prixCentimes = max(0, $prixCentimes ?? 0);
 
-    public function getImageFile(): ?File { return $this->imageFile; }
+        return $this;
+    }
+
+    public function getImageName(): ?string
+    {
+        return $this->imageName;
+    }
+    public function setImageName(?string $imageName): static
+    {
+        $this->imageName = $imageName;
+
+        return $this;
+    }
+
+    public function getImageFile(): ?File
+    {
+        return $this->imageFile;
+    }
     public function setImageFile(?File $imageFile = null): void
     {
         $this->imageFile = $imageFile;
@@ -109,14 +159,33 @@ class Article
         }
     }
 
-    public function getUpdatedAt(): ?\DateTimeImmutable { return $this->updatedAt; }
-    public function setUpdatedAt(?\DateTimeImmutable $updatedAt): static { $this->updatedAt = $updatedAt; return $this; }
+    public function getUpdatedAt(): ?\DateTimeImmutable
+    {
+        return $this->updatedAt;
+    }
+    public function setUpdatedAt(?\DateTimeImmutable $updatedAt): static
+    {
+        $this->updatedAt = $updatedAt;
 
-    public function getCategorie(): ?CategorieArticle { return $this->categorie; }
-    public function setCategorie(?CategorieArticle $categorie): static { $this->categorie = $categorie; return $this; }
+        return $this;
+    }
+
+    public function getCategorie(): ?CategorieArticle
+    {
+        return $this->categorie;
+    }
+    public function setCategorie(?CategorieArticle $categorie): static
+    {
+        $this->categorie = $categorie;
+
+        return $this;
+    }
 
     /** @return Collection<int, ArticleVariante> */
-    public function getVariantes(): Collection { return $this->variantes; }
+    public function getVariantes(): Collection
+    {
+        return $this->variantes;
+    }
 
     public function addVariante(ArticleVariante $variante): static
     {
@@ -140,9 +209,15 @@ class Article
         return array_sum($this->variantes->map(static fn (ArticleVariante $v) => $v->getStock())->toArray());
     }
 
-    public function isDisponible(): bool { return $this->getStockTotal() > 0; }
+    public function isDisponible(): bool
+    {
+        return $this->getStockTotal() > 0;
+    }
 
-    public function isActif(): bool { return self::STATUT_ACTIVE === $this->getStatut(); }
+    public function isActif(): bool
+    {
+        return self::STATUT_ACTIVE === $this->getStatut();
+    }
 
     /** Activer / désactiver d'un clic : désactivé = archivé (conservé mais masqué de la boutique). */
     public function setActif(bool $actif): static

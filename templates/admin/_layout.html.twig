@@ -251,7 +251,7 @@
     </button>
 {% endmacro %}
 
-{% macro nav_link(route, prefix, icon, label, exact, badge, live, badge_title) %}
+{% macro nav_link(route, prefix, icon, label, exact = false, badge = 0, live = false, badge_title = '') %}
     {% set current = app.request.attributes.get('_route') %}
     {% set prefixes = prefix is iterable ? prefix : [prefix] %}
     {% set active = prefixes|filter(p => exact ? current == p : current starts with p)|length > 0 %}

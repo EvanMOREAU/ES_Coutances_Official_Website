@@ -40,15 +40,37 @@ class ContratPartenaireDocument
         $this->createdAt = new \DateTimeImmutable();
     }
 
-    public function getId(): ?int { return $this->id; }
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
 
-    public function getContrat(): ?ContratPartenaire { return $this->contrat; }
-    public function setContrat(?ContratPartenaire $contrat): static { $this->contrat = $contrat; return $this; }
+    public function getContrat(): ?ContratPartenaire
+    {
+        return $this->contrat;
+    }
+    public function setContrat(?ContratPartenaire $contrat): static
+    {
+        $this->contrat = $contrat;
 
-    public function getFichierName(): ?string { return $this->fichierName; }
-    public function setFichierName(?string $fichierName): static { $this->fichierName = $fichierName; return $this; }
+        return $this;
+    }
 
-    public function getFichierFile(): ?File { return $this->fichierFile; }
+    public function getFichierName(): ?string
+    {
+        return $this->fichierName;
+    }
+    public function setFichierName(?string $fichierName): static
+    {
+        $this->fichierName = $fichierName;
+
+        return $this;
+    }
+
+    public function getFichierFile(): ?File
+    {
+        return $this->fichierFile;
+    }
     public function setFichierFile(?File $fichierFile = null): void
     {
         $this->fichierFile = $fichierFile;
@@ -57,8 +79,19 @@ class ContratPartenaireDocument
         }
     }
 
-    public function getNomOriginal(): ?string { return $this->nomOriginal; }
-    public function setNomOriginal(?string $nomOriginal): static { $this->nomOriginal = $nomOriginal; return $this; }
+    public function getNomOriginal(): ?string
+    {
+        return $this->nomOriginal;
+    }
+    public function setNomOriginal(?string $nomOriginal): static
+    {
+        $this->nomOriginal = $nomOriginal;
 
-    public function getCreatedAt(): ?\DateTimeImmutable { return $this->createdAt; }
+        return $this;
+    }
+
+    public function getCreatedAt(): ?\DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
 }

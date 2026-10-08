@@ -43,6 +43,7 @@ class GitRepository
 
         if (!$process->isSuccessful()) {
             $message = trim($process->getErrorOutput() ?: $process->getOutput());
+
             throw new \RuntimeException($message !== '' ? $message : 'git '.$args[0].' a échoué.');
         }
 
@@ -67,7 +68,7 @@ class GitRepository
 
         $current = $this->run(['rev-parse', '--abbrev-ref', 'HEAD'], 15);
         if ($current === 'HEAD') {
-            throw new \RuntimeException("Le dépôt est en « HEAD détaché » : définissez DEPLOY_BRANCH dans .env.local.");
+            throw new \RuntimeException('Le dépôt est en « HEAD détaché » : définissez DEPLOY_BRANCH dans .env.local.');
         }
 
         return $current;

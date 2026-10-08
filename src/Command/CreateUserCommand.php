@@ -25,10 +25,10 @@ class CreateUserCommand extends Command
     protected function configure(): void
     {
         $this
-            ->addArgument('email',    InputArgument::REQUIRED, 'Email')
+            ->addArgument('email', InputArgument::REQUIRED, 'Email')
             ->addArgument('password', InputArgument::REQUIRED, 'Mot de passe')
-            ->addArgument('nom',      InputArgument::REQUIRED, 'Nom complet')
-            ->addArgument('role',     InputArgument::OPTIONAL, 'ROLE_ADMIN ou ROLE_EDITOR', 'ROLE_EDITOR');
+            ->addArgument('nom', InputArgument::REQUIRED, 'Nom complet')
+            ->addArgument('role', InputArgument::OPTIONAL, 'ROLE_ADMIN ou ROLE_EDITOR', 'ROLE_EDITOR');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

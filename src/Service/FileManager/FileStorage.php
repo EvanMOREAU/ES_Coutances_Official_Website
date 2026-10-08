@@ -145,6 +145,7 @@ class FileStorage
                 // Un montage dont le dossier n'existe pas encore (aucun document envoyé) : liste vide.
                 return new ResolvedPath($rootKey.'/'.$mountKey, null, $rootKey, false, $readOnly, true, $root['private'], true, $filter);
             }
+
             throw new FileManagerException('Dossier introuvable.');
         }
 

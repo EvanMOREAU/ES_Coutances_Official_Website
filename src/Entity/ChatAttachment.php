@@ -71,16 +71,46 @@ class ChatAttachment
         $this->expiresAt = $this->createdAt->add(new \DateInterval(self::RETENTION));
     }
 
-    public function getId(): ?int { return $this->id; }
-    public function getMessage(): Message { return $this->message; }
-    public function getOwner(): ?User { return $this->owner; }
-    public function getName(): string { return $this->name; }
-    public function getPath(): string { return $this->path; }
-    public function getSize(): int { return $this->size; }
-    public function isTemporary(): bool { return $this->temporary; }
-    public function getExpiresAt(): \DateTimeImmutable { return $this->expiresAt; }
-    public function getPurgedAt(): ?\DateTimeImmutable { return $this->purgedAt; }
-    public function getCreatedAt(): \DateTimeImmutable { return $this->createdAt; }
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+    public function getMessage(): Message
+    {
+        return $this->message;
+    }
+    public function getOwner(): ?User
+    {
+        return $this->owner;
+    }
+    public function getName(): string
+    {
+        return $this->name;
+    }
+    public function getPath(): string
+    {
+        return $this->path;
+    }
+    public function getSize(): int
+    {
+        return $this->size;
+    }
+    public function isTemporary(): bool
+    {
+        return $this->temporary;
+    }
+    public function getExpiresAt(): \DateTimeImmutable
+    {
+        return $this->expiresAt;
+    }
+    public function getPurgedAt(): ?\DateTimeImmutable
+    {
+        return $this->purgedAt;
+    }
+    public function getCreatedAt(): \DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
 
     public function isExpired(?\DateTimeImmutable $now = null): bool
     {

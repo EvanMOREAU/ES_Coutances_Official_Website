@@ -8,8 +8,8 @@ use App\Repository\FileFavoriteRepository;
 use App\Service\FileManager\FileManagerException;
 use App\Service\FileManager\FileStorage;
 use App\Service\FileManager\OrphanFileFinder;
-use App\Service\FileManager\UserDocumentSpace;
 use App\Service\FileManager\ResolvedPath;
+use App\Service\FileManager\UserDocumentSpace;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
@@ -18,7 +18,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 /**
  * Gestionnaire de fichiers du back-office (voir FileStorage pour ce qui est exposé).
@@ -338,7 +337,7 @@ class FileManagerController extends AbstractController
                 'fichiers-du-site' => 'Fichiers',
                 default            => $segment,
             }
-            : $segment;
+        : $segment;
     }
 
     /**

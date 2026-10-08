@@ -48,30 +48,95 @@ class Deployment
         $this->startedAt = new \DateTimeImmutable();
     }
 
-    public function getId(): ?int { return $this->id; }
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
 
-    public function getStatus(): string { return $this->status; }
-    public function setStatus(string $status): static { $this->status = $status; return $this; }
-    public function isRunning(): bool { return $this->status === self::STATUS_RUNNING; }
+    public function getStatus(): string
+    {
+        return $this->status;
+    }
+    public function setStatus(string $status): static
+    {
+        $this->status = $status;
 
-    public function getStartedAt(): \DateTimeImmutable { return $this->startedAt; }
+        return $this;
+    }
+    public function isRunning(): bool
+    {
+        return $this->status === self::STATUS_RUNNING;
+    }
 
-    public function getFinishedAt(): ?\DateTimeImmutable { return $this->finishedAt; }
-    public function setFinishedAt(?\DateTimeImmutable $finishedAt): static { $this->finishedAt = $finishedAt; return $this; }
+    public function getStartedAt(): \DateTimeImmutable
+    {
+        return $this->startedAt;
+    }
 
-    public function getFromCommit(): ?string { return $this->fromCommit; }
-    public function setFromCommit(?string $fromCommit): static { $this->fromCommit = $fromCommit; return $this; }
+    public function getFinishedAt(): ?\DateTimeImmutable
+    {
+        return $this->finishedAt;
+    }
+    public function setFinishedAt(?\DateTimeImmutable $finishedAt): static
+    {
+        $this->finishedAt = $finishedAt;
 
-    public function getToCommit(): ?string { return $this->toCommit; }
-    public function setToCommit(?string $toCommit): static { $this->toCommit = $toCommit; return $this; }
+        return $this;
+    }
 
-    public function getTriggeredBy(): ?string { return $this->triggeredBy; }
-    public function setTriggeredBy(?string $triggeredBy): static { $this->triggeredBy = $triggeredBy; return $this; }
+    public function getFromCommit(): ?string
+    {
+        return $this->fromCommit;
+    }
+    public function setFromCommit(?string $fromCommit): static
+    {
+        $this->fromCommit = $fromCommit;
 
-    public function getStep(): ?string { return $this->step; }
-    public function setStep(?string $step): static { $this->step = $step; return $this; }
+        return $this;
+    }
 
-    public function getLog(): string { return $this->log; }
-    public function appendLog(string $text): static { $this->log .= $text; return $this; }
+    public function getToCommit(): ?string
+    {
+        return $this->toCommit;
+    }
+    public function setToCommit(?string $toCommit): static
+    {
+        $this->toCommit = $toCommit;
+
+        return $this;
+    }
+
+    public function getTriggeredBy(): ?string
+    {
+        return $this->triggeredBy;
+    }
+    public function setTriggeredBy(?string $triggeredBy): static
+    {
+        $this->triggeredBy = $triggeredBy;
+
+        return $this;
+    }
+
+    public function getStep(): ?string
+    {
+        return $this->step;
+    }
+    public function setStep(?string $step): static
+    {
+        $this->step = $step;
+
+        return $this;
+    }
+
+    public function getLog(): string
+    {
+        return $this->log;
+    }
+    public function appendLog(string $text): static
+    {
+        $this->log .= $text;
+
+        return $this;
+    }
 
 }

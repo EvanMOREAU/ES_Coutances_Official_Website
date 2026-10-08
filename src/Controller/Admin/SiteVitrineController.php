@@ -13,11 +13,10 @@ use App\Repository\PageContenuRepository;
 use App\Repository\RejoindreCardRepository;
 use App\Repository\SlideCarouselRepository;
 use App\Service\SiteAdvisor;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 /**
  * Point d'entrée unique de la gestion du site vitrine : un tableau de bord
@@ -54,14 +53,35 @@ class SiteVitrineController extends AbstractController
         $sections = [];
 
         // --- Contenu -------------------------------------------------------
-        $sections[] = $this->split('rejoindre', 'fa-user-plus', 'Nous rejoindre', 'admin_rejoindre_card_index', 'admin_rejoindre_card_new',
-            $cards->count(['actif' => true]), $cards->count(['actif' => false]));
+        $sections[] = $this->split(
+            'rejoindre',
+            'fa-user-plus',
+            'Nous rejoindre',
+            'admin_rejoindre_card_index',
+            'admin_rejoindre_card_new',
+            $cards->count(['actif' => true]),
+            $cards->count(['actif' => false]),
+        );
 
-        $sections[] = $this->split('offres', 'fa-briefcase', "Offres d'emploi", 'admin_offre_emploi_index', 'admin_offre_emploi_new',
-            $offres->count(['actif' => true]), $offres->count(['actif' => false]));
+        $sections[] = $this->split(
+            'offres',
+            'fa-briefcase',
+            "Offres d'emploi",
+            'admin_offre_emploi_index',
+            'admin_offre_emploi_new',
+            $offres->count(['actif' => true]),
+            $offres->count(['actif' => false]),
+        );
 
-        $sections[] = $this->split('carousel', 'fa-images', 'Carousel', 'admin_slide_carousel_index', 'admin_slide_carousel_new',
-            $slides->count(['actif' => true]), $slides->count(['actif' => false]));
+        $sections[] = $this->split(
+            'carousel',
+            'fa-images',
+            'Carousel',
+            'admin_slide_carousel_index',
+            'admin_slide_carousel_new',
+            $slides->count(['actif' => true]),
+            $slides->count(['actif' => false]),
+        );
 
         $derniere = $pages->findBy([], ['updatedAt' => 'DESC', 'id' => 'DESC'], 3);
         $sections[] = [

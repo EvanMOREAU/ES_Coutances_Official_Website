@@ -3,18 +3,19 @@
 namespace App\Service;
 
 use App\Entity\Famille;
-use App\Repository\EntrainementRepository;
-use App\Repository\LicencieRepository;
-use App\Repository\UserRepository;
-use App\Service\Chat\ChatService;
-use App\Service\Notification\NotificationPreferences;
 use App\Entity\NotificationState;
 use App\Entity\User;
 use App\Repository\CommandeRepository;
+use App\Repository\EntrainementRepository;
 use App\Repository\FamilleRepository;
+use App\Repository\LicencieRepository;
 use App\Repository\NotificationStateRepository;
+use App\Repository\UserRepository;
 use App\Security\PermissionChecker;
+use App\Service\Chat\ChatService;
+use App\Service\Notification\NotificationPreferences;
 use Doctrine\ORM\EntityManagerInterface;
+use SortDirection;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
@@ -252,7 +253,7 @@ class AdminNotificationProvider
             $latest = $this->userRepository->createQueryBuilder('u')
                 ->where('u.anonymizedAt IS NULL')
                 ->andWhere("u.roles NOT LIKE '%ROLE_EDITOR%' AND u.roles NOT LIKE '%ROLE_ADMIN%' AND u.roles NOT LIKE '%ROLE_DEV%'")
-                ->orderBy('u.id', 'DESC')
+                ->orderBy('u.id', SortDirection::Descending)
                 ->setMaxResults(3)
                 ->getQuery()
                 ->getResult();

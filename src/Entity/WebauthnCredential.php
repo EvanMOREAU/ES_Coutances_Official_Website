@@ -46,21 +46,59 @@ class WebauthnCredential
         $this->createdAt = new \DateTimeImmutable();
     }
 
-    public function getId(): ?int { return $this->id; }
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
 
-    public function getUser(): ?User { return $this->user; }
-    public function setUser(User $user): static { $this->user = $user; return $this; }
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+    public function setUser(User $user): static
+    {
+        $this->user = $user;
 
-    public function getCredentialId(): ?string { return $this->credentialId; }
-    public function setCredentialId(string $credentialId): static { $this->credentialId = $credentialId; return $this; }
+        return $this;
+    }
 
-    public function getLabel(): ?string { return $this->label; }
-    public function setLabel(string $label): static { $this->label = $label; return $this; }
+    public function getCredentialId(): ?string
+    {
+        return $this->credentialId;
+    }
+    public function setCredentialId(string $credentialId): static
+    {
+        $this->credentialId = $credentialId;
 
-    public function getCreatedAt(): ?\DateTimeImmutable { return $this->createdAt; }
+        return $this;
+    }
 
-    public function getLastUsedAt(): ?\DateTimeImmutable { return $this->lastUsedAt; }
-    public function marquerUtilisee(): static { $this->lastUsedAt = new \DateTimeImmutable(); return $this; }
+    public function getLabel(): ?string
+    {
+        return $this->label;
+    }
+    public function setLabel(string $label): static
+    {
+        $this->label = $label;
+
+        return $this;
+    }
+
+    public function getCreatedAt(): ?\DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
+
+    public function getLastUsedAt(): ?\DateTimeImmutable
+    {
+        return $this->lastUsedAt;
+    }
+    public function marquerUtilisee(): static
+    {
+        $this->lastUsedAt = new \DateTimeImmutable();
+
+        return $this;
+    }
 
     public function getRecord(): CredentialRecord
     {

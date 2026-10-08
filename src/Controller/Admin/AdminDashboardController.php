@@ -61,7 +61,7 @@ class AdminDashboardController extends AbstractController
             ['label' => 'Familles',               'value' => $familleRepository->count([]),                    'icon' => 'users',        'trend' => null, 'permission' => 'famille.voir'],
             ['label' => 'Licenciés actifs',        'value' => $licencieRepository->count(['actif' => true]),    'icon' => 'id-card',      'trend' => $this->licenciesTrend($licencieRepository, $saisonRepository), 'permission' => 'licencie.voir'],
             ['label' => 'Partenaires actifs',      'value' => $partenaireRepository->count(['actif' => true]),  'icon' => 'handshake',    'trend' => null, 'permission' => 'partenaire.voir'],
-            ["label" => "Offres d'emploi actives", 'value' => $offreEmploiRepository->count(['actif' => true]), 'icon' => 'briefcase',    'trend' => null, 'permission' => 'offre_emploi.voir'],
+            ['label' => "Offres d'emploi actives", 'value' => $offreEmploiRepository->count(['actif' => true]), 'icon' => 'briefcase',    'trend' => null, 'permission' => 'offre_emploi.voir'],
             ['label' => 'Membres encadrement',     'value' => $membreRepository->count(['actif' => true]),      'icon' => 'people-group', 'trend' => null, 'permission' => 'membre.voir'],
         ], static fn (array $s) => $permissions->can($s['permission']));
 

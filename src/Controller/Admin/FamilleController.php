@@ -16,7 +16,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/admin/familles')]
 class FamilleController extends AbstractController
@@ -114,7 +113,7 @@ class FamilleController extends AbstractController
                 $this->addFlash('success', sprintf(
                     'Famille "%s" créée avec %d licencié(s). Un email de définition de mot de passe a été envoyé à chaque compte créé.',
                     $famille->getNom(),
-                    count($licencies)
+                    count($licencies),
                 ));
 
                 return $this->redirectToRoute('admin_famille_show', ['id' => $famille->getId()]);

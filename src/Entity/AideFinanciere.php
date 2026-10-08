@@ -35,7 +35,10 @@ class AideFinanciere
         $this->locked = self::STATUT_RECUE === $this->statut;
     }
 
-    public function isLocked(): bool { return $this->locked; }
+    public function isLocked(): bool
+    {
+        return $this->locked;
+    }
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -70,25 +73,92 @@ class AideFinanciere
         return array_keys(self::TYPES);
     }
 
-    public function getId(): ?int { return $this->id; }
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
 
-    public function getAdhesion(): ?Adhesion { return $this->adhesion; }
-    public function setAdhesion(?Adhesion $adhesion): static { $this->adhesion = $adhesion; return $this; }
+    public function getAdhesion(): ?Adhesion
+    {
+        return $this->adhesion;
+    }
+    public function setAdhesion(?Adhesion $adhesion): static
+    {
+        $this->adhesion = $adhesion;
 
-    public function getType(): string { return $this->type; }
-    public function setType(string $type): static { if ($this->locked) { return $this; } $this->type = $type; return $this; }
-    public function getTypeLabel(): string { return self::TYPES[$this->type] ?? $this->type; }
+        return $this;
+    }
 
-    public function getMontantCentimes(): int { return $this->montantCentimes; }
-    public function setMontantCentimes(?int $c): static { if ($this->locked) { return $this; } $this->montantCentimes = max(0, (int) $c); return $this; }
+    public function getType(): string
+    {
+        return $this->type;
+    }
+    public function setType(string $type): static
+    {
+        if ($this->locked) {
+            return $this;
+        } $this->type = $type;
 
-    public function getStatut(): string { return $this->statut; }
-    public function setStatut(string $statut): static { if ($this->locked) { return $this; } $this->statut = $statut; return $this; }
-    public function isRecue(): bool { return self::STATUT_RECUE === $this->statut; }
+        return $this;
+    }
+    public function getTypeLabel(): string
+    {
+        return self::TYPES[$this->type] ?? $this->type;
+    }
 
-    public function getDateReception(): ?\DateTimeImmutable { return $this->dateReception; }
-    public function setDateReception(?\DateTimeImmutable $d): static { if ($this->locked) { return $this; } $this->dateReception = $d; return $this; }
+    public function getMontantCentimes(): int
+    {
+        return $this->montantCentimes;
+    }
+    public function setMontantCentimes(?int $c): static
+    {
+        if ($this->locked) {
+            return $this;
+        } $this->montantCentimes = max(0, (int) $c);
 
-    public function getNote(): ?string { return $this->note; }
-    public function setNote(?string $note): static { if ($this->locked) { return $this; } $this->note = $note; return $this; }
+        return $this;
+    }
+
+    public function getStatut(): string
+    {
+        return $this->statut;
+    }
+    public function setStatut(string $statut): static
+    {
+        if ($this->locked) {
+            return $this;
+        } $this->statut = $statut;
+
+        return $this;
+    }
+    public function isRecue(): bool
+    {
+        return self::STATUT_RECUE === $this->statut;
+    }
+
+    public function getDateReception(): ?\DateTimeImmutable
+    {
+        return $this->dateReception;
+    }
+    public function setDateReception(?\DateTimeImmutable $d): static
+    {
+        if ($this->locked) {
+            return $this;
+        } $this->dateReception = $d;
+
+        return $this;
+    }
+
+    public function getNote(): ?string
+    {
+        return $this->note;
+    }
+    public function setNote(?string $note): static
+    {
+        if ($this->locked) {
+            return $this;
+        } $this->note = $note;
+
+        return $this;
+    }
 }

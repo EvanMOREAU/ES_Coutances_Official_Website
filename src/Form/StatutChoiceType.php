@@ -2,7 +2,6 @@
 
 namespace App\Form;
 
-use App\Entity\Concern\StatutTrait;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -14,6 +13,8 @@ class StatutChoiceType extends AbstractType
     {
         $resolver->setDefaults([
             'label'   => 'Statut',
+            // Une valeur vide (formulaire trafiqué) retombe sur « actif » plutôt que de provoquer une erreur.
+            'empty_data' => \App\Entity\Equipe::STATUT_ACTIVE,
             'choices' => array_flip(self::labels()),
             'help'    => "Un brouillon ou un enregistrement archivé est conservé mais n'est plus considéré comme actif.",
         ]);

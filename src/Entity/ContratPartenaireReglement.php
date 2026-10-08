@@ -34,7 +34,10 @@ class ContratPartenaireReglement
         $this->locked = $this->recu;
     }
 
-    public function isLocked(): bool { return $this->locked; }
+    public function isLocked(): bool
+    {
+        return $this->locked;
+    }
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -73,30 +76,114 @@ class ContratPartenaireReglement
     #[ORM\Column(length: 100, nullable: true)]
     private ?string $reference = null;
 
-    public function getId(): ?int { return $this->id; }
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
 
-    public function getContrat(): ?ContratPartenaire { return $this->contrat; }
-    public function setContrat(?ContratPartenaire $contrat): static { $this->contrat = $contrat; return $this; }
+    public function getContrat(): ?ContratPartenaire
+    {
+        return $this->contrat;
+    }
+    public function setContrat(?ContratPartenaire $contrat): static
+    {
+        $this->contrat = $contrat;
 
-    public function getMode(): string { return $this->mode; }
-    public function setMode(string $mode): static { if ($this->locked) { return $this; } $this->mode = $mode; return $this; }
-    public function getModeLabel(): string { return self::MODES[$this->mode] ?? $this->mode; }
+        return $this;
+    }
 
-    public function getMontantCentimes(): int { return $this->montantCentimes; }
-    public function setMontantCentimes(?int $c): static { if ($this->locked) { return $this; } $this->montantCentimes = max(0, (int) $c); return $this; }
+    public function getMode(): string
+    {
+        return $this->mode;
+    }
+    public function setMode(string $mode): static
+    {
+        if ($this->locked) {
+            return $this;
+        } $this->mode = $mode;
 
-    public function getOrdre(): int { return $this->ordre; }
-    public function setOrdre(int $ordre): static { if ($this->locked) { return $this; } $this->ordre = $ordre; return $this; }
+        return $this;
+    }
+    public function getModeLabel(): string
+    {
+        return self::MODES[$this->mode] ?? $this->mode;
+    }
 
-    public function getDateEcheance(): ?\DateTimeImmutable { return $this->dateEcheance; }
-    public function setDateEcheance(?\DateTimeImmutable $d): static { if ($this->locked) { return $this; } $this->dateEcheance = $d; return $this; }
+    public function getMontantCentimes(): int
+    {
+        return $this->montantCentimes;
+    }
+    public function setMontantCentimes(?int $c): static
+    {
+        if ($this->locked) {
+            return $this;
+        } $this->montantCentimes = max(0, (int) $c);
 
-    public function isRecu(): bool { return $this->recu; }
-    public function setRecu(bool $recu): static { if ($this->locked) { return $this; } $this->recu = $recu; return $this; }
+        return $this;
+    }
 
-    public function getDateRemise(): ?\DateTimeImmutable { return $this->dateRemise; }
-    public function setDateRemise(?\DateTimeImmutable $d): static { if ($this->locked) { return $this; } $this->dateRemise = $d; return $this; }
+    public function getOrdre(): int
+    {
+        return $this->ordre;
+    }
+    public function setOrdre(int $ordre): static
+    {
+        if ($this->locked) {
+            return $this;
+        } $this->ordre = $ordre;
 
-    public function getReference(): ?string { return $this->reference; }
-    public function setReference(?string $reference): static { if ($this->locked) { return $this; } $this->reference = $reference; return $this; }
+        return $this;
+    }
+
+    public function getDateEcheance(): ?\DateTimeImmutable
+    {
+        return $this->dateEcheance;
+    }
+    public function setDateEcheance(?\DateTimeImmutable $d): static
+    {
+        if ($this->locked) {
+            return $this;
+        } $this->dateEcheance = $d;
+
+        return $this;
+    }
+
+    public function isRecu(): bool
+    {
+        return $this->recu;
+    }
+    public function setRecu(bool $recu): static
+    {
+        if ($this->locked) {
+            return $this;
+        } $this->recu = $recu;
+
+        return $this;
+    }
+
+    public function getDateRemise(): ?\DateTimeImmutable
+    {
+        return $this->dateRemise;
+    }
+    public function setDateRemise(?\DateTimeImmutable $d): static
+    {
+        if ($this->locked) {
+            return $this;
+        } $this->dateRemise = $d;
+
+        return $this;
+    }
+
+    public function getReference(): ?string
+    {
+        return $this->reference;
+    }
+    public function setReference(?string $reference): static
+    {
+        if ($this->locked) {
+            return $this;
+        } $this->reference = $reference;
+
+        return $this;
+    }
 }

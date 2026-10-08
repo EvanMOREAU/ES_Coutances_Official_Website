@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\CategorieRepository;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: CategorieRepository::class)]
 class Categorie
@@ -15,6 +16,8 @@ class Categorie
     private ?int $id = null;
 
     #[ORM\Column(length: 100)]
+    #[Assert\NotBlank(message: 'Donnez un nom à la catégorie.')]
+    #[Assert\Length(max: 100, maxMessage: 'Maximum 100 caractères.')]
     private ?string $nom = null;
 
     #[ORM\Column]
@@ -58,9 +61,9 @@ class Categorie
         return $this->ordre;
     }
 
-    public function setOrdre(int $ordre): static
+    public function setOrdre(?int $ordre): static
     {
-        $this->ordre = $ordre;
+        $this->ordre = $ordre ?? 0;
 
         return $this;
     }

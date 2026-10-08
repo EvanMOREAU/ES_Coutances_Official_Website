@@ -32,19 +32,57 @@ class ArticleVariante
     #[ORM\Column(options: ['default' => 0])]
     private int $ordre = 0;
 
-    public function getId(): ?int { return $this->id; }
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
 
-    public function getArticle(): ?Article { return $this->article; }
-    public function setArticle(?Article $article): static { $this->article = $article; return $this; }
+    public function getArticle(): ?Article
+    {
+        return $this->article;
+    }
+    public function setArticle(?Article $article): static
+    {
+        $this->article = $article;
 
-    public function getLibelle(): ?string { return $this->libelle; }
-    public function setLibelle(?string $libelle): static { $this->libelle = null === $libelle ? null : trim($libelle); return $this; }
+        return $this;
+    }
 
-    public function getStock(): int { return $this->stock; }
-    public function setStock(?int $stock): static { $this->stock = max(0, (int) $stock); return $this; }
+    public function getLibelle(): ?string
+    {
+        return $this->libelle;
+    }
+    public function setLibelle(?string $libelle): static
+    {
+        $this->libelle = null === $libelle ? null : trim($libelle);
 
-    public function getOrdre(): int { return $this->ordre; }
-    public function setOrdre(int $ordre): static { $this->ordre = $ordre; return $this; }
+        return $this;
+    }
 
-    public function __toString(): string { return (string) $this->libelle; }
+    public function getStock(): int
+    {
+        return $this->stock;
+    }
+    public function setStock(?int $stock): static
+    {
+        $this->stock = max(0, (int) $stock);
+
+        return $this;
+    }
+
+    public function getOrdre(): int
+    {
+        return $this->ordre;
+    }
+    public function setOrdre(int $ordre): static
+    {
+        $this->ordre = $ordre;
+
+        return $this;
+    }
+
+    public function __toString(): string
+    {
+        return (string) $this->libelle;
+    }
 }

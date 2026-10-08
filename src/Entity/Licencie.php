@@ -2,13 +2,14 @@
 
 namespace App\Entity;
 
+use App\Entity\Concern\CreatedAtTrait;
+use App\Entity\Concern\StatutTrait;
 use App\Repository\LicencieRepository;
 use App\Service\CategorieAge;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use App\Entity\Concern\CreatedAtTrait;
-use App\Entity\Concern\StatutTrait;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: LicencieRepository::class)]
 #[ORM\HasLifecycleCallbacks]
@@ -23,12 +24,17 @@ class Licencie
     private ?int $id = null;
 
     #[ORM\Column(length: 100)]
+    #[Assert\NotBlank(message: 'Indiquez le nom.')]
+    #[Assert\Length(max: 100, maxMessage: 'Maximum 100 caractères.')]
     private ?string $nom = null;
 
     #[ORM\Column(length: 100)]
+    #[Assert\NotBlank(message: 'Indiquez le prénom.')]
+    #[Assert\Length(max: 100, maxMessage: 'Maximum 100 caractères.')]
     private ?string $prenom = null;
 
     #[ORM\Column]
+    #[Assert\NotNull(message: 'Indiquez la date de naissance.')]
     private ?\DateTimeImmutable $dateNaissance = null;
 
     #[ORM\ManyToOne(targetEntity: Famille::class, inversedBy: 'licencies')]
@@ -140,7 +146,7 @@ class Licencie
         return $this->dateNaissance;
     }
 
-    public function setDateNaissance(\DateTimeImmutable $dateNaissance): static
+    public function setDateNaissance(?\DateTimeImmutable $dateNaissance): static
     {
         $this->dateNaissance = $dateNaissance;
 
@@ -188,9 +194,9 @@ class Licencie
         return $this->decalageCategorie;
     }
 
-    public function setDecalageCategorie(int $decalageCategorie): static
+    public function setDecalageCategorie(?int $decalageCategorie): static
     {
-        $this->decalageCategorie = $decalageCategorie;
+        $this->decalageCategorie = $decalageCategorie ?? 0;
 
         return $this;
     }

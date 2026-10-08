@@ -57,14 +57,14 @@ class JournalController extends AbstractController
         $response = new StreamedResponse(function () use ($filters): void {
             $out = fopen('php://output', 'w');
             fwrite($out, "\xEF\xBB\xBF"); // UTF-8 avec BOM : Excel lit correctement les accents
-            fputcsv($out, ['Date', 'Type', 'Opération', 'Rubrique', 'Résumé', 'Élément', 'Identifiant', 'Utilisateur', 'E-mail', 'Rôles', 'IP', 'Transféré par', 'Navigateur', 'Méthode', 'Route', 'Adresse', 'Code HTTP', 'Requête', 'Modifications', 'Détails'], ';');
+            fputcsv($out, ['Date', 'Type', 'Opération', 'Rubrique', 'Résumé', 'Élément', 'Identifiant', 'Utilisateur', 'E-mail', 'Rôles', 'IP', 'Transféré par', 'Navigateur', 'Méthode', 'Route', 'Adresse', 'Code HTTP', 'Requête', 'Modifications', 'Détails'], ';', '"', '\\');
             foreach ($this->repository->export($filters) as $log) {
                 fputcsv($out, [
                     $log->getOccurredAt()?->format('Y-m-d H:i:s'), $log->getTypeLabel(), $log->getOperationLabel(), $log->getCategory(), $log->getSummary(),
                     $log->getEntityShort(), $log->getEntityId(), $log->getUserName(), $log->getUserEmail(), $log->getUserRoles(), $log->getIp(), $log->getForwardedFor(),
                     $log->getUserAgent(), $log->getMethod(), $log->getRoute(), $log->getPath(), $log->getStatusCode(), $log->getRequestId(),
                     $log->getChanges() ? json_encode($log->getChanges(), JSON_UNESCAPED_UNICODE) : '', $log->getContext() ? json_encode($log->getContext(), JSON_UNESCAPED_UNICODE) : '',
-                ], ';');
+                ], ';', '"', '\\');
             }
             fclose($out);
         });

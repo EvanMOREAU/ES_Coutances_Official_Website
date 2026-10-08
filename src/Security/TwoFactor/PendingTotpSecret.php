@@ -19,14 +19,23 @@ final readonly class PendingTotpSecret implements TwoFactorInterface
     ) {
     }
 
-    public function isTotpAuthenticationEnabled(): bool { return true; }
+    public function isTotpAuthenticationEnabled(): bool
+    {
+        return true;
+    }
 
-    public function getTotpAuthenticationUsername(): string { return $this->username; }
+    public function getTotpAuthenticationUsername(): string
+    {
+        return $this->username;
+    }
 
     public function getTotpAuthenticationConfiguration(): TotpConfigurationInterface
     {
         return new TotpConfiguration($this->secret, TotpConfiguration::ALGORITHM_SHA1, 30, 6);
     }
 
-    public function getSecret(): string { return $this->secret; }
+    public function getSecret(): string
+    {
+        return $this->secret;
+    }
 }

@@ -12,7 +12,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 /**
  * Import des licenciés depuis un export du logiciel "Foot Club" (FFF) au
@@ -47,7 +46,7 @@ class ImportController extends AbstractController
         /** @var UploadedFile|null $file */
         $file = $request->files->get('fichier');
         if (!$file || !$file->isValid()) {
-            $this->addFlash('error', "Merci de sélectionner un fichier Excel (.xlsx) valide.");
+            $this->addFlash('error', 'Merci de sélectionner un fichier Excel (.xlsx) valide.');
 
             return $this->redirectToRoute('admin_import_index');
         }
@@ -62,7 +61,7 @@ class ImportController extends AbstractController
         }
 
         if (empty($preview['groups'])) {
-            $this->addFlash('error', "Le fichier ne contient aucune ligne exploitable.");
+            $this->addFlash('error', 'Le fichier ne contient aucune ligne exploitable.');
 
             return $this->redirectToRoute('admin_import_index');
         }
@@ -87,7 +86,7 @@ class ImportController extends AbstractController
         $preview = $session->get(self::SESSION_KEY);
 
         if (!\is_array($preview) || empty($preview['groups'])) {
-            $this->addFlash('error', "Aucun import en attente (la session a peut-être expiré) : merci de déposer à nouveau le fichier.");
+            $this->addFlash('error', 'Aucun import en attente (la session a peut-être expiré) : merci de déposer à nouveau le fichier.');
 
             return $this->redirectToRoute('admin_import_index');
         }

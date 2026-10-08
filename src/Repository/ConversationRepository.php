@@ -6,6 +6,7 @@ use App\Entity\Conversation;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use SortDirection;
 
 /**
  * @extends ServiceEntityRepository<Conversation>
@@ -30,8 +31,8 @@ class ConversationRepository extends ServiceEntityRepository
             ->innerJoin('c.participants', 'p')
             ->innerJoin('p.user', 'pu')
             ->setParameter('u', $user)
-            ->orderBy('c.updatedAt', 'DESC')
-            ->addOrderBy('c.id', 'DESC')
+            ->orderBy('c.updatedAt', SortDirection::Descending)
+            ->addOrderBy('c.id', SortDirection::Descending)
             ->getQuery()
             ->getResult();
     }
@@ -49,7 +50,7 @@ class ConversationRepository extends ServiceEntityRepository
             ->leftJoin('p.user', 'pu')
             ->leftJoin('c.customer', 'cu')
             ->where('c.support = true')
-            ->orderBy('c.updatedAt', 'DESC')
+            ->orderBy('c.updatedAt', SortDirection::Descending)
             ->getQuery()
             ->getResult();
     }
@@ -122,7 +123,7 @@ class ConversationRepository extends ServiceEntityRepository
         $qb = $this->getEntityManager()->createQueryBuilder()
             ->select('IDENTITY(m.conversation) AS conversation', 'COUNT(m.id) AS unread')
             ->from(\App\Entity\Message::class, 'm')
-            ->innerJoin(\App\Entity\ConversationParticipant::class, 'p', 'WITH', 'p.conversation = m.conversation AND p.user = :u')
+            ->innerJoin(\App\Entity\ConversationParticipant::class, 'p', 'ON', 'p.conversation = m.conversation AND p.user = :u')
             ->where('m.id > p.lastReadMessageId')
             ->andWhere('(m.author IS NULL OR m.author <> :u)')
             ->groupBy('m.conversation')

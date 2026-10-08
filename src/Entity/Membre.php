@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\Validator\Constraints as Assert;
 use Vich\UploaderBundle\Mapping\Attribute as Vich;
 
 #[Vich\Uploadable]
@@ -19,9 +20,13 @@ class Membre
     private ?int $id = null;
 
     #[ORM\Column(length: 150)]
+    #[Assert\NotBlank(message: 'Indiquez le nom.')]
+    #[Assert\Length(max: 150, maxMessage: 'Maximum 150 caractères.')]
     private ?string $nom = null;
 
     #[ORM\Column(length: 150)]
+    #[Assert\NotBlank(message: 'Indiquez le poste.')]
+    #[Assert\Length(max: 150, maxMessage: 'Maximum 150 caractères.')]
     private ?string $poste = null;
 
     #[ORM\Column(length: 255, nullable: true)]
@@ -55,11 +60,26 @@ class Membre
             $this->updatedAt = new \DateTimeImmutable();
         }
     }
-    public function getPhotoFile(): ?File { return $this->photoFile; }
-    public function setPhotoName(?string $photoName): void { $this->photoName = $photoName; }
-    public function getPhotoName(): ?string { return $this->photoName; }
-    public function setUpdatedAt(?\DateTimeImmutable $u): void { $this->updatedAt = $u; }
-    public function getUpdatedAt(): ?\DateTimeImmutable { return $this->updatedAt; }
+    public function getPhotoFile(): ?File
+    {
+        return $this->photoFile;
+    }
+    public function setPhotoName(?string $photoName): void
+    {
+        $this->photoName = $photoName;
+    }
+    public function getPhotoName(): ?string
+    {
+        return $this->photoName;
+    }
+    public function setUpdatedAt(?\DateTimeImmutable $u): void
+    {
+        $this->updatedAt = $u;
+    }
+    public function getUpdatedAt(): ?\DateTimeImmutable
+    {
+        return $this->updatedAt;
+    }
 
     public function __construct()
     {
@@ -68,7 +88,10 @@ class Membre
         $this->categories = new ArrayCollection();
     }
 
-    public function __toString(): string { return $this->nom ?? ''; }
+    public function __toString(): string
+    {
+        return $this->nom ?? '';
+    }
 
     public function getId(): ?int
     {
@@ -104,9 +127,9 @@ class Membre
         return $this->ordre;
     }
 
-    public function setOrdre(int $ordre): static
+    public function setOrdre(?int $ordre): static
     {
-        $this->ordre = $ordre;
+        $this->ordre = $ordre ?? 0;
 
         return $this;
     }
