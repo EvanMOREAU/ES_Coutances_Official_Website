@@ -6,6 +6,7 @@ use App\Repository\OffreEmploiRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\Validator\Constraints as Assert;
 use Vich\UploaderBundle\Mapping\Attribute as Vich;
 
 #[ORM\Entity(repositoryClass: OffreEmploiRepository::class)]
@@ -18,12 +19,17 @@ class OffreEmploi
     private ?int $id = null;
 
     #[ORM\Column(length: 100)]
+    #[Assert\NotBlank(message: 'Donnez un titre à l\'offre.')]
+    #[Assert\Length(max: 150, maxMessage: 'Maximum 150 caractères.')]
     private ?string $titre = null;
 
     #[ORM\Column(type: Types::TEXT)]
+    #[Assert\NotBlank(message: 'Décrivez l\'offre.')]
     private ?string $description = null;
 
     #[ORM\Column(length: 50)]
+    #[Assert\NotBlank(message: 'Indiquez le type de contrat.')]
+    #[Assert\Length(max: 50, maxMessage: 'Maximum 50 caractères.')]
     private ?string $type = null;
 
     #[ORM\Column]
@@ -34,8 +40,7 @@ class OffreEmploi
 
     public function __construct()
     {
-        $this->actif = false;  // ou false selon ta préférence
-        $this->ordre = 0;
+        $this->actif = false;
     }
 
     public function __toString(): string
@@ -109,9 +114,24 @@ class OffreEmploi
             $this->updatedAt = new \DateTimeImmutable();
         }
     }
-    public function getImageFile(): ?File { return $this->imageFile; }
-    public function setImageName(?string $imageName): void { $this->imageName = $imageName; }
-    public function getImageName(): ?string { return $this->imageName; }
-    public function setUpdatedAt(?\DateTimeImmutable $u): void { $this->updatedAt = $u; }
-    public function getUpdatedAt(): ?\DateTimeImmutable { return $this->updatedAt; }
+    public function getImageFile(): ?File
+    {
+        return $this->imageFile;
+    }
+    public function setImageName(?string $imageName): void
+    {
+        $this->imageName = $imageName;
+    }
+    public function getImageName(): ?string
+    {
+        return $this->imageName;
+    }
+    public function setUpdatedAt(?\DateTimeImmutable $u): void
+    {
+        $this->updatedAt = $u;
+    }
+    public function getUpdatedAt(): ?\DateTimeImmutable
+    {
+        return $this->updatedAt;
+    }
 }

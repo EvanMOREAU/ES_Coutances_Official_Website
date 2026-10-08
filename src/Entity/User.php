@@ -13,6 +13,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Validator\Constraints as Assert;
 use Vich\UploaderBundle\Mapping\Attribute as Vich;
 
 #[Vich\Uploadable]
@@ -28,6 +29,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, TotpTwo
     private ?int $id = null;
 
     #[ORM\Column(length: 180, unique: true)]
+    #[Assert\NotBlank(message: 'Indiquez une adresse e-mail.')]
+    #[Assert\Length(max: 180, maxMessage: 'Maximum 180 caractères.')]
     private ?string $email = null;
 
     #[ORM\Column]
@@ -37,6 +40,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, TotpTwo
     private ?string $password = null;
 
     #[ORM\Column(length: 100)]
+    #[Assert\NotBlank(message: 'Indiquez le nom.')]
+    #[Assert\Length(max: 150, maxMessage: 'Maximum 150 caractères.')]
     private ?string $nom = null;
 
     #[ORM\Column(length: 100, nullable: true)]
@@ -129,41 +134,104 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, TotpTwo
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $webauthnUserHandle = null;
 
-    public function getWebauthnUserHandle(): ?string { return $this->webauthnUserHandle; }
-    public function setWebauthnUserHandle(?string $handle): static { $this->webauthnUserHandle = $handle; return $this; }
+    public function getWebauthnUserHandle(): ?string
+    {
+        return $this->webauthnUserHandle;
+    }
+    public function setWebauthnUserHandle(?string $handle): static
+    {
+        $this->webauthnUserHandle = $handle;
 
-    public function getProfil(): ?ProfilAutorisation { return $this->profil; }
-    public function setProfil(?ProfilAutorisation $profil): static { $this->profil = $profil; return $this; }
+        return $this;
+    }
+
+    public function getProfil(): ?ProfilAutorisation
+    {
+        return $this->profil;
+    }
+    public function setProfil(?ProfilAutorisation $profil): static
+    {
+        $this->profil = $profil;
+
+        return $this;
+    }
 
     /** @return list<string> */
-    public function getPermissionsAjoutees(): array { return $this->permissionsAjoutees; }
+    public function getPermissionsAjoutees(): array
+    {
+        return $this->permissionsAjoutees;
+    }
     /** @param list<string> $permissions */
-    public function setPermissionsAjoutees(array $permissions): static { $this->permissionsAjoutees = array_values($permissions); return $this; }
+    public function setPermissionsAjoutees(array $permissions): static
+    {
+        $this->permissionsAjoutees = array_values($permissions);
+
+        return $this;
+    }
 
     /** @return list<string> */
-    public function getPermissionsRetirees(): array { return $this->permissionsRetirees; }
+    public function getPermissionsRetirees(): array
+    {
+        return $this->permissionsRetirees;
+    }
     /** @param list<string> $permissions */
-    public function setPermissionsRetirees(array $permissions): static { $this->permissionsRetirees = array_values($permissions); return $this; }
+    public function setPermissionsRetirees(array $permissions): static
+    {
+        $this->permissionsRetirees = array_values($permissions);
 
-    public function isAccesRestreint(): bool { return $this->accesRestreint; }
-    public function setAccesRestreint(bool $restreint): static { $this->accesRestreint = $restreint; return $this; }
+        return $this;
+    }
 
-    public function getId(): ?int { return $this->id; }
+    public function isAccesRestreint(): bool
+    {
+        return $this->accesRestreint;
+    }
+    public function setAccesRestreint(bool $restreint): static
+    {
+        $this->accesRestreint = $restreint;
 
-    public function getEmail(): ?string { return $this->email; }
-    public function setEmail(string $email): static { $this->email = $email; return $this; }
+        return $this;
+    }
 
-    public function getUserIdentifier(): string { return (string) $this->email; }
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    public function getEmail(): ?string
+    {
+        return $this->email;
+    }
+    public function setEmail(string $email): static
+    {
+        $this->email = $email;
+
+        return $this;
+    }
+
+    public function getUserIdentifier(): string
+    {
+        return (string) $this->email;
+    }
 
     public function getRoles(): array
     {
         $roles = $this->roles;
         $roles[] = 'ROLE_USER'; // garanti pour tout utilisateur
+
         return array_unique($roles);
     }
-    public function setRoles(array $roles): static { $this->roles = $roles; return $this; }
+    public function setRoles(array $roles): static
+    {
+        $this->roles = $roles;
 
-    public function getPassword(): ?string { return $this->password; }
+        return $this;
+    }
+
+    public function getPassword(): ?string
+    {
+        return $this->password;
+    }
     public function setPassword(?string $password): static
     {
         // Le formulaire d'édition (EasyAdmin) soumet le champ mot de passe vide
@@ -176,14 +244,38 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, TotpTwo
         return $this;
     }
 
-    public function getNom(): ?string { return $this->nom; }
-    public function setNom(string $nom): static { $this->nom = $nom; return $this; }
+    public function getNom(): ?string
+    {
+        return $this->nom;
+    }
+    public function setNom(string $nom): static
+    {
+        $this->nom = $nom;
 
-    public function getPrenom(): ?string { return $this->prenom; }
-    public function setPrenom(?string $prenom): static { $this->prenom = $prenom ?: null; return $this; }
+        return $this;
+    }
 
-    public function getBio(): ?string { return $this->bio; }
-    public function setBio(?string $bio): static { $this->bio = $bio ?: null; return $this; }
+    public function getPrenom(): ?string
+    {
+        return $this->prenom;
+    }
+    public function setPrenom(?string $prenom): static
+    {
+        $this->prenom = $prenom ?: null;
+
+        return $this;
+    }
+
+    public function getBio(): ?string
+    {
+        return $this->bio;
+    }
+    public function setBio(?string $bio): static
+    {
+        $this->bio = $bio ?: null;
+
+        return $this;
+    }
 
     /** Nom affiché dans l'interface : "Prénom Nom" (ou juste le nom si pas de prénom). */
     public function getNomComplet(): string
@@ -196,10 +288,19 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, TotpTwo
         return mb_strtoupper(mb_substr($this->prenom ?: ($this->nom ?? '?'), 0, 1));
     }
 
-    public function getAvatarName(): ?string { return $this->avatarName; }
-    public function setAvatarName(?string $avatarName): void { $this->avatarName = $avatarName; }
+    public function getAvatarName(): ?string
+    {
+        return $this->avatarName;
+    }
+    public function setAvatarName(?string $avatarName): void
+    {
+        $this->avatarName = $avatarName;
+    }
 
-    public function getAvatarFile(): ?File { return $this->avatarFile; }
+    public function getAvatarFile(): ?File
+    {
+        return $this->avatarFile;
+    }
     public function setAvatarFile(?File $avatarFile = null): void
     {
         $this->avatarFile = $avatarFile;
@@ -208,20 +309,58 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, TotpTwo
         }
     }
 
-    public function getUpdatedAt(): ?\DateTimeImmutable { return $this->updatedAt; }
-    public function setUpdatedAt(?\DateTimeImmutable $updatedAt): void { $this->updatedAt = $updatedAt; }
+    public function getUpdatedAt(): ?\DateTimeImmutable
+    {
+        return $this->updatedAt;
+    }
+    public function setUpdatedAt(?\DateTimeImmutable $updatedAt): void
+    {
+        $this->updatedAt = $updatedAt;
+    }
 
-    public function getTheme(): string { return $this->theme; }
-    public function setTheme(string $theme): static { $this->theme = $theme; return $this; }
+    public function getTheme(): string
+    {
+        return $this->theme;
+    }
+    public function setTheme(string $theme): static
+    {
+        $this->theme = $theme;
 
-    public function getColorScheme(): string { return $this->colorScheme; }
-    public function setColorScheme(string $colorScheme): static { $this->colorScheme = $colorScheme; return $this; }
+        return $this;
+    }
 
-    public function getDensity(): string { return $this->density; }
-    public function setDensity(string $density): static { $this->density = $density; return $this; }
+    public function getColorScheme(): string
+    {
+        return $this->colorScheme;
+    }
+    public function setColorScheme(string $colorScheme): static
+    {
+        $this->colorScheme = $colorScheme;
 
-    public function getNotificationPreferences(): array { return $this->notificationPreferences; }
-    public function setNotificationPreferences(array $notificationPreferences): static { $this->notificationPreferences = $notificationPreferences; return $this; }
+        return $this;
+    }
+
+    public function getDensity(): string
+    {
+        return $this->density;
+    }
+    public function setDensity(string $density): static
+    {
+        $this->density = $density;
+
+        return $this;
+    }
+
+    public function getNotificationPreferences(): array
+    {
+        return $this->notificationPreferences;
+    }
+    public function setNotificationPreferences(array $notificationPreferences): static
+    {
+        $this->notificationPreferences = $notificationPreferences;
+
+        return $this;
+    }
     /** Un nouveau compte hors équipe (famille, licencié, client) démarre en thème clair, comme l'espace Mon compte d'origine. */
     #[ORM\PrePersist]
     public function defaultPortalTheme(): void
@@ -231,15 +370,42 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, TotpTwo
         }
     }
 
-    public function isAnonymized(): bool { return $this->anonymizedAt !== null; }
-    public function getAnonymizedAt(): ?\DateTimeImmutable { return $this->anonymizedAt; }
-    public function markAnonymized(): static { $this->anonymizedAt = new \DateTimeImmutable(); return $this; }
+    public function isAnonymized(): bool
+    {
+        return $this->anonymizedAt !== null;
+    }
+    public function getAnonymizedAt(): ?\DateTimeImmutable
+    {
+        return $this->anonymizedAt;
+    }
+    public function markAnonymized(): static
+    {
+        $this->anonymizedAt = new \DateTimeImmutable();
 
-    public function getTablePreferences(): array { return $this->tablePreferences ?? []; }
-    public function setTablePreferences(?array $tablePreferences): static { $this->tablePreferences = $tablePreferences; return $this; }
+        return $this;
+    }
 
-    public function getLastSeenAt(): ?\DateTimeImmutable { return $this->lastSeenAt; }
-    public function setLastSeenAt(?\DateTimeImmutable $lastSeenAt): static { $this->lastSeenAt = $lastSeenAt; return $this; }
+    public function getTablePreferences(): array
+    {
+        return $this->tablePreferences ?? [];
+    }
+    public function setTablePreferences(?array $tablePreferences): static
+    {
+        $this->tablePreferences = $tablePreferences;
+
+        return $this;
+    }
+
+    public function getLastSeenAt(): ?\DateTimeImmutable
+    {
+        return $this->lastSeenAt;
+    }
+    public function setLastSeenAt(?\DateTimeImmutable $lastSeenAt): static
+    {
+        $this->lastSeenAt = $lastSeenAt;
+
+        return $this;
+    }
 
     /** Compte de l'équipe du club (encadrant, administrateur ou développeur), par opposition à un compte famille / licencié. */
     public function isStaff(): bool
@@ -249,9 +415,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, TotpTwo
 
     // --- Authentification à deux facteurs : application (TOTP) ---
 
-    public function isTotpAuthenticationEnabled(): bool { return null !== $this->totpSecret; }
+    public function isTotpAuthenticationEnabled(): bool
+    {
+        return null !== $this->totpSecret;
+    }
 
-    public function getTotpAuthenticationUsername(): ?string { return $this->email; }
+    public function getTotpAuthenticationUsername(): ?string
+    {
+        return $this->email;
+    }
 
     public function getTotpAuthenticationConfiguration(): ?TotpConfigurationInterface
     {
@@ -262,25 +434,58 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, TotpTwo
         return new TotpConfiguration($this->totpSecret, TotpConfiguration::ALGORITHM_SHA1, 30, 6);
     }
 
-    public function getTotpSecret(): ?string { return $this->totpSecret; }
-    public function setTotpSecret(?string $totpSecret): static { $this->totpSecret = $totpSecret; return $this; }
+    public function getTotpSecret(): ?string
+    {
+        return $this->totpSecret;
+    }
+    public function setTotpSecret(?string $totpSecret): static
+    {
+        $this->totpSecret = $totpSecret;
+
+        return $this;
+    }
 
     // --- Authentification à deux facteurs : code par e-mail ---
 
-    public function isEmailAuthEnabled(): bool { return $this->emailAuthEnabled; }
-    public function setEmailAuthEnabled(bool $emailAuthEnabled): static { $this->emailAuthEnabled = $emailAuthEnabled; return $this; }
+    public function isEmailAuthEnabled(): bool
+    {
+        return $this->emailAuthEnabled;
+    }
+    public function setEmailAuthEnabled(bool $emailAuthEnabled): static
+    {
+        $this->emailAuthEnabled = $emailAuthEnabled;
 
-    public function getEmailAuthRecipient(): string { return (string) $this->email; }
+        return $this;
+    }
 
-    public function getEmailAuthCode(): ?string { return $this->emailAuthCode; }
-    public function setEmailAuthCode(string $authCode): void { $this->emailAuthCode = $authCode; }
+    public function getEmailAuthRecipient(): string
+    {
+        return (string) $this->email;
+    }
+
+    public function getEmailAuthCode(): ?string
+    {
+        return $this->emailAuthCode;
+    }
+    public function setEmailAuthCode(string $authCode): void
+    {
+        $this->emailAuthCode = $authCode;
+    }
 
     // --- Authentification à deux facteurs : codes de secours ---
 
     /** @return list<string> hachages des codes de secours restants */
-    public function getBackupCodes(): array { return $this->backupCodes; }
+    public function getBackupCodes(): array
+    {
+        return $this->backupCodes;
+    }
     /** @param list<string> $hashedCodes */
-    public function setBackupCodes(array $hashedCodes): static { $this->backupCodes = array_values($hashedCodes); return $this; }
+    public function setBackupCodes(array $hashedCodes): static
+    {
+        $this->backupCodes = array_values($hashedCodes);
+
+        return $this;
+    }
 
     public function isBackupCode(string $code): bool
     {
@@ -301,8 +506,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, TotpTwo
         ));
     }
 
-    public function getChangelogVersionVue(): ?string { return $this->changelogVersionVue; }
-    public function setChangelogVersionVue(?string $version): static { $this->changelogVersionVue = $version; return $this; }
+    public function getChangelogVersionVue(): ?string
+    {
+        return $this->changelogVersionVue;
+    }
+    public function setChangelogVersionVue(?string $version): static
+    {
+        $this->changelogVersionVue = $version;
+
+        return $this;
+    }
 
     /** Compte de l'équipe du club ayant activé au moins une méthode de double authentification. */
     public function hasTwoFactorEnabled(): bool
@@ -310,7 +523,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, TotpTwo
         return $this->isTotpAuthenticationEnabled() || $this->isEmailAuthEnabled();
     }
 
-    public function eraseCredentials(): void {}
+    public function eraseCredentials(): void
+    {
+    }
 
-    public function __toString(): string { return $this->email ?? ''; }
+    public function __toString(): string
+    {
+        return $this->email ?? '';
+    }
 }

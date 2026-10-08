@@ -2,12 +2,13 @@
 
 namespace App\Entity;
 
+use App\Entity\Concern\CreatedAtTrait;
+use App\Entity\Concern\StatutTrait;
 use App\Repository\FamilleRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use App\Entity\Concern\CreatedAtTrait;
-use App\Entity\Concern\StatutTrait;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: FamilleRepository::class)]
 #[ORM\HasLifecycleCallbacks]
@@ -22,6 +23,8 @@ class Famille
     private ?int $id = null;
 
     #[ORM\Column(length: 150)]
+    #[Assert\NotBlank(message: 'Indiquez le nom de la famille.')]
+    #[Assert\Length(max: 150, maxMessage: 'Maximum 150 caractères.')]
     private ?string $nom = null;
 
     #[ORM\Column(length: 255, nullable: true)]

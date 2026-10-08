@@ -2,13 +2,15 @@
 
 namespace App\Entity;
 
-use App\Repository\PartenaireRepository;
 use App\Entity\Concern\CreatedAtTrait;
 use App\Entity\Concern\StatutTrait;
+use App\Repository\PartenaireRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use SortDirection;
 use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\Validator\Constraints as Assert;
 use Vich\UploaderBundle\Mapping\Attribute as Vich;
 
 #[ORM\Entity(repositoryClass: PartenaireRepository::class)]
@@ -25,6 +27,8 @@ class Partenaire
     private ?int $id = null;
 
     #[ORM\Column(length: 150)]
+    #[Assert\NotBlank(message: 'Donnez un nom au partenaire.')]
+    #[Assert\Length(max: 150, maxMessage: 'Maximum 150 caractères.')]
     private ?string $nom = null;
 
     #[ORM\Column(length: 255, nullable: true)]
@@ -41,7 +45,7 @@ class Partenaire
 
     #[ORM\Column]
     private int $ordre = 0;
-    
+
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $url = null;
 
@@ -51,7 +55,7 @@ class Partenaire
 
     /** @var Collection<int, ContratPartenaire> */
     #[ORM\OneToMany(targetEntity: ContratPartenaire::class, mappedBy: 'partenaire', cascade: ['persist', 'remove'], orphanRemoval: true)]
-    #[ORM\OrderBy(['createdAt' => 'DESC'])]
+    #[ORM\OrderBy(['createdAt' => SortDirection::Descending])]
     private Collection $contrats;
 
     public function __construct()
@@ -59,15 +63,37 @@ class Partenaire
         $this->contrats = new ArrayCollection();
     }
 
-    public function getUrl(): ?string { return $this->url; }
-    public function setUrl(?string $url): static { $this->url = $url; return $this; }
-    public function getId(): ?int { return $this->id; }
+    public function getUrl(): ?string
+    {
+        return $this->url;
+    }
+    public function setUrl(?string $url): static
+    {
+        $this->url = $url;
 
-    public function getCategorie(): ?CategoriePartenaire { return $this->categorie; }
-    public function setCategorie(?CategoriePartenaire $categorie): static { $this->categorie = $categorie; return $this; }
+        return $this;
+    }
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    public function getCategorie(): ?CategoriePartenaire
+    {
+        return $this->categorie;
+    }
+    public function setCategorie(?CategoriePartenaire $categorie): static
+    {
+        $this->categorie = $categorie;
+
+        return $this;
+    }
 
     /** @return Collection<int, ContratPartenaire> */
-    public function getContrats(): Collection { return $this->contrats; }
+    public function getContrats(): Collection
+    {
+        return $this->contrats;
+    }
 
     public function addContrat(ContratPartenaire $c): static
     {
@@ -79,15 +105,39 @@ class Partenaire
         return $this;
     }
 
-    public function removeContrat(ContratPartenaire $c): static { $this->contrats->removeElement($c); return $this; }
+    public function removeContrat(ContratPartenaire $c): static
+    {
+        $this->contrats->removeElement($c);
 
-    public function getNom(): ?string { return $this->nom; }
-    public function setNom(string $nom): static { $this->nom = $nom; return $this; }
+        return $this;
+    }
 
-    public function getLogoName(): ?string { return $this->logoName; }
-    public function setLogoName(?string $logoName): static { $this->logoName = $logoName; return $this; }
+    public function getNom(): ?string
+    {
+        return $this->nom;
+    }
+    public function setNom(string $nom): static
+    {
+        $this->nom = $nom;
 
-    public function getLogoFile(): ?File { return $this->logoFile; }
+        return $this;
+    }
+
+    public function getLogoName(): ?string
+    {
+        return $this->logoName;
+    }
+    public function setLogoName(?string $logoName): static
+    {
+        $this->logoName = $logoName;
+
+        return $this;
+    }
+
+    public function getLogoFile(): ?File
+    {
+        return $this->logoFile;
+    }
     public function setLogoFile(?File $logoFile = null): void
     {
         $this->logoFile = $logoFile;
@@ -96,15 +146,37 @@ class Partenaire
         }
     }
 
-    public function getUpdatedAt(): ?\DateTimeImmutable { return $this->updatedAt; }
-    public function setUpdatedAt(?\DateTimeImmutable $updatedAt): static { $this->updatedAt = $updatedAt; return $this; }
+    public function getUpdatedAt(): ?\DateTimeImmutable
+    {
+        return $this->updatedAt;
+    }
+    public function setUpdatedAt(?\DateTimeImmutable $updatedAt): static
+    {
+        $this->updatedAt = $updatedAt;
 
-    public function isActif(): bool { return $this->actif; }
+        return $this;
+    }
 
-    public function getOrdre(): int { return $this->ordre; }
-    public function setOrdre(int $ordre): static { $this->ordre = $ordre; return $this; }
+    public function isActif(): bool
+    {
+        return $this->actif;
+    }
 
-    public function __toString(): string { return $this->nom ?? ''; }
+    public function getOrdre(): int
+    {
+        return $this->ordre;
+    }
+    public function setOrdre(int $ordre): static
+    {
+        $this->ordre = $ordre;
+
+        return $this;
+    }
+
+    public function __toString(): string
+    {
+        return $this->nom ?? '';
+    }
 
     /** Vrai uniquement quand le statut est "actif" (utilisé par le site public). */
     public function setStatut(string $statut): static

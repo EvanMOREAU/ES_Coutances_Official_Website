@@ -6,6 +6,7 @@ use App\Entity\Conversation;
 use App\Entity\Message;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use SortDirection;
 
 /**
  * @extends ServiceEntityRepository<Message>
@@ -35,13 +36,13 @@ class MessageRepository extends ServiceEntityRepository
         if ($after !== null) {
             // Tout ce qui est arrivé depuis (borné, par prudence).
             return array_values($qb->andWhere('m.id > :after')->setParameter('after', $after)
-                ->orderBy('m.id', 'ASC')->setMaxResults(200)->getQuery()->getResult());
+                ->orderBy('m.id', SortDirection::Ascending)->setMaxResults(200)->getQuery()->getResult());
         }
 
         if ($before !== null) {
             $qb->andWhere('m.id < :before')->setParameter('before', $before);
         }
-        $messages = $qb->orderBy('m.id', 'DESC')->setMaxResults($limit)->getQuery()->getResult();
+        $messages = $qb->orderBy('m.id', SortDirection::Descending)->setMaxResults($limit)->getQuery()->getResult();
 
         return array_reverse($messages);
     }

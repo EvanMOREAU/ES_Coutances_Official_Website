@@ -277,6 +277,49 @@ php bin/console debug:router
 
 ---
 
+## ✅ Qualité du code et tests
+
+Un seul réflexe avant de livrer :
+
+```bash
+composer check      # style + lint + analyse statique + tests
+```
+
+| Commande | Rôle |
+|---|---|
+| `composer cs` / `composer cs:fix` | Vérifie / corrige le style (PHP CS Fixer, règles dans `.php-cs-fixer.dist.php`) |
+| `composer lint` | Valide les fichiers YAML, les templates Twig et le conteneur de services |
+| `composer stan` | Analyse statique PHPStan (niveau 5, `phpstan.dist.neon`) |
+| `composer test:setup` | Crée la base `…_test` et rejoue **toutes les migrations** depuis zéro (à lancer une fois, puis après chaque nouvelle migration) |
+| `composer test` | Lance toute la suite PHPUnit |
+| `composer test:unit` | Tests unitaires seuls (rapides, sans base de données) |
+| `composer hooks:install` | Active le contrôle automatique (style, analyse, tests unitaires) avant chaque `git commit` |
+
+### Organisation des tests
+
+```
+tests/
+├── Unit/         # Logique pure : montants, catégories d'âge, autorisations, voters, fichiers, import, HelloAsso (HTTP simulé)…
+├── Functional/   # Parcours HTTP complets sur une vraie base : connexion, boutique, import, RGPD, messagerie, administration…
+└── Support/      # DatabaseTestCase (rollback automatique après chaque test) et fabriques de données
+```
+
+Quelques tests « de masse » protègent l'ensemble de l'application :
+
+- **`AccessControlTest`** parcourt *toutes* les routes : aucune page du back-office ou de l'espace Mon compte ne s'ouvre sans connexion, une route sans autorisation associée est refusée, et aucune ne répond en erreur 500.
+- **`EmptyFormsTest`** envoie à vide chaque formulaire de création du back-office : une validation oubliée devient un message pour l'utilisateur, jamais une erreur SQL.
+- **`DoctrineMappingTest`** échoue si une entité a changé sans migration.
+
+La base de test (`escoutances_symfony_test`) est distincte de la base de développement. En intégration continue (`.github/workflows/ci.yml`), chaque push et chaque pull request lancent le contrôle de style, le lint, PHPStan, `composer audit` et la suite de tests sur MariaDB.
+
+> **Ajouter une page au back-office ?** Déclarez son autorisation dans `PermissionCatalog` puis dans `RoutePermissions` : sinon `AccessControlTest` signale la route comme non protégée.
+
+### Supervision
+
+`GET /health` répond `200 {"status":"ok"}` quand le site et la base fonctionnent (`503` sinon) : à brancher sur un outil de supervision type UptimeRobot.
+
+---
+
 ## 🚀 Déploiement en production
 
 ```bash

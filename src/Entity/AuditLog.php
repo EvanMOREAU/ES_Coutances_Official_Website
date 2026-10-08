@@ -129,34 +129,112 @@ class AuditLog
     #[ORM\Column(length: 10, options: ['default' => 'web'])]
     private string $source = 'web';
 
-    public function getId(): ?string { return $this->id; }
-    public function getOccurredAt(): ?\DateTimeImmutable { return $this->occurredAt; }
-    public function getType(): string { return $this->type; }
-    public function getTypeLabel(): string { return self::TYPES[$this->type] ?? $this->type; }
-    public function getOperation(): ?string { return $this->operation; }
-    public function getOperationLabel(): string { return self::OPERATIONS[$this->operation] ?? (string) $this->operation; }
-    public function getCategory(): string { return $this->category; }
-    public function getSummary(): string { return $this->summary; }
-    public function getEntityClass(): ?string { return $this->entityClass; }
-    public function getEntityId(): ?string { return $this->entityId; }
-    public function getEntityLabel(): ?string { return $this->entityLabel; }
+    public function getId(): ?string
+    {
+        return $this->id;
+    }
+    public function getOccurredAt(): ?\DateTimeImmutable
+    {
+        return $this->occurredAt;
+    }
+    public function getType(): string
+    {
+        return $this->type;
+    }
+    public function getTypeLabel(): string
+    {
+        return self::TYPES[$this->type] ?? $this->type;
+    }
+    public function getOperation(): ?string
+    {
+        return $this->operation;
+    }
+    public function getOperationLabel(): string
+    {
+        return self::OPERATIONS[$this->operation] ?? (string) $this->operation;
+    }
+    public function getCategory(): string
+    {
+        return $this->category;
+    }
+    public function getSummary(): string
+    {
+        return $this->summary;
+    }
+    public function getEntityClass(): ?string
+    {
+        return $this->entityClass;
+    }
+    public function getEntityId(): ?string
+    {
+        return $this->entityId;
+    }
+    public function getEntityLabel(): ?string
+    {
+        return $this->entityLabel;
+    }
     /** @return array<string, mixed>|null */
-    public function getChanges(): ?array { return $this->changes; }
+    public function getChanges(): ?array
+    {
+        return $this->changes;
+    }
     /** @return array<string, mixed>|null */
-    public function getContext(): ?array { return $this->context; }
-    public function getUserId(): ?int { return $this->userId; }
-    public function getUserEmail(): ?string { return $this->userEmail; }
-    public function getUserName(): ?string { return $this->userName; }
-    public function getUserRoles(): ?string { return $this->userRoles; }
-    public function getIp(): ?string { return $this->ip; }
-    public function getForwardedFor(): ?string { return $this->forwardedFor; }
-    public function getUserAgent(): ?string { return $this->userAgent; }
-    public function getMethod(): ?string { return $this->method; }
-    public function getRoute(): ?string { return $this->route; }
-    public function getPath(): ?string { return $this->path; }
-    public function getStatusCode(): ?int { return $this->statusCode; }
-    public function getRequestId(): ?string { return $this->requestId; }
-    public function getSource(): string { return $this->source; }
+    public function getContext(): ?array
+    {
+        return $this->context;
+    }
+    public function getUserId(): ?int
+    {
+        return $this->userId;
+    }
+    public function getUserEmail(): ?string
+    {
+        return $this->userEmail;
+    }
+    public function getUserName(): ?string
+    {
+        return $this->userName;
+    }
+    public function getUserRoles(): ?string
+    {
+        return $this->userRoles;
+    }
+    public function getIp(): ?string
+    {
+        return $this->ip;
+    }
+    public function getForwardedFor(): ?string
+    {
+        return $this->forwardedFor;
+    }
+    public function getUserAgent(): ?string
+    {
+        return $this->userAgent;
+    }
+    public function getMethod(): ?string
+    {
+        return $this->method;
+    }
+    public function getRoute(): ?string
+    {
+        return $this->route;
+    }
+    public function getPath(): ?string
+    {
+        return $this->path;
+    }
+    public function getStatusCode(): ?int
+    {
+        return $this->statusCode;
+    }
+    public function getRequestId(): ?string
+    {
+        return $this->requestId;
+    }
+    public function getSource(): string
+    {
+        return $this->source;
+    }
 
     /** Nom court de la classe concernée (Famille, Article…). */
     public function getEntityShort(): ?string

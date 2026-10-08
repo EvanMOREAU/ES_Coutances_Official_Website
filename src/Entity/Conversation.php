@@ -58,28 +58,82 @@ class Conversation
         $this->participants = new ArrayCollection();
     }
 
-    public function getId(): ?int { return $this->id; }
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
 
-    public function getSubject(): ?string { return $this->subject; }
-    public function setSubject(?string $subject): static { $this->subject = $subject !== null && trim($subject) !== '' ? mb_substr(trim($subject), 0, 120) : null; return $this; }
+    public function getSubject(): ?string
+    {
+        return $this->subject;
+    }
+    public function setSubject(?string $subject): static
+    {
+        $this->subject = $subject !== null && trim($subject) !== '' ? mb_substr(trim($subject), 0, 120) : null;
 
-    public function isGroup(): bool { return $this->isGroup; }
-    public function setIsGroup(bool $isGroup): static { $this->isGroup = $isGroup; return $this; }
+        return $this;
+    }
 
-    public function getStaffNotifiedAt(): ?\DateTimeImmutable { return $this->staffNotifiedAt; }
-    public function markStaffNotified(): static { $this->staffNotifiedAt = new \DateTimeImmutable(); return $this; }
+    public function isGroup(): bool
+    {
+        return $this->isGroup;
+    }
+    public function setIsGroup(bool $isGroup): static
+    {
+        $this->isGroup = $isGroup;
 
-    public function isSupport(): bool { return $this->support; }
-    public function getCustomer(): ?User { return $this->customer; }
-    public function markAsSupport(User $customer): static { $this->support = true; $this->customer = $customer; $this->isGroup = false; return $this; }
+        return $this;
+    }
 
-    public function getCreatedAt(): \DateTimeImmutable { return $this->createdAt; }
+    public function getStaffNotifiedAt(): ?\DateTimeImmutable
+    {
+        return $this->staffNotifiedAt;
+    }
+    public function markStaffNotified(): static
+    {
+        $this->staffNotifiedAt = new \DateTimeImmutable();
 
-    public function getUpdatedAt(): \DateTimeImmutable { return $this->updatedAt; }
-    public function setUpdatedAt(\DateTimeImmutable $updatedAt): static { $this->updatedAt = $updatedAt; return $this; }
+        return $this;
+    }
+
+    public function isSupport(): bool
+    {
+        return $this->support;
+    }
+    public function getCustomer(): ?User
+    {
+        return $this->customer;
+    }
+    public function markAsSupport(User $customer): static
+    {
+        $this->support = true;
+        $this->customer = $customer;
+        $this->isGroup = false;
+
+        return $this;
+    }
+
+    public function getCreatedAt(): \DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
+
+    public function getUpdatedAt(): \DateTimeImmutable
+    {
+        return $this->updatedAt;
+    }
+    public function setUpdatedAt(\DateTimeImmutable $updatedAt): static
+    {
+        $this->updatedAt = $updatedAt;
+
+        return $this;
+    }
 
     /** @return Collection<int, ConversationParticipant> */
-    public function getParticipants(): Collection { return $this->participants; }
+    public function getParticipants(): Collection
+    {
+        return $this->participants;
+    }
 
     public function addParticipant(User $user): ConversationParticipant
     {

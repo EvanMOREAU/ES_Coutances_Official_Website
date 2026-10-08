@@ -62,40 +62,121 @@ class CodePromo
         $this->createdAt = new \DateTimeImmutable();
     }
 
-    public function getId(): ?int { return $this->id; }
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
 
-    public function getCode(): ?string { return $this->code; }
-    public function setCode(string $code): static { $this->code = strtoupper(trim($code)); return $this; }
+    public function getCode(): ?string
+    {
+        return $this->code;
+    }
+    public function setCode(string $code): static
+    {
+        $this->code = strtoupper(trim($code));
 
-    public function getDescription(): ?string { return $this->description; }
-    public function setDescription(?string $description): static { $this->description = $description; return $this; }
+        return $this;
+    }
 
-    public function isActif(): bool { return $this->actif; }
-    public function setActif(bool $actif): static { $this->actif = $actif; return $this; }
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+    public function setDescription(?string $description): static
+    {
+        $this->description = $description;
 
-    public function getDateDebut(): ?\DateTimeImmutable { return $this->dateDebut; }
-    public function setDateDebut(?\DateTimeImmutable $dateDebut): static { $this->dateDebut = $dateDebut; return $this; }
+        return $this;
+    }
 
-    public function getDateFin(): ?\DateTimeImmutable { return $this->dateFin; }
-    public function setDateFin(?\DateTimeImmutable $dateFin): static { $this->dateFin = $dateFin; return $this; }
+    public function isActif(): bool
+    {
+        return $this->actif;
+    }
+    public function setActif(bool $actif): static
+    {
+        $this->actif = $actif;
 
-    public function getUsageMax(): ?int { return $this->usageMax; }
-    public function setUsageMax(?int $usageMax): static { $this->usageMax = $usageMax; return $this; }
+        return $this;
+    }
 
-    public function getUsageActuel(): int { return $this->usageActuel; }
+    public function getDateDebut(): ?\DateTimeImmutable
+    {
+        return $this->dateDebut;
+    }
+    public function setDateDebut(?\DateTimeImmutable $dateDebut): static
+    {
+        $this->dateDebut = $dateDebut;
 
-    public function incrementerUsage(): static { ++$this->usageActuel; return $this; }
+        return $this;
+    }
 
-    public function getUtilisateur(): ?User { return $this->utilisateur; }
-    public function setUtilisateur(?User $utilisateur): static { $this->utilisateur = $utilisateur; return $this; }
+    public function getDateFin(): ?\DateTimeImmutable
+    {
+        return $this->dateFin;
+    }
+    public function setDateFin(?\DateTimeImmutable $dateFin): static
+    {
+        $this->dateFin = $dateFin;
+
+        return $this;
+    }
+
+    public function getUsageMax(): ?int
+    {
+        return $this->usageMax;
+    }
+    public function setUsageMax(?int $usageMax): static
+    {
+        $this->usageMax = $usageMax;
+
+        return $this;
+    }
+
+    public function getUsageActuel(): int
+    {
+        return $this->usageActuel;
+    }
+
+    public function incrementerUsage(): static
+    {
+        ++$this->usageActuel;
+
+        return $this;
+    }
+
+    public function getUtilisateur(): ?User
+    {
+        return $this->utilisateur;
+    }
+    public function setUtilisateur(?User $utilisateur): static
+    {
+        $this->utilisateur = $utilisateur;
+
+        return $this;
+    }
 
     /** Ouvert à tout le monde (pas réservé à un utilisateur précis) ? */
-    public function isOuvertATous(): bool { return null === $this->utilisateur; }
+    public function isOuvertATous(): bool
+    {
+        return null === $this->utilisateur;
+    }
 
-    public function isApprouve(): bool { return $this->approuve; }
-    public function setApprouve(bool $approuve): static { $this->approuve = $approuve; return $this; }
+    public function isApprouve(): bool
+    {
+        return $this->approuve;
+    }
+    public function setApprouve(bool $approuve): static
+    {
+        $this->approuve = $approuve;
 
-    public function getCreatedAt(): ?\DateTimeImmutable { return $this->createdAt; }
+        return $this;
+    }
+
+    public function getCreatedAt(): ?\DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
 
     /**
      * Le code est-il utilisable maintenant (actif, dans sa période de validité, pas épuisé,

@@ -30,8 +30,22 @@ class FileFavorite
         $this->path = $path;
     }
 
-    public function getId(): ?int { return $this->id; }
-    public function getUser(): User { return $this->user; }
-    public function getPath(): string { return $this->path; }
-    public function setPath(string $path): static { $this->path = $path; return $this; }
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+    public function getUser(): User
+    {
+        return $this->user;
+    }
+    public function getPath(): string
+    {
+        return $this->path;
+    }
+    public function setPath(string $path): static
+    {
+        $this->path = $path;
+
+        return $this;
+    }
 }

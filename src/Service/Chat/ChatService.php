@@ -500,7 +500,7 @@ class ChatService
             throw new ChatException(sprintf('Message trop long (%d caractères maximum).', Message::MAX_LENGTH));
         }
         if ($this->participation($conversation, $author) === null) {
-            throw new ChatException("Vous ne faites pas partie de cette discussion.");
+            throw new ChatException('Vous ne faites pas partie de cette discussion.');
         }
 
         $message = new Message($conversation, $author, $body);

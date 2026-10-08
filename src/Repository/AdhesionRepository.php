@@ -7,6 +7,7 @@ use App\Entity\Famille;
 use App\Entity\Licencie;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use SortDirection;
 
 /** @extends ServiceEntityRepository<Adhesion> */
 class AdhesionRepository extends ServiceEntityRepository
@@ -23,7 +24,7 @@ class AdhesionRepository extends ServiceEntityRepository
             ->addSelect('l', 's', 'r', 'ai')
             ->leftJoin('a.licencie', 'l')->join('a.saison', 's')
             ->leftJoin('a.reglements', 'r')->leftJoin('a.aides', 'ai')
-            ->orderBy('s.dateDebut', 'DESC')->addOrderBy('a.licencieLabel', 'ASC')->addOrderBy('l.nom', 'ASC')
+            ->orderBy('s.dateDebut', SortDirection::Descending)->addOrderBy('a.licencieLabel', SortDirection::Ascending)->addOrderBy('l.nom', SortDirection::Ascending)
             ->getQuery()->getResult();
     }
 
@@ -33,7 +34,7 @@ class AdhesionRepository extends ServiceEntityRepository
         return $this->createQueryBuilder('a')
             ->join('a.saison', 's')
             ->andWhere('a.licencie = :l')->setParameter('l', $licencie)
-            ->orderBy('s.dateDebut', 'DESC')
+            ->orderBy('s.dateDebut', SortDirection::Descending)
             ->getQuery()->getResult();
     }
 
@@ -44,7 +45,7 @@ class AdhesionRepository extends ServiceEntityRepository
             ->addSelect('l', 's')
             ->join('a.licencie', 'l')->join('a.saison', 's')
             ->andWhere('l.famille = :f')->setParameter('f', $famille)
-            ->orderBy('s.dateDebut', 'DESC')->addOrderBy('l.prenom', 'ASC')
+            ->orderBy('s.dateDebut', SortDirection::Descending)->addOrderBy('l.prenom', SortDirection::Ascending)
             ->getQuery()->getResult();
     }
 }

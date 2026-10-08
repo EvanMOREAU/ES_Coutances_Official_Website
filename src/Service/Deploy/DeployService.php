@@ -127,7 +127,8 @@ class DeployService
     private function spawn(Deployment $deployment): void
     {
         $php = $this->phpBinary();
-        $arguments = sprintf('%s %s app:deploy %d --env=%s',
+        $arguments = sprintf(
+            '%s %s app:deploy %d --env=%s',
             escapeshellarg($php),
             escapeshellarg($this->projectDir.'/bin/console'),
             $deployment->getId(),
@@ -209,7 +210,7 @@ class DeployService
             $this->log($deployment, "\n✗ Échec à l'étape « ".$deployment->getStep().' » : '.$e->getMessage());
             if ($deployment->getToCommit() !== null) {
                 $this->log($deployment, sprintf(
-                    "Le code est déjà à jour (%s). Pour revenir en arrière : git reset --hard %s, puis composer install et cache:clear.",
+                    'Le code est déjà à jour (%s). Pour revenir en arrière : git reset --hard %s, puis composer install et cache:clear.',
                     $this->git->shortHash($deployment->getToCommit()),
                     $this->git->shortHash($deployment->getFromCommit()),
                 ));
@@ -236,7 +237,7 @@ class DeployService
             }
         }
 
-        throw new \RuntimeException("Composer est introuvable : définissez COMPOSER_BIN dans .env.local (chemin vers composer ou composer.phar).");
+        throw new \RuntimeException('Composer est introuvable : définissez COMPOSER_BIN dans .env.local (chemin vers composer ou composer.phar).');
     }
 
     /**

@@ -39,9 +39,24 @@ class Message
         $this->createdAt    = new \DateTimeImmutable();
     }
 
-    public function getId(): ?int { return $this->id; }
-    public function getConversation(): Conversation { return $this->conversation; }
-    public function getAuthor(): ?User { return $this->author; }
-    public function getBody(): string { return $this->body; }
-    public function getCreatedAt(): \DateTimeImmutable { return $this->createdAt; }
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+    public function getConversation(): Conversation
+    {
+        return $this->conversation;
+    }
+    public function getAuthor(): ?User
+    {
+        return $this->author;
+    }
+    public function getBody(): string
+    {
+        return $this->body;
+    }
+    public function getCreatedAt(): \DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
 }

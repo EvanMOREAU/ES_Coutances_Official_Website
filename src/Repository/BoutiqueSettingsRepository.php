@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\BoutiqueSettings;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use SortDirection;
 
 /** @extends ServiceEntityRepository<BoutiqueSettings> */
 class BoutiqueSettingsRepository extends ServiceEntityRepository
@@ -17,7 +18,7 @@ class BoutiqueSettingsRepository extends ServiceEntityRepository
     public function getSingleton(): ?BoutiqueSettings
     {
         return $this->createQueryBuilder('b')
-            ->orderBy('b.id', 'ASC')
+            ->orderBy('b.id', SortDirection::Ascending)
             ->setMaxResults(1)
             ->getQuery()
             ->getOneOrNullResult();

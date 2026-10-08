@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use SortDirection;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\PasswordUpgraderInterface;
@@ -40,8 +41,8 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
                 WHEN u.roles LIKE '%ROLE_DEV%' THEN 0 
                 WHEN u.roles LIKE '%ROLE_ADMIN%' THEN 1 
                 WHEN u.roles LIKE '%ROLE_EDITOR%' THEN 2 
-                ELSE 3 END", 'ASC')
-            ->addOrderBy('u.nom', 'ASC')
+                ELSE 3 END", SortDirection::Ascending)
+            ->addOrderBy('u.nom', SortDirection::Ascending)
             ->getQuery()
             ->getResult();
     }

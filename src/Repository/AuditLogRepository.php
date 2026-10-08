@@ -6,6 +6,7 @@ use App\Entity\AuditLog;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
+use SortDirection;
 
 /** @extends ServiceEntityRepository<AuditLog> */
 class AuditLogRepository extends ServiceEntityRepository
@@ -28,7 +29,7 @@ class AuditLogRepository extends ServiceEntityRepository
         $qb = $this->filtered($filters);
 
         $total = (int) (clone $qb)->select('COUNT(a.id)')->getQuery()->getSingleScalarResult();
-        $rows  = $qb->orderBy('a.occurredAt', 'DESC')->addOrderBy('a.id', 'DESC')
+        $rows  = $qb->orderBy('a.occurredAt', SortDirection::Descending)->addOrderBy('a.id', SortDirection::Descending)
             ->setFirstResult(max(0, $page - 1) * $perPage)->setMaxResults($perPage)
             ->getQuery()->getResult();
 
@@ -38,7 +39,7 @@ class AuditLogRepository extends ServiceEntityRepository
     /** @param array<string, string> $filters @return iterable<AuditLog> pour l'export, plafonné */
     public function export(array $filters, int $limit = 20000): iterable
     {
-        return $this->filtered($filters)->orderBy('a.occurredAt', 'DESC')->addOrderBy('a.id', 'DESC')
+        return $this->filtered($filters)->orderBy('a.occurredAt', SortDirection::Descending)->addOrderBy('a.id', SortDirection::Descending)
             ->setMaxResults($limit)->getQuery()->toIterable();
     }
 
@@ -46,7 +47,7 @@ class AuditLogRepository extends ServiceEntityRepository
     public function forRequest(string $requestId): array
     {
         return $this->createQueryBuilder('a')->andWhere('a.requestId = :r')->setParameter('r', $requestId)
-            ->orderBy('a.id', 'ASC')->getQuery()->getResult();
+            ->orderBy('a.id', SortDirection::Ascending)->getQuery()->getResult();
     }
 
     /** @return list<array{id: int, email: string, name: ?string}> comptes présents dans le journal (filtre « utilisateur ») */
@@ -55,14 +56,14 @@ class AuditLogRepository extends ServiceEntityRepository
         return $this->createQueryBuilder('a')
             ->select('a.userId AS id, a.userEmail AS email, MAX(a.userName) AS name')
             ->andWhere('a.userEmail IS NOT NULL')
-            ->groupBy('a.userId, a.userEmail')->orderBy('a.userEmail', 'ASC')
+            ->groupBy('a.userId, a.userEmail')->orderBy('a.userEmail', SortDirection::Ascending)
             ->getQuery()->getArrayResult();
     }
 
     /** @return list<string> */
     public function usedCategories(): array
     {
-        return array_column($this->createQueryBuilder('a')->select('DISTINCT a.category AS c')->orderBy('a.category', 'ASC')->getQuery()->getArrayResult(), 'c');
+        return array_column($this->createQueryBuilder('a')->select('DISTINCT a.category AS c')->orderBy('a.category', SortDirection::Ascending)->getQuery()->getArrayResult(), 'c');
     }
 
     /** @param array<string, string> $filters */

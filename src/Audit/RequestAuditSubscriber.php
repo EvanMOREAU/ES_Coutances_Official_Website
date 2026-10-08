@@ -86,9 +86,16 @@ final class RequestAuditSubscriber implements EventSubscriberInterface
 
         if ($throwable instanceof AccessDeniedHttpException || $throwable instanceof AccessDeniedException) {
             $this->recorder->event(
-                AuditLog::TYPE_SECURITE, 'refus', 'Sécurité',
+                AuditLog::TYPE_SECURITE,
+                'refus',
+                'Sécurité',
                 sprintf('%s %s', $request->getMethod(), $request->getPathInfo()),
-                null, ['route' => $route, 'motif' => $throwable->getMessage()], null, null, null, 403,
+                null,
+                ['route' => $route, 'motif' => $throwable->getMessage()],
+                null,
+                null,
+                null,
+                403,
             );
 
             return;
@@ -97,9 +104,16 @@ final class RequestAuditSubscriber implements EventSubscriberInterface
         // Erreurs serveur (pas les 404 des robots) : utile pour comprendre un incident.
         if (!$throwable instanceof HttpExceptionInterface) {
             $this->recorder->event(
-                AuditLog::TYPE_SYSTEME, 'echec', 'Système',
+                AuditLog::TYPE_SYSTEME,
+                'echec',
+                'Système',
                 sprintf('Erreur serveur : %s', (new \ReflectionClass($throwable))->getShortName()),
-                null, ['route' => $route, 'message' => $throwable->getMessage(), 'fichier' => basename($throwable->getFile()).':'.$throwable->getLine()], null, null, null, 500,
+                null,
+                ['route' => $route, 'message' => $throwable->getMessage(), 'fichier' => basename($throwable->getFile()).':'.$throwable->getLine()],
+                null,
+                null,
+                null,
+                500,
             );
         }
     }

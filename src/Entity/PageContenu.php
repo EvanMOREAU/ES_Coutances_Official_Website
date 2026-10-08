@@ -6,6 +6,7 @@ use App\Repository\PageContenuRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\Validator\Constraints as Assert;
 use Vich\UploaderBundle\Mapping\Attribute as Vich;
 
 #[ORM\Entity(repositoryClass: PageContenuRepository::class)]
@@ -18,9 +19,13 @@ class PageContenu
     private ?int $id = null;
 
     #[ORM\Column(length: 100)]
+    #[Assert\NotBlank(message: 'Indiquez l\'adresse de la page.')]
+    #[Assert\Length(max: 150, maxMessage: 'Maximum 150 caractères.')]
     private ?string $slug = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: 'Donnez un titre à la page.')]
+    #[Assert\Length(max: 150, maxMessage: 'Maximum 150 caractères.')]
     private ?string $titre = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]

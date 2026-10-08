@@ -2,10 +2,11 @@
 
 namespace App\Entity;
 
-use App\Repository\EquipeRepository;
 use App\Entity\Concern\CreatedAtTrait;
 use App\Entity\Concern\StatutTrait;
+use App\Repository\EquipeRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Équipe rattachée à une catégorie d'âge (ex. "U11 A", "U11 B"). Les licenciés
@@ -24,9 +25,12 @@ class Equipe
     private ?int $id = null;
 
     #[ORM\Column(length: 100)]
+    #[Assert\NotBlank(message: 'Donnez un nom à l\'équipe.')]
+    #[Assert\Length(max: 100)]
     private ?string $nom = null;
 
     #[ORM\Column(length: 20)]
+    #[Assert\NotBlank(message: 'Choisissez une catégorie.')]
     private ?string $categorie = null;
 
     #[ORM\Column]
@@ -37,15 +41,37 @@ class Equipe
         return $this->nom ?? '';
     }
 
-    public function getId(): ?int { return $this->id; }
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
 
-    public function getNom(): ?string { return $this->nom; }
-    public function setNom(string $nom): static { $this->nom = $nom; return $this; }
+    public function getNom(): ?string
+    {
+        return $this->nom;
+    }
+    public function setNom(string $nom): static
+    {
+        $this->nom = $nom;
 
-    public function getCategorie(): ?string { return $this->categorie; }
-    public function setCategorie(string $categorie): static { $this->categorie = $categorie; return $this; }
+        return $this;
+    }
 
-    public function isActif(): bool { return $this->actif; }
+    public function getCategorie(): ?string
+    {
+        return $this->categorie;
+    }
+    public function setCategorie(string $categorie): static
+    {
+        $this->categorie = $categorie;
+
+        return $this;
+    }
+
+    public function isActif(): bool
+    {
+        return $this->actif;
+    }
 
     /** Vrai uniquement quand le statut est "actif" (utilisé par le site public). */
     public function setStatut(string $statut): static

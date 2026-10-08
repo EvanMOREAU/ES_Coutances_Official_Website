@@ -33,7 +33,7 @@ class FamilleType extends AbstractType
                     'label'          => 'Prénom du parent référent',
                     'required'       => false,
                     'property_path'  => 'user.prenom',
-                    'help'           => "Affiché entre parenthèses devant le nom de famille pour distinguer deux familles homonymes.",
+                    'help'           => 'Affiché entre parenthèses devant le nom de famille pour distinguer deux familles homonymes.',
                 ])
             ;
         }

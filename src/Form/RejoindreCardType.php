@@ -25,7 +25,7 @@ class RejoindreCardType extends AbstractType
             ->add('boutonUrl', TextType::class, [
                 'label'    => 'Lien externe (URL absolue)',
                 'required' => false,
-                'help'     => "À remplir uniquement pour un lien vers un site externe, ex : https://... Laisser vide pour utiliser une page interne ci-dessous.",
+                'help'     => 'À remplir uniquement pour un lien vers un site externe, ex : https://... Laisser vide pour utiliser une page interne ci-dessous.',
             ])
             ->add('pageDetail', EntityType::class, [
                 'class'        => PageContenu::class,

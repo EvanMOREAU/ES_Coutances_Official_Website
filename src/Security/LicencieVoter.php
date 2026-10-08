@@ -10,7 +10,7 @@ use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
 class LicencieVoter extends Voter
 {
-    const VIEW = 'LICENCIE_VIEW';
+    public const VIEW = 'LICENCIE_VIEW';
 
     protected function supports(string $attribute, mixed $subject): bool
     {

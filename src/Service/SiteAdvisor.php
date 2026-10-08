@@ -100,24 +100,47 @@ class SiteAdvisor
             $manquants[] = sprintf('horaires (%d jour%s sur 7)', $jours, $jours > 1 ? 's' : '');
         }
         if ([] !== $manquants) {
-            $items[] = $this->item(self::HUB_VITRINE, 'contact', 'fa-envelope', 'Compléter les informations de contact',
-                'Manque : '.implode(', ', $manquants).'. Affiché sur la page Contact du site.');
+            $items[] = $this->item(
+                self::HUB_VITRINE,
+                'contact',
+                'fa-envelope',
+                'Compléter les informations de contact',
+                'Manque : '.implode(', ', $manquants).'. Affiché sur la page Contact du site.',
+            );
         }
 
         if (0 === $this->cards->count(['actif' => true])) {
-            $items[] = $this->item(self::HUB_VITRINE, 'rejoindre', 'fa-user-plus', 'Créer une carte « Nous rejoindre »',
-                'Aucune carte active : cette rubrique de l\'accueil est vide.', 'new');
+            $items[] = $this->item(
+                self::HUB_VITRINE,
+                'rejoindre',
+                'fa-user-plus',
+                'Créer une carte « Nous rejoindre »',
+                'Aucune carte active : cette rubrique de l\'accueil est vide.',
+                'new',
+            );
         }
 
         if (0 === $this->slides->count(['actif' => true])) {
-            $items[] = $this->item(self::HUB_VITRINE, 'carousel', 'fa-images', 'Ajouter des slides au carousel',
-                "Aucune slide active : le carousel de la page d'accueil est vide.", 'new');
+            $items[] = $this->item(
+                self::HUB_VITRINE,
+                'carousel',
+                'fa-images',
+                'Ajouter des slides au carousel',
+                "Aucune slide active : le carousel de la page d'accueil est vide.",
+                'new',
+            );
         }
 
         $membresActifs = $this->membres->count(['actif' => true]);
         if (0 === $membresActifs) {
-            $items[] = $this->item(self::HUB_VITRINE, 'encadrement', 'fa-people-group', "Présenter l'encadrement",
-                'Aucun membre actif : la page Encadrement est vide.', 'new');
+            $items[] = $this->item(
+                self::HUB_VITRINE,
+                'encadrement',
+                'fa-people-group',
+                "Présenter l'encadrement",
+                'Aucun membre actif : la page Encadrement est vide.',
+                'new',
+            );
         } else {
             $vides = [];
             foreach ($this->categories->findBy([], ['ordre' => 'ASC']) as $categorie) {
@@ -126,15 +149,29 @@ class SiteAdvisor
                 }
             }
             if ([] !== $vides) {
-                $items[] = $this->item(self::HUB_VITRINE, 'encadrement', 'fa-people-group', 'Catégories sans encadrant',
-                    'Aucun membre actif dans : '.implode(', ', $vides).'.', 'new', true);
+                $items[] = $this->item(
+                    self::HUB_VITRINE,
+                    'encadrement',
+                    'fa-people-group',
+                    'Catégories sans encadrant',
+                    'Aucun membre actif dans : '.implode(', ', $vides).'.',
+                    'new',
+                    true,
+                );
             }
         }
 
         $banner = $this->banners->getSingleton();
         if (!$banner || !$banner->getImageName()) {
-            $items[] = $this->item(self::HUB_VITRINE, 'accueil', 'fa-image', "Ajouter une bannière d'accueil",
-                'Optionnel : utile pour mettre en avant un match ou un événement.', 'list', true);
+            $items[] = $this->item(
+                self::HUB_VITRINE,
+                'accueil',
+                'fa-image',
+                "Ajouter une bannière d'accueil",
+                'Optionnel : utile pour mettre en avant un match ou un événement.',
+                'list',
+                true,
+            );
         }
 
         return $items;
@@ -146,8 +183,14 @@ class SiteAdvisor
         $items = [];
 
         if (0 === $this->partenaires->count(['statut' => 'active'])) {
-            $items[] = $this->item(self::HUB_PARTENAIRE, 'partenaires', 'fa-handshake', 'Ajouter vos partenaires',
-                "Aucun partenaire actif : la bande de sponsors du site est vide.", 'new');
+            $items[] = $this->item(
+                self::HUB_PARTENAIRE,
+                'partenaires',
+                'fa-handshake',
+                'Ajouter vos partenaires',
+                'Aucun partenaire actif : la bande de sponsors du site est vide.',
+                'new',
+            );
         }
 
         return $items;
@@ -159,22 +202,40 @@ class SiteAdvisor
         $items = [];
 
         if (null === $this->saisons->findActive()) {
-            $items[] = $this->item(self::HUB_LICENCIES, 'saison', 'fa-calendar-days', 'Définir la saison en cours',
+            $items[] = $this->item(
+                self::HUB_LICENCIES,
+                'saison',
+                'fa-calendar-days',
+                'Définir la saison en cours',
                 'Aucune saison n\'est marquée « en cours » : les statistiques de licenciés en dépendent.',
-                0 === $this->saisons->count([]) ? 'new' : 'list');
+                0 === $this->saisons->count([]) ? 'new' : 'list',
+            );
         }
 
         if (0 === $this->equipes->count(['statut' => 'active'])) {
-            $items[] = $this->item(self::HUB_LICENCIES, 'equipe', 'fa-shirt', 'Créer vos équipes',
-                'Aucune équipe active : les licenciés ne peuvent pas être affiliés pour les matchs.', 'new');
+            $items[] = $this->item(
+                self::HUB_LICENCIES,
+                'equipe',
+                'fa-shirt',
+                'Créer vos équipes',
+                'Aucune équipe active : les licenciés ne peuvent pas être affiliés pour les matchs.',
+                'new',
+            );
         }
 
         $sansLicencie = (int) $this->familles->createQueryBuilder('f')
             ->select('COUNT(f.id)')->andWhere('f.licencies IS EMPTY')
             ->getQuery()->getSingleScalarResult();
         if ($sansLicencie > 0) {
-            $items[] = $this->item(self::HUB_LICENCIES, 'famille', 'fa-house-user', 'Familles sans licencié',
-                sprintf('%d famille%s ne compte%s aucun licencié.', $sansLicencie, $sansLicencie > 1 ? 's' : '', $sansLicencie > 1 ? 'nt' : ''), 'list', true);
+            $items[] = $this->item(
+                self::HUB_LICENCIES,
+                'famille',
+                'fa-house-user',
+                'Familles sans licencié',
+                sprintf('%d famille%s ne compte%s aucun licencié.', $sansLicencie, $sansLicencie > 1 ? 's' : '', $sansLicencie > 1 ? 'nt' : ''),
+                'list',
+                true,
+            );
         }
 
         return $items;

@@ -7,6 +7,32 @@
 #   version : numéro (ex. 1.2.0)      date : AAAA-MM-JJ      titre : résumé court (facultatif)
 #   added / improved / fixed / removed : listes de phrases (Ajouté / Amélioré / Corrigé / Retiré)
 
+- version: "1.0.8"
+  date: "2026-10-07"
+  titre: "Fiabilisation : 300 tests automatisés, contrôle qualité du code, formulaires sécurisés et pages d'erreur du club"
+  added:
+    - "Plus de 300 tests automatisés couvrant la boutique (panier, commande, stock, bons de livraison), les connexions, l'import Foot Club, le RGPD (export et anonymisation), la messagerie et le support, le planning, le formulaire de contact, la clôture de saison, les droits d'accès et l'administration."
+    - "Tests de masse : toutes les pages de l'administration et de l'espace Mon compte sont vérifiées (inaccessibles sans connexion, refusées sans l'autorisation requise, jamais d'erreur serveur), et chaque formulaire de création est envoyé à vide pour détecter toute validation oubliée."
+    - "Contrôle qualité du code en une commande (composer check) : style du code, validation des fichiers de configuration et des templates, analyse statique PHPStan et tests. Un contrôle plus rapide peut s'activer avant chaque commit (composer hooks:install)."
+    - "Intégration continue GitHub : à chaque modification, le style, l'analyse, la recherche de failles connues dans les dépendances et la suite de tests sont lancés automatiquement sur une base de données vierge, avec rejeu de toutes les migrations. Mises à jour de dépendances proposées chaque semaine."
+    - "Garde-fou de base de données : un test échoue si une fiche (entité) est modifiée sans migration associée."
+    - "Pages d'erreur aux couleurs du club (page introuvable, accès refusé, service indisponible, erreur générique) avec retour à l'accueil, sans aucune information technique."
+    - "En-têtes de sécurité sur toutes les réponses du site (détection de type de fichier désactivée, protection contre l'inclusion du site dans un autre domaine, référent limité, fonctions matérielles inutiles désactivées, HSTS en HTTPS)."
+    - "Adresse de supervision /health : répond 200 si le site et la base de données fonctionnent, 503 sinon, pour brancher un outil de surveillance."
+    - "README : nouvelle section « Qualité du code et tests » (commandes, organisation des tests, règle pour protéger une nouvelle page)."
+  fixed:
+    - "Quatorze formulaires d'administration affichaient une erreur 500 quand ils étaient envoyés incomplets (équipes, saisons, articles, licenciés, familles, utilisateurs, membres, partenaires, catégories, offres d'emploi, pages, cartes « Nous rejoindre », slides du carousel). Ils affichent désormais un message clair et rien n'est enregistré."
+    - "Le statut, l'ordre d'affichage, le prix d'un article et la catégorie d'âge d'un licencié ne provoquent plus d'erreur lorsque le champ est vide."
+    - "Export CSV du journal d'activité : suppression d'un avertissement de PHP 8.5 sur la fonction d'écriture CSV."
+    - "Offres d'emploi : suppression d'une propriété inexistante initialisée à la création (déprécié depuis PHP 8.2)."
+  improved:
+    - "Style du code uniformisé sur l'ensemble du projet (imports triés et nettoyés, apostrophes, virgules finales) sans changement de comportement."
+    - "Les tests utilisent une base de données et un serveur d'e-mail factices : aucun e-mail réel n'est envoyé, aucune donnée de production n'est touchée."
+    - "Dépendances mises à jour (Symfony 8.1.8, Doctrine ORM 3.7, Twig 3.29, Monolog, PHPUnit 13.4, vich/uploader-bundle 3.0) : le site n'affiche plus d'avertissement de fonctionnalité obsolète, à l'exception de deux messages internes au bundle d'envoi de fichiers (vich), qui disparaîtront à sa prochaine version."
+    - "Requêtes Doctrine modernisées : jointure sur entité écrite avec ON (messagerie, compteur de messages non lus) et tris déclarés avec SortDirection (relations des fiches et toutes les requêtes des repositories, formulaires et services) au lieu de 'ASC'/'DESC' en texte."
+    - "Menu de l'administration : la macro Twig nav_link reçoit des valeurs par défaut pour ses arguments facultatifs (plus d'une centaine d'avertissements Twig 3.29 supprimés dans le profiler), sans changement d'affichage."
+    - "Cette mise à jour ne contient aucune migration de base de données."
+
 - version: "1.0.7"
   date: "2026-10-06"
   titre: "Espace Mon compte refait et sécurisé, RGPD, support client, documents en messagerie, notifications et match en live programmé"

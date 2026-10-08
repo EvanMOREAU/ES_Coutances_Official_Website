@@ -1,0 +1,12 @@
+#!/bin/sh
+# Contrôle rapide avant chaque commit : style, analyse statique et tests unitaires.
+# Activation : composer hooks:install
+
+set -e
+
+echo "→ Style du code"
+composer --quiet cs
+echo "→ Analyse statique"
+composer --quiet stan
+echo "→ Tests unitaires"
+composer --quiet test:unit

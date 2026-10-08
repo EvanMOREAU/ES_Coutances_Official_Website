@@ -4,13 +4,13 @@ namespace App\Security;
 
 use App\Entity\User;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
-use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 use Symfony\Component\Security\Core\Authorization\Voter\Vote;
+use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
 class UserVoter extends Voter
 {
-    const DELETE = 'USER_DELETE';
-    const EDIT   = 'USER_EDIT';
+    public const DELETE = 'USER_DELETE';
+    public const EDIT   = 'USER_EDIT';
 
     protected function supports(string $attribute, mixed $subject): bool
     {
@@ -22,7 +22,7 @@ class UserVoter extends Voter
         string $attribute,
         mixed $subject,
         TokenInterface $token,
-        ?Vote $vote = null
+        ?Vote $vote = null,
     ): bool {
         $currentUser = $token->getUser();
 

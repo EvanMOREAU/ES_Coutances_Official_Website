@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\Saison;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use SortDirection;
 
 /**
  * @extends ServiceEntityRepository<Saison>
@@ -31,7 +32,7 @@ class SaisonRepository extends ServiceEntityRepository
         return $this->createQueryBuilder('s')
             ->andWhere('s.dateDebut < :dateDebut')
             ->setParameter('dateDebut', $saison->getDateDebut())
-            ->orderBy('s.dateDebut', 'DESC')
+            ->orderBy('s.dateDebut', SortDirection::Descending)
             ->setMaxResults(1)
             ->getQuery()
             ->getOneOrNullResult();

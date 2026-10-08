@@ -55,7 +55,7 @@ final class PermissionCatalog
                 'commande' => ['label' => 'Commandes', 'actions' => [
                     self::VOIR => 'Voir', 'traiter' => 'Préparer, encaisser, remettre', 'annuler' => 'Annuler une commande',
                 ]],
-                'code_promo' => ['label' => 'Bons de livraison', 'actions' => $crud + ['approuver' => "Valider un bon ouvert à tout le monde"]],
+                'code_promo' => ['label' => 'Bons de livraison', 'actions' => $crud + ['approuver' => 'Valider un bon ouvert à tout le monde']],
             ],
             'Site vitrine' => [
                 'partenaire'     => ['label' => 'Partenaires et sponsors', 'actions' => $crud],

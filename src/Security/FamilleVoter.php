@@ -5,12 +5,12 @@ namespace App\Security;
 use App\Entity\Famille;
 use App\Entity\User;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
-use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 use Symfony\Component\Security\Core\Authorization\Voter\Vote;
+use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
 class FamilleVoter extends Voter
 {
-    const VIEW = 'FAMILLE_VIEW';
+    public const VIEW = 'FAMILLE_VIEW';
 
     protected function supports(string $attribute, mixed $subject): bool
     {

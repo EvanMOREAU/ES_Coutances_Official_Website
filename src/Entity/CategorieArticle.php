@@ -26,15 +26,37 @@ class CategorieArticle
     #[ORM\Column(options: ['default' => 0])]
     private int $ordre = 0;
 
-    public function __toString(): string { return $this->nom ?? ''; }
+    public function __toString(): string
+    {
+        return $this->nom ?? '';
+    }
 
-    public function getId(): ?int { return $this->id; }
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
 
-    public function getNom(): ?string { return $this->nom; }
-    public function setNom(?string $nom): static { $this->nom = $nom; return $this; }
+    public function getNom(): ?string
+    {
+        return $this->nom;
+    }
+    public function setNom(?string $nom): static
+    {
+        $this->nom = $nom;
 
-    public function getSlug(): ?string { return $this->slug; }
-    public function setSlug(string $slug): static { $this->slug = $slug; return $this; }
+        return $this;
+    }
+
+    public function getSlug(): ?string
+    {
+        return $this->slug;
+    }
+    public function setSlug(string $slug): static
+    {
+        $this->slug = $slug;
+
+        return $this;
+    }
 
     /** Base de slug ; l'unicité est garantie par CategorieArticleRepository::uniqueSlug(). */
     public function slugBase(): string
@@ -42,6 +64,14 @@ class CategorieArticle
         return (new AsciiSlugger('fr'))->slug((string) $this->nom)->lower()->toString() ?: 'categorie';
     }
 
-    public function getOrdre(): int { return $this->ordre; }
-    public function setOrdre(int $ordre): static { $this->ordre = $ordre; return $this; }
+    public function getOrdre(): int
+    {
+        return $this->ordre;
+    }
+    public function setOrdre(int $ordre): static
+    {
+        $this->ordre = $ordre;
+
+        return $this;
+    }
 }

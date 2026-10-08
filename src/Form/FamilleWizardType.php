@@ -8,6 +8,7 @@ use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints as Assert;
 
 class FamilleWizardType extends AbstractType
 {
@@ -16,15 +17,17 @@ class FamilleWizardType extends AbstractType
         $builder
             ->add('nom', TextType::class, [
                 'label' => 'Nom de la famille',
+                'constraints' => [new Assert\NotBlank(message: 'Indiquez le nom de la famille.'), new Assert\Length(max: 150)],
             ])
             ->add('email', EmailType::class, [
                 'label' => 'Email de référence de la famille',
+                'constraints' => [new Assert\NotBlank(message: 'Indiquez l\'adresse e-mail de la famille.'), new Assert\Email(message: 'Cette adresse e-mail n\'est pas valide.')],
                 'help'  => 'Un compte est créé automatiquement à cette adresse : la famille reçoit un email pour définir son mot de passe.',
             ])
             ->add('prenomReferent', TextType::class, [
                 'label'    => 'Prénom du parent référent',
                 'required' => false,
-                'help'     => "Affiché entre parenthèses devant le nom de famille pour distinguer deux familles homonymes.",
+                'help'     => 'Affiché entre parenthèses devant le nom de famille pour distinguer deux familles homonymes.',
             ])
             ->add('adresse', TextType::class, [
                 'label'    => 'Adresse',

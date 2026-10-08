@@ -3,12 +3,14 @@
 namespace App\Service;
 
 use Doctrine\ORM\EntityManagerInterface;
+use SortDirection;
 
 class OrdreService
 {
     public function __construct(
-        private EntityManagerInterface $em
-    ) {}
+        private EntityManagerInterface $em,
+    ) {
+    }
 
     /**
      * Retourne le prochain ordre disponible pour une entité donnée.
@@ -36,7 +38,7 @@ class OrdreService
         $qb = $repo->createQueryBuilder('e')
             ->where('e.ordre >= :ordre')
             ->setParameter('ordre', $ordre)
-            ->orderBy('e.ordre', 'ASC');
+            ->orderBy('e.ordre', SortDirection::Ascending);
 
         // Exclut l'entité en cours de modification
         if ($id) {

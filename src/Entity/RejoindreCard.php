@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\RejoindreCardRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\Validator\Constraints as Assert;
 use Vich\UploaderBundle\Mapping\Attribute as Vich;
 
 #[ORM\Entity(repositoryClass: RejoindreCardRepository::class)]
@@ -17,6 +18,8 @@ class RejoindreCard
     private ?int $id = null;
 
     #[ORM\Column(length: 150)]
+    #[Assert\NotBlank(message: 'Donnez un titre à la carte.')]
+    #[Assert\Length(max: 150, maxMessage: 'Maximum 150 caractères.')]
     private ?string $titre = null;
 
     #[ORM\Column(type: 'text', nullable: true)]
@@ -53,18 +56,48 @@ class RejoindreCard
     #[ORM\Column]
     private int $ordre = 0;
 
-    public function getId(): ?int { return $this->id; }
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
 
-    public function getTitre(): ?string { return $this->titre; }
-    public function setTitre(string $titre): static { $this->titre = $titre; return $this; }
+    public function getTitre(): ?string
+    {
+        return $this->titre;
+    }
+    public function setTitre(string $titre): static
+    {
+        $this->titre = $titre;
 
-    public function getDescription(): ?string { return $this->description; }
-    public function setDescription(?string $description): static { $this->description = $description; return $this; }
+        return $this;
+    }
 
-    public function getImageName(): ?string { return $this->imageName; }
-    public function setImageName(?string $imageName): static { $this->imageName = $imageName; return $this; }
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+    public function setDescription(?string $description): static
+    {
+        $this->description = $description;
 
-    public function getImageFile(): ?File { return $this->imageFile; }
+        return $this;
+    }
+
+    public function getImageName(): ?string
+    {
+        return $this->imageName;
+    }
+    public function setImageName(?string $imageName): static
+    {
+        $this->imageName = $imageName;
+
+        return $this;
+    }
+
+    public function getImageFile(): ?File
+    {
+        return $this->imageFile;
+    }
     public function setImageFile(?File $imageFile = null): void
     {
         $this->imageFile = $imageFile;
@@ -73,26 +106,85 @@ class RejoindreCard
         }
     }
 
-    public function getBoutonTexte(): ?string { return $this->boutonTexte; }
-    public function setBoutonTexte(?string $boutonTexte): static { $this->boutonTexte = $boutonTexte; return $this; }
+    public function getBoutonTexte(): ?string
+    {
+        return $this->boutonTexte;
+    }
+    public function setBoutonTexte(?string $boutonTexte): static
+    {
+        $this->boutonTexte = $boutonTexte;
 
-    public function getBoutonUrl(): ?string { return $this->boutonUrl; }
-    public function setBoutonUrl(?string $boutonUrl): static { $this->boutonUrl = $boutonUrl; return $this; }
+        return $this;
+    }
 
-    public function getPageDetail(): ?PageContenu { return $this->pageDetail; }
-    public function setPageDetail(?PageContenu $pageDetail): static { $this->pageDetail = $pageDetail; return $this; }
+    public function getBoutonUrl(): ?string
+    {
+        return $this->boutonUrl;
+    }
+    public function setBoutonUrl(?string $boutonUrl): static
+    {
+        $this->boutonUrl = $boutonUrl;
 
-    public function getNouvellePageTitre(): ?string { return $this->nouvellePageTitre; }
-    public function setNouvellePageTitre(?string $nouvellePageTitre): static { $this->nouvellePageTitre = $nouvellePageTitre; return $this; }
+        return $this;
+    }
 
-    public function getUpdatedAt(): ?\DateTimeImmutable { return $this->updatedAt; }
-    public function setUpdatedAt(?\DateTimeImmutable $updatedAt): static { $this->updatedAt = $updatedAt; return $this; }
+    public function getPageDetail(): ?PageContenu
+    {
+        return $this->pageDetail;
+    }
+    public function setPageDetail(?PageContenu $pageDetail): static
+    {
+        $this->pageDetail = $pageDetail;
 
-    public function isActif(): bool { return $this->actif; }
-    public function setActif(bool $actif): static { $this->actif = $actif; return $this; }
+        return $this;
+    }
 
-    public function getOrdre(): int { return $this->ordre; }
-    public function setOrdre(int $ordre): static { $this->ordre = $ordre; return $this; }
+    public function getNouvellePageTitre(): ?string
+    {
+        return $this->nouvellePageTitre;
+    }
+    public function setNouvellePageTitre(?string $nouvellePageTitre): static
+    {
+        $this->nouvellePageTitre = $nouvellePageTitre;
 
-    public function __toString(): string { return $this->titre ?? ''; }
+        return $this;
+    }
+
+    public function getUpdatedAt(): ?\DateTimeImmutable
+    {
+        return $this->updatedAt;
+    }
+    public function setUpdatedAt(?\DateTimeImmutable $updatedAt): static
+    {
+        $this->updatedAt = $updatedAt;
+
+        return $this;
+    }
+
+    public function isActif(): bool
+    {
+        return $this->actif;
+    }
+    public function setActif(bool $actif): static
+    {
+        $this->actif = $actif;
+
+        return $this;
+    }
+
+    public function getOrdre(): int
+    {
+        return $this->ordre;
+    }
+    public function setOrdre(int $ordre): static
+    {
+        $this->ordre = $ordre;
+
+        return $this;
+    }
+
+    public function __toString(): string
+    {
+        return $this->titre ?? '';
+    }
 }

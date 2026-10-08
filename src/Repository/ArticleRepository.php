@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\Article;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use SortDirection;
 
 /** @extends ServiceEntityRepository<Article> */
 class ArticleRepository extends ServiceEntityRepository
@@ -25,8 +26,8 @@ class ArticleRepository extends ServiceEntityRepository
             ->leftJoin('a.variantes', 'v')
             ->andWhere('a.statut = :actif')
             ->setParameter('actif', Article::STATUT_ACTIVE)
-            ->orderBy('a.createdAt', 'DESC')
-            ->addOrderBy('a.id', 'DESC');
+            ->orderBy('a.createdAt', SortDirection::Descending)
+            ->addOrderBy('a.id', SortDirection::Descending);
 
         if (null !== $categorieSlug) {
             $qb->join('a.categorie', 'c')

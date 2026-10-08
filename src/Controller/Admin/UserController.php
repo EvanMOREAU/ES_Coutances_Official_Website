@@ -3,20 +3,20 @@
 namespace App\Controller\Admin;
 
 use App\Entity\User;
+use App\Form\UserType;
+use App\Repository\UserRepository;
 use App\Security\PermissionCatalog;
 use App\Security\PermissionChecker;
 use App\Security\ProfilDefaults;
-use App\Form\UserType;
-use App\Repository\UserRepository;
 use App\Security\UserVoter;
 use App\Service\AccountActivationMailer;
 use Doctrine\ORM\EntityManagerInterface;
+use SortDirection;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/admin/utilisateurs')]
 class UserController extends AbstractController
@@ -32,8 +32,8 @@ class UserController extends AbstractController
                     WHEN u.roles LIKE '%ROLE_ADMIN%' THEN 1
                     WHEN u.roles LIKE '%ROLE_EDITOR%' THEN 2
                     ELSE 3 END AS HIDDEN role_order")
-                ->orderBy('role_order', 'ASC')
-                ->addOrderBy('u.nom', 'ASC')
+                ->orderBy('role_order', SortDirection::Ascending)
+                ->addOrderBy('u.nom', SortDirection::Ascending)
                 ->getQuery()
                 ->getResult(),
         ]);

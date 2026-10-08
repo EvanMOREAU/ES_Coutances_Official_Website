@@ -2,10 +2,11 @@
 
 namespace App\Entity;
 
-use App\Repository\SaisonRepository;
 use App\Entity\Concern\CreatedAtTrait;
 use App\Entity\Concern\StatutTrait;
+use App\Repository\SaisonRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: SaisonRepository::class)]
 #[ORM\HasLifecycleCallbacks]
@@ -20,12 +21,16 @@ class Saison
     private ?int $id = null;
 
     #[ORM\Column(length: 20, unique: true)]
+    #[Assert\NotBlank(message: 'Indiquez le libellé de la saison (ex. 2026-2027).')]
+    #[Assert\Length(max: 20, maxMessage: 'Maximum 20 caractères.')]
     private ?string $libelle = null;
 
     #[ORM\Column]
+    #[Assert\NotNull(message: 'Indiquez la date de début.')]
     private ?\DateTimeImmutable $dateDebut = null;
 
     #[ORM\Column]
+    #[Assert\NotNull(message: 'Indiquez la date de fin.')]
     private ?\DateTimeImmutable $dateFin = null;
 
     #[ORM\Column]
@@ -58,7 +63,7 @@ class Saison
         return $this->dateDebut;
     }
 
-    public function setDateDebut(\DateTimeImmutable $dateDebut): static
+    public function setDateDebut(?\DateTimeImmutable $dateDebut): static
     {
         $this->dateDebut = $dateDebut;
 
@@ -70,7 +75,7 @@ class Saison
         return $this->dateFin;
     }
 
-    public function setDateFin(\DateTimeImmutable $dateFin): static
+    public function setDateFin(?\DateTimeImmutable $dateFin): static
     {
         $this->dateFin = $dateFin;
 

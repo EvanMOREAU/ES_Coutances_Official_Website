@@ -53,14 +53,15 @@
         "symfonycasts/tailwind-bundle": "^1.0",
         "twig/extra-bundle": "^2.12|^3.24",
         "twig/twig": "^2.12|^3.28",
-        "vich/uploader-bundle": "*",
+        "vich/uploader-bundle": "^3.0",
         "web-auth/webauthn-lib": "^5.3"
     },
     "config": {
         "allow-plugins": {
             "php-http/discovery": true,
             "symfony/flex": true,
-            "symfony/runtime": true
+            "symfony/runtime": true,
+            "phpstan/extension-installer": true
         },
         "bump-after-update": true,
         "sort-packages": true
@@ -98,6 +99,35 @@
         ],
         "post-update-cmd": [
             "@auto-scripts"
+        ],
+        "cs": "php-cs-fixer fix --dry-run --diff",
+        "cs:fix": "php-cs-fixer fix",
+        "stan": "phpstan analyse --memory-limit=1G",
+        "lint": [
+            "@lint:yaml",
+            "@lint:twig",
+            "@lint:container"
+        ],
+        "lint:yaml": "php bin/console lint:yaml config translations --parse-tags",
+        "lint:twig": "php bin/console lint:twig templates",
+        "lint:container": "php bin/console lint:container",
+        "test:setup": [
+            "php bin/console doctrine:database:create --env=test --if-not-exists",
+            "php bin/console doctrine:schema:drop --env=test --force --full-database",
+            "php bin/console doctrine:migrations:migrate --env=test --no-interaction"
+        ],
+        "test": [
+            "@php bin/console cache:warmup --env=test",
+            "phpunit"
+        ],
+        "test:unit": "phpunit --testsuite Unit",
+        "test:coverage": "phpunit --coverage-html var/coverage",
+        "hooks:install": "git config core.hooksPath .githooks",
+        "check": [
+            "@cs",
+            "@lint",
+            "@stan",
+            "@test"
         ]
     },
     "conflict": {
@@ -110,6 +140,11 @@
         }
     },
     "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.95",
+        "phpstan/extension-installer": "^1.4",
+        "phpstan/phpstan": "^2.3",
+        "phpstan/phpstan-doctrine": "^2.0",
+        "phpstan/phpstan-symfony": "^2.1",
         "phpunit/phpunit": "^13.2.4",
         "symfony/browser-kit": "8.1.*",
         "symfony/css-selector": "8.1.*",
@@ -117,5 +152,15 @@
         "symfony/maker-bundle": "^1.67",
         "symfony/stopwatch": "8.1.*",
         "symfony/web-profiler-bundle": "8.1.*"
+    },
+    "scripts-descriptions": {
+        "cs": "Vérifie le style du code (sans rien modifier)",
+        "cs:fix": "Corrige automatiquement le style du code",
+        "stan": "Analyse statique (PHPStan)",
+        "lint": "Valide les fichiers YAML, les templates Twig et le conteneur",
+        "test:setup": "Crée et migre la base de données de test",
+        "test": "Lance toute la suite de tests",
+        "hooks:install": "Active le contrôle automatique (style, analyse, tests unitaires) avant chaque commit",
+        "check": "Contrôle complet : style, lint, analyse statique et tests (à lancer avant chaque commit)"
     }
 }

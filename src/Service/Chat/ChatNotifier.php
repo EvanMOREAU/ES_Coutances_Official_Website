@@ -2,7 +2,6 @@
 
 namespace App\Service\Chat;
 
-use App\Entity\Conversation;
 use App\Entity\Message;
 use App\Entity\User;
 use App\Repository\UserRepository;
@@ -11,9 +10,9 @@ use App\Service\Notification\NotificationPreferences;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
-use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\KernelEvents;
+use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Address;
 
 /**

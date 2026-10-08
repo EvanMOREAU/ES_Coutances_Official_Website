@@ -30,8 +30,16 @@ class ConversationParticipant
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $lastNotifiedAt = null;
 
-    public function getLastNotifiedAt(): ?\DateTimeImmutable { return $this->lastNotifiedAt; }
-    public function markNotified(): static { $this->lastNotifiedAt = new \DateTimeImmutable(); return $this; }
+    public function getLastNotifiedAt(): ?\DateTimeImmutable
+    {
+        return $this->lastNotifiedAt;
+    }
+    public function markNotified(): static
+    {
+        $this->lastNotifiedAt = new \DateTimeImmutable();
+
+        return $this;
+    }
 
     public function __construct(Conversation $conversation, User $user)
     {
@@ -39,11 +47,23 @@ class ConversationParticipant
         $this->user         = $user;
     }
 
-    public function getId(): ?int { return $this->id; }
-    public function getConversation(): Conversation { return $this->conversation; }
-    public function getUser(): User { return $this->user; }
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+    public function getConversation(): Conversation
+    {
+        return $this->conversation;
+    }
+    public function getUser(): User
+    {
+        return $this->user;
+    }
 
-    public function getLastReadMessageId(): int { return $this->lastReadMessageId; }
+    public function getLastReadMessageId(): int
+    {
+        return $this->lastReadMessageId;
+    }
     public function markReadUpTo(int $messageId): static
     {
         $this->lastReadMessageId = max($this->lastReadMessageId, $messageId);

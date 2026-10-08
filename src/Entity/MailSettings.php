@@ -64,40 +64,129 @@ class MailSettings
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $updatedAt = null;
 
-    public function getId(): ?int { return $this->id; }
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
 
-    public function isActif(): bool { return $this->actif; }
-    public function setActif(bool $actif): static { $this->actif = $actif; return $this; }
+    public function isActif(): bool
+    {
+        return $this->actif;
+    }
+    public function setActif(bool $actif): static
+    {
+        $this->actif = $actif;
 
-    public function getHost(): ?string { return $this->host; }
-    public function setHost(?string $host): static { $this->host = null === $host ? null : trim($host); return $this; }
+        return $this;
+    }
 
-    public function getPort(): int { return $this->port; }
-    public function setPort(?int $port): static { $this->port = $port ?: 587; return $this; }
+    public function getHost(): ?string
+    {
+        return $this->host;
+    }
+    public function setHost(?string $host): static
+    {
+        $this->host = null === $host ? null : trim($host);
 
-    public function getChiffrement(): string { return $this->chiffrement; }
-    public function setChiffrement(string $chiffrement): static { $this->chiffrement = isset(self::CHIFFREMENTS[$chiffrement]) ? $chiffrement : self::CHIFFREMENT_TLS; return $this; }
+        return $this;
+    }
 
-    public function getUsername(): ?string { return $this->username; }
-    public function setUsername(?string $username): static { $this->username = '' === trim((string) $username) ? null : trim((string) $username); return $this; }
+    public function getPort(): int
+    {
+        return $this->port;
+    }
+    public function setPort(?int $port): static
+    {
+        $this->port = $port ?: 587;
 
-    public function getPasswordChiffre(): ?string { return $this->passwordChiffre; }
-    public function setPasswordChiffre(?string $value): static { $this->passwordChiffre = $value; return $this; }
+        return $this;
+    }
 
-    public function isVerifierCertificat(): bool { return $this->verifierCertificat; }
-    public function setVerifierCertificat(bool $verifier): static { $this->verifierCertificat = $verifier; return $this; }
+    public function getChiffrement(): string
+    {
+        return $this->chiffrement;
+    }
+    public function setChiffrement(string $chiffrement): static
+    {
+        $this->chiffrement = isset(self::CHIFFREMENTS[$chiffrement]) ? $chiffrement : self::CHIFFREMENT_TLS;
 
-    public function getExpediteurAdresse(): ?string { return $this->expediteurAdresse; }
-    public function setExpediteurAdresse(?string $adresse): static { $this->expediteurAdresse = '' === trim((string) $adresse) ? null : trim((string) $adresse); return $this; }
+        return $this;
+    }
 
-    public function getExpediteurNom(): ?string { return $this->expediteurNom; }
-    public function setExpediteurNom(?string $nom): static { $this->expediteurNom = '' === trim((string) $nom) ? null : trim((string) $nom); return $this; }
+    public function getUsername(): ?string
+    {
+        return $this->username;
+    }
+    public function setUsername(?string $username): static
+    {
+        $this->username = '' === trim((string) $username) ? null : trim((string) $username);
 
-    public function getUpdatedAt(): ?\DateTimeImmutable { return $this->updatedAt; }
-    public function touch(): static { $this->updatedAt = new \DateTimeImmutable(); return $this; }
+        return $this;
+    }
 
-    public function hasPassword(): bool { return null !== $this->passwordChiffre; }
+    public function getPasswordChiffre(): ?string
+    {
+        return $this->passwordChiffre;
+    }
+    public function setPasswordChiffre(?string $value): static
+    {
+        $this->passwordChiffre = $value;
+
+        return $this;
+    }
+
+    public function isVerifierCertificat(): bool
+    {
+        return $this->verifierCertificat;
+    }
+    public function setVerifierCertificat(bool $verifier): static
+    {
+        $this->verifierCertificat = $verifier;
+
+        return $this;
+    }
+
+    public function getExpediteurAdresse(): ?string
+    {
+        return $this->expediteurAdresse;
+    }
+    public function setExpediteurAdresse(?string $adresse): static
+    {
+        $this->expediteurAdresse = '' === trim((string) $adresse) ? null : trim((string) $adresse);
+
+        return $this;
+    }
+
+    public function getExpediteurNom(): ?string
+    {
+        return $this->expediteurNom;
+    }
+    public function setExpediteurNom(?string $nom): static
+    {
+        $this->expediteurNom = '' === trim((string) $nom) ? null : trim((string) $nom);
+
+        return $this;
+    }
+
+    public function getUpdatedAt(): ?\DateTimeImmutable
+    {
+        return $this->updatedAt;
+    }
+    public function touch(): static
+    {
+        $this->updatedAt = new \DateTimeImmutable();
+
+        return $this;
+    }
+
+    public function hasPassword(): bool
+    {
+        return null !== $this->passwordChiffre;
+    }
 
     /** Réglages utilisables pour envoyer : activés et serveur renseigné. */
-    public function isUtilisable(): bool { return $this->actif && '' !== trim((string) $this->host); }
+    public function isUtilisable(): bool
+    {
+        return $this->actif && '' !== trim((string) $this->host);
+    }
 }

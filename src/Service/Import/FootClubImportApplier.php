@@ -6,11 +6,11 @@ use App\Entity\Famille;
 use App\Entity\Licencie;
 use App\Entity\User;
 use App\Repository\FamilleRepository;
-use App\Service\CategorieAge;
 use App\Repository\LicencieRepository;
 use App\Repository\SaisonRepository;
 use App\Repository\UserRepository;
 use App\Service\AccountActivationMailer;
+use App\Service\CategorieAge;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 

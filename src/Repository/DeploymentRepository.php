@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\Deployment;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use SortDirection;
 
 /**
  * @extends ServiceEntityRepository<Deployment>
@@ -22,7 +23,7 @@ class DeploymentRepository extends ServiceEntityRepository
     public function findRecent(int $limit = 10): array
     {
         return $this->createQueryBuilder('d')
-            ->orderBy('d.id', 'DESC')
+            ->orderBy('d.id', SortDirection::Descending)
             ->setMaxResults($limit)
             ->getQuery()
             ->getResult();
@@ -38,7 +39,7 @@ class DeploymentRepository extends ServiceEntityRepository
         $qb = $this->createQueryBuilder('d');
 
         $total = (int) (clone $qb)->select('COUNT(d.id)')->getQuery()->getSingleScalarResult();
-        $rows  = $qb->orderBy('d.id', 'DESC')
+        $rows  = $qb->orderBy('d.id', SortDirection::Descending)
             ->setFirstResult(max(0, $page - 1) * $perPage)->setMaxResults($perPage)
             ->getQuery()->getResult();
 

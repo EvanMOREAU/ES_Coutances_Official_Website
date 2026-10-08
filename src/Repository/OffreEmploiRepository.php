@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\OffreEmploi;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use SortDirection;
 
 /**
  * @extends ServiceEntityRepository<OffreEmploi>
@@ -24,7 +25,7 @@ class OffreEmploiRepository extends ServiceEntityRepository
     //        return $this->createQueryBuilder('o')
     //            ->andWhere('o.exampleField = :val')
     //            ->setParameter('val', $value)
-    //            ->orderBy('o.id', 'ASC')
+    //            ->orderBy('o.id', SortDirection::Ascending)
     //            ->setMaxResults(10)
     //            ->getQuery()
     //            ->getResult()

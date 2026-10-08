@@ -32,9 +32,17 @@ final class SecurityAuditSubscriber implements EventSubscriberInterface
             return;
         }
         $this->recorder->event(
-            AuditLog::TYPE_SECURITE, 'connexion', 'Sécurité',
+            AuditLog::TYPE_SECURITE,
+            'connexion',
+            'Sécurité',
             sprintf('%s (%s)', $user->getNomComplet(), $event->getFirewallName() === 'admin' ? 'administration' : 'espace licenciés'),
-            null, ['pare_feu' => $event->getFirewallName()], User::class, $user->getId(), (string) $user->getEmail(), null, $user,
+            null,
+            ['pare_feu' => $event->getFirewallName()],
+            User::class,
+            $user->getId(),
+            (string) $user->getEmail(),
+            null,
+            $user,
         );
     }
 
@@ -42,9 +50,18 @@ final class SecurityAuditSubscriber implements EventSubscriberInterface
     {
         $identifier = (string) ($event->getPassport()?->getBadge(\Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge::class)?->getUserIdentifier() ?? '');
         $this->recorder->event(
-            AuditLog::TYPE_SECURITE, 'echec_connexion', 'Sécurité',
+            AuditLog::TYPE_SECURITE,
+            'echec_connexion',
+            'Sécurité',
             sprintf('Identifiant « %s »', $identifier ?: 'inconnu'),
-            null, ['pare_feu' => $event->getFirewallName(), 'motif' => $event->getException()->getMessageKey()], null, null, null, null, null, $identifier ?: null,
+            null,
+            ['pare_feu' => $event->getFirewallName(), 'motif' => $event->getException()->getMessageKey()],
+            null,
+            null,
+            null,
+            null,
+            null,
+            $identifier ?: null,
         );
     }
 

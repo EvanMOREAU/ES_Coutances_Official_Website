@@ -49,19 +49,48 @@ class CommandeLigne
         return $ligne;
     }
 
-    public function getId(): ?int { return $this->id; }
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
 
-    public function getCommande(): ?Commande { return $this->commande; }
-    public function setCommande(?Commande $commande): static { $this->commande = $commande; return $this; }
+    public function getCommande(): ?Commande
+    {
+        return $this->commande;
+    }
+    public function setCommande(?Commande $commande): static
+    {
+        $this->commande = $commande;
 
-    public function getVariante(): ?ArticleVariante { return $this->variante; }
+        return $this;
+    }
 
-    public function getArticleNom(): ?string { return $this->articleNom; }
-    public function getVarianteLibelle(): ?string { return $this->varianteLibelle; }
-    public function getPrixCentimes(): int { return $this->prixCentimes; }
-    public function getQuantite(): int { return $this->quantite; }
+    public function getVariante(): ?ArticleVariante
+    {
+        return $this->variante;
+    }
 
-    public function getTotalCentimes(): int { return $this->prixCentimes * $this->quantite; }
+    public function getArticleNom(): ?string
+    {
+        return $this->articleNom;
+    }
+    public function getVarianteLibelle(): ?string
+    {
+        return $this->varianteLibelle;
+    }
+    public function getPrixCentimes(): int
+    {
+        return $this->prixCentimes;
+    }
+    public function getQuantite(): int
+    {
+        return $this->quantite;
+    }
+
+    public function getTotalCentimes(): int
+    {
+        return $this->prixCentimes * $this->quantite;
+    }
 
     /** Libellé lisible : « T-shirt — M » (la taille « Unique » est omise). */
     public function getLibelle(): string

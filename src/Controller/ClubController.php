@@ -8,7 +8,6 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-
 #[Route('/club')]
 class ClubController extends AbstractController
 {
@@ -35,7 +34,7 @@ class ClubController extends AbstractController
         // Filtrer les catégories vides
         $categories = array_filter(
             $categories,
-            fn($c) => $c->getMembres()->filter(fn($m) => $m->isActif())->count() > 0
+            fn ($c) => $c->getMembres()->filter(fn ($m) => $m->isActif())->count() > 0,
         );
 
         return $this->render('club/encadrement.html.twig', [

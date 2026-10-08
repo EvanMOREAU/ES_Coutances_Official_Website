@@ -39,11 +39,23 @@ class NotificationState
         $this->cle  = $cle;
     }
 
-    public function getId(): ?int { return $this->id; }
-    public function getCle(): ?string { return $this->cle; }
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+    public function getCle(): ?string
+    {
+        return $this->cle;
+    }
 
-    public function isLue(): bool { return null !== $this->luLe; }
-    public function isMasquee(): bool { return null !== $this->masqueeLe; }
+    public function isLue(): bool
+    {
+        return null !== $this->luLe;
+    }
+    public function isMasquee(): bool
+    {
+        return null !== $this->masqueeLe;
+    }
 
     public function marquerLue(): static
     {
