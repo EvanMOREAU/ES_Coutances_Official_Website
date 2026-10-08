@@ -20,7 +20,11 @@ final class CommandeServiceTest extends DatabaseTestCase
         $this->service = static::getContainer()->get(CommandeService::class);
     }
 
-    /** @return array<string, mixed> */
+    /**
+     * @param array<string, mixed> $extra
+     *
+     * @return array<string, mixed>
+     */
     private function client(array $extra = []): array
     {
         return $extra + [

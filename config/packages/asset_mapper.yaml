@@ -4,6 +4,8 @@ framework:
         paths:
             - assets/
         missing_import_mode: strict
+        # Tous les navigateurs actuels gèrent nativement les importmaps ; le polyfill exigerait une URL data: dans la CSP.
+        importmap_polyfill: false
 
 when@prod:
     framework:

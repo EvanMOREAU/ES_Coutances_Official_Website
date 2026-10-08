@@ -3,10 +3,11 @@
 <html lang="fr" class="h-full">
 <head>
     <meta charset="UTF-8">
+    <meta name="csp-nonce" content="{{ csp_nonce() }}">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" type="image/png" href="{{ asset('images/favicon.png') }}">
     <title>Vérifiez vos e-mails — ES Coutances</title>
-    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('fonts/fonts.css') }}">
     <link rel="stylesheet" href="{{ asset('styles/admin.css') }}">
     <style>body { font-family: 'Inter', sans-serif; }</style>
 </head>
@@ -15,7 +16,7 @@
         <div class="admin-hero relative overflow-hidden rounded-2xl p-8 mb-6 text-center">
             <div class="admin-hero-glow"></div>
             <div class="relative">
-                <img src="https://raw.githubusercontent.com/CylaosICT/escoutances-images/refs/heads/main/logo_hd_trans3_gt.png" alt="ES Coutances" class="h-14 mx-auto mb-3">
+                <img src="{{ asset('images/logo_hd_trans3_gt.png') }}" alt="ES Coutances" class="h-14 mx-auto mb-3">
                 <h1 class="text-xl font-black text-white uppercase tracking-wide" style="font-family:'Barlow Condensed',sans-serif;">Vérifiez vos e-mails</h1>
             </div>
         </div>

@@ -53,7 +53,11 @@ final class EmptyFormsTest extends DatabaseTestCase
         self::assertSame([], $failures, 'Ces formulaires plantent quand on les envoie vides (validation manquante).');
     }
 
-    /** Vide tous les champs texte sauf le jeton CSRF. @param array<string, mixed> $values */
+    /**
+     * Vide tous les champs texte sauf le jeton CSRF.
+     *
+     * @param array<string, mixed> $values
+     */
     private function blank(array &$values): void
     {
         foreach ($values as $key => &$value) {

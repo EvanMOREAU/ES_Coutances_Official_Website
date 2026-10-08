@@ -220,6 +220,8 @@ class FootClubImportParser
      * retourné est fait de types simples, prêt à être stocké en session.
      *
      * @param FootClubImportRow[] $rows
+     *
+     * @return array{groups: array<int, array<string, mixed>>, summary: array<string, int>}
      */
     public function buildPreview(array $rows, FamilleRepository $familleRepository, LicencieRepository $licencieRepository): array
     {
@@ -387,10 +389,10 @@ class FootClubImportParser
      * aucune ligne restante, il est simplement omis du résultat : aucune famille vide n'est jamais
      * créée par l'import.
      *
-     * @param array{groups: array<int, array>, summary: array} $preview
+     * @param array{groups: array<int, array<string, mixed>>, summary: array<string, int>} $preview
      * @param list<string>                                     $detachTokens
      *
-     * @return array{groups: array<int, array>, summary: array}
+     * @return array{groups: array<int, array<string, mixed>>, summary: array<string, int>}
      */
     public function applyDetachments(array $preview, array $detachTokens): array
     {
@@ -445,6 +447,7 @@ class FootClubImportParser
         return ['groups' => $newGroups, 'summary' => $summary];
     }
 
+    /** @return array{0: ?string, 1: ?string} nom, prénom */
     private static function splitNomPrenom(?string $nomPrenom): array
     {
         $nomPrenom = trim((string) $nomPrenom);

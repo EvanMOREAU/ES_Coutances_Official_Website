@@ -3,7 +3,7 @@
  sans recharger. Variable : url (route « non-lus » de la zone). Inutile sur la page de messagerie, qui
  le fait déjà elle-même.
 #}
-<script>
+<script nonce="{{ csp_nonce() }}">
 (() => {
     const url = {{ url|json_encode|raw }};
     let timer = null;

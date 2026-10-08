@@ -64,4 +64,30 @@ final class ConsoleCommandsTest extends DatabaseTestCase
         $tester->assertCommandIsSuccessful();
         self::assertStringContainsString('document(s)', $tester->getDisplay());
     }
+
+    public function testAuditPurgeDeletesOnlyEntriesOlderThanTheRetention(): void
+    {
+        $connection = $this->em->getConnection();
+        $insert = static fn (string $date, string $summary) => $connection->insert('audit_log', [
+            'occurred_at' => $date, 'type' => 'requete', 'category' => 'Autre', 'summary' => $summary, 'source' => 'web',
+        ]);
+        $insert((new \DateTimeImmutable('-13 months'))->format('Y-m-d H:i:s'), 'ancienne-entree');
+        $insert((new \DateTimeImmutable('-1 month'))->format('Y-m-d H:i:s'), 'entree-recente');
+
+        $tester = $this->command('app:audit:purger');
+        $tester->execute([]);
+
+        $tester->assertCommandIsSuccessful();
+        $summaries = $connection->fetchFirstColumn("SELECT summary FROM audit_log WHERE summary IN ('ancienne-entree', 'entree-recente')");
+        self::assertSame(['entree-recente'], $summaries);
+    }
+
+    public function testProductionCheckReportsAnInsecureConfiguration(): void
+    {
+        $tester = $this->command('app:securite:verifier');
+        $tester->execute([]);
+
+        self::assertSame(Command::FAILURE, $tester->getStatusCode(), 'APP_ENV=test et APP_SECRET du dépôt : le contrôle doit échouer.');
+        self::assertStringContainsString('APP_ENV=prod', $tester->getDisplay());
+    }
 }

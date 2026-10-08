@@ -8,7 +8,7 @@
     {% else %}Saisissez votre code de vérification.{% endif %}
 {% endblock %}
 
-{% block head_assets %}{{ importmap('portail') }}{% endblock %}
+{% block head_assets %}{{ include('_importmap.html.twig', {entry: 'portail'}) }}{% endblock %}
 
 {% block card %}
     {% for message in app.flashes('success') %}<div class="mc-alert ok">{{ message }}</div>{% endfor %}

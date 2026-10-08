@@ -1,0 +1,17 @@
+# Tâches planifiées du site (crontab de l'utilisateur qui fait tourner PHP : `crontab -e`).
+# Adapter le chemin du projet et le binaire PHP.
+SHELL=/bin/bash
+PROJECT=/var/www/escoutances
+PHP=/usr/bin/php8.4
+
+# Sauvegarde chaque nuit à 3 h (base + fichiers), copie hors serveur si BACKUP_REMOTE est défini.
+0 3 * * *   cd $PROJECT && deploy/backup.sh >> var/log/backup.log 2>&1
+
+# Documents de la messagerie arrivés à échéance (14 jours) : purge quotidienne.
+30 3 * * *  cd $PROJECT && $PHP bin/console app:messagerie:purger-documents --env=prod --no-interaction >> var/log/cron.log 2>&1
+
+# Journal d'activité : conservation 12 mois (annoncée dans la politique de confidentialité).
+45 3 * * *  cd $PROJECT && $PHP bin/console app:audit:purger --env=prod --no-interaction >> var/log/cron.log 2>&1
+
+# Archivage des licenciés dont la saison est terminée : chaque jour.
+15 4 * * *  cd $PROJECT && $PHP bin/console app:saison:cloturer --env=prod --no-interaction >> var/log/cron.log 2>&1

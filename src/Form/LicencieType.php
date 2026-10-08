@@ -24,6 +24,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
  * portail : à la création, le compte est créé et un e-mail lui est envoyé pour
  * choisir son mot de passe. Un licencié « autonome » (adulte) n'a pas de parent :
  * une famille à son nom est créée et il accède lui-même à ses factures.
+ * @extends AbstractType<mixed>
  */
 class LicencieType extends AbstractType
 {

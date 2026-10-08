@@ -2,13 +2,23 @@
 <html lang="fr">
 <head>
   <meta charset="utf-8">
+    <meta name="csp-nonce" content="{{ csp_nonce() }}">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}ES Coutances — Entente Sportive Coutançaise{% endblock %}</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <meta name="description" content="{% block meta_description %}Site officiel de l'Entente Sportive Coutançaise, club de football de Coutances (Manche, Normandie) depuis 1961 : équipes, actualités du club, boutique et inscriptions.{% endblock %}">
+  <link rel="canonical" href="{% block canonical %}{{ app.request.schemeAndHttpHost ~ app.request.pathInfo }}{% endblock %}">
+  <meta property="og:site_name" content="ES Coutances">
+  <meta property="og:type" content="{% block og_type %}website{% endblock %}">
+  <meta property="og:locale" content="fr_FR">
+  <meta property="og:title" content="{{ block('title') }}">
+  <meta property="og:description" content="{{ block('meta_description') }}">
+  <meta property="og:url" content="{{ block('canonical') }}">
+  <meta property="og:image" content="{% block og_image %}{{ absolute_url(asset('images/logo_hd_trans3_gt.png')) }}{% endblock %}">
+  <meta name="twitter:card" content="summary">
+  {% block structured_data %}{% endblock %}
   <link rel="icon" type="image/png" href="{{ asset('images/favicon.png') }}">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;0,800;0,900;1,700;1,800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="{{ asset('fonts/fonts.css') }}">
+  <link rel="stylesheet" href="{{ asset('vendor/fontawesome/all.min.css') }}">
   {% block stylesheets %}{% endblock %}
 
   <style>
@@ -17,6 +27,8 @@
    ============================================================ */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
+.skip-link { position: absolute; left: 12px; top: -60px; z-index: 2000; background: var(--red); color: #fff; padding: 10px 16px; font-weight: 700; border-radius: 0 0 6px 6px; }
+.skip-link:focus { top: 0; }
 body { font-family: 'Inter', sans-serif; color: #0D0D0D; background: #fff; line-height: 1.6; }
 img { display: block; max-width: 100%; }
 a { text-decoration: none; color: inherit; }
@@ -170,9 +182,13 @@ ul { list-style: none; }
   .logo-name { font-size: 14px; }
   .footer-grid { grid-template-columns: 1fr; }
 }
+.footer-legal { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 18px; margin-top: 10px; font-size: 12px; }
+.footer-legal a { color: inherit; opacity: .75; text-decoration: underline; }
+.footer-legal a:hover { opacity: 1; }
 </style>
 </head>
 <body>
+<a class="skip-link" href="#contenu">Aller au contenu</a>
 
 {# ============================================================
    HEADER
@@ -328,7 +344,9 @@ ul { list-style: none; }
 {# ============================================================
    CONTENU
    ============================================================ #}
+<main id="contenu">
 {% block body %}{% endblock %}
+</main>
 
 {# ============================================================
    FOOTER
@@ -380,6 +398,12 @@ ul { list-style: none; }
     </div>
     <div class="footer-bottom">
       © {{ "now"|date("Y") }} Entente Sportive Coutançaise — Tous droits réservés
+      <nav class="footer-legal" aria-label="Informations légales">
+        <a href="{{ path('app_legal_mentions') }}">Mentions légales</a>
+        <a href="{{ path('app_legal_confidentialite') }}">Confidentialité</a>
+        <a href="{{ path('app_legal_cgv') }}">Conditions de vente</a>
+        <a href="{{ path('app_legal_cookies') }}">Cookies</a>
+      </nav>
     </div>
   </div>
 </footer>
@@ -387,7 +411,7 @@ ul { list-style: none; }
 {% block javascripts %}{% endblock %}
 
 {# Raccourci clavier admin : Ctrl + Shift + A #}
-<script>
+<script nonce="{{ csp_nonce() }}">
 document.addEventListener('keydown', function(e) {
   if (e.ctrlKey && e.shiftKey && e.key === 'A') {
     e.preventDefault();

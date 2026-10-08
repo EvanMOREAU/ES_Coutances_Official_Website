@@ -1,6 +1,7 @@
 {% extends 'club/_layout.html.twig' %}
 
 {% block title %}Contact — ES Coutances{% endblock %}
+{% block meta_description %}Contactez l'Entente Sportive Coutançaise : inscriptions, renseignements, partenariats. Coordonnées, horaires et plan d'accès du club.{% endblock %}
 
 {% block stylesheets %}
 {{ parent() }}
@@ -286,6 +287,7 @@
         {% endif %}
 
         {{ form_start(form, { attr: { class: 'form-contact', novalidate: 'novalidate' } }) }}
+        {{ form_errors(form) }}
 
           <div class="form-row-2">
             <div class="form-group">
@@ -331,6 +333,7 @@
             </button>
           </div>
 
+        <div aria-hidden="true" style="position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden">{{ form_widget(form.siteWeb) }}</div>
         {{ form_end(form) }}
       </div>
 
@@ -432,5 +435,5 @@
 {% endblock %}
 
 {% block javascripts %}
-{{ importmap('public') }}
+{{ include('_importmap.html.twig', {entry: 'public'}) }}
 {% endblock %}

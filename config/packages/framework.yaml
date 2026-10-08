@@ -9,6 +9,30 @@ framework:
     #esi: true
     #fragments: true
 
+    # Limitation des envois sur les formulaires publics (voir App\EventListener\PublicFormThrottleListener).
+    # Fenêtre glissante par adresse IP : au-delà, la requête reçoit un 429.
+    rate_limiter:
+        public_contact:
+            policy: sliding_window
+            limit: 5
+            interval: '15 minutes'
+        public_registration:
+            policy: sliding_window
+            limit: 5
+            interval: '1 hour'
+        public_reset_password:
+            policy: sliding_window
+            limit: 5
+            interval: '15 minutes'
+        public_cart:
+            policy: sliding_window
+            limit: 120
+            interval: '5 minutes'
+        public_webhook:
+            policy: sliding_window
+            limit: 60
+            interval: '1 minute'
+
 when@test:
     framework:
         test: true

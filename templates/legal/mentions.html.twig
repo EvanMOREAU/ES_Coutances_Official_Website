@@ -1,0 +1,31 @@
+{% extends 'legal/_layout.html.twig' %}
+{% set heading = 'Mentions légales' %}
+
+{% block legal_content %}
+<h2>Éditeur du site</h2>
+<p>
+  <strong>Entente Sportive Coutançaise (ES Coutances)</strong>, club de football.<br>
+  {% if contact and contact.adresse %}Adresse : {{ contact.adresse|nl2br }}<br>{% else %}Coutances (50200), Normandie.<br>{% endif %}
+  {% if contact and contact.email %}E-mail : <a href="mailto:{{ contact.email }}">{{ contact.email }}</a><br>{% endif %}
+  {% if contact and contact.telephone %}Téléphone : {{ contact.telephone }}<br>{% endif %}
+  {% if association_id %}{{ association_id }}{% endif %}
+</p>
+{% if director %}<p><strong>Responsable de la publication :</strong> {{ director }}</p>{% endif %}
+
+<h2>Conception et développement</h2>
+<p>Site conçu et développé par Evan Moreau.</p>
+
+{% if host %}
+<h2>Hébergement</h2>
+<p>{{ host }}</p>
+{% endif %}
+
+<h2>Propriété intellectuelle</h2>
+<p>Les textes, logos, photographies et autres contenus du site appartiennent à l'ES Coutances ou à leurs auteurs, et sont protégés par le droit d'auteur. Toute reproduction, même partielle, sans autorisation écrite préalable est interdite. Les images représentant des personnes sont publiées avec leur accord (ou celui de leurs représentants légaux pour les mineurs) ; pour demander le retrait d'une image, écrivez-nous.</p>
+
+<h2>Données personnelles</h2>
+<p>Le traitement de vos données est décrit dans notre <a href="{{ path('app_legal_confidentialite') }}">politique de confidentialité</a>, et l'usage des cookies sur la page <a href="{{ path('app_legal_cookies') }}">Cookies</a>.</p>
+
+<h2>Responsabilité</h2>
+<p>Le club s'efforce de maintenir des informations exactes et à jour, sans garantie d'exhaustivité. Il ne saurait être tenu responsable du contenu des sites externes vers lesquels le site renvoie (Fédération Française de Football, réseaux sociaux, HelloAsso…).</p>
+{% endblock %}

@@ -33,6 +33,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, TotpTwo
     #[Assert\Length(max: 180, maxMessage: 'Maximum 180 caractères.')]
     private ?string $email = null;
 
+    /** @var list<string> */
     #[ORM\Column]
     private array $roles = [];
 
@@ -68,7 +69,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, TotpTwo
     #[ORM\Column(length: 20)]
     private string $density = 'comfortable';
 
-    /** Choix de notification : ['bell' => [clé => bool], 'email' => [clé => bool]] (voir NotificationPreferences). */
+    /**
+     * Choix de notification : ['bell' => [clé => bool], 'email' => [clé => bool]] (voir NotificationPreferences).
+     *
+     * @var array<string, array<string, bool>>
+     */
     #[ORM\Column]
     private array $notificationPreferences = [];
 
@@ -79,6 +84,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, TotpTwo
     /**
      * Préférences d'affichage des tableaux de l'admin, par tableau :
      * ['famille' => ['hidden' => ['ville'], 'perPage' => 25], ...].
+     *
+     * @var array<string, array<string, mixed>>|null
      */
     #[ORM\Column(type: 'json', nullable: true)]
     private ?array $tablePreferences = null;
@@ -92,11 +99,19 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, TotpTwo
     #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
     private ?ProfilAutorisation $profil = null;
 
-    /** Autorisations accordées en plus de celles du profil. @var list<string> */
+    /**
+     * Autorisations accordées en plus de celles du profil.
+     *
+     * @var list<string>
+     */
     #[ORM\Column(type: 'json')]
     private array $permissionsAjoutees = [];
 
-    /** Autorisations retirées à celles du profil. @var list<string> */
+    /**
+     * Autorisations retirées à celles du profil.
+     *
+     * @var list<string>
+     */
     #[ORM\Column(type: 'json')]
     private array $permissionsRetirees = [];
 
@@ -119,7 +134,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, TotpTwo
     #[ORM\Column(options: ['default' => false])]
     private bool $emailAuthEnabled = false;
 
-    /** Codes de secours à usage unique (hachés), générés à la demande depuis les paramètres de sécurité. @var list<string> */
+    /**
+     * Codes de secours à usage unique (hachés), générés à la demande depuis les paramètres de sécurité.
+     *
+     * @var list<string>
+     */
     #[ORM\Column(type: 'json')]
     private array $backupCodes = [];
 
@@ -221,6 +240,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, TotpTwo
 
         return array_unique($roles);
     }
+    /** @param list<string> $roles */
     public function setRoles(array $roles): static
     {
         $this->roles = $roles;
@@ -351,10 +371,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, TotpTwo
         return $this;
     }
 
+    /** @return array<string, array<string, bool>> */
     public function getNotificationPreferences(): array
     {
         return $this->notificationPreferences;
     }
+    /** @param array<string, array<string, bool>> $notificationPreferences */
     public function setNotificationPreferences(array $notificationPreferences): static
     {
         $this->notificationPreferences = $notificationPreferences;
@@ -385,10 +407,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, TotpTwo
         return $this;
     }
 
+    /** @return array<string, array<string, mixed>> */
     public function getTablePreferences(): array
     {
         return $this->tablePreferences ?? [];
     }
+    /** @param array<string, array<string, mixed>>|null $tablePreferences */
     public function setTablePreferences(?array $tablePreferences): static
     {
         $this->tablePreferences = $tablePreferences;

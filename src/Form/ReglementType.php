@@ -13,7 +13,9 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-/** Une échéance de règlement : mode, montant, date prévue, encaissement et remise en banque. */
+/** Une échéance de règlement : mode, montant, date prévue, encaissement et remise en banque.
+ * @extends AbstractType<mixed>
+ */
 class ReglementType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void

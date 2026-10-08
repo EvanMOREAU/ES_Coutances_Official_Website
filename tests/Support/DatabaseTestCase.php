@@ -34,6 +34,8 @@ abstract class DatabaseTestCase extends WebTestCase
         // sinon la transaction de test serait perdue.
         $this->client->disableReboot();
         $this->em = static::getContainer()->get(EntityManagerInterface::class);
+        // Compteurs de limitation (connexion, formulaires publics) remis à zéro entre deux tests.
+        static::getContainer()->get('cache.rate_limiter')->clear();
         $this->em->getConnection()->beginTransaction();
     }
 

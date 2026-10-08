@@ -4,19 +4,20 @@
 <html lang="fr" {% if app.user and app.user.theme != 'system' %}data-theme="{{ app.user.theme }}"{% endif %} data-scheme="{{ app.user ? app.user.colorScheme : 'rouge' }}" data-density="{{ app.user ? app.user.density : 'comfortable' }}">
 <head>
     <meta charset="UTF-8">
+    <meta name="csp-nonce" content="{{ csp_nonce() }}">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" type="image/png" href="{{ asset('images/favicon.png') }}">
     <title>{% block title %}Mon compte{% endblock %} — ES Coutances</title>
     {% block head_assets %}{% endblock %}
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="{{ asset('fonts/fonts.css') }}">
+    <link rel="stylesheet" href="{{ asset('vendor/fontawesome/all.min.css') }}">
     <link rel="stylesheet" href="{{ asset('styles/mon-compte.css') }}">
 </head>
 <body>
     <header class="mc-top">
         <div class="mc-top-in">
             <a class="mc-brand" href="{{ path('portail_index') }}">
-                <img src="https://raw.githubusercontent.com/CylaosICT/escoutances-images/refs/heads/main/logo_hd_trans3_gt.png" alt="ES Coutances">
+                <img src="{{ asset('images/logo_hd_trans3_gt.png') }}" alt="ES Coutances">
                 <span>Mon compte<small>ES Coutances</small></span>
             </a>
             <nav class="mc-nav" aria-label="Navigation du compte">

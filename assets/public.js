@@ -1,5 +1,4 @@
 import './controllers/csrf_protection_controller.js';
-import './styles/custom-select.css';
 import { initCustomSelects } from './custom_select.js';
 import { initCustomDates } from './custom_date.js';
 import { initPromoCode } from './promo_code.js';

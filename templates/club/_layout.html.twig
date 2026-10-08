@@ -129,7 +129,7 @@
 
 {% block javascripts %}
 {{ parent() }}
-<script>
+<script nonce="{{ csp_nonce() }}">
 (function () {
   var overlay = document.createElement('div');
   overlay.className = 'content-lightbox';

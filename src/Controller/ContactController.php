@@ -4,9 +4,12 @@ namespace App\Controller;
 
 use App\Form\ContactType;
 use App\Repository\ContactSettingsRepository;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
 use Symfony\Component\Routing\Attribute\Route;
@@ -20,7 +23,7 @@ class ContactController extends AbstractController
     private const DEFAULT_CONTACT_EMAIL = 'evan.moreau@etik.com';
 
     #[Route('/contact', name: 'app_contact')]
-    public function index(Request $request, MailerInterface $mailer, ContactSettingsRepository $contactSettingsRepo): Response
+    public function index(Request $request, MailerInterface $mailer, ContactSettingsRepository $contactSettingsRepo, LoggerInterface $logger): Response
     {
         $form = $this->createForm(ContactType::class);
         $form->handleRequest($request);
@@ -55,8 +58,14 @@ class ContactController extends AbstractController
                     nl2br(htmlspecialchars($data['message'])),
                 ));
 
-            $mailer->send($email);
-            $success = true;
+            try {
+                $mailer->send($email);
+                $success = true;
+            } catch (TransportExceptionInterface $e) {
+                // Panne du serveur d'e-mails : le visiteur garde son message à l'écran et peut réessayer.
+                $logger->error('Message du formulaire de contact non envoyé : {message}', ['message' => $e->getMessage()]);
+                $form->addError(new FormError('Votre message n\'a pas pu être envoyé pour le moment. Merci de réessayer dans quelques minutes ou de nous contacter par téléphone.'));
+            }
         }
 
         return $this->render('contact/index.html.twig', [

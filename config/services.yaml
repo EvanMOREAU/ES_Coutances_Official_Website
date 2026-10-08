@@ -18,6 +18,15 @@ parameters:
     env(FILES_QUOTA_MB): '10240'
     app.files_quota_mb: '%env(FILES_QUOTA_MB)%'
 
+    # Double authentification obligatoire pour les comptes développeur et administrateur (0 pour la suspendre).
+    env(ENFORCE_PRIVILEGED_2FA): '1'
+
+    # Informations des pages légales (voir LegalController) ; à renseigner dans .env.local.
+    env(LEGAL_PUBLICATION_DIRECTOR): ''
+    env(LEGAL_ASSOCIATION_ID): ''
+    env(LEGAL_HOST): ''
+    env(LEGAL_CONSUMER_MEDIATOR): ''
+
 services:
     # default configuration for services in *this* file
     _defaults:
@@ -32,6 +41,8 @@ services:
             string $kernelEnvironment: '%kernel.environment%'
             string $filesQuotaMb: '%app.files_quota_mb%'
             string $secret: '%kernel.secret%'
+            bool $debug: '%kernel.debug%'
+            bool $privilegedTwoFactorEnforced: '%env(bool:ENFORCE_PRIVILEGED_2FA)%'
 
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name

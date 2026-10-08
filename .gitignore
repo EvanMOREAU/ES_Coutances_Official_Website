@@ -15,7 +15,9 @@
 ###############################################################################
 # UPLOADS UTILISATEURS (images, logos, photos...)
 ###############################################################################
-/public/uploads/
+/public/uploads/*
+# Seul le verrou qui interdit l'exécution de scripts dans ce dossier est versionné.
+!/public/uploads/.htaccess
 
 ###############################################################################
 # DÉPENDANCES NODE (si utilisation Webpack Encore ou Vite)

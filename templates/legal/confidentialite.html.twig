@@ -1,0 +1,31 @@
+{% extends 'legal/_layout.html.twig' %}
+{% set heading = 'Politique de confidentialité' %}
+
+{% block legal_content %}
+<p>L'ES Coutances attache de l'importance à la protection de vos données personnelles et applique le Règlement général sur la protection des données (RGPD) ainsi que la loi « Informatique et Libertés ».</p>
+
+<h2>Responsable du traitement</h2>
+<p>Entente Sportive Coutançaise{% if contact and contact.email %} — <a href="mailto:{{ contact.email }}">{{ contact.email }}</a>{% endif %}.</p>
+
+<h2>Données collectées et finalités</h2>
+<table>
+  <thead><tr><th>Traitement</th><th>Données</th><th>Base légale</th><th>Conservation</th></tr></thead>
+  <tbody>
+    <tr><td>Formulaire de contact</td><td>Nom, e-mail, téléphone, message</td><td>Intérêt légitime (répondre à votre demande)</td><td>Le temps du traitement de la demande</td></tr>
+    <tr><td>Compte et espace famille</td><td>Identité, e-mail, mot de passe (chiffré), famille et licenciés rattachés, messages</td><td>Exécution du contrat d'adhésion</td><td>Durée de l'adhésion, puis suppression sur demande</td></tr>
+    <tr><td>Licences, inscriptions, règlements</td><td>Identité, date de naissance, catégorie, informations d'adhésion, montants</td><td>Obligation légale et contrat</td><td>Durée de l'adhésion puis délais comptables légaux (10 ans pour les pièces comptables)</td></tr>
+    <tr><td>Boutique</td><td>Identité, coordonnées, commande, mode de règlement</td><td>Exécution du contrat de vente</td><td>Commande conservée 10 ans (obligation comptable)</td></tr>
+    <tr><td>Sécurité</td><td>Adresse IP, journal des connexions et des actions des comptes de gestion</td><td>Intérêt légitime (sécurité du site)</td><td>12 mois</td></tr>
+  </tbody>
+</table>
+<p>Les données concernant des mineurs sont fournies et gérées par leurs représentants légaux.</p>
+
+<h2>Destinataires</h2>
+<p>Vos données sont accessibles aux seuls membres habilités du club. Elles ne sont ni vendues ni cédées. Des prestataires techniques interviennent en sous-traitance : hébergeur du site, service de paiement <strong>HelloAsso</strong> (paiement par carte, qui reçoit les informations nécessaires au règlement) et, selon les besoins, la Fédération Française de Football pour la délivrance des licences.</p>
+
+<h2>Vos droits</h2>
+<p>Vous disposez d'un droit d'accès, de rectification, d'effacement, de limitation, d'opposition et de portabilité. Depuis votre espace connecté (<em>Paramètres &gt; Confidentialité</em>), vous pouvez <strong>télécharger vos données</strong> et <strong>supprimer votre compte</strong>. Pour toute autre demande, écrivez-nous{% if contact and contact.email %} à <a href="mailto:{{ contact.email }}">{{ contact.email }}</a>{% endif %}. En cas de difficulté, vous pouvez saisir la CNIL (<a href="https://www.cnil.fr" rel="noopener">cnil.fr</a>).</p>
+
+<h2>Sécurité</h2>
+<p>Connexion chiffrée (HTTPS), mots de passe chiffrés, double authentification disponible (application, e-mail, clé d'accès), contrôle des droits par profil et journal des actions.</p>
+{% endblock %}

@@ -13,6 +13,7 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Vich\UploaderBundle\Form\Type\VichImageType;
 
+/** @extends AbstractType<mixed> */
 class RejoindreCardType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void

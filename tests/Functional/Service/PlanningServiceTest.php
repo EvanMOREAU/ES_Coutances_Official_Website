@@ -26,7 +26,11 @@ final class PlanningServiceTest extends DatabaseTestCase
         return $equipe;
     }
 
-    /** @return array<string, mixed> */
+    /**
+     * @param array<string, mixed> $override
+     *
+     * @return array<string, mixed>
+     */
     private function training(array $override = []): array
     {
         return $override + ['type' => 'entrainement', 'categories' => ['U13'], 'date' => '2026-10-14', 'debut' => '18:00', 'fin' => '19:30'];

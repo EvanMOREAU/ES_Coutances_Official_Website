@@ -15,6 +15,8 @@ class OrdreService
     /**
      * Retourne le prochain ordre disponible pour une entité donnée.
      * Si l'ordre souhaité est déjà pris, décale tous les suivants de +1.
+     *
+     * @param class-string $entityClass
      */
     public function getNextOrdre(string $entityClass): int
     {
@@ -28,6 +30,7 @@ class OrdreService
         return ($result ?? 0) + 1;
     }
 
+    /** @param class-string $entityClass */
     public function ensureUniqueOrdre(string $entityClass, object $entity): void
     {
         $repo = $this->em->getRepository($entityClass);

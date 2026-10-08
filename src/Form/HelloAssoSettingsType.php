@@ -11,7 +11,9 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-/** Identifiants d'API HelloAsso. Le client secret (non mappé) est chiffré par le contrôleur. */
+/** Identifiants d'API HelloAsso. Le client secret (non mappé) est chiffré par le contrôleur.
+ * @extends AbstractType<mixed>
+ */
 class HelloAssoSettingsType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void

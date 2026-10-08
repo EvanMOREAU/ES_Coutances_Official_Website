@@ -3,7 +3,7 @@
 {% block title %}Messagerie{% endblock %}
 
 {% block head_assets %}
-    {{ importmap('portail') }}
+    {{ include('_importmap.html.twig', {entry: 'portail'}) }}
     <style>
         .ch { height: clamp(26rem, calc(100vh - 15rem), 50rem); box-shadow: var(--mc-shadow); border-radius: var(--mc-radius); }
         .ch, .admin-modal { font-family: 'Inter', sans-serif; }

@@ -3,7 +3,7 @@
 {% block title %}Paramètres{% endblock %}
 
 {% block head_assets %}
-    {{ importmap('portail') }}
+    {{ include('_importmap.html.twig', {entry: 'portail'}) }}
 {% endblock %}
 
 {% block page_head %}

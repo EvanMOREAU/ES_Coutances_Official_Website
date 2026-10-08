@@ -9,10 +9,12 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\Blank;
 use Symfony\Component\Validator\Constraints\Email;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
+/** @extends AbstractType<mixed> */
 class ContactType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
@@ -58,6 +60,14 @@ class ContactType extends AbstractType
                     'placeholder' => 'Votre message...',
                     'rows'        => 6,
                 ],
+            ])
+            // Pot de miel : masqué aux visiteurs, les robots le remplissent et le message est refusé.
+            ->add('siteWeb', TextType::class, [
+                'mapped'      => false,
+                'required'    => false,
+                'label'       => false,
+                'constraints' => [new Blank()],
+                'attr'        => ['autocomplete' => 'off', 'tabindex' => '-1'],
             ]);
     }
 

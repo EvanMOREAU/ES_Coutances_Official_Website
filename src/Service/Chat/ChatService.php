@@ -654,8 +654,11 @@ class ChatService
 
     // -- Utilitaires -----------------------------------------------------------
 
-    /** @return list<User> */
-    /** Participants d'une discussion de groupe (pour la liste affichée depuis l'en-tête). @return list<array{name: string, me: bool, staff: bool}> */
+    /**
+     * Participants d'une discussion de groupe (pour la liste affichée depuis l'en-tête).
+     *
+     * @return list<array{name: string, me: bool, staff: bool}>
+     */
     private function people(Conversation $conversation, User $me): array
     {
         $people = [];
@@ -683,6 +686,7 @@ class ChatService
         return !$conversation->isGroup() ? ($others[0] ?? null) : null;
     }
 
+    /** @return list<User> */
     private function others(Conversation $conversation, User $me): array
     {
         $others = [];

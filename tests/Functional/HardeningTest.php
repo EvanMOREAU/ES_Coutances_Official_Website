@@ -4,6 +4,7 @@ namespace App\Tests\Functional;
 
 use App\Tests\Support\DatabaseTestCase;
 use PHPUnit\Framework\Attributes\DataProvider;
+use Symfony\Component\DomCrawler\Crawler;
 use Twig\Environment;
 
 final class HardeningTest extends DatabaseTestCase
@@ -77,5 +78,47 @@ final class HardeningTest extends DatabaseTestCase
         } finally {
             @unlink($flag);
         }
+    }
+
+    public function testContentSecurityPolicyAuthorisesOnlyScriptsCarryingTheNonce(): void
+    {
+        $crawler = $this->client->request('GET', '/contact');
+
+        $csp = (string) $this->client->getResponse()->headers->get('Content-Security-Policy');
+        self::assertMatchesRegularExpression("/script-src 'self' 'nonce-([\w-]+)'(?!.*unsafe)/", explode(';', $csp)[1] ?? '');
+        self::assertStringContainsString("frame-ancestors 'self'", $csp);
+        self::assertStringNotContainsString('unsafe-eval', $csp);
+
+        preg_match("/'nonce-([\w-]+)'/", $csp, $header);
+        $this->assertNotEmpty($header);
+        $inline = $crawler->filter('script:not([src]):not([type="application/ld+json"])');
+        self::assertGreaterThan(0, $inline->count());
+        foreach ($inline->each(static fn (Crawler $script) => $script->attr('nonce')) as $nonce) {
+            self::assertSame($header[1], $nonce, 'Chaque script en ligne doit porter le nonce de la requête.');
+        }
+    }
+
+    public function testNonceChangesOnEveryRequest(): void
+    {
+        $this->client->request('GET', '/contact');
+        $first = $this->client->getResponse()->headers->get('Content-Security-Policy');
+        $this->client->request('GET', '/contact');
+
+        self::assertNotSame($first, $this->client->getResponse()->headers->get('Content-Security-Policy'));
+    }
+
+    public function testNoExternalCdnIsLoaded(): void
+    {
+        foreach (['/', '/contact', '/admin/login', '/mon-compte/connexion', '/reset-password'] as $url) {
+            $this->client->request('GET', $url);
+            self::assertDoesNotMatchRegularExpression('#(fonts\.googleapis|fonts\.gstatic|cdnjs\.cloudflare|cdn\.jsdelivr|raw\.githubusercontent)#', (string) $this->client->getResponse()->getContent(), $url);
+        }
+    }
+
+    public function testPrivateAreasAreNotIndexable(): void
+    {
+        $this->client->request('GET', '/admin/login');
+
+        self::assertResponseHeaderSame('X-Robots-Tag', 'noindex');
     }
 }

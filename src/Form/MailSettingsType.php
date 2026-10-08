@@ -13,7 +13,9 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-/** Serveur SMTP réglé depuis l'administration. Le mot de passe (non mappé) est chiffré par le contrôleur. */
+/** Serveur SMTP réglé depuis l'administration. Le mot de passe (non mappé) est chiffré par le contrôleur.
+ * @extends AbstractType<mixed>
+ */
 class MailSettingsType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void

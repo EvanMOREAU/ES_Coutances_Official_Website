@@ -7,6 +7,34 @@
 #   version : numéro (ex. 1.2.0)      date : AAAA-MM-JJ      titre : résumé court (facultatif)
 #   added / improved / fixed / removed : listes de phrases (Ajouté / Amélioré / Corrigé / Retiré)
 
+- version: "1.0.9"
+  date: "2026-10-08"
+  titre: "Sécurité renforcée, pages légales, référencement et procédures d'exploitation"
+  added:
+    - "Connexion protégée contre les essais répétés : après 5 échecs en 15 minutes, le compte (et l'adresse IP) est bloqué temporairement, côté administration comme côté Mon compte."
+    - "Formulaires publics protégés contre le spam et les abus (contact, création de compte, mot de passe oublié, panier et commande) : limitation par adresse IP et pot de miel invisible sur le formulaire de contact."
+    - "Politique de sécurité du navigateur (Content-Security-Policy) : seuls les scripts du site peuvent s'exécuter. Polices, icônes et éditeur de texte sont désormais hébergés par le site : plus aucune requête vers Google, Cloudflare, jsDelivr ou GitHub."
+    - "Double authentification obligatoire pour les comptes développeur et administrateur : tant qu'elle n'est pas activée (application, code par e-mail ou clé d'accès), le back-office renvoie vers Paramètres > Sécurité."
+    - "Chaque déploiement envoie un e-mail récapitulatif (réussi ou en échec) à tous les comptes développeur, et le journal de déploiement contrôle désormais la configuration de production."
+    - "Commande app:securite:verifier : contrôle la configuration de production (mode debug, clé secrète, double authentification des comptes privilégiés)."
+    - "Pages légales : mentions légales, politique de confidentialité, conditions de vente et cookies, liées dans le pied de page. Chacune peut être remplacée depuis l'administration en créant une page de même adresse."
+    - "Référencement : description, adresse canonique, partage sur les réseaux (Open Graph), données structurées « club sportif », plan du site (sitemap.xml) et robots.txt. Les pages privées (administration, Mon compte, panier) ne sont jamais indexées."
+    - "Accessibilité : lien « Aller au contenu » et zone principale balisée sur le site public."
+    - "Commande app:audit:purger : supprime du journal d'activité les entrées de plus de 12 mois (durée annoncée dans la politique de confidentialité)."
+    - "Sauvegarde automatisable (deploy/backup.sh : base de données et fichiers, chiffrement et copie hors serveur facultatifs), exemple de tâches planifiées et de configuration Nginx, fichier .htaccess Apache qui interdit l'exécution de scripts dans le dossier des envois."
+    - "Documentation d'exploitation (docs/EXPLOITATION.md) : mise en production, déploiement et retour arrière, sauvegardes et restauration, supervision, procédure en cas d'incident. README entièrement réécrit."
+    - "21 tests automatisés supplémentaires (322 au total) : blocage des connexions répétées, limitation des formulaires, pot de miel, double authentification obligatoire, Content-Security-Policy, absence de ressources externes, plan du site, robots.txt, pages légales, purge du journal et contrôle de production."
+  fixed:
+    - "Photo de profil de l'administration sans texte alternatif (accessibilité)."
+    - "Boutique : deux balises « main » imbriquées sur les pages de la boutique (structure HTML invalide)."
+    - "Le fichier compose.yaml décrivait une base PostgreSQL alors que le site fonctionne avec MariaDB."
+  improved:
+    - "Formulaire de contact : si le serveur d'e-mails est en panne, le visiteur voit un message clair et conserve son texte au lieu d'une erreur."
+    - "Paramètres de sécurité du compte séparés dans leur propre contrôleur (mêmes adresses, aucun changement visible)."
+    - "Analyse statique PHPStan relevée au niveau 6 (types précisés dans tout le code) ; l'intégration continue affiche le taux de couverture des tests."
+    - "compose.yaml aligné sur la base utilisée par le site (MariaDB) avec une boîte de réception de test (Mailpit)."
+    - "Cette mise à jour ne contient aucune migration de base de données. Prévoir : activer la double authentification des comptes développeur/administrateur à la première connexion, et renseigner les variables LEGAL_* (mentions légales) dans .env.local."
+
 - version: "1.0.8"
   date: "2026-10-07"
   titre: "Fiabilisation : 300 tests automatisés, contrôle qualité du code, formulaires sécurisés et pages d'erreur du club"
