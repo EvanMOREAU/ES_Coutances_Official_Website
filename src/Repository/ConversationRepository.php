@@ -50,15 +50,18 @@ class ConversationRepository extends ServiceEntityRepository
             ->leftJoin('p.user', 'pu')
             ->leftJoin('c.customer', 'cu')
             ->where('c.support = true')
+            ->andWhere('c.closedAt IS NULL')
             ->orderBy('c.updatedAt', SortDirection::Descending)
             ->getQuery()
             ->getResult();
     }
 
+    /** La discussion de support en cours d'un client (les discussions clôturées n'en font plus partie). */
     public function findSupportOf(User $customer): ?Conversation
     {
         return $this->createQueryBuilder('c')
             ->where('c.support = true')
+            ->andWhere('c.closedAt IS NULL')
             ->andWhere('c.customer = :u')
             ->setParameter('u', $customer)
             ->setMaxResults(1)
@@ -95,6 +98,23 @@ class ConversationRepository extends ServiceEntityRepository
         }
 
         return $counts;
+    }
+
+    /**
+     * Toutes les discussions de support d'un client, clôturées ou non, la plus récente en premier.
+     *
+     * @return list<Conversation>
+     */
+    public function findSupportHistoryOf(User $customer): array
+    {
+        return $this->createQueryBuilder('c')
+            ->where('c.support = true')
+            ->andWhere('c.customer = :u')
+            ->setParameter('u', $customer)
+            ->orderBy('c.createdAt', SortDirection::Descending)
+            ->addOrderBy('c.id', SortDirection::Descending)
+            ->getQuery()
+            ->getResult();
     }
 
     /** Discussion à deux déjà ouverte entre ces deux personnes, s'il y en a une. */

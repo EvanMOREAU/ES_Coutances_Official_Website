@@ -16,6 +16,7 @@
     <div class="flex flex-wrap items-center gap-3 mt-3 mb-6">
         <h1 class="text-2xl font-black" style="font-family:'Barlow Condensed',sans-serif;">Commande {{ commande.reference }}</h1>
         <span class="badge badge-cmd-{{ commande.statut }}">{{ commande.statutLabel }}</span>
+        {% if commande.remboursementDu %}<span class="badge badge-attente">À rembourser</span>{% elseif commande.statut == 'annulee' and commande.rembourse %}<span class="badge badge-paye">Remboursée</span>{% endif %}
         <span class="badge badge-{{ commande.payee ? 'paye' : (commande.statut == 'annulee' ? 'archived' : 'attente') }}">{{ commande.payee ? 'Payée' : (commande.statut == 'annulee' ? 'Non payée' : 'Règlement en attente') }}</span>
         <span class="text-sm text-admin-text-muted">passée le {{ commande.createdAt|date('d/m/Y à H:i') }}</span>
     </div>
@@ -87,6 +88,19 @@
                         <p class="text-sm text-admin-text-muted">
                             {% if commande.statut == 'retiree' %}Cette commande a été remise au client.{% else %}Cette commande est annulée : le stock a été remis à jour.{% endif %}
                         </p>
+                    {% endif %}
+                    {% if commande.statut == 'annulee' and commande.payee %}
+                        {% if commande.rembourse %}
+                            <p class="text-sm" style="color: var(--color-admin-success);"><i class="fa-solid fa-circle-check"></i> Remboursée le {{ commande.rembourseeLe|date('d/m/Y') }}{% if commande.remboursementNote %} — {{ commande.remboursementNote }}{% endif %}</p>
+                        {% else %}
+                            <p class="text-sm font-semibold" style="color: var(--color-admin-danger);"><i class="fa-solid fa-triangle-exclamation"></i> Commande payée puis annulée : le client doit être remboursé ({{ commande.totalCentimes|money }}).</p>
+                            <form method="post" action="{{ path('admin_commande_action', {id: commande.id, action: 'rembourser'}) }}"
+                                  data-confirm="Confirmez que le client a bien été remboursé de {{ commande.totalCentimes|money }}." data-confirm-title="Remboursement effectué ?" data-confirm-label="Oui, remboursé" data-confirm-neutral>
+                                <input type="hidden" name="_token" value="{{ csrf_token('commande-' ~ commande.id) }}">
+                                <input type="text" name="note" maxlength="255" class="admin-modal-input mb-2" placeholder="Précision (virement, chèque, espèces…)">
+                                <button type="submit" class="admin-btn admin-btn-primary w-full justify-center"><i class="fa-solid fa-hand-holding-dollar"></i> Marquer comme remboursée</button>
+                            </form>
+                        {% endif %}
                     {% endif %}
                 </div>
             </section>

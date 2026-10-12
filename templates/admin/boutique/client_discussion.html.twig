@@ -1,0 +1,48 @@
+{% extends 'admin/_layout.html.twig' %}
+
+{% block title %}{{ conversation.subject ?: 'Discussion' }}{% endblock %}
+
+{% block body %}
+    <a href="{{ path('admin_client_boutique_show', {id: client.id}) }}" class="text-sm text-admin-text-muted hover:text-admin-text"><i class="fa-solid fa-arrow-left"></i> {{ client.nomComplet }}</a>
+    <div class="mt-3 mb-5">
+        <h1 class="text-2xl font-black" style="font-family:'Barlow Condensed',sans-serif;">{{ conversation.subject ?: 'Discussion du ' ~ conversation.createdAt|date('d/m/Y') }}</h1>
+        <p class="text-sm text-admin-text-muted">Support client · lecture seule</p>
+    </div>
+
+    <div class="ch is-solo is-readonly">
+        <section class="ch-thread">
+            <div class="ch-conversation">
+                <div class="ch-header">
+                    <span class="ch-avatar">{{ client.nomComplet|first|upper }}</span>
+                    <div class="ch-header-text">
+                        <strong>{{ client.nomComplet }}</strong>
+                        <span>
+                            {% if conversation.closed %}Clôturée le {{ conversation.closedAt|date('d/m/Y à H:i') }}{{ conversation.closedBy ? ' par ' ~ conversation.closedBy.nomComplet }}{% else %}Discussion en cours{% endif %}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="ch-messages" role="log">
+                    {% set lastDay = null %}
+                    {% for m in messages %}
+                        {% set day = m.createdAt|date('Y-m-d') %}
+                        {% if day != lastDay %}
+                            <div class="ch-day"><span>{{ m.createdAt|date('d/m/Y') }}</span></div>
+                            {% set lastDay = day %}
+                        {% endif %}
+                        {% set fromClient = m.author and m.author.id == client.id %}
+                        <div class="ch-row {{ fromClient ? 'is-theirs' : 'is-mine' }}">
+                            <div class="ch-bubble">
+                                <span class="ch-author">{{ fromClient ? client.nomComplet : (m.author ? m.author.nomComplet : 'Support') }}</span>
+                                <span class="ch-body">{{ m.body ?: 'Document partagé' }}</span>
+                            </div>
+                            <span class="ch-meta"><time>{{ m.createdAt|date('H:i') }}</time></span>
+                        </div>
+                    {% else %}
+                        <p class="ch-empty">Aucun message.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </section>
+    </div>
+{% endblock %}

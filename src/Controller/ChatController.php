@@ -127,6 +127,18 @@ class ChatController extends AbstractController
         });
     }
 
+    /** Clôture d'une discussion de support une fois le problème résolu (réservé au support client). */
+    #[Route('/admin/messagerie/api/conversations/{id}/close', name: 'admin_chat_close', requirements: ['id' => '\d+'], methods: ['POST'])]
+    public function close(Request $request, int $id): JsonResponse
+    {
+        return $this->guarded($request, function () use ($request, $id): array {
+            $me = $this->me();
+            $this->chat->close($this->conversationFor($id, $me), $me, (string) ($this->payload($request)['title'] ?? ''));
+
+            return [];
+        });
+    }
+
     /** Envoi d'un fichier de l'appareil (conservé 14 jours dans l'espace de l'expéditeur) ou partage d'un document de son espace. */
     #[Route('/admin/messagerie/api/conversations/{id}/documents', name: 'admin_chat_send_document', requirements: ['id' => '\d+'], methods: ['POST'])]
     #[Route('/mon-compte/messagerie/api/conversations/{id}/documents', name: 'portail_chat_send_document', requirements: ['id' => '\d+'], methods: ['POST'])]

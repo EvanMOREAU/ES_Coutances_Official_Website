@@ -1,0 +1,33 @@
+{% extends 'admin/_layout.html.twig' %}
+
+{% block title %}Clients de la boutique{% endblock %}
+
+{% block body %}
+    <div class="mb-6">
+        <h1 class="text-2xl font-black" style="font-family:'Barlow Condensed',sans-serif;">Clients de la boutique</h1>
+        <p class="text-sm text-admin-text-muted">Comptes limités à la boutique</p>
+    </div>
+
+    {% embed 'admin/_components/data_table.html.twig' with {
+        key: 'client_boutique',
+        plural: 'clients',
+        bulk: false,
+        search_placeholder: 'Rechercher un client…',
+        empty_message: 'Aucun client de la boutique pour le moment.',
+        columns: [
+            {key: 'nom', label: 'Nom'},
+            {key: 'email', label: 'Email'},
+            {key: 'connexion', label: 'Dernière connexion'},
+        ],
+    } %}
+        {% block rows %}
+            {% for client in clients %}
+                <tr data-data-table-target="row" data-id="{{ client.id }}" data-href="{{ path('admin_client_boutique_show', {id: client.id}) }}">
+                    <td data-col="nom" data-sort="{{ client.nomComplet|lower }}" class="font-medium"><a href="{{ path('admin_client_boutique_show', {id: client.id}) }}" class="hover:underline">{{ client.nomComplet }}</a></td>
+                    <td data-col="email" class="dt-muted">{{ client.email }}</td>
+                    <td data-col="connexion" data-sort="{{ client.lastLoginAt ? client.lastLoginAt|date('Y-m-d H:i') : '' }}" class="dt-muted">{{ client.lastLoginAt ? client.lastLoginAt|date('d/m/Y') : 'Jamais' }}</td>
+                </tr>
+            {% endfor %}
+        {% endblock %}
+    {% endembed %}
+{% endblock %}

@@ -20,7 +20,7 @@ export default class extends Controller {
     static targets = [
         'side', 'list', 'search', 'thread', 'placeholder', 'conversation', 'headAvatar', 'headTitle', 'headStatus',
         'messages', 'jump', 'input', 'send', 'filePicker', 'attachMenu', 'staged', 'previewDialog', 'previewBody', 'previewName', 'previewDownload', 'docDialog', 'docList', 'docSearch', 'dropZone',
-        'newDialog', 'newHelp', 'newLabel', 'newSelect', 'subjectField', 'newSubject', 'newMessage', 'newError', 'newSubmit',
+        'closeButton', 'closedBar', 'composer', 'newDialog', 'newHelp', 'newLabel', 'newSelect', 'subjectField', 'newSubject', 'newMessage', 'newError', 'newSubmit',
     ];
     static values = { base: String, token: String, staff: Boolean, open: Number, me: Number, solo: Boolean };
 
@@ -280,6 +280,7 @@ export default class extends Controller {
         this.sendTarget.disabled = true;
         this.inputTarget.value = '';
         this.autosize();
+        this.showClosed(false);
         this.renderList();
         this.refreshHeader();
         this.rememberInUrl(id);
@@ -291,6 +292,7 @@ export default class extends Controller {
             }
             this.readUpTo = data.readUpTo;
             this.hasMore = data.hasMore;
+            this.showClosed(data.closed);
             data.messages.forEach((message) => this.appendMessage(message));
             this.scrollToEnd();
             this.inputTarget.focus({ preventScroll: true });
@@ -356,6 +358,9 @@ export default class extends Controller {
             return;
         }
         this.headTitleTarget.textContent = conversation.title;
+        if (this.hasCloseButtonTarget) {
+            this.closeButtonTarget.hidden = !conversation.support || !this.closedBarTarget.hidden;
+        }
         this.headAvatarTarget.replaceWith(this.buildHeadAvatar(conversation));
         if (conversation.support && !this.staffValue) {
             this.headStatusTarget.textContent = 'Équipe du support · nous vous répondons ici';
@@ -382,7 +387,81 @@ export default class extends Controller {
         return avatar;
     }
 
+    /** Discussion de support clôturée : plus de saisie possible (le client peut en ouvrir une nouvelle). */
+    showClosed(closed) {
+        this.closedBarTarget.hidden = !closed;
+        this.composerTarget.hidden = closed;
+        if (this.hasCloseButtonTarget && closed) {
+            this.closeButtonTarget.hidden = true;
+        }
+    }
+
+    reloadPage() {
+        window.location.reload();
+    }
+
+    /** Le support clôture la discussion une fois le problème résolu ; elle reste consultable dans la fiche du client. */
+    closeSupport() {
+        const id = this.activeId;
+        if (id === 0) {
+            return;
+        }
+        const dialog = document.createElement('dialog');
+        dialog.className = 'admin-modal';
+        dialog.innerHTML = `
+            <form class="admin-modal-body" novalidate>
+                <h2 class="admin-modal-title">Clôturer la discussion</h2>
+                <p class="admin-modal-text">Le client pourra ouvrir une nouvelle discussion ; celle-ci restera consultable dans sa fiche, sous le titre ci-dessous.</p>
+                <label class="admin-modal-field">
+                    <span class="admin-modal-label">Titre de la discussion</span>
+                    <input type="text" class="admin-modal-input" maxlength="120" placeholder="Ex. Commande non reçue" required>
+                </label>
+                <p class="ch-form-error" hidden></p>
+                <div class="admin-modal-actions">
+                    <button type="button" class="admin-btn admin-btn-ghost" data-role="cancel">Annuler</button>
+                    <button type="submit" class="admin-btn admin-btn-primary">Clôturer</button>
+                </div>
+            </form>`;
+        const input = dialog.querySelector('input');
+        const error = dialog.querySelector('.ch-form-error');
+        const close = () => {
+            dialog.close();
+            dialog.remove();
+        };
+        dialog.querySelector('[data-role="cancel"]').addEventListener('click', close);
+        dialog.addEventListener('click', (event) => {
+            if (event.target === dialog) {
+                close();
+            }
+        });
+        dialog.querySelector('form').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const title = input.value.trim();
+            if (title === '') {
+                error.textContent = 'Indiquez un titre.';
+                error.hidden = false;
+
+                return;
+            }
+            try {
+                await this.api(`conversations/${id}/close`, { method: 'POST', body: { title } });
+                close();
+                this.closeConversation();
+                this.pollNow();
+            } catch (failure) {
+                error.textContent = failure.message;
+                error.hidden = false;
+            }
+        });
+        document.body.appendChild(dialog);
+        dialog.showModal();
+        input.focus();
+    }
+
     applyIncoming(active) {
+        if (active.closed !== undefined) {
+            this.showClosed(active.closed);
+        }
         const wasAtBottom = this.atBottom();
         let fromOthers = 0;
         active.messages.forEach((message) => {

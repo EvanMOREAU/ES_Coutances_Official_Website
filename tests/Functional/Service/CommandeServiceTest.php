@@ -113,6 +113,30 @@ final class CommandeServiceTest extends DatabaseTestCase
         self::assertSame(5, $variante->getStock());
     }
 
+    public function testPaidThenCancelledOrderMustBeRefunded(): void
+    {
+        $commande = $this->service->passer([$this->variante()->getId() => 1], $this->client(), null);
+        $this->service->appliquer($commande, 'payer');
+        $this->service->appliquer($commande, 'annuler');
+
+        self::assertTrue($commande->isRemboursementDu());
+
+        $this->service->appliquer($commande, 'rembourser', 'Virement');
+        self::assertFalse($commande->isRemboursementDu());
+        self::assertTrue($commande->isRembourse());
+        self::assertSame('Virement', $commande->getRemboursementNote());
+    }
+
+    public function testUnpaidCancelledOrderNeedsNoRefund(): void
+    {
+        $commande = $this->service->passer([$this->variante()->getId() => 1], $this->client(), null);
+        $this->service->appliquer($commande, 'annuler');
+
+        self::assertFalse($commande->isRemboursementDu());
+        $this->expectException(\DomainException::class);
+        $this->service->appliquer($commande, 'rembourser');
+    }
+
     public function testCancelledOrderCannotBeCancelledOrPaidAgain(): void
     {
         $commande = $this->service->passer([$this->variante()->getId() => 1], $this->client(), null);

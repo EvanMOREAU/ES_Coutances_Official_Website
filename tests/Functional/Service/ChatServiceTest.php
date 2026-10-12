@@ -151,6 +151,36 @@ final class ChatServiceTest extends DatabaseTestCase
         self::assertTrue($this->chat->canAccess($support, $client));
     }
 
+    public function testClosedSupportConversationIsKeptAndANewOneIsOpened(): void
+    {
+        $client = $this->createUser(['ROLE_USER']);
+        $agent = $this->staff();
+
+        $first = $this->chat->supportConversationFor($client);
+        $this->chat->send($first, $client, 'Ma commande est bloquée');
+        $this->chat->close($first, $agent, 'Commande bloquée');
+
+        self::assertTrue($first->isClosed());
+        self::assertSame('Commande bloquée', $first->getSubject());
+        self::assertSame($agent->getId(), $first->getClosedBy()?->getId());
+
+        $second = $this->chat->supportConversationFor($client);
+        self::assertNotSame($first->getId(), $second->getId(), 'Une nouvelle demande ouvre un nouveau fil.');
+        self::assertFalse($second->isClosed());
+        self::assertCount(2, static::getContainer()->get(\App\Repository\ConversationRepository::class)->findSupportHistoryOf($client));
+    }
+
+    public function testNobodyCanWriteInAClosedConversation(): void
+    {
+        $client = $this->createUser(['ROLE_USER']);
+        $agent = $this->staff();
+        $support = $this->chat->supportConversationFor($client);
+        $this->chat->close($support, $agent, 'Résolu');
+
+        $this->expectException(ChatException::class);
+        $this->chat->send($support, $client, 'Encore là ?');
+    }
+
     public function testEditorWithoutSupportPermissionCannotAnswerSupport(): void
     {
         $client = $this->createUser(['ROLE_FAMILLE']);

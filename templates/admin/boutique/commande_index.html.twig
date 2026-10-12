@@ -40,6 +40,7 @@
                     <td data-col="paiement" data-sort="{{ commande.reglement }}">
                         <span class="badge badge-{{ commande.payee ? 'paye' : (commande.statut == 'annulee' ? 'archived' : 'attente') }}">{{ commande.payee ? 'Payée' : (commande.statut == 'annulee' ? '—' : 'À encaisser') }}</span>
                         <span class="dt-muted text-xs ml-1">{{ commande.modePaiementLabel }}</span>
+                        {% if commande.remboursementDu %}<span class="badge badge-attente ml-1">À rembourser</span>{% elseif commande.statut == 'annulee' and commande.rembourse %}<span class="badge badge-paye ml-1">Remboursée</span>{% endif %}
                     </td>
                     <td data-col="statut"><span class="badge badge-cmd-{{ commande.statut }}">{{ commande.statutLabel }}</span></td>
                     <td data-col="date" data-sort="{{ commande.createdAt|date('Y-m-d H:i') }}" class="dt-muted">{{ commande.createdAt|date('d/m/Y H:i') }}</td>
