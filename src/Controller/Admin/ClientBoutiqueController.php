@@ -14,7 +14,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-/** Clients de la boutique : comptes limités à la boutique (ni équipe du club, ni famille, ni licencié). */
+/** Clients de la boutique : comptes limités à la boutique, et familles ou licenciés ayant déjà commandé (jamais l'équipe du club). */
 #[Route('/admin/clients-boutique')]
 class ClientBoutiqueController extends AbstractController
 {
