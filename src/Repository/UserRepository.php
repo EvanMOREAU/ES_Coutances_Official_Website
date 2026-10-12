@@ -35,8 +35,9 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
     }
 
     /**
-     * Comptes limités à la boutique : ni équipe du club (encadrant, admin, dev), ni compte famille ou
-     * licencié, ni rattaché à une fiche famille / licencié.
+     * Clients de la boutique : les comptes limités à la boutique (ni compte famille ou licencié, ni rattaché à
+     * une fiche famille / licencié), plus les comptes famille ou licencié qui ont déjà commandé. L'équipe du club
+     * (encadrant, admin, dev) n'en fait jamais partie.
      *
      * @return list<User>
      */
@@ -55,9 +56,10 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
     {
         return $this->createQueryBuilder('u')
             ->andWhere("u.roles NOT LIKE '%ROLE_EDITOR%' AND u.roles NOT LIKE '%ROLE_ADMIN%' AND u.roles NOT LIKE '%ROLE_DEV%'")
-            ->andWhere("u.roles NOT LIKE '%ROLE_FAMILLE%' AND u.roles NOT LIKE '%ROLE_LICENCIE%'")
-            ->andWhere('NOT EXISTS (SELECT f.id FROM App\Entity\Famille f WHERE f.user = u)')
-            ->andWhere('NOT EXISTS (SELECT l.id FROM App\Entity\Licencie l WHERE l.user = u)')
+            ->andWhere("(u.roles NOT LIKE '%ROLE_FAMILLE%' AND u.roles NOT LIKE '%ROLE_LICENCIE%'
+                    AND NOT EXISTS (SELECT f.id FROM App\Entity\Famille f WHERE f.user = u)
+                    AND NOT EXISTS (SELECT l.id FROM App\Entity\Licencie l WHERE l.user = u))
+                OR EXISTS (SELECT c.id FROM App\Entity\Commande c WHERE c.user = u)")
             ->orderBy('u.nom', SortDirection::Ascending)
             ->addOrderBy('u.prenom', SortDirection::Ascending);
     }
