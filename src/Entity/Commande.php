@@ -136,6 +136,14 @@ class Commande
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $payeeLe = null;
 
+    /** Date à laquelle le remboursement d'une commande payée puis annulée a été effectué (null : pas encore remboursé). */
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $rembourseeLe = null;
+
+    /** Précision libre sur le remboursement (virement, chèque, espèces rendues…). */
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $remboursementNote = null;
+
     /** Numéro de facture, séquentiel et sans trou (FAC-AAAA-00001), attribué à l'encaissement. */
     #[ORM\Column(length: 20, unique: true, nullable: true)]
     private ?string $numeroFacture = null;
@@ -313,6 +321,36 @@ class Commande
     public function getPayeeLe(): ?\DateTimeImmutable
     {
         return $this->payeeLe;
+    }
+
+    public function getRembourseeLe(): ?\DateTimeImmutable
+    {
+        return $this->rembourseeLe;
+    }
+
+    public function getRemboursementNote(): ?string
+    {
+        return $this->remboursementNote;
+    }
+
+    /** Commande payée puis annulée : le client doit être remboursé, tant que ce n'est pas noté comme fait. */
+    public function isRemboursementDu(): bool
+    {
+        return self::STATUT_ANNULEE === $this->statut && $this->isPayee() && null === $this->rembourseeLe;
+    }
+
+    public function isRembourse(): bool
+    {
+        return null !== $this->rembourseeLe;
+    }
+
+    public function marquerRembourse(?string $note = null): static
+    {
+        $this->rembourseeLe ??= new \DateTimeImmutable();
+        $note = null === $note ? '' : trim($note);
+        $this->remboursementNote = '' === $note ? null : mb_substr($note, 0, 255);
+
+        return $this;
     }
 
     public function getNumeroFacture(): ?string

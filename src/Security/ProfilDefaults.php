@@ -70,7 +70,7 @@ class ProfilDefaults
                 $crud('equipe', ['voir']),
                 $crud('messagerie', ['utiliser']),
             )],
-            'Responsable boutique' => ['Articles, stock, commandes et bons de livraison.', array_merge($crud('article'), $crud('commande', ['voir', 'traiter', 'annuler']), $crud('code_promo'))],
+            'Responsable boutique' => ['Articles, stock, commandes et bons de livraison.', array_merge($crud('article'), $crud('commande', ['voir', 'traiter', 'annuler']), $crud('code_promo'), $crud('client_boutique', ['voir']))],
             'Communication' => ['Site vitrine et fichiers.', array_merge(
                 $crud('partenaire'),
                 $crud('rejoindre_card'),

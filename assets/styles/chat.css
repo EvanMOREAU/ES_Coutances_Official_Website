@@ -249,3 +249,32 @@
 /* Discussion de support : les messages des autres membres de l'équipe sont en bleu ; les siens gardent la couleur du thème */
 .ch-row.is-theirs.is-support .ch-bubble { color: #fff; background-color: #2563eb; }
 .ch-row.is-theirs.is-support .ch-author { color: rgba(255, 255, 255, .8); }
+
+/* Clôture d'une discussion de support */
+.ch-close { margin-left: auto; }
+.ch-closed { display: flex; align-items: center; justify-content: space-between; gap: .75rem; padding: .8rem 1rem; border-top: 1px solid var(--_border); font-size: .85rem; color: var(--_muted); }
+.ch-closed[hidden] { display: none; }
+.ch-composer[hidden], .ch-close[hidden] { display: none; }
+
+/* Discussion passée consultée depuis la fiche d'un client : lecture seule, sur toute la hauteur */
+.ch.is-readonly { height: auto; }
+.ch.is-readonly .ch-messages { overflow: visible; }
+.ch.is-readonly .ch-messages > :first-child { margin-top: 0; }
+.ch.is-readonly .ch-row.is-mine .ch-author { color: rgba(255, 255, 255, .8); }
+
+/* Liste des discussions de support d'un client (fiche client) */
+.cl-threads { display: flex; flex-direction: column; gap: .6rem; }
+.cl-thread {
+    display: flex; align-items: center; gap: .9rem; padding: .85rem 1rem; text-decoration: none;
+    color: var(--color-admin-text); border: 1px solid var(--color-admin-border); border-radius: .9rem; transition: background-color .12s, border-color .12s;
+}
+a.cl-thread:hover { background-color: var(--color-admin-surface-hover); border-color: var(--color-admin-primary-to); }
+.cl-thread-ico {
+    display: grid; width: 2.4rem; height: 2.4rem; flex-shrink: 0; place-items: center; border-radius: .7rem;
+    color: var(--color-admin-primary-from); background-color: color-mix(in srgb, var(--color-admin-primary-from) 14%, transparent);
+}
+.cl-thread.is-open .cl-thread-ico { color: var(--color-admin-success); background-color: color-mix(in srgb, var(--color-admin-success) 14%, transparent); }
+.cl-thread-text { display: flex; min-width: 0; flex: 1; flex-direction: column; gap: .15rem; }
+.cl-thread-text strong { overflow: hidden; font-size: .9rem; text-overflow: ellipsis; white-space: nowrap; }
+.cl-thread-text small { font-size: .75rem; color: var(--color-admin-text-muted); }
+.cl-thread-go { font-size: .75rem; color: var(--color-admin-text-muted); }

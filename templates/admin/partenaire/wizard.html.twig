@@ -33,7 +33,7 @@
     {% set next_reglement = 0 %}{% for key, row in form.contrat.reglements %}{% set next_reglement = max(next_reglement, key + 1) %}{% endfor %}
     {% set next_tache = 0 %}{% for key, row in form.contrat.taches %}{% set next_tache = max(next_tache, key + 1) %}{% endfor %}
 
-    <div data-controller="partenaire-wizard" data-action="change->partenaire-wizard#received keydown.enter->partenaire-wizard#onEnter"
+    <div data-controller="partenaire-wizard" data-action="change->partenaire-wizard#received input->partenaire-wizard#refreshResume keydown->partenaire-wizard#onKeydown"
          data-partenaire-wizard-reglement-prototype-value="{{ _self.reglement_row(form.contrat.reglements.vars.prototype)|e('html_attr') }}"
          data-partenaire-wizard-tache-prototype-value="{{ _self.tache_row(form.contrat.taches.vars.prototype)|e('html_attr') }}"
          data-partenaire-wizard-reglement-index-value="{{ next_reglement }}"
@@ -78,8 +78,17 @@
 
                 {# Étape 3 : Règlements #}
                 <div data-partenaire-wizard-target="step" class="hidden">
-                    <h2 class="font-bold mb-1">Règlements</h2>
-                    <p class="text-sm text-admin-text-muted mb-4">Optionnel : une ligne par échéance. Vous pourrez aussi les ajouter plus tard.</p>
+                    <div class="flex flex-wrap items-center justify-between gap-3 mb-1">
+                        <h2 class="font-bold">Règlements</h2>
+                        <div class="ad-split">
+                            <span>Échelonner le montant en</span>
+                            <button type="button" class="admin-btn admin-btn-ghost admin-btn-sm" data-action="partenaire-wizard#split" data-partenaire-wizard-parts-param="1">1 fois</button>
+                            <button type="button" class="admin-btn admin-btn-ghost admin-btn-sm" data-action="partenaire-wizard#split" data-partenaire-wizard-parts-param="2">2 fois</button>
+                            <button type="button" class="admin-btn admin-btn-ghost admin-btn-sm" data-action="partenaire-wizard#split" data-partenaire-wizard-parts-param="3">3 fois</button>
+                        </div>
+                    </div>
+                    <p class="text-xs text-admin-text-muted mb-3">Optionnel : une ligne par échéance. Choisissez un échelonnement et les montants et dates sont calculés d'après le montant du contrat (modifiables ensuite).</p>
+                    <p class="ad-resume flex flex-wrap gap-4 text-sm mb-4" data-partenaire-wizard-target="resteResume"></p>
                     <div data-partenaire-wizard-target="reglements">
                         {% for row in form.contrat.reglements %}{{ _self.reglement_row(row) }}{% endfor %}
                     </div>

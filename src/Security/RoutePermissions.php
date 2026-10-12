@@ -40,6 +40,7 @@ final class RoutePermissions
         'admin_article'         => 'article',
         'admin_boutique_categorie' => 'article',
         'admin_code_promo'      => 'code_promo',
+        'admin_client_boutique' => 'client_boutique',
         'admin_partenaire_contrat' => 'contrat_partenaire',
         'admin_partenaire'      => 'partenaire',
         'admin_categorie_partenaire' => 'categorie_partenaire',
@@ -60,7 +61,7 @@ final class RoutePermissions
         'admin_partenaire_hub' => 'partenaire.voir',
         'admin_import_hub'    => 'import.voir',
         'admin_acces_hub'     => 'utilisateur.voir,autorisation.voir',
-        'admin_configuration_hub' => 'mail.voir,helloasso.voir,categorie.voir',
+        'admin_configuration_hub' => 'mail.voir,helloasso.voir,categorie.voir,categorie_partenaire.voir',
         'admin_content_image_upload' => 'page_contenu.modifier,page_contenu.creer,article.modifier,article.creer,offre_emploi.modifier,offre_emploi.creer,membre.modifier,membre.creer,rejoindre_card.modifier,rejoindre_card.creer',
     ];
 
@@ -71,6 +72,7 @@ final class RoutePermissions
         'admin_mail_test'              => 'mail.tester',
         'admin_user_resend_activation' => 'utilisateur.modifier',
         'admin_adhesion_suivi'         => 'adhesion.suivi',
+        'admin_partenaire_suivi'       => 'contrat_partenaire.suivi',
         'admin_adhesion_edit'          => 'adhesion.modifier',
         'admin_rejoindre_card_toggle'  => 'rejoindre_card.modifier',
         'admin_code_promo_approuver'   => 'code_promo.approuver',
@@ -169,7 +171,7 @@ final class RoutePermissions
             return $resource.'.'.($delete ? 'supprimer' : 'modifier');
         }
         if ('admin_commande_action' === $route) {
-            return 'annuler' === ($params['action'] ?? '') ? 'commande.annuler' : 'commande.traiter';
+            return in_array($params['action'] ?? '', ['annuler', 'rembourser'], true) ? 'commande.annuler' : 'commande.traiter';
         }
         if (isset(self::EXPLICIT[$route])) {
             return self::EXPLICIT[$route];

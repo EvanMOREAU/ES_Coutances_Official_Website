@@ -36,6 +36,14 @@ class Conversation
     #[ORM\JoinColumn(onDelete: 'CASCADE')]
     private ?User $customer = null;
 
+    /** Clôture d'une discussion de support (problème résolu) : le client en ouvre alors une nouvelle, l'ancienne reste consultable. */
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $closedAt = null;
+
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(onDelete: 'SET NULL')]
+    private ?User $closedBy = null;
+
     /** Dernier e-mail envoyé à l'équipe du support pour cette discussion. */
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $staffNotifiedAt = null;
@@ -109,6 +117,26 @@ class Conversation
         $this->support = true;
         $this->customer = $customer;
         $this->isGroup = false;
+
+        return $this;
+    }
+
+    public function isClosed(): bool
+    {
+        return $this->closedAt !== null;
+    }
+    public function getClosedAt(): ?\DateTimeImmutable
+    {
+        return $this->closedAt;
+    }
+    public function getClosedBy(): ?User
+    {
+        return $this->closedBy;
+    }
+    public function close(User $by): static
+    {
+        $this->closedAt = new \DateTimeImmutable();
+        $this->closedBy = $by;
 
         return $this;
     }

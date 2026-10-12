@@ -2,6 +2,7 @@
 
 namespace App\Controller\Admin;
 
+use App\Repository\CategoriePartenaireRepository;
 use App\Repository\CategorieRepository;
 use App\Repository\HelloAssoSettingsRepository;
 use App\Repository\MailSettingsRepository;
@@ -16,11 +17,12 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route('/admin/configuration', name: 'admin_configuration_hub', methods: ['GET'])]
 class ConfigurationHubController extends AbstractController
 {
-    public function __invoke(MailSettingsRepository $mailSettings, HelloAssoSettingsRepository $helloAssoSettings, CategorieRepository $categories): Response
+    public function __invoke(MailSettingsRepository $mailSettings, HelloAssoSettingsRepository $helloAssoSettings, CategorieRepository $categories, CategoriePartenaireRepository $categoriesPartenaires): Response
     {
         $mail      = $mailSettings->getSingleton();
         $helloAsso = $helloAssoSettings->getSingleton();
         $nbCategories = $categories->count([]);
+        $nbCategoriesPartenaires = $categoriesPartenaires->count([]);
 
         return $this->render('admin/configuration_hub.html.twig', [
             'open'     => '',
@@ -61,6 +63,19 @@ class ConfigurationHubController extends AbstractController
                         'onLabel'  => $nbCategories . ' catégorie' . ($nbCategories > 1 ? 's' : ''),
                         'offLabel' => 'Aucune catégorie',
                         'detail'   => 'Catégories utilisées pour classer les membres de l\'encadrement (éducateurs, dirigeants…).',
+                    ],
+                ],
+                [
+                    'key' => 'categorie_partenaire', 'group' => 'Technique', 'icon' => 'fa-handshake', 'title' => 'Catégories de partenaires',
+                    'url' => $this->generateUrl('admin_categorie_partenaire_index'),
+                    'new' => $this->generateUrl('admin_categorie_partenaire_new'),
+                    'value' => null, 'label' => null, 'sub' => null,
+                    'visual' => [
+                        'type'     => 'status',
+                        'on'       => $nbCategoriesPartenaires > 0,
+                        'onLabel'  => $nbCategoriesPartenaires . ' catégorie' . ($nbCategoriesPartenaires > 1 ? 's' : ''),
+                        'offLabel' => 'Aucune catégorie',
+                        'detail'   => 'Catégories (or, argent, fournisseur…) proposées sur la fiche de chaque partenaire.',
                     ],
                 ],
             ],

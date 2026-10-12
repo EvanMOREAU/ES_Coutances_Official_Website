@@ -39,6 +39,9 @@
                     <strong data-chat-target="headTitle"></strong>
                     <span data-chat-target="headStatus"></span>
                 </div>
+                {% if chat_staff %}
+                    <button type="button" class="ch-btn ch-close" data-chat-target="closeButton" data-action="click->chat#closeSupport" hidden title="Le problème est résolu : clôturer cette discussion"><i class="fa-solid fa-circle-check"></i> Clôturer</button>
+                {% endif %}
             </div>
 
             <div class="ch-messages" data-chat-target="messages" data-action="scroll->chat#onScroll" role="log" aria-live="polite"></div>
@@ -47,7 +50,12 @@
 
             <div class="ch-staged" data-chat-target="staged" hidden></div>
 
-            <form class="ch-composer" data-action="submit->chat#submit">
+            <div class="ch-closed" data-chat-target="closedBar" hidden>
+                <span><i class="fa-solid fa-circle-check"></i> Cette discussion est clôturée.</span>
+                {% if not chat_staff %}<button type="button" class="ch-btn" data-action="click->chat#reloadPage"><i class="fa-solid fa-plus"></i> Nouvelle discussion</button>{% endif %}
+            </div>
+
+            <form class="ch-composer" data-chat-target="composer" data-action="submit->chat#submit">
                 <div class="ch-attach">
                     <button type="button" class="ch-icon-btn" data-action="click->chat#attach" aria-label="Joindre un document" title="Joindre un document (disponible 14 jours)"><i class="fa-solid fa-paperclip"></i></button>
                     {% if chat_staff %}

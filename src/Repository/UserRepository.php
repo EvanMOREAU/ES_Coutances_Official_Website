@@ -34,6 +34,34 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         $this->getEntityManager()->flush();
     }
 
+    /**
+     * Comptes limités à la boutique : ni équipe du club (encadrant, admin, dev), ni compte famille ou
+     * licencié, ni rattaché à une fiche famille / licencié.
+     *
+     * @return list<User>
+     */
+    public function findBoutiqueClients(): array
+    {
+        return $this->boutiqueClientsQuery()->getQuery()->getResult();
+    }
+
+    /** Le compte est-il limité à la boutique (voir findBoutiqueClients) ? */
+    public function isBoutiqueClient(User $user): bool
+    {
+        return null !== $this->boutiqueClientsQuery()->andWhere('u = :me')->setParameter('me', $user)->setMaxResults(1)->getQuery()->getOneOrNullResult();
+    }
+
+    private function boutiqueClientsQuery(): \Doctrine\ORM\QueryBuilder
+    {
+        return $this->createQueryBuilder('u')
+            ->andWhere("u.roles NOT LIKE '%ROLE_EDITOR%' AND u.roles NOT LIKE '%ROLE_ADMIN%' AND u.roles NOT LIKE '%ROLE_DEV%'")
+            ->andWhere("u.roles NOT LIKE '%ROLE_FAMILLE%' AND u.roles NOT LIKE '%ROLE_LICENCIE%'")
+            ->andWhere('NOT EXISTS (SELECT f.id FROM App\Entity\Famille f WHERE f.user = u)')
+            ->andWhere('NOT EXISTS (SELECT l.id FROM App\Entity\Licencie l WHERE l.user = u)')
+            ->orderBy('u.nom', SortDirection::Ascending)
+            ->addOrderBy('u.prenom', SortDirection::Ascending);
+    }
+
     /** @return list<User> */
     public function findAllOrderedByRole(): array
     {

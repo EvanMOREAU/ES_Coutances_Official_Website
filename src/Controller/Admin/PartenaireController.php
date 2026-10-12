@@ -70,6 +70,52 @@ class PartenaireController extends AbstractController
         ]);
     }
 
+    /**
+     * Suivi rapide d'un partenaire (ouvert dans une fenêtre depuis la liste) : étape par étape,
+     * on marque les règlements comme encaissés et les tâches comme faites, tous contrats confondus.
+     */
+    #[Route('/{id}/suivi', name: 'admin_partenaire_suivi', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
+    public function suivi(Request $request, Partenaire $partenaire, EntityManagerInterface $em): Response
+    {
+        if ($request->isMethod('POST')) {
+            if ($this->isCsrfTokenValid('suivi-partenaire-'.$partenaire->getId(), (string) $request->request->get('_token'))) {
+                $data = $request->request->all();
+                foreach ($partenaire->getContrats() as $contrat) {
+                    foreach ($contrat->getReglements() as $reglement) {
+                        $row = $data['reglements'][$reglement->getId()] ?? [];
+                        $reglement->setRecu(!empty($row['recu']))
+                            ->setDateRemise($this->date($row['dateRemise'] ?? null))
+                            ->setReference($this->text($row['reference'] ?? null, 100));
+                    }
+                    foreach ($contrat->getTaches() as $tache) {
+                        $row = $data['taches'][$tache->getId()] ?? [];
+                        $tache->setFait(!empty($row['fait']));
+                    }
+                }
+                $em->flush();
+                $this->addFlash('success', 'Suivi enregistré.');
+            }
+
+            return $this->redirectToRoute('admin_partenaire_suivi', ['id' => $partenaire->getId()]);
+        }
+
+        return $this->render('admin/partenaire/suivi.html.twig', ['partenaire' => $partenaire]);
+    }
+
+    private function date(mixed $value): ?\DateTimeImmutable
+    {
+        $date = \DateTimeImmutable::createFromFormat('!Y-m-d', (string) $value);
+
+        return $date && $date->format('Y-m-d') === (string) $value ? $date : null;
+    }
+
+    private function text(mixed $value, int $max): ?string
+    {
+        $value = trim((string) $value);
+
+        return '' === $value ? null : mb_substr($value, 0, $max);
+    }
+
     /** Les règlements et tâches sont numérotés dans l'ordre de saisie (voir ContratPartenaireController). */
     private function renumber(ContratPartenaire $contrat): void
     {

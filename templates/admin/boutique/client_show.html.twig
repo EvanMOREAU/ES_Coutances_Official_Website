@@ -1,0 +1,93 @@
+{% extends 'admin/_layout.html.twig' %}
+
+{% block title %}{{ client.nomComplet }}{% endblock %}
+
+{% block body %}
+    <a href="{{ path('admin_client_boutique_index') }}" class="text-sm text-admin-text-muted hover:text-admin-text"><i class="fa-solid fa-arrow-left"></i> Clients de la boutique</a>
+    <div class="mt-3 mb-5">
+        <h1 class="text-2xl font-black" style="font-family:'Barlow Condensed',sans-serif;">{{ client.nomComplet }}</h1>
+        <p class="text-sm text-admin-text-muted">{{ client.email }} · dernière connexion : {{ client.lastLoginAt ? client.lastLoginAt|date('d/m/Y') : 'jamais' }}</p>
+    </div>
+
+    <div class="ad-tiles">
+        <div class="ad-tile"><span>Commandes</span><strong>{{ commandes|length }}</strong></div>
+        <div class="ad-tile"><span>Total payé</span><strong>{{ totalPaye|money }}</strong></div>
+        <div class="ad-tile"><span>Factures</span><strong>{{ factures|length }}</strong></div>
+        <div class="ad-tile"><span>Discussions support</span><strong>{{ discussions|length }}</strong></div>
+    </div>
+
+    <div class="grid gap-6 lg:grid-cols-2 items-start">
+        <section class="admin-card rounded-2xl p-6">
+            <h2 class="font-semibold mb-4">Commandes</h2>
+            {% if commandes is empty %}
+                <p class="text-sm text-admin-text-muted">Aucune commande.</p>
+            {% else %}
+                <ul class="divide-y divide-admin-border text-sm">
+                    {% for c in commandes %}
+                        <li class="flex flex-wrap items-center gap-x-4 gap-y-1 py-3">
+                            {% if can_url(path('admin_commande_show', {id: c.id})) %}
+                                <a href="{{ path('admin_commande_show', {id: c.id}) }}" class="font-medium hover:underline">{{ c.reference }}</a>
+                            {% else %}
+                                <span class="font-medium">{{ c.reference }}</span>
+                            {% endif %}
+                            <span class="text-admin-text-muted">{{ c.createdAt ? c.createdAt|date('d/m/Y') }}</span>
+                            <strong>{{ c.totalCentimes|money }}</strong>
+                            <span class="ml-auto text-admin-text-muted">{{ c.statutLabel }} · {{ c.payee ? 'Payée' : 'À régler' }}</span>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </section>
+
+        <section class="admin-card rounded-2xl p-6">
+            <h2 class="font-semibold mb-4">Factures</h2>
+            {% if factures is empty %}
+                <p class="text-sm text-admin-text-muted">Aucune facture.</p>
+            {% else %}
+                <ul class="divide-y divide-admin-border text-sm">
+                    {% for c in factures %}
+                        <li class="flex flex-wrap items-center gap-x-4 gap-y-1 py-3">
+                            <a href="{{ path('boutique_commande_facture', {reference: c.reference, token: c.token}) }}" target="_blank" rel="noopener" class="font-medium hover:underline"><i class="fa-solid fa-file-invoice"></i> {{ c.numeroFacture }}</a>
+                            <span class="text-admin-text-muted">Commande {{ c.reference }}</span>
+                            <strong>{{ c.totalCentimes|money }}</strong>
+                            <span class="ml-auto text-admin-text-muted">{{ c.payeeLe ? 'Payée le ' ~ c.payeeLe|date('d/m/Y') : 'Non payée' }}</span>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </section>
+    </div>
+
+    <section class="admin-card rounded-2xl p-6 mt-6">
+        <h2 class="font-semibold mb-1">Historique du support</h2>
+        <p class="text-sm text-admin-text-muted mb-4">Chaque discussion clôturée est conservée sous son titre ; une nouvelle demande du client ouvre un nouveau fil.</p>
+        {% if discussions is empty %}
+            <p class="text-sm text-admin-text-muted">Ce client n'a jamais contacté le support.</p>
+        {% else %}
+            <div class="cl-threads">
+                {% for d in discussions %}
+                    {% set conv = d.conversation %}
+                    {% if conv.closed %}
+                        <a href="{{ path('admin_client_boutique_discussion', {id: client.id, conversation: conv.id}) }}" class="cl-thread">
+                            <span class="cl-thread-ico"><i class="fa-solid fa-comments"></i></span>
+                            <span class="cl-thread-text">
+                                <strong>{{ conv.subject ?: 'Discussion du ' ~ conv.createdAt|date('d/m/Y') }}</strong>
+                                <small>{{ conv.createdAt|date('d/m/Y') }} · {{ d.count }} message{{ d.count > 1 ? 's' }} · clôturée le {{ conv.closedAt|date('d/m/Y') }}{{ conv.closedBy ? ' par ' ~ conv.closedBy.nomComplet }}</small>
+                            </span>
+                            <i class="fa-solid fa-chevron-right cl-thread-go"></i>
+                        </a>
+                    {% else %}
+                        <div class="cl-thread is-open">
+                            <span class="cl-thread-ico"><i class="fa-solid fa-comment-dots"></i></span>
+                            <span class="cl-thread-text">
+                                <strong>Discussion en cours</strong>
+                                <small>{{ conv.createdAt|date('d/m/Y') }} · {{ d.count }} message{{ d.count > 1 ? 's' }}</small>
+                            </span>
+                            {% if can_url(path('admin_chat_index')) %}<a href="{{ path('admin_chat_index', {c: conv.id}) }}" class="admin-btn admin-btn-ghost admin-btn-sm">Ouvrir dans la messagerie</a>{% endif %}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        {% endif %}
+    </section>
+{% endblock %}

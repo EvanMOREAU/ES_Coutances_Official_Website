@@ -29,7 +29,7 @@ class CommandeController extends AbstractController
         return $this->render('admin/boutique/commande_show.html.twig', ['commande' => $commande]);
     }
 
-    #[Route('/{id}/{action}', name: 'admin_commande_action', requirements: ['id' => '\d+', 'action' => 'payer|preparer|retirer|annuler'], methods: ['POST'])]
+    #[Route('/{id}/{action}', name: 'admin_commande_action', requirements: ['id' => '\d+', 'action' => 'payer|preparer|retirer|annuler|rembourser'], methods: ['POST'])]
     public function action(Request $request, Commande $commande, string $action, CommandeService $service, CommandeMailer $mailer): Response
     {
         if (!$this->isCsrfTokenValid('commande-' . $commande->getId(), (string) $request->request->get('_token'))) {
@@ -39,7 +39,7 @@ class CommandeController extends AbstractController
         }
 
         try {
-            $service->appliquer($commande, $action);
+            $service->appliquer($commande, $action, (string) $request->request->get('note', ''));
         } catch (\DomainException $e) {
             $this->addFlash('error', $e->getMessage());
 
@@ -54,7 +54,10 @@ class CommandeController extends AbstractController
                 ? 'Commande prête à retirer : le client a été prévenu par email.'
                 : 'Commande prête à retirer, mais l\'email au client n\'a pas pu être envoyé : prévenez-le autrement.',
             'retirer'  => 'Commande remise au client.',
-            'annuler'  => 'Commande annulée, le stock a été remis à jour.',
+            'annuler'  => $commande->isRemboursementDu()
+                ? 'Commande annulée, le stock a été remis à jour. Elle était payée : pensez à rembourser le client puis à le noter ici.'
+                : 'Commande annulée, le stock a été remis à jour.',
+            'rembourser' => 'Remboursement enregistré.',
         });
 
         return $this->redirectToRoute('admin_commande_show', ['id' => $commande->getId()]);

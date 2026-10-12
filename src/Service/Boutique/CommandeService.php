@@ -139,13 +139,14 @@ class CommandeService
      *
      * @throws \DomainException si l'action n'est pas possible dans l'état actuel
      */
-    public function appliquer(Commande $commande, string $action): void
+    public function appliquer(Commande $commande, string $action, ?string $note = null): void
     {
         match ($action) {
             'payer'    => $this->payer($commande),
             'preparer' => $this->preparer($commande),
             'retirer'  => $this->retirer($commande),
             'annuler'  => $this->annuler($commande),
+            'rembourser' => $this->rembourser($commande, $note),
             default    => throw new \DomainException('Action inconnue.'),
         };
         $this->em->flush();
@@ -186,6 +187,18 @@ class CommandeService
         $commande->marquerPayee();
         $this->numeroter($commande);
         $commande->setStatut(Commande::STATUT_RETIREE);
+    }
+
+    /** Note que le client a été remboursé d'une commande payée puis annulée (le remboursement lui-même se fait hors du site). */
+    private function rembourser(Commande $commande, ?string $note): void
+    {
+        if (Commande::STATUT_ANNULEE !== $commande->getStatut() || !$commande->isPayee()) {
+            throw new \DomainException('Seule une commande payée puis annulée peut être remboursée.');
+        }
+        if ($commande->isRembourse()) {
+            throw new \DomainException('Cette commande est déjà marquée comme remboursée.');
+        }
+        $commande->marquerRembourse($note);
     }
 
     private function annuler(Commande $commande): void

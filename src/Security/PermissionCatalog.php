@@ -55,12 +55,12 @@ final class PermissionCatalog
                 'commande' => ['label' => 'Commandes', 'actions' => [
                     self::VOIR => 'Voir', 'traiter' => 'Préparer, encaisser, remettre', 'annuler' => 'Annuler une commande',
                 ]],
+                'client_boutique' => ['label' => 'Clients de la boutique', 'actions' => [self::VOIR => 'Voir']],
                 'code_promo' => ['label' => 'Bons de livraison', 'actions' => $crud + ['approuver' => 'Valider un bon ouvert à tout le monde']],
             ],
             'Site vitrine' => [
                 'partenaire'     => ['label' => 'Partenaires et sponsors', 'actions' => $crud],
-                'contrat_partenaire' => ['label' => 'Contrats partenaires', 'actions' => $crud],
-                'categorie_partenaire' => ['label' => 'Catégories de partenaires', 'actions' => $crud],
+                'contrat_partenaire' => ['label' => 'Contrats partenaires', 'actions' => $crud + ['suivi' => 'Suivi des règlements et des tâches']],
                 'rejoindre_card' => ['label' => 'Cartes « Nous rejoindre »', 'actions' => $crud],
                 'offre_emploi'   => ['label' => 'Offres d\'emploi', 'actions' => $crud],
                 'slide_carousel' => ['label' => 'Carousel de l\'accueil', 'actions' => $crud],
@@ -71,6 +71,7 @@ final class PermissionCatalog
             'Administration' => [
                 'utilisateur'  => ['label' => 'Utilisateurs', 'actions' => $crud],
                 'autorisation' => ['label' => 'Profils d\'autorisation', 'actions' => $crud],
+                'categorie_partenaire' => ['label' => 'Catégories de partenaires', 'actions' => $crud],
                 'categorie'    => ['label' => 'Catégories d\'encadrement', 'actions' => $crud],
                 'fichiers'     => ['label' => 'Fichiers', 'actions' => [
                     self::VOIR => 'Voir et télécharger', 'televerser' => 'Envoyer, créer un dossier', self::MODIFIER => 'Renommer', self::SUPPRIMER => 'Supprimer',

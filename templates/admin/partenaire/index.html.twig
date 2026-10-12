@@ -46,6 +46,12 @@
                     <td data-col="cree" data-sort="{{ partenaire.createdAt ? partenaire.createdAt|date('Y-m-d H:i') : '' }}" class="dt-muted">{{ partenaire.createdAt ? partenaire.createdAt|date('d/m/Y') : '—' }}</td>
                     {% include 'admin/_components/row_menu.html.twig' with {
                         actions: [{
+                            url: path('admin_partenaire_suivi', {id: partenaire.id}),
+                            modal: true,
+                            title: 'Suivi — ' ~ partenaire.nom,
+                            label: 'Suivi',
+                            icon: 'fa-list-check',
+                        }, {
                             url: path('admin_toggle_actif', {type: 'partenaire', id: partenaire.id}),
                             token: csrf_token('toggle-partenaire-' ~ partenaire.id),
                             label: partenaire.actif ? 'Désactiver' : 'Activer',

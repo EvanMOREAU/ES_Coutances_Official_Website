@@ -131,7 +131,11 @@ class ChatService
 
             return $support !== null ? [$support] : [];
         }
-        $conversations = $this->conversations->findForUser($me);
+        // Une discussion de support clôturée sort des listes : on la retrouve dans l'historique du client.
+        $conversations = array_values(array_filter(
+            $this->conversations->findForUser($me),
+            static fn (Conversation $c) => !($c->isSupport() && $c->isClosed()),
+        ));
         if ($this->canSupport($me)) {
             $byId = [];
             foreach (array_merge($conversations, $this->conversations->findSupport()) as $conversation) {
@@ -242,7 +246,7 @@ class ChatService
     }
 
     /**
-     * @return array{messages: list<array<string, mixed>>, readUpTo: int, hasMore: bool}
+     * @return array{messages: list<array<string, mixed>>, readUpTo: int, hasMore: bool, closed: bool}
      */
     public function thread(Conversation $conversation, User $me, ?int $after = null, ?int $before = null): array
     {
@@ -258,6 +262,7 @@ class ChatService
             'messages' => array_map(fn (Message $m) => $this->serialize($m, $me, $readUpTo), $messages),
             'readUpTo' => $readUpTo,
             'hasMore'  => $after === null && count($messages) === $limit,
+            'closed'   => $conversation->isClosed(),
         ];
     }
 
@@ -433,8 +438,32 @@ class ChatService
         return $message;
     }
 
+    private function assertOpen(Conversation $conversation): void
+    {
+        if ($conversation->isClosed()) {
+            throw new ChatException('Cette discussion a été clôturée. Rechargez la page pour en ouvrir une nouvelle.');
+        }
+    }
+
+    /** Clôture une discussion de support dont le problème est résolu ; le client en ouvrira une nouvelle s'il réécrit. */
+    public function close(Conversation $conversation, User $by, string $title = ''): void
+    {
+        $title = trim($title);
+        if ($title === '') {
+            throw new ChatException('Donnez un titre à la discussion avant de la clôturer (ex. « Commande non reçue »).');
+        }
+        if (!$conversation->isSupport() || !$this->canSupport($by)) {
+            throw new ChatException('Seul le support client peut clôturer cette discussion.');
+        }
+        if (!$conversation->isClosed()) {
+            $conversation->setSubject($title)->close($by);
+            $this->em->flush();
+        }
+    }
+
     private function assertCanSendTo(Conversation $conversation, User $author): void
     {
+        $this->assertOpen($conversation);
         if ($this->participation($conversation, $author) === null) {
             throw new ChatException('Vous ne faites pas partie de cette discussion.');
         }
@@ -502,6 +531,7 @@ class ChatService
         if ($this->participation($conversation, $author) === null) {
             throw new ChatException('Vous ne faites pas partie de cette discussion.');
         }
+        $this->assertOpen($conversation);
 
         $message = new Message($conversation, $author, $body);
         $conversation->setUpdatedAt($message->getCreatedAt());

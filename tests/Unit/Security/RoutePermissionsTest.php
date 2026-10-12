@@ -43,6 +43,7 @@ final class RoutePermissionsTest extends TestCase
     {
         self::assertSame('licencie.renvoyer_acces', RoutePermissions::required('admin_licencie_resend', 'POST'));
         self::assertSame('adhesion.suivi', RoutePermissions::required('admin_adhesion_suivi', 'POST'));
+        self::assertSame('contrat_partenaire.suivi', RoutePermissions::required('admin_partenaire_suivi', 'POST'));
         self::assertSame('journal.exporter', RoutePermissions::required('admin_journal_export', 'GET'));
     }
 
