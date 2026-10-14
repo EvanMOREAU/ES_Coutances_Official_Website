@@ -4,7 +4,7 @@
 
 {% block stylesheets %}
 {{ parent() }}
-<style>
+<style nonce="{{ csp_nonce() }}">
 /* ============================================================
    NOS SPONSORS
    ============================================================ */
@@ -235,7 +235,7 @@
                 {% if partenaire.logoName %}
                   <img
                     class="sponsor-logo"
-                    src="{{ asset('uploads/partenaires/' ~ partenaire.logoName) }}"
+                    src="{{ ('uploads/partenaires/' ~ partenaire.logoName)|thumb('logo') }}"
                     alt="{{ partenaire.nom }}"
                   >
                 {% else %}

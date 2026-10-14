@@ -53,7 +53,14 @@ class DeployService
         private readonly ProductionChecklist $checklist,
         private readonly DatabaseBackup $dbBackup,
         private readonly SiteFilesBackup $siteBackup,
+        private readonly bool $deployFromAdmin = true,
     ) {
+    }
+
+    /** La mise à jour depuis l'administration est-elle autorisée (DEPLOY_FROM_ADMIN) ? */
+    public function isEnabled(): bool
+    {
+        return $this->deployFromAdmin;
     }
 
     /**
@@ -132,6 +139,9 @@ class DeployService
      */
     public function start(?User $user): Deployment
     {
+        if (!$this->deployFromAdmin) {
+            throw new \RuntimeException('La mise à jour depuis l\'administration est désactivée sur ce serveur (DEPLOY_FROM_ADMIN=0) : le déploiement se fait depuis le serveur ou le pipeline.');
+        }
         if ($this->running() !== null) {
             throw new \RuntimeException('Un déploiement est déjà en cours.');
         }

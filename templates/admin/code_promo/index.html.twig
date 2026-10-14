@@ -4,7 +4,7 @@
 
 {% block body %}
     <div class="flex items-center justify-between mb-6">
-        <h1 class="text-2xl font-black" style="font-family:'Barlow Condensed',sans-serif;">Bons de livraison</h1>
+        <h1 class="u-66972700 text-2xl font-black">Bons de livraison</h1>
         {% if can_url(path('admin_code_promo_new')) %}<a href="{{ path('admin_code_promo_new') }}" class="rounded-lg admin-gradient px-4 py-2 text-sm font-semibold text-white">+ Nouveau bon</a>{% endif %}
     </div>
     <p class="text-sm text-admin-text-muted mb-6">Un code saisi par le client au paiement débloque une étape pour indiquer une adresse de livraison, au lieu du retrait au club. Aucune réduction n'est appliquée.</p>

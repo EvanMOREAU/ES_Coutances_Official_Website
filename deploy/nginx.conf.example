@@ -30,6 +30,19 @@ server {
         try_files $uri =404;
     }
 
+    # Service worker : jamais mis en cache durablement (une mise à jour doit être prise en compte tout de suite).
+    location = /sw.js {
+        add_header Cache-Control "no-cache";
+        try_files $uri =404;
+    }
+
+    # Miniatures générées à la demande (LiipImagine) : absentes du disque → PHP les crée, puis nginx les sert directement.
+    location ^~ /media/cache/ {
+        expires 30d;
+        add_header Cache-Control "public";
+        try_files $uri /index.php$is_args$args;
+    }
+
     # Fichiers envoyés par les utilisateurs : aucun script PHP ne doit s'y exécuter.
     location ^~ /uploads/ {
         expires 30d;

@@ -7,6 +7,7 @@ use App\Repository\BoutiqueSettingsRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -30,6 +31,11 @@ class BoutiqueMaintenanceController extends AbstractController
                 'label'    => 'Boutique en maintenance (masquée du public)',
                 'required' => false,
                 'help'     => 'Les visiteurs voient une page "boutique indisponible" à la place du catalogue. Les comptes développeur continuent de voir la boutique normalement, avec un bandeau d\'avertissement.',
+            ])
+            ->add('seuilStockBas', IntegerType::class, [
+                'label' => "Seuil d'alerte de stock",
+                'help'  => "Une taille dont le stock descend à ce nombre (ou en dessous) est signalée dans la liste des articles et dans la cloche des notifications. 0 désactive l'alerte.",
+                'attr'  => ['min' => 0, 'max' => 1000],
             ])
             ->add('save', SubmitType::class, ['label' => 'Enregistrer'])
             ->getForm();

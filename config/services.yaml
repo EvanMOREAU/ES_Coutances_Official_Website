@@ -14,6 +14,9 @@ parameters:
     # Branche Git suivie par le déploiement automatique (vide = branche actuellement extraite).
     env(DEPLOY_BRANCH): ''
     app.deploy_branch: '%env(DEPLOY_BRANCH)%'
+    # 0 = la mise à jour depuis l'administration est désactivée (déploiement par un pipeline externe) : plus de code exécuté depuis le site.
+    env(DEPLOY_FROM_ADMIN): '1'
+    app.deploy_from_admin: '%env(bool:DEPLOY_FROM_ADMIN)%'
     # Quota affiché par le gestionnaire de fichiers (en Mo).
     env(FILES_QUOTA_MB): '10240'
     app.files_quota_mb: '%env(FILES_QUOTA_MB)%'
@@ -41,6 +44,7 @@ services:
             string $mailerFromName: '%app.mailer_from_name%'
             string $projectDir: '%kernel.project_dir%'
             string $deployBranch: '%app.deploy_branch%'
+            bool $deployFromAdmin: '%app.deploy_from_admin%'
             string $kernelEnvironment: '%kernel.environment%'
             string $filesQuotaMb: '%app.files_quota_mb%'
             string $secret: '%kernel.secret%'

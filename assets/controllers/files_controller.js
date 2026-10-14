@@ -1,19 +1,6 @@
 import { Controller } from '@hotwired/stimulus';
 import { adminConfirm, adminPrompt } from '../modal.js';
-
-const KIND_ICONS = {
-    folder: 'fa-folder',
-    image: 'fa-file-image',
-    pdf: 'fa-file-pdf',
-    doc: 'fa-file-word',
-    sheet: 'fa-file-excel',
-    slide: 'fa-file-powerpoint',
-    text: 'fa-file-lines',
-    archive: 'fa-file-zipper',
-    video: 'fa-file-video',
-    audio: 'fa-file-audio',
-    other: 'fa-file',
-};
+import { KIND_ICONS } from '../lib/file_kinds.js';
 
 const VIEW_TITLES = { recent: 'Récents', starred: 'Favoris', orphans: 'Fichiers inutilisés' };
 const VIEW_ICONS = { recent: 'fa-clock', starred: 'fa-star', orphans: 'fa-broom' };

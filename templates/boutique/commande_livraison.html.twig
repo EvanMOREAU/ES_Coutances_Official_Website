@@ -5,7 +5,7 @@
 {% block hero_title %}Adresse de <span>livraison</span>{% endblock %}
 
 {% block boutique_styles %}
-<style>
+<style nonce="{{ csp_nonce() }}">
 .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 @media (max-width: 560px) { .form-grid { grid-template-columns: minmax(0, 1fr); } }
 .f-group { display: flex; flex-direction: column; gap: 6px; }
@@ -28,14 +28,14 @@
 
 {% block shop_body %}
   <ol class="steps">
-    <li class="is-done"><span class="n"><i class="fa-solid fa-check" style="font-size:11px"></i></span> Panier</li>
-    <li class="is-done"><span class="n"><i class="fa-solid fa-check" style="font-size:11px"></i></span> Vos informations</li>
+    <li class="is-done"><span class="n"><i class="u-8b685211 fa-solid fa-check"></i></span> Panier</li>
+    <li class="is-done"><span class="n"><i class="u-8b685211 fa-solid fa-check"></i></span> Vos informations</li>
     <li class="is-current"><span class="n">3</span> Livraison</li>
     <li><span class="n">4</span> Confirmation</li>
   </ol>
 
-  <div class="box" style="margin-bottom:24px;">
-    <p class="note" style="margin:0;"><i class="fa-solid fa-truck" style="color:var(--red);"></i> Le code <strong>{{ codePromo.code }}</strong> vous permet de vous faire livrer votre commande. Indiquez ci-dessous l'adresse à laquelle nous devons vous livrer.</p>
+  <div class="u-37d30b7f box">
+    <p class="u-1386d503 note"><i class="u-e0936291 fa-solid fa-truck"></i> Le code <strong>{{ codePromo.code }}</strong> vous permet de vous faire livrer votre commande. Indiquez ci-dessous l'adresse à laquelle nous devons vous livrer.</p>
   </div>
 
   {{ form_start(form, {attr: {novalidate: 'novalidate'}}) }}
@@ -89,8 +89,8 @@
       {% endfor %}
       <div class="sum-row total"><span>Total</span><span class="price">{{ total|money }}</span></div>
       <div class="pickup"><i class="fa-solid fa-truck"></i><span><strong>Livraison</strong> à l'adresse indiquée ci-contre, grâce au code {{ codePromo.code }}.</span></div>
-      <button type="submit" class="btn btn-primary btn-block" style="margin-top:18px;"><i class="fa-solid fa-lock"></i> Valider la commande</button>
-      <p style="margin-top:12px; text-align:center;"><a href="{{ path('boutique_commande') }}" class="note"><i class="fa-solid fa-arrow-left"></i> Retour</a></p>
+      <button type="submit" class="u-4a909ea7 btn btn-primary btn-block"><i class="fa-solid fa-lock"></i> Valider la commande</button>
+      <p class="u-7eb530c1"><a href="{{ path('boutique_commande') }}" class="note"><i class="fa-solid fa-arrow-left"></i> Retour</a></p>
     </aside>
   </div>
   {{ form_end(form) }}

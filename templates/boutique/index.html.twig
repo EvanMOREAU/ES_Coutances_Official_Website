@@ -5,7 +5,7 @@
 {% block hero_lead %}<p class="lead">Les articles officiels de l'ES Coutances. Commandez en ligne et retirez votre commande au club — aucune livraison.</p>{% endblock %}
 
 {% block boutique_styles %}
-<style>
+<style nonce="{{ csp_nonce() }}">
 .shop-filters { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 28px; }
 .shop-filter { display: inline-flex; align-items: center; padding: 8px 18px; border-radius: 999px; border: 1px solid var(--border); background: #fff; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: .03em; color: var(--dark); text-decoration: none; transition: background .15s, color .15s, border-color .15s, transform .15s; }
 .shop-filter:hover { border-color: var(--red); transform: translateY(-1px); }
@@ -54,7 +54,7 @@
         <a href="{{ path('boutique_article', {slug: article.slug}) }}" class="product {{ not article.disponible ? 'is-out' }}">
           <div class="product-img">
             {% if article.imageName %}
-              <img src="{{ asset('uploads/articles/' ~ article.imageName) }}" alt="{{ article.nom }}" loading="lazy">
+              <img src="{{ ('uploads/articles/' ~ article.imageName)|thumb('carte') }}" alt="{{ article.nom }}" loading="lazy">
             {% else %}
               <span class="placeholder"><i class="fa-solid fa-shirt"></i></span>
             {% endif %}
@@ -68,7 +68,7 @@
             {% endif %}
             <div class="product-foot">
               <span class="price">{{ article.prixCentimes|money }}</span>
-              <span class="btn btn-outline" style="padding:7px 14px; font-size:12px;">Voir</span>
+              <span class="u-32bf8014 btn btn-outline">Voir</span>
             </div>
           </div>
         </a>

@@ -53,6 +53,8 @@ vich_uploader:
             namer: Vich\UploaderBundle\Naming\SmartUniqueNamer
 
         contrat_partenaire_document:
-            uri_prefix: /uploads/contrats-partenaires
-            upload_destination: '%kernel.project_dir%/public/uploads/contrats-partenaires'
+            # Documents confidentiels : hors du dossier public, servis uniquement par
+            # ContratPartenaireController::downloadDocument (droit « contrat_partenaire.voir »).
+            uri_prefix: /admin/partenaires/contrats/documents
+            upload_destination: '%kernel.project_dir%/var/private/contrats-partenaires'
             namer: Vich\UploaderBundle\Naming\SmartUniqueNamer

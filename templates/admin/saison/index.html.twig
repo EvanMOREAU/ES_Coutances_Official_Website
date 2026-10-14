@@ -4,8 +4,11 @@
 
 {% block body %}
     <div class="flex items-center justify-between mb-6">
-        <h1 class="text-2xl font-black" style="font-family:'Barlow Condensed',sans-serif;">Saisons</h1>
-        {% if can_url(path('admin_saison_new')) %}<a href="{{ path('admin_saison_new') }}" class="rounded-lg admin-gradient px-4 py-2 text-sm font-semibold text-white">+ Nouvelle saison</a>{% endif %}
+        <h1 class="u-66972700 text-2xl font-black">Saisons</h1>
+        <div class="flex flex-wrap items-center gap-2">
+            {% if can_url(path('admin_statistiques_effectifs')) %}<a href="{{ path('admin_statistiques_effectifs') }}" class="admin-btn admin-btn-ghost"><i class="fa-solid fa-chart-column"></i> Statistiques d'effectifs</a>{% endif %}
+            {% if can_url(path('admin_saison_new')) %}<a href="{{ path('admin_saison_new') }}" class="rounded-lg admin-gradient px-4 py-2 text-sm font-semibold text-white">+ Nouvelle saison</a>{% endif %}
+        </div>
     </div>
 
     {% embed 'admin/_components/data_table.html.twig' with {

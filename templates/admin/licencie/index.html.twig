@@ -4,9 +4,18 @@
 
 {% block body %}
     <div class="flex items-center justify-between mb-6">
-        <h1 class="text-2xl font-black" style="font-family:'Barlow Condensed',sans-serif;">Licenciés</h1>
+        <h1 class="u-66972700 text-2xl font-black">Licenciés</h1>
         {% if can_url(path('admin_licencie_new')) %}<a href="{{ path('admin_licencie_new') }}" class="rounded-lg admin-gradient px-4 py-2 text-sm font-semibold text-white">+ Nouveau licencié</a>{% endif %}
     </div>
+
+    <form method="get" class="mb-4 flex items-center gap-2 text-sm">
+        <label for="filtre-saison" class="text-admin-text-muted">Saison</label>
+        <select id="filtre-saison" name="saison" class="admin-input" data-auto-submit>
+            {% for s in saisons %}<option value="{{ s.id }}"{{ saison and saison.id == s.id ? ' selected' }}>{{ s }}{{ s.active ? ' (en cours)' }}</option>{% endfor %}
+            <option value="toutes"{{ saison is null ? ' selected' }}>Toutes les saisons</option>
+        </select>
+        <noscript><button type="submit" class="admin-btn admin-btn-ghost admin-btn-sm">Filtrer</button></noscript>
+    </form>
 
     {% embed 'admin/_components/data_table.html.twig' with {
         key: 'licencie',

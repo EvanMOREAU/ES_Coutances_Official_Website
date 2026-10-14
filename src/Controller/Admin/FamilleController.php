@@ -168,7 +168,7 @@ class FamilleController extends AbstractController
     #[Route('/{id}/supprimer', name: 'admin_famille_delete', methods: ['POST'])]
     public function delete(Request $request, Famille $famille, EntityManagerInterface $em): Response
     {
-        if ($this->isCsrfTokenValid('delete-famille-'.$famille->getId(), $request->request->get('_token'))) {
+        if ($this->isCsrfTokenValid('delete-famille-'.$famille->getId(), $request->request->getString('_token'))) {
             if (!$famille->getLicencies()->isEmpty()) {
                 $this->addFlash('error', "Cette famille contient encore des licenciés : supprimez-les d'abord un par un.");
 

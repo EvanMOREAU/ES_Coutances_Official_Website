@@ -6,6 +6,7 @@ use App\Entity\Article;
 use App\Entity\ArticleVariante;
 use App\Form\ArticleType;
 use App\Repository\ArticleRepository;
+use App\Repository\BoutiqueSettingsRepository;
 use App\Repository\CategorieArticleRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -22,9 +23,10 @@ class ArticleController extends AbstractController
     /** Session : photo déjà envoyée le temps de corriger une erreur (ex. taille manquante) à la création. */
     private const PENDING_IMAGE_SESSION_KEY = 'article_new_pending_image';
     #[Route('', name: 'admin_article_index', methods: ['GET'])]
-    public function index(ArticleRepository $repository): Response
+    public function index(ArticleRepository $repository, BoutiqueSettingsRepository $settings): Response
     {
         return $this->render('admin/boutique/article_index.html.twig', [
+            'seuil'    => $settings->getSingleton()?->getSeuilStockBas() ?? 3,
             'articles' => $repository->findBy([], ['createdAt' => 'DESC', 'id' => 'DESC']),
         ]);
     }

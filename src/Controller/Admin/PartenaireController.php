@@ -164,7 +164,7 @@ class PartenaireController extends AbstractController
         }
 
         foreach (array_values($data['ids'] ?? []) as $index => $id) {
-            $byId[$id]?->setOrdre($index);
+            ($byId[$id] ?? null)?->setOrdre($index);
         }
         $em->flush();
 
@@ -174,7 +174,7 @@ class PartenaireController extends AbstractController
     #[Route('/{id}/supprimer', name: 'admin_partenaire_delete', methods: ['POST'])]
     public function delete(Request $request, Partenaire $partenaire, EntityManagerInterface $em): Response
     {
-        if ($this->isCsrfTokenValid('delete-partenaire-'.$partenaire->getId(), $request->request->get('_token'))) {
+        if ($this->isCsrfTokenValid('delete-partenaire-'.$partenaire->getId(), $request->request->getString('_token'))) {
             $em->remove($partenaire);
             $em->flush();
             $this->addFlash('success', 'Partenaire supprimé.');

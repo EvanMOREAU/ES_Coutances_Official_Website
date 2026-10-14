@@ -57,7 +57,7 @@
                                 <strong>{{ l.prenom }} {{ l.nom }}</strong>
                                 <span>{{ l.categorie ~ (l.equipes|length ? ' · ' ~ l.equipes|map(e => e.nom)|join(', ') : '') }} — {{ l.saison }}</span>
                             </div>
-                            <span class="{{ l.actif ? 'badge-ok' : 'badge-ko' }}" style="margin-left:auto;">{{ l.actif ? 'Actif' : 'Inactif' }}</span>
+                            <span class="u-83456371 {{ l.actif ? 'badge-ok' : 'badge-ko' }}">{{ l.actif ? 'Actif' : 'Inactif' }}</span>
                         </a>
                     {% endfor %}
                 </div>

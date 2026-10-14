@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Membre;
 use App\Repository\CategorieRepository;
 use App\Repository\PageContenuRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -34,7 +35,7 @@ class ClubController extends AbstractController
         // Filtrer les catégories vides
         $categories = array_filter(
             $categories,
-            fn ($c) => $c->getMembres()->filter(fn ($m) => $m->isActif())->count() > 0,
+            fn ($c) => $c->getMembres()->filter(fn (Membre $m): bool => (bool) $m->isActif())->count() > 0,
         );
 
         return $this->render('club/encadrement.html.twig', [

@@ -40,6 +40,10 @@ class NotificationPreferences
             'label' => 'Nouvelles commandes de la boutique', 'help' => 'Un client passe une commande.',
             'audience' => 'staff', 'permission' => 'commande.voir', 'channels' => [self::BELL, self::EMAIL],
         ],
+        'stock' => [
+            'label' => 'Stock bas de la boutique', 'help' => 'Une taille est bientôt épuisée (seuil réglé dans Boutique > Réglages).',
+            'audience' => 'staff', 'permission' => 'article.voir', 'channels' => [self::BELL],
+        ],
         'familles' => [
             'label' => 'Nouvelles familles', 'help' => "Une famille est ajoutée ou s'inscrit.",
             'audience' => 'staff', 'permission' => 'famille.voir', 'channels' => [self::BELL, self::EMAIL],

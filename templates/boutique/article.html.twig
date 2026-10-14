@@ -3,12 +3,29 @@
 {% block boutique_title %}{{ article.nom }}{% endblock %}
 {% block meta_description %}{% set resume = (article.description ?: "Article de la boutique officielle de l'ES Coutances.")|striptags|trim %}{{ article.nom }} — {{ resume|length > 150 ? resume|slice(0, 150) ~ "…" : resume }}{% endblock %}
 {% block og_type %}product{% endblock %}
-{% block og_image %}{% if article.imageName %}{{ absolute_url(asset('uploads/articles/' ~ article.imageName)) }}{% else %}{{ parent() }}{% endif %}{% endblock %}
+{% block structured_data %}
+  <script type="application/ld+json">{{ {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    'name': article.nom,
+    'description': (article.description ?: "Article de la boutique officielle de l'ES Coutances.")|striptags|trim,
+    'image': article.imageName ? [absolute_url(('uploads/articles/' ~ article.imageName)|thumb('detail'))] : [absolute_url(asset('images/og-image.png'))],
+    'brand': {'@type': 'Brand', 'name': 'ES Coutances'},
+    'offers': {
+      '@type': 'Offer',
+      'url': absolute_url(path('boutique_article', {slug: article.slug})),
+      'priceCurrency': 'EUR',
+      'price': (article.prixCentimes / 100)|number_format(2, '.', ''),
+      'availability': article.disponible ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+    },
+  }|json_encode(constant('JSON_UNESCAPED_UNICODE') b-or constant('JSON_UNESCAPED_SLASHES'))|raw }}</script>
+{% endblock %}
+{% block og_image %}{% if article.imageName %}{{ absolute_url(('uploads/articles/' ~ article.imageName)|thumb('detail')) }}{% else %}{{ parent() }}{% endif %}{% endblock %}
 {% block breadcrumb %}<a href="{{ path('boutique_index') }}">Boutique</a> <i class="fa-solid fa-chevron-right"></i> <span>{{ article.nom }}</span>{% endblock %}
 {% block hero_title %}{{ article.nom }}{% endblock %}
 
 {% block boutique_styles %}
-<style>
+<style nonce="{{ csp_nonce() }}">
 .detail { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 48px; align-items: start; }
 @media (max-width: 800px) { .detail { grid-template-columns: minmax(0, 1fr); gap: 28px; } }
 .detail-img { aspect-ratio: 1 / 1; border-radius: 8px; overflow: hidden; background: var(--grey); border: 1px solid var(--border); }
@@ -44,7 +61,7 @@
   <div class="detail">
     <div class="detail-img">
       {% if article.imageName %}
-        <img src="{{ asset('uploads/articles/' ~ article.imageName) }}" alt="{{ article.nom }}">
+        <img src="{{ ('uploads/articles/' ~ article.imageName)|thumb('detail') }}" alt="{{ article.nom }}">
       {% else %}
         <span class="placeholder"><i class="fa-solid fa-shirt"></i></span>
       {% endif %}
@@ -56,8 +73,8 @@
 
       {% if not article.disponible %}
         <p><span class="tag tag-grey">Épuisé</span></p>
-        <p class="note" style="margin-top:12px;">Cet article n'est plus en stock pour le moment.</p>
-        <p style="margin-top:20px;"><a class="btn btn-outline" href="{{ path('boutique_index') }}">Retour à la boutique</a></p>
+        <p class="u-002535c2 note">Cet article n'est plus en stock pour le moment.</p>
+        <p class="u-3ae1f62a"><a class="btn btn-outline" href="{{ path('boutique_index') }}">Retour à la boutique</a></p>
       {% else %}
         <form method="post" action="{{ path('boutique_panier_ajouter') }}" data-shop-form>
           <input type="hidden" name="_token" value="{{ csrf_token('boutique-panier') }}">
@@ -66,7 +83,7 @@
             <input type="hidden" name="variante" value="{{ variantes.first.id }}">
             {% if variantes.first.stock <= 5 %}<p class="stock-low">Plus que {{ variantes.first.stock }} en stock</p>{% endif %}
           {% else %}
-            <fieldset style="border:0;">
+            <fieldset class="u-012333e2">
               <legend class="field-label">Taille</legend>
               <div class="sizes">
                 {% for v in variantes %}
@@ -97,25 +114,5 @@
     </div>
   </div>
 
-  <script nonce="{{ csp_nonce() }}">
-    (function () {
-      var form = document.querySelector('[data-shop-form]');
-      if (!form) return;
-      var qty = form.querySelector('[data-qty] input');
-      form.querySelectorAll('[data-step]').forEach(function (b) {
-        b.addEventListener('click', function () {
-          var max = parseInt(qty.max, 10) || 10;
-          var chosen = form.querySelector('input[name="variante"]:checked');
-          if (chosen && chosen.dataset.stock) max = Math.min(max, parseInt(chosen.dataset.stock, 10));
-          qty.value = Math.max(1, Math.min(max, (parseInt(qty.value, 10) || 1) + parseInt(b.dataset.step, 10)));
-        });
-      });
-      // La quantité ne dépasse jamais le stock de la taille choisie.
-      form.querySelectorAll('input[name="variante"][data-stock]').forEach(function (r) {
-        r.addEventListener('change', function () {
-          qty.value = Math.min(parseInt(qty.value, 10) || 1, parseInt(r.dataset.stock, 10));
-        });
-      });
-    })();
-  </script>
+  <script src="{{ asset('pages/shop-form.js') }}" defer></script>
 {% endblock %}

@@ -19,7 +19,7 @@ jobs:
       - uses: shivammathur/setup-php@v2
         with:
           php-version: '8.4'
-          extensions: ctype, iconv, intl, mbstring, pdo_mysql, openssl, zip, gd
+          extensions: ctype, iconv, intl, mbstring, pdo_mysql, openssl, zip, gd, curl
           coverage: none
           tools: composer:v2
 
@@ -41,8 +41,13 @@ jobs:
         run: composer stan
 
   tests:
-    name: Tests automatisés
+    name: Tests automatisés (PHP ${{ matrix.php }})
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # 8.4 = version de production ; 8.5 = celle du poste de développement.
+        php: ['8.4', '8.5']
     services:
       mariadb:
         image: mariadb:10.11
@@ -64,8 +69,8 @@ jobs:
 
       - uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.4'
-          extensions: ctype, iconv, intl, mbstring, pdo_mysql, openssl, zip, gd
+          php-version: ${{ matrix.php }}
+          extensions: ctype, iconv, intl, mbstring, pdo_mysql, openssl, zip, gd, curl
           coverage: pcov
           tools: composer:v2
 
@@ -83,13 +88,111 @@ jobs:
         run: composer test:setup
       - name: Tests
         run: php bin/console cache:warmup --env=test && vendor/bin/phpunit --coverage-text --coverage-clover=var/clover.xml
-      - name: Taux de couverture (seuil minimal COVERAGE_MIN)
-        env:
-          # Seuil bloquant : à relever au fil du temps (mesurer d'abord le taux actuel dans le résumé du job).
-          COVERAGE_MIN: '0'
+      - name: Taux de couverture (plancher dans deploy/coverage-floor.txt)
+        # Bloquant : la couverture ne doit pas baisser. Le résumé du job propose la nouvelle valeur du plancher.
         run: php deploy/coverage-check.php var/clover.xml
       - name: Sauvegarde du rapport de couverture
         uses: actions/upload-artifact@v4
         with:
           name: couverture
           path: var/clover.xml
+
+  production:
+    name: Build de production
+    runs-on: ubuntu-latest
+    env:
+      APP_ENV: prod
+      APP_DEBUG: '0'
+      APP_SECRET: ci-secret-0123456789abcdef0123456789abcdef
+      DATABASE_URL: mysql://root:root@127.0.0.1:3306/escoutances_symfony?serverVersion=10.11.2-MariaDB&charset=utf8mb4
+      MAILER_DSN: 'null://null'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: ctype, iconv, intl, mbstring, pdo_mysql, openssl, zip, gd, curl
+          coverage: none
+          tools: composer:v2
+
+      - name: Installation sans outils de développement
+        run: composer install --no-dev --optimize-autoloader --no-interaction --no-progress --prefer-dist
+      - name: Conteneur et cache de production
+        run: |
+          php bin/console lint:container
+          php bin/console cache:warmup
+      - name: Styles et assets compilés
+        run: |
+          php bin/console tailwind:build --minify
+          php bin/console asset-map:compile
+
+  dependencies:
+    name: Dépendances à jour (information)
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: ctype, iconv, intl, mbstring, pdo_mysql, openssl, zip, gd, curl
+          coverage: none
+          tools: composer:v2
+      - run: composer install --no-interaction --no-progress --prefer-dist
+      - name: Paquets directs en retard (mises à jour majeures)
+        run: composer outdated --direct --major-only --no-interaction || true
+
+  e2e:
+    name: Tests de bout en bout (navigateur)
+    runs-on: ubuntu-latest
+    services:
+      mariadb:
+        image: mariadb:10.11
+        env:
+          MARIADB_ROOT_PASSWORD: root
+          MARIADB_DATABASE: escoutances_symfony
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+    env:
+      DATABASE_URL: mysql://root:root@127.0.0.1:3306/escoutances_symfony?serverVersion=10.11.2-MariaDB&charset=utf8mb4
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: ctype, iconv, intl, mbstring, pdo_mysql, openssl, zip, gd, curl
+          coverage: none
+          tools: composer:v2
+
+      - run: composer install --no-interaction --no-progress --prefer-dist
+      - name: Compilation Tailwind
+        run: php bin/console tailwind:build --env=test
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: e2e/package-lock.json
+      - name: Playwright
+        working-directory: e2e
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+      - name: Parcours de bout en bout
+        working-directory: e2e
+        run: npx playwright test
+      - name: Rapport en cas d'échec
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            e2e/playwright-report
+            e2e/test-results

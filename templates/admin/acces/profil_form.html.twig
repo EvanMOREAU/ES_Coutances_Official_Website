@@ -5,7 +5,7 @@
 
 {% block body %}
     <a href="{{ path('admin_profil_index') }}" class="text-sm text-admin-text-muted hover:text-admin-text"><i class="fa-solid fa-arrow-left"></i> Profils d'autorisation</a>
-    <h1 class="text-2xl font-black mt-3 mb-6" style="font-family:'Barlow Condensed',sans-serif;">{{ profil.id ? 'Modifier le profil « ' ~ profil.nom ~ ' »' : 'Nouveau profil' }}</h1>
+    <h1 class="u-66972700 text-2xl font-black mt-3 mb-6">{{ profil.id ? 'Modifier le profil « ' ~ profil.nom ~ ' »' : 'Nouveau profil' }}</h1>
 
     {{ form_start(form, {attr: {novalidate: 'novalidate'}}) }}
         <section class="admin-card rounded-2xl p-6 mb-6 max-w-3xl">

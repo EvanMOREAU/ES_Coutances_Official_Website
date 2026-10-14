@@ -40,8 +40,8 @@ MYSQL_PWD="$DB_PASS" mysqldump --single-transaction --routines --triggers --no-t
     -h "$DB_HOST" -P "$DB_PORT" -u "$DB_USER" "$DB_NAME" | gzip -9 > "$WORK/base.sql.gz"
 
 echo "→ Fichiers envoyés"
-paths=()
-for p in public/uploads var/documents var/uploads; do [ -d "$p" ] && paths+=("$p"); done
+paths=()   # var/private : documents confidentiels (contrats partenaires)
+for p in public/uploads var/documents var/uploads var/private; do [ -d "$p" ] && paths+=("$p"); done
 tar -czf "$WORK/fichiers.tar.gz" "${paths[@]}"
 
 ARCHIVE="$DEST/escoutances-$STAMP.tar"

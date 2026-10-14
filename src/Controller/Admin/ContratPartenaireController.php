@@ -9,8 +9,12 @@ use App\Form\ContratPartenaireType;
 use App\Repository\PartenaireRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Attribute\Route;
 
 /**
@@ -20,8 +24,10 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route('/admin/partenaires/contrats')]
 class ContratPartenaireController extends AbstractController
 {
-    public function __construct(private readonly EntityManagerInterface $em)
-    {
+    public function __construct(
+        private readonly EntityManagerInterface $em,
+        #[Autowire('%kernel.project_dir%')] private readonly string $projectDir,
+    ) {
     }
 
     #[Route('/nouveau', name: 'admin_partenaire_contrat_new', methods: ['GET', 'POST'])]
@@ -121,6 +127,24 @@ class ContratPartenaireController extends AbstractController
         }
 
         return $this->redirectToRoute('admin_partenaire_contrat_edit', ['id' => $contrat->getId()]);
+    }
+
+    /** Téléchargement d'un document de contrat : stocké hors du dossier public, jamais accessible par une URL directe. */
+    #[Route('/documents/{id}/telecharger', name: 'admin_partenaire_contrat_document_download', requirements: ['id' => '\d+'], methods: ['GET'])]
+    public function downloadDocument(ContratPartenaireDocument $document): BinaryFileResponse
+    {
+        $name = $document->getFichierName();
+        $path = $this->projectDir.'/var/private/contrats-partenaires/'.basename((string) $name);
+        if (null === $name || !is_file($path)) {
+            throw new NotFoundHttpException('Document introuvable.');
+        }
+
+        $response = new BinaryFileResponse($path);
+        $response->setContentDisposition(ResponseHeaderBag::DISPOSITION_INLINE, $document->getNomOriginal() ?? $name, 'document');
+        $response->headers->set('X-Content-Type-Options', 'nosniff');
+        $response->headers->set('Cache-Control', 'private, no-store');
+
+        return $response;
     }
 
     #[Route('/documents/{id}/supprimer', name: 'admin_partenaire_contrat_document_delete', requirements: ['id' => '\d+'], methods: ['POST'])]

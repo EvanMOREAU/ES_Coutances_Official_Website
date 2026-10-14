@@ -4,7 +4,7 @@
 
 {% block stylesheets %}
 {{ parent() }}
-<style>
+<style nonce="{{ csp_nonce() }}">
 /* ============================================================
    ENCADREMENT
    ============================================================ */
@@ -155,7 +155,7 @@
 .encadrement-empty {
   text-align: center;
   padding: 80px 0;
-  color: #bbb;
+  color: #6b6b6b;
 }
 .encadrement-empty i { font-size: 52px; display: block; margin-bottom: 16px; }
 
@@ -226,7 +226,7 @@
                     {% if membre.photoName %}
                       <img
                         class="membre-photo"
-                        src="{{ asset('uploads/membres/' ~ membre.photoName) }}"
+                        src="{{ ('uploads/membres/' ~ membre.photoName)|thumb('portrait') }}"
                         alt="{{ membre.nom }}"
                         loading="lazy"
                       >
@@ -252,8 +252,8 @@
                     {# Autres catégories du membre (hors celle en cours) #}
                     {% set autres_cats = membre.categories|filter(c => c.id != categorie.id) %}
                     {% if autres_cats|length > 0 %}
-                      <div class="membre-categories" style="display:flex;align-items:center;flex-wrap:wrap;justify-content:center;gap:4px;margin-top:6px;">
-                        <span style="font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#aaa;white-space:nowrap;">
+                      <div class="u-0e29f7da membre-categories">
+                        <span class="u-1b4c0762">
                           Aussi dans :
                         </span>
                         {% for cat in autres_cats %}

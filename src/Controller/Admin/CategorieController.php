@@ -98,7 +98,7 @@ class CategorieController extends AbstractController
         }
 
         foreach (array_values($data['ids'] ?? []) as $index => $id) {
-            $byId[$id]?->setOrdre($index);
+            ($byId[$id] ?? null)?->setOrdre($index);
         }
         $em->flush();
 
@@ -108,7 +108,7 @@ class CategorieController extends AbstractController
     #[Route('/{id}/supprimer', name: 'admin_categorie_delete', methods: ['POST'])]
     public function delete(Request $request, Categorie $categorie, EntityManagerInterface $em): Response
     {
-        if ($this->isCsrfTokenValid('delete-categorie-'.$categorie->getId(), $request->request->get('_token'))) {
+        if ($this->isCsrfTokenValid('delete-categorie-'.$categorie->getId(), $request->request->getString('_token'))) {
             $em->remove($categorie);
             $em->flush();
             $this->addFlash('success', 'Catégorie supprimée.');

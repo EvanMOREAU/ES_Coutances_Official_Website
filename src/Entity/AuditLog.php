@@ -247,6 +247,6 @@ class AuditLog
     /** Nom court de la classe concernée (Famille, Article…). */
     public function getEntityShort(): ?string
     {
-        return $this->entityClass ? substr(strrchr('\\'.$this->entityClass, '\\'), 1) : null;
+        return $this->entityClass ? substr((string) strrchr('\\'.$this->entityClass, '\\'), 1) : null;
     }
 }

@@ -27,7 +27,7 @@
 {% endmacro %}
 
 {% block body %}
-    <h1 class="text-2xl font-black mb-1" style="font-family:'Barlow Condensed',sans-serif;">Nouveau partenaire</h1>
+    <h1 class="u-66972700 text-2xl font-black mb-1">Nouveau partenaire</h1>
     <p class="text-sm text-admin-text-muted mb-6">Créez le partenaire et son premier contrat en une fois : informations, contrat, règlements, tâches et notes.</p>
 
     {% set next_reglement = 0 %}{% for key, row in form.contrat.reglements %}{% set next_reglement = max(next_reglement, key + 1) %}{% endfor %}

@@ -5,7 +5,7 @@
 {% block body %}
     <a href="{{ path('admin_partenaire_show', {id: partenaire.id}) }}" class="text-sm text-admin-text-muted hover:text-admin-text"><i class="fa-solid fa-arrow-left"></i> {{ partenaire.nom }}</a>
     <div class="flex flex-wrap items-center gap-3 mt-3 mb-5">
-        <h1 class="text-2xl font-black" style="font-family:'Barlow Condensed',sans-serif;">{{ contrat.titre }}</h1>
+        <h1 class="u-66972700 text-2xl font-black">{{ contrat.titre }}</h1>
         <span class="badge badge-pay-{{ contrat.statutPaiement }}">{{ contrat.statutPaiementLabel }}</span>
         {% if can_url(path('admin_partenaire_contrat_edit', {id: contrat.id})) %}
             <a href="{{ path('admin_partenaire_contrat_edit', {id: contrat.id}) }}" class="ml-auto admin-btn admin-btn-ghost admin-btn-sm"><i class="fa-solid fa-pen"></i> Modifier le contrat</a>
@@ -90,7 +90,7 @@
                 {% else %}
                     <ul class="text-sm space-y-2">
                         {% for document in contrat.documents %}
-                            <li><a href="{{ asset('uploads/contrats-partenaires/' ~ document.fichierName) }}" target="_blank" rel="noopener" class="hover:underline"><i class="fa-regular fa-file-lines"></i> {{ document.nomOriginal ?? document.fichierName }}</a></li>
+                            <li><a href="{{ path('admin_partenaire_contrat_document_download', {id: document.id}) }}" target="_blank" rel="noopener" class="hover:underline"><i class="fa-regular fa-file-lines"></i> {{ document.nomOriginal ?? document.fichierName }}</a></li>
                         {% endfor %}
                     </ul>
                 {% endif %}

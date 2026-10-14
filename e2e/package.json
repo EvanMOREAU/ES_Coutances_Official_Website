@@ -1,0 +1,14 @@
+{
+  "name": "escoutances-e2e",
+  "private": true,
+  "description": "Tests de bout en bout (navigateur réel) du site ES Coutances",
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.10.1",
+    "@playwright/test": "1.49.1",
+    "@types/node": "22.10.2"
+  }
+}

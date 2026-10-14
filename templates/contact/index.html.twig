@@ -5,7 +5,7 @@
 
 {% block stylesheets %}
 {{ parent() }}
-<style>
+<style nonce="{{ csp_nonce() }}">
 /* ============================================================
    LAYOUT CONTACT
    ============================================================ */
@@ -30,7 +30,7 @@
 }
 .contact-form-sub {
   font-size: 14px;
-  color: #777;
+  color: #666;
   margin-bottom: 28px;
 }
 
@@ -88,7 +88,7 @@
   --cs-bg: var(--white);
   --cs-surface: var(--white);
   --cs-text: var(--dark);
-  --cs-muted: #777;
+  --cs-muted: #666;
   --cs-border: var(--border);
   --cs-accent: var(--red);
   --cs-danger: var(--red);
@@ -220,7 +220,7 @@
   font-size: 13px;
   color: #666;
 }
-.horaire-ferme { color: #bbb; font-style: italic; }
+.horaire-ferme { color: #6b6b6b; font-style: italic; }
 
 /* Carte OSM */
 .carte-osm {
@@ -356,7 +356,7 @@
             </button>
           </div>
 
-        <div aria-hidden="true" style="position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden">{{ form_widget(form.siteWeb) }}</div>
+        <div aria-hidden="true" class="u-9da2f2bb">{{ form_widget(form.siteWeb) }}</div>
         {{ form_end(form) }}
       </div>
 
@@ -437,23 +437,15 @@
             <button type="button" id="carte-osm-load">Afficher la carte</button>
           </div>
         </div>
-        <script nonce="{{ csp_nonce() }}">
-        document.getElementById('carte-osm-load').addEventListener('click', function () {
-          var box = document.getElementById('carte-osm');
-          var frame = document.createElement('iframe');
-          frame.src = box.dataset.src;
-          frame.title = 'Localisation ES Coutances — Stade Paul-Maundrell';
-          box.replaceChildren(frame);
-        });
-        </script>
-        <div style="text-align:right;margin-top:-16px">
+        <script src="{{ asset('pages/osm-map.js') }}" defer></script>
+        <div class="u-b08f7ab3">
           <a
             href="https://www.openstreetmap.org/?mlat=49.0570&mlon=-1.4460#map=15/49.0570/-1.4460"
             target="_blank"
             rel="noopener"
-            style="font-size:11px;color:#aaa;text-decoration:none;"
+            class="u-476edece"
           >
-            Voir sur OpenStreetMap <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:9px"></i>
+            Voir sur OpenStreetMap <i class="u-d9e14ae8 fa-solid fa-arrow-up-right-from-square"></i>
           </a>
         </div>
 

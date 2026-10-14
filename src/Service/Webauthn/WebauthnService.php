@@ -178,6 +178,13 @@ class WebauthnService
 
     // --- Utilitaires -------------------------------------------------------------
 
+    /**
+     * @template T of object
+     *
+     * @param class-string<T> $expectedClass
+     *
+     * @return T
+     */
     private function consumeSessionOptions(string $key, string $expectedClass): object
     {
         $session = $this->requestStack->getSession();
@@ -187,7 +194,16 @@ class WebauthnService
             throw new \RuntimeException('Aucune cérémonie WebAuthn en cours : recommencez.');
         }
 
-        $options = unserialize($serialized, ['allowed_classes' => true]);
+        $options = unserialize($serialized, ['allowed_classes' => [
+            \Webauthn\PublicKeyCredentialCreationOptions::class,
+            \Webauthn\PublicKeyCredentialRequestOptions::class,
+            \Webauthn\AuthenticationExtensions\AuthenticationExtensions::class,
+            \Webauthn\PublicKeyCredentialRpEntity::class,
+            \Webauthn\PublicKeyCredentialUserEntity::class,
+            \Webauthn\PublicKeyCredentialParameters::class,
+            \Webauthn\AuthenticatorSelectionCriteria::class,
+            \Webauthn\PublicKeyCredentialDescriptor::class,
+        ]]);
         if (!$options instanceof $expectedClass) {
             throw new \RuntimeException('Options WebAuthn invalides : recommencez.');
         }

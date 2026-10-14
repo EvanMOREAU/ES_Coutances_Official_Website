@@ -8,6 +8,7 @@
     <meta name="csp-nonce" content="{{ csp_nonce() }}">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" type="image/png" href="{{ asset('images/favicon.png') }}">
+    <link rel="stylesheet" href="{{ asset('styles/inline-utilities.css') }}">
     <title>{% block title %}Tableau de bord{% endblock %} — ES Coutances Admin</title>
     <link rel="stylesheet" href="{{ asset('fonts/fonts.css') }}">
     <link rel="stylesheet" href="{{ asset('vendor/fontawesome/all.min.css') }}">
@@ -15,9 +16,9 @@
     <script src="{{ asset('vendor/trix/trix.umd.min.js') }}" defer></script>
     <script src="{{ asset('js/admin-trix-upload.js') }}" defer></script>
     {# Page affichée dans la grande fenêtre du « Site vitrine » (iframe) : on masque menu et barre du haut. #}
-    <script nonce="{{ csp_nonce() }}">if (window.self !== window.top) document.documentElement.classList.add('is-embedded');</script>
+    <script src="{{ asset('pages/embedded-flag.js') }}"></script>
     {{ include('_importmap.html.twig', {entry: 'admin'}) }}
-    <style>
+    <style nonce="{{ csp_nonce() }}">
         body { font-family: 'Inter', sans-serif; }
         trix-editor {
             min-height: 220px;
@@ -52,7 +53,7 @@
             <div class="relative flex h-[4.5rem] shrink-0 items-center gap-3 px-5 border-b border-admin-border">
                 <img src="{{ asset('images/logo_hd_trans3_gt.png') }}" alt="ES Coutances" class="h-9 shrink-0">
                 <div data-admin-sidebar-target="label">
-                    <p class="font-black uppercase tracking-wide text-sm whitespace-nowrap" style="font-family:'Barlow Condensed',sans-serif;">ES Coutances</p>
+                    <p class="u-66972700 font-black uppercase tracking-wide text-sm whitespace-nowrap">ES Coutances</p>
                     <p class="text-[11px] uppercase tracking-widest text-admin-text-muted whitespace-nowrap">Admin</p>
                 </div>
 
@@ -131,7 +132,7 @@
                         {% if can('import.voir') %}{{ _self.nav_link('admin_import_hub', 'admin_import', 'fa-file-import', 'Import') }}{% endif %}
                         {% if can('fichiers.voir') %}{{ _self.nav_link('admin_files_index', 'admin_files', 'fa-folder-tree', 'Fichiers') }}{% endif %}
                         {% if can('mail.voir,categorie.voir,categorie_partenaire.voir,helloasso.voir') and not is_granted('ROLE_DEV') %}{{ _self.nav_link('admin_configuration_hub', ['admin_configuration_hub', 'admin_mail_settings', 'admin_categorie_index', 'admin_categorie_partenaire_index', 'admin_helloasso_settings'], 'fa-gears', 'Configuration') }}{% endif %}
-                        {% if can('boutique_maintenance.voir') and not is_granted('ROLE_DEV') %}{{ _self.nav_link('admin_boutique_maintenance', 'admin_boutique_maintenance', 'fa-shop-slash', 'Maintenance boutique') }}{% endif %}
+                        {% if can('boutique_maintenance.voir') and not is_granted('ROLE_DEV') %}{{ _self.nav_link('admin_boutique_maintenance', 'admin_boutique_maintenance', 'fa-shop-slash', 'Réglages boutique') }}{% endif %}
                     </div>
                 </div>
                 {% endif %}
@@ -142,7 +143,7 @@
                     {{ _self.nav_section_label('Développeur', 'data-update-dot', update_count) }}
                     <div class="space-y-1" data-nav-section-target="links">
                         {{ _self.nav_link('admin_configuration_hub', ['admin_configuration_hub', 'admin_mail_settings', 'admin_categorie_index', 'admin_categorie_partenaire_index', 'admin_helloasso_settings'], 'fa-gears', 'Configuration') }}
-                        {{ _self.nav_link('admin_boutique_maintenance', 'admin_boutique_maintenance', 'fa-shop-slash', 'Maintenance boutique') }}
+                        {{ _self.nav_link('admin_boutique_maintenance', 'admin_boutique_maintenance', 'fa-shop-slash', 'Réglages boutique') }}
                         {{ _self.nav_link('admin_deploy_index', 'admin_deploy', 'fa-rocket', 'Mise à jour', false, update_count, true, 'mise(s) à jour disponible(s)', 'data-update-badge') }}
                         {{ _self.nav_link('admin_dev_backup_index', 'admin_dev_backup', 'fa-database', 'Sauvegardes') }}
                         {{ _self.nav_link('admin_journal_index', 'admin_journal', 'fa-scroll', "Journal d'activité") }}

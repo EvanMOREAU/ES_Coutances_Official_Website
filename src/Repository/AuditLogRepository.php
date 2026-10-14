@@ -59,11 +59,16 @@ class AuditLogRepository extends ServiceEntityRepository
     /** @return list<array{id: int, email: string, name: ?string}> comptes présents dans le journal (filtre « utilisateur ») */
     public function users(): array
     {
-        return $this->createQueryBuilder('a')
+        $rows = $this->createQueryBuilder('a')
             ->select('a.userId AS id, a.userEmail AS email, MAX(a.userName) AS name')
             ->andWhere('a.userEmail IS NOT NULL')
             ->groupBy('a.userId, a.userEmail')->orderBy('a.userEmail', SortDirection::Ascending)
             ->getQuery()->getArrayResult();
+
+        return array_values(array_map(
+            static fn (array $row): array => ['id' => (int) $row['id'], 'email' => (string) $row['email'], 'name' => null !== $row['name'] ? (string) $row['name'] : null],
+            $rows,
+        ));
     }
 
     /** @return list<string> */

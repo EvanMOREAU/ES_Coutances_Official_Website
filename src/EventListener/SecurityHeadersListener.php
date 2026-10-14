@@ -26,14 +26,16 @@ final class SecurityHeadersListener
     ];
 
     /**
-     * Les feuilles de style en ligne restent permises (nombreux attributs style et blocs <style>
-     * dans les gabarits) ; les scripts, eux, ne s'exécutent que s'ils viennent du site ou portent le nonce.
+     * Scripts et blocs <style> ne s'exécutent que s'ils viennent du site ou portent le nonce de la requête ;
+     * les attributs style="" sont interdits (les gabarits utilisent des classes). En développement seulement,
+     * la barre de débogage Symfony injecte ses propres styles : les styles en ligne y restent permis.
      * Les domaines HelloAsso sont ceux vers lesquels le client est redirigé pour payer.
      */
     private const CSP = [
         "default-src 'self'",
-        "script-src 'self' 'nonce-%s'",
-        "style-src 'self' 'unsafe-inline'",
+        "script-src 'self' 'nonce-%1\$s'",
+        "style-src 'self' 'nonce-%1\$s'",
+        "style-src-attr 'none'",
         "img-src 'self' data: blob:",
         "font-src 'self' data:",
         "connect-src 'self'",
@@ -45,8 +47,10 @@ final class SecurityHeadersListener
         "form-action 'self' https://*.helloasso.com https://*.helloasso-sandbox.com",
     ];
 
-    public function __construct(private readonly CspNonce $nonce)
-    {
+    public function __construct(
+        private readonly CspNonce $nonce,
+        private readonly string $kernelEnvironment,
+    ) {
     }
 
     public function __invoke(ResponseEvent $event): void
@@ -63,12 +67,23 @@ final class SecurityHeadersListener
         }
 
         if (!$headers->has('Content-Security-Policy') && !$this->isProfilerRoute($event)) {
-            $headers->set('Content-Security-Policy', sprintf(implode('; ', self::CSP), $this->nonce->value()));
+            $headers->set('Content-Security-Policy', $this->policy());
         }
 
         if ($event->getRequest()->isSecure() && !$headers->has('Strict-Transport-Security')) {
             $headers->set('Strict-Transport-Security', 'max-age=31536000');
         }
+    }
+
+    private function policy(): string
+    {
+        $directives = self::CSP;
+        if ('dev' === $this->kernelEnvironment) {
+            $directives[2] = "style-src 'self' 'unsafe-inline'";
+            $directives[3] = "style-src-attr 'unsafe-inline'";
+        }
+
+        return sprintf(implode('; ', $directives), $this->nonce->value());
     }
 
     /** La barre de débogage et le profileur (dev) injectent leurs propres scripts. */

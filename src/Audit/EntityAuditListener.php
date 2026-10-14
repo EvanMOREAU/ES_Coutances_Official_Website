@@ -99,7 +99,7 @@ final class EntityAuditListener
         $rows = [];
         foreach ($this->pending as $item) {
             $entity = $item['entity'];
-            $id     = $item['id'] ?? (method_exists((object) $entity, 'getId') ? $entity?->getId() : null);
+            $id     = $item['id'] ?? ($entity && method_exists($entity, 'getId') ? \call_user_func([$entity, 'getId']) : null);
             $label  = $item['label'] ?? ($entity ? $this->label($entity) : null);
             [$name, $category] = AuditCatalog::entity($item['class']);
             $fields = 'modification' === $item['op'] ? ' (champs : '.implode(', ', array_keys($item['changes'])).')' : '';
@@ -122,7 +122,7 @@ final class EntityAuditListener
 
     private function ignored(object $entity): bool
     {
-        return in_array(substr(strrchr('\\'.$entity::class, '\\'), 1), AuditCatalog::IGNORED_CLASSES, true);
+        return in_array(substr((string) strrchr('\\'.$entity::class, '\\'), 1), AuditCatalog::IGNORED_CLASSES, true);
     }
 
     private function identifier(EntityManagerInterface $em, object $entity): string|int|null

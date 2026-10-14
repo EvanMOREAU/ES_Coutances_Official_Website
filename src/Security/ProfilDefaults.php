@@ -43,7 +43,7 @@ class ProfilDefaults
         }
     }
 
-    /** @return array<string, array{0: string, 1: list<string>}> */
+    /** @return array<string, array{0: string, 1: array<string>}> */
     private static function definitions(): array
     {
         $all  = PermissionCatalog::all();

@@ -104,7 +104,20 @@ class WebauthnCredential
     {
         // serialize() produit des octets binaires bruts (clé publique COSE, aaguid…) : la
         // colonne étant du texte UTF-8, on les encode en base64 avant stockage (voir setRecord()).
-        $record = unserialize(base64_decode((string) $this->donnees, true) ?: '', ['allowed_classes' => true]);
+        $record = unserialize(base64_decode((string) $this->donnees, true) ?: '', ['allowed_classes' => [
+            CredentialRecord::class,
+            \Webauthn\TrustPath\EmptyTrustPath::class,
+            \Webauthn\TrustPath\CertificateTrustPath::class,
+            \Symfony\Component\Uid\Uuid::class,
+            \Symfony\Component\Uid\NilUuid::class,
+            \Symfony\Component\Uid\UuidV1::class,
+            \Symfony\Component\Uid\UuidV3::class,
+            \Symfony\Component\Uid\UuidV4::class,
+            \Symfony\Component\Uid\UuidV5::class,
+            \Symfony\Component\Uid\UuidV6::class,
+            \Symfony\Component\Uid\UuidV7::class,
+            \Symfony\Component\Uid\UuidV8::class,
+        ]]);
         if (!$record instanceof CredentialRecord) {
             throw new \RuntimeException('Enregistrement de clé d\'accès illisible.');
         }

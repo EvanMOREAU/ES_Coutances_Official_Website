@@ -32,7 +32,7 @@ final class DatabaseBackupTest extends DatabaseTestCase
     /** @return list<string> */
     private function lines(string $path): array
     {
-        $gz = gzopen($path, 'rb');
+        $gz = gzopen($path, 'rb') ?: throw new \RuntimeException('Sauvegarde illisible.');
         $lines = [];
         while (false !== ($line = gzgets($gz))) {
             $lines[] = rtrim($line, "\r\n");
@@ -96,7 +96,7 @@ final class DatabaseBackupTest extends DatabaseTestCase
     {
         $this->createUser(['ROLE_EDITOR'], 'toujours-la@test.local');
         $path = $this->backup->directory().'/auto-20260101-000000.sql.gz';
-        $gz = gzopen($path, 'wb');
+        $gz = gzopen($path, 'wb') ?: throw new \RuntimeException('Écriture impossible.');
         gzwrite($gz, "-- escoutances-backup v1\nDROP TABLE IF EXISTS `user`;\n"); // pas de marqueur de fin
         gzclose($gz);
 

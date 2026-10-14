@@ -95,7 +95,7 @@
                             {% set total = v.active + v.inactive %}
                             <div class="vt-split" role="img" aria-label="{{ v.active }} actives, {{ v.inactive }} inactives">
                                 {% if total > 0 %}
-                                    <span class="vt-split-on" style="width: {{ (v.active / total * 100)|round(1) }}%"></span>
+                                    <span class="vt-split-on pct-{{ (v.active / total * 100)|round }}"></span>
                                 {% endif %}
                             </div>
                             <p class="vt-caption">
@@ -116,7 +116,7 @@
                                     {% for item in v.items %}
                                         <li>
                                             <span class="vt-bar-label">{{ item.label }}</span>
-                                            <span class="vt-bar-track"><span class="vt-bar-fill" style="width: {{ (item.value / v.max * 100)|round }}%"></span></span>
+                                            <span class="vt-bar-track"><span class="vt-bar-fill pct-{{ (item.value / v.max * 100)|round }}"></span></span>
                                             <span class="vt-bar-value">{{ item.value }}</span>
                                         </li>
                                     {% endfor %}

@@ -6,7 +6,7 @@
     {% set active = filters|filter(v => v != '') %}
     <div class="flex flex-wrap items-start justify-between gap-3 mb-4">
         <div>
-            <h1 class="text-2xl font-black" style="font-family:'Barlow Condensed',sans-serif;">Journal d'activité</h1>
+            <h1 class="u-66972700 text-2xl font-black">Journal d'activité</h1>
             <p class="text-sm text-admin-text-muted">Trace de chaque action : qui, quand, depuis quelle adresse IP, et ce qui a changé. Lecture seule.</p>
         </div>
         {% if can('journal.exporter') %}<a href="{{ path('admin_journal_export', active) }}" class="admin-btn admin-btn-ghost"><i class="fa-solid fa-file-csv"></i> Exporter en CSV</a>{% endif %}
@@ -65,7 +65,7 @@
                             <td class="dt-muted">{{ log.statusCode ?: '—' }}</td>
                         </tr>
                     {% else %}
-                        <tr><td colspan="6" class="dt-muted" style="text-align:center; padding:2rem;">Aucune ligne ne correspond à ces filtres.</td></tr>
+                        <tr><td colspan="6" class="u-3a3fcbb0 dt-muted">Aucune ligne ne correspond à ces filtres.</td></tr>
                     {% endfor %}
                 </tbody>
             </table>
@@ -79,9 +79,5 @@
             {% if page < pages %}<a href="{{ path('admin_journal_index', active|merge({page: page + 1})) }}" class="admin-btn admin-btn-ghost admin-btn-sm">Plus anciennes →</a>{% endif %}
         </nav>
     {% endif %}
-    <script nonce="{{ csp_nonce() }}">
-        document.querySelectorAll('.jr-row').forEach(function (row) {
-            row.addEventListener('click', function (e) { if (!e.target.closest('a')) window.location.href = row.dataset.href; });
-        });
-    </script>
+    <script src="{{ asset('pages/journal-rows.js') }}" defer></script>
 {% endblock %}

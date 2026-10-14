@@ -41,7 +41,7 @@ final class AccountDataServiceTest extends DatabaseTestCase
         $saison = $this->createSaison('2099-2100', '2099-07-01', '2100-06-30', true);
         $licencie = $this->createLicencie($saison, 'Rgpd', 'Camille');
         $parent = $licencie->getFamille()->getUser();
-        $variante = $this->createArticle('Polo', 2500, [4])->getVariantes()->first();
+        $variante = $this->firstVariante($this->createArticle('Polo', 2500, [4]));
         $commande = (new Commande())->setReference('ESC-261007-RGPD')->setPrenom('Camille')->setNom('Rgpd')->setEmail('c@test.local')->setModePaiement(Commande::PAIEMENT_ESPECES)->setUser($parent);
         $commande->addLigne(CommandeLigne::depuis($variante, 1));
         $this->em->persist($commande);
@@ -79,7 +79,7 @@ final class AccountDataServiceTest extends DatabaseTestCase
         $famille = $licencie->getFamille();
         $famille->setAdresse('12 rue Privée')->setTelephone('0611223344');
         $parent = $famille->getUser()->setPrenom('Parent')->setBio('ma bio');
-        $variante = $this->createArticle('Echarpe', 1800, [3])->getVariantes()->first();
+        $variante = $this->firstVariante($this->createArticle('Echarpe', 1800, [3]));
         $commande = (new Commande())->setReference('ESC-261007-GONE')->setPrenom('Parent')->setNom('Effacer')->setEmail('parent@test.local')->setTelephone('0611223344')->setModePaiement(Commande::PAIEMENT_ESPECES)->setUser($parent);
         $commande->addLigne(CommandeLigne::depuis($variante, 2));
         $this->em->persist($commande);

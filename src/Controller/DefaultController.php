@@ -50,7 +50,7 @@ final class DefaultController extends AbstractController
             ['id' => 'DESC'],
         );
 
-        // Render + cache HTTP 5 minutes
+        // Cache HTTP : voir PublicPageCacheListener (réservé aux visiteurs sans cookie)
         $response = $this->render('default/index.html.twig', [
             'slides'               => $slides,
             'offres'               => $offres,
@@ -58,9 +58,6 @@ final class DefaultController extends AbstractController
             'homepage_banner'      => $banner,
             'rejoindre_cards'      => $rejoindreCards,
         ]);
-
-        $response->setMaxAge(300);        // cache navigateur 5 min
-        $response->setSharedMaxAge(300);  // cache proxy 5 min
 
         return $response;
     }

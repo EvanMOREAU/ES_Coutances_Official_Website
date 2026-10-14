@@ -29,7 +29,7 @@ final class FootClubImportParserTest extends TestCase
     {
         $this->files[] = $file = FootClubSpreadsheet::create($rows, $headers);
 
-        return (new FootClubImportParser())->parseFile($file);
+        return array_values((new FootClubImportParser())->parseFile($file));
     }
 
     public function testNormalizeHeaderIgnoresAccentsCaseAndPunctuation(): void
@@ -102,7 +102,7 @@ final class FootClubImportParserTest extends TestCase
 
     public function testUnreadableFileIsRejected(): void
     {
-        $file = tempnam(sys_get_temp_dir(), 'bad');
+        $file = (string) tempnam(sys_get_temp_dir(), 'bad');
         file_put_contents($file, 'ceci n\'est pas un classeur Excel');
         $this->files[] = $file;
 

@@ -16,7 +16,7 @@ final class ComplianceTest extends DatabaseTestCase
 {
     public function testOrderWithoutAcceptingTheTermsIsRefused(): void
     {
-        $variante = $this->createArticle('Polo', 2500, [5])->getVariantes()->first();
+        $variante = $this->firstVariante($this->createArticle('Polo', 2500, [5]));
         $this->loginAs(['ROLE_FAMILLE']);
         $crawler = $this->client->request('GET', '/boutique/article/'.$variante->getArticle()->getSlug());
         $token = $crawler->filter('form[action$="/boutique/panier/ajouter"] input[name=_token]')->attr('value');

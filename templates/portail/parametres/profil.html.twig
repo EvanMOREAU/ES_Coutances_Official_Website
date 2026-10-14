@@ -10,11 +10,11 @@
                 {% do form.avatarFile.setRendered %}
                 <div class="mc-profile-photo" data-controller="avatar-upload">
                     <span class="mc-avatar">
-                        <img data-avatar-upload-target="image" src="{{ app.user.avatarName ? asset('uploads/avatars/' ~ app.user.avatarName) : '' }}" class="{{ app.user.avatarName ? '' : 'hidden' }}" alt="">
+                        <img data-avatar-upload-target="image" src="{{ app.user.avatarName ? ('uploads/avatars/' ~ app.user.avatarName)|thumb('mini') : '' }}" class="{{ app.user.avatarName ? '' : 'hidden' }}" alt="">
                         {% if not app.user.avatarName %}<span data-avatar-upload-target="initial">{{ app.user.initiale }}</span>{% endif %}
                     </span>
                     <div>
-                        <label for="{{ form.avatarFile.vars.id }}" class="mc-btn" style="cursor:pointer;">Changer de photo</label>
+                        <label for="{{ form.avatarFile.vars.id }}" class="u-b202c6d4 mc-btn">Changer de photo</label>
                         <input type="file" id="{{ form.avatarFile.vars.id }}" name="{{ form.avatarFile.vars.full_name }}" accept="image/png,image/jpeg,image/gif" class="sr-only" data-avatar-upload-target="input" data-action="change->avatar-upload#preview">
                         <small data-avatar-upload-target="hint">JPG, PNG ou GIF. 2 Mo maximum.</small>
                         {{ form_errors(form.avatarFile) }}

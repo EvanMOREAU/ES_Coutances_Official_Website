@@ -1,0 +1,10 @@
+# Suivi des erreurs (Sentry ou GlitchTip, compatible). Actif uniquement en production et si SENTRY_DSN est renseigné
+# dans .env.local ; sans DSN, le bundle ne transmet rien.
+when@prod:
+    sentry:
+        dsn: '%env(default::SENTRY_DSN)%'
+        options:
+            environment: '%kernel.environment%'
+            # Aucune donnée personnelle (adresse IP, cookies, en-têtes) n'est envoyée.
+            send_default_pii: false
+            traces_sample_rate: 0

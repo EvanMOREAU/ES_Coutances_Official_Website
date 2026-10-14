@@ -7,7 +7,7 @@
 
     <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
         <div class="flex items-center gap-3">
-            <h1 class="text-2xl font-black" style="font-family:'Barlow Condensed',sans-serif;">{{ adhesion.licencieAffichage }} — {{ adhesion.saison }}</h1>
+            <h1 class="u-66972700 text-2xl font-black">{{ adhesion.licencieAffichage }} — {{ adhesion.saison }}</h1>
             <span class="badge badge-pay-{{ adhesion.statutPaiement }}">{{ adhesion.statutPaiementLabel }}</span>
             {% if not adhesion.licencie %}<span class="badge badge-draft" title="Pas encore rattaché à une fiche licencié">libellé</span>{% endif %}
         </div>

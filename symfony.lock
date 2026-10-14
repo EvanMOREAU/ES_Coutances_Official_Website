@@ -81,6 +81,9 @@
             "./config/routes/scheb_2fa.yaml"
         ]
     },
+    "sentry/sentry-symfony": {
+        "version": "5.14.0"
+    },
     "stof/doctrine-extensions-bundle": {
         "version": "v1.15.3"
     },

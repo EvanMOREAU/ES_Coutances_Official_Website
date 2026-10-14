@@ -37,6 +37,13 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
  * livraison (CodePromo) valide débloque une étape supplémentaire (voir commandeLivraison())
  * pour renseigner une adresse. Le paiement par carte se fait via HelloAsso
  * (voir paiement()/paiementRetour()).
+ *
+ * @phpstan-type Client array{
+ *     prenom: string, nom: string, email: string, telephone: ?string, note: ?string, modePaiement: string,
+ *     codePromo?: ?string, cgv?: bool,
+ *     livraisonAdresse?: ?string, livraisonComplement?: ?string, livraisonCodePostal?: ?string,
+ *     livraisonVille?: ?string, livraisonTelephone?: ?string, livraisonInstructions?: ?string,
+ * }
  */
 #[Route('/boutique')]
 class BoutiqueController extends AbstractController
@@ -234,6 +241,7 @@ class BoutiqueController extends AbstractController
     {
         $detail  = $this->panier->detail();
         $session = $request->getSession();
+        /** @var Client|null $client coordonnées enregistrées en session par l'étape précédente */
         $client  = $session->get(self::SESSION_CHECKOUT);
 
         if ([] === $detail['lignes'] || !is_array($client)) {
@@ -457,7 +465,7 @@ class BoutiqueController extends AbstractController
 
     /**
      * @param array{lignes: list<array{variante: \App\Entity\ArticleVariante, quantite: int, total: int}>, total: int, messages: list<string>} $detail
-     * @param array<string, mixed> $client
+     * @param Client $client
      *
      * @throws StockInsuffisantException
      * @throws PromoCodeException
@@ -466,7 +474,7 @@ class BoutiqueController extends AbstractController
     {
         $quantites = [];
         foreach ($detail['lignes'] as $ligne) {
-            $quantites[$ligne['variante']->getId()] = $ligne['quantite'];
+            $quantites[(int) $ligne['variante']->getId()] = $ligne['quantite'];
         }
 
         return $this->commandes->passer($quantites, $client, $user, $clientIp);

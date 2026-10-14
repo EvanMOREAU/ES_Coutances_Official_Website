@@ -68,7 +68,7 @@ class OffreEmploiController extends AbstractController
     #[Route('/{id}/supprimer', name: 'admin_offre_emploi_delete', methods: ['POST'])]
     public function delete(Request $request, OffreEmploi $offre, EntityManagerInterface $em): Response
     {
-        if ($this->isCsrfTokenValid('delete-offre-'.$offre->getId(), $request->request->get('_token'))) {
+        if ($this->isCsrfTokenValid('delete-offre-'.$offre->getId(), $request->request->getString('_token'))) {
             $em->remove($offre);
             $em->flush();
             $this->addFlash('success', "Offre d'emploi supprimée.");

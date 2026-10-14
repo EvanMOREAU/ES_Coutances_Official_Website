@@ -55,7 +55,7 @@ class JournalController extends AbstractController
         $recorder->event(AuditLog::TYPE_REQUETE, 'telechargement', 'Système', 'Export CSV du journal d\'activité', null, ['filtres' => array_filter($filters)]);
 
         $response = new StreamedResponse(function () use ($filters): void {
-            $out = fopen('php://output', 'w');
+            $out = fopen('php://output', 'w') ?: throw new \RuntimeException('Flux de sortie indisponible.');
             fwrite($out, "\xEF\xBB\xBF"); // UTF-8 avec BOM : Excel lit correctement les accents
             fputcsv($out, ['Date', 'Type', 'Opération', 'Rubrique', 'Résumé', 'Élément', 'Identifiant', 'Utilisateur', 'E-mail', 'Rôles', 'IP', 'Transféré par', 'Navigateur', 'Méthode', 'Route', 'Adresse', 'Code HTTP', 'Requête', 'Modifications', 'Détails'], ';', '"', '\\');
             foreach ($this->repository->export($filters) as $log) {

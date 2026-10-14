@@ -2,8 +2,10 @@
 
 namespace App\Controller\Admin;
 
+use App\Audit\AuditRecorder;
 use App\Entity\Adhesion;
 use App\Entity\AideFinanciere;
+use App\Entity\AuditLog;
 use App\Form\AdhesionType;
 use App\Repository\AdhesionRepository;
 use App\Repository\LicencieRepository;
@@ -13,6 +15,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\Routing\Attribute\Route;
 
 /**
@@ -39,6 +42,54 @@ class AdhesionController extends AbstractController
             'totalRecu'    => array_sum(array_map(static fn (Adhesion $a) => $a->getRecuCentimes(), $adhesions)),
             'totalAides'   => array_sum(array_map(static fn (Adhesion $a) => $a->getAidesAttenduesCentimes(), $adhesions)),
         ]);
+    }
+
+    /**
+     * Export comptable (CSV pour Excel) : une ligne par règlement, avec la licence, la saison et les montants
+     * (une ligne sans règlement pour les licences qui n'en ont pas encore). Filtrable par saison (?saison=<id>).
+     * Chaque export est consigné au journal d'activité.
+     */
+    #[Route('/export.csv', name: 'admin_adhesion_export', methods: ['GET'])]
+    public function export(Request $request, AuditRecorder $recorder): Response
+    {
+        $saisonId = $request->query->getInt('saison');
+        $rows     = array_values(array_filter(
+            $this->adhesions->findAllDetailed(),
+            static fn (Adhesion $a): bool => 0 === $saisonId || $a->getSaison()?->getId() === $saisonId,
+        ));
+        $recorder->event(AuditLog::TYPE_REQUETE, 'telechargement', 'Paiements', 'Export comptable des paiements des licences', null, ['saison' => $saisonId ?: 'toutes', 'lignes' => count($rows)]);
+
+        $response = new StreamedResponse(function () use ($rows): void {
+            $out    = fopen('php://output', 'w') ?: throw new \RuntimeException('Flux de sortie indisponible.');
+            $euros  = static fn (int $centimes): string => number_format($centimes / 100, 2, ',', '');
+            $dates  = static fn (?\DateTimeInterface $date): string => $date?->format('d/m/Y') ?? '';
+            fwrite($out, "\xEF\xBB\xBF"); // UTF-8 avec BOM : Excel lit correctement les accents
+            fputcsv($out, ['Saison', 'Licencié', 'Famille', 'Montant dû (€)', 'Reçu (€)', 'Reste (€)', 'Statut', 'Règlement n°', 'Mode', 'Échéance', 'Montant du règlement (€)', 'Encaissé', 'Date de remise', 'Référence'], ';', '"', '\\');
+            foreach ($rows as $adhesion) {
+                $base = [
+                    (string) $adhesion->getSaison(),
+                    $adhesion->getLicencieAffichage(),
+                    (string) $adhesion->getLicencie()?->getFamille(),
+                    $euros($adhesion->getMontantDuCentimes()),
+                    $euros($adhesion->getRecuCentimes()),
+                    $euros($adhesion->getResteCentimes()),
+                    $adhesion->getStatutPaiementLabel(),
+                ];
+                if ($adhesion->getReglements()->isEmpty()) {
+                    fputcsv($out, [...$base, '', '', '', '', '', '', ''], ';', '"', '\\');
+                    continue;
+                }
+                foreach ($adhesion->getReglements() as $reglement) {
+                    fputcsv($out, [...$base, $reglement->getOrdre(), $reglement->getModeLabel(), $dates($reglement->getDateEcheance()), $euros($reglement->getMontantCentimes()), $reglement->isRecu() ? 'oui' : 'non', $dates($reglement->getDateRemise()), (string) $reglement->getReference()], ';', '"', '\\');
+                }
+            }
+            fclose($out);
+        });
+        $response->headers->set('Content-Type', 'text/csv; charset=utf-8');
+        $response->headers->set('Content-Disposition', 'attachment; filename="paiements-licences-'.date('Ymd').'.csv"');
+        $response->headers->set('Cache-Control', 'private, no-store');
+
+        return $response;
     }
 
     /** Fiche de la licence en lecture seule, avant de la modifier. */

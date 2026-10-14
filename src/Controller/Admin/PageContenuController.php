@@ -69,7 +69,7 @@ class PageContenuController extends AbstractController
     #[Route('/{id}/supprimer', name: 'admin_page_contenu_delete', methods: ['POST'])]
     public function delete(Request $request, PageContenu $page, EntityManagerInterface $em): Response
     {
-        if ($this->isCsrfTokenValid('delete-page-'.$page->getId(), $request->request->get('_token'))) {
+        if ($this->isCsrfTokenValid('delete-page-'.$page->getId(), $request->request->getString('_token'))) {
             $em->remove($page);
             $em->flush();
             $this->addFlash('success', 'Page supprimée.');

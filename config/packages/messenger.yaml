@@ -23,6 +23,8 @@ framework:
             # et lancer "php bin/console messenger:consume async".
             Symfony\Component\Notifier\Message\ChatMessage: async
             Symfony\Component\Notifier\Message\SmsMessage: async
+            # E-mails envoyés par un worker quand MAILER_ASYNC=1 (voir App\Mail\DynamicMailer)
+            App\Message\QueuedEmail: async
 
             # Route your messages to the transports
             # 'App\Message\YourMessage': async

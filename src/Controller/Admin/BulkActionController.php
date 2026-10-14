@@ -92,7 +92,9 @@ class BulkActionController extends AbstractController
                 return $this->redirectToRoute($indexRoute);
             }
             foreach ($entities as $entity) {
-                $entity->setStatut($statut);
+                if (method_exists($entity, 'setStatut')) {
+                    $entity->setStatut($statut);
+                }
             }
             $em->flush();
 

@@ -31,7 +31,7 @@ class ChatAttachmentRepository extends ServiceEntityRepository
 
         $map = [];
         foreach ($this->createQueryBuilder('a')->where('IDENTITY(a.message) IN (:ids)')->setParameter('ids', $messageIds)->getQuery()->getResult() as $attachment) {
-            $map[$attachment->getMessage()->getId()] = $attachment;
+            $map[(int) $attachment->getMessage()->getId()] = $attachment;
         }
 
         return $map;

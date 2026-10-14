@@ -52,7 +52,7 @@ final class AuditCatalog
     /** @return array{0: string, 1: string} [libellé, rubrique] */
     public static function entity(string $class): array
     {
-        $short = substr(strrchr('\\'.$class, '\\'), 1);
+        $short = substr((string) strrchr('\\'.$class, '\\'), 1);
 
         return self::ENTITIES[$short] ?? [$short, 'Autre'];
     }
