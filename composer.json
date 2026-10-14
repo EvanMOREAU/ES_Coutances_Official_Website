@@ -97,9 +97,11 @@
             "importmap:install": "symfony-cmd"
         },
         "post-install-cmd": [
+            "@php bin/purge-prod-cache.php",
             "@auto-scripts"
         ],
         "post-update-cmd": [
+            "@php bin/purge-prod-cache.php",
             "@auto-scripts"
         ],
         "cs": "php-cs-fixer fix --dry-run --diff",
