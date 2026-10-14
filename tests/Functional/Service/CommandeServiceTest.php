@@ -23,7 +23,7 @@ final class CommandeServiceTest extends DatabaseTestCase
     /**
      * @param array<string, mixed> $extra
      *
-     * @return array<string, mixed>
+     * @return array{prenom: string, nom: string, email: string, telephone: ?string, note: ?string, modePaiement: string, codePromo?: ?string, cgv?: bool, livraisonAdresse?: ?string, livraisonComplement?: ?string, livraisonCodePostal?: ?string, livraisonVille?: ?string, livraisonTelephone?: ?string, livraisonInstructions?: ?string}
      */
     private function client(array $extra = []): array
     {
@@ -35,14 +35,14 @@ final class CommandeServiceTest extends DatabaseTestCase
 
     private function variante(int $stock = 5, int $prix = 2000): ArticleVariante
     {
-        return $this->createArticle('Écharpe', $prix, [$stock])->getVariantes()->first();
+        return $this->firstVariante($this->createArticle('Écharpe', $prix, [$stock]));
     }
 
     public function testPlacingAnOrderDecrementsStockAndSnapshotsPrices(): void
     {
         $variante = $this->variante(5, 2000);
 
-        $commande = $this->service->passer([$variante->getId() => 2], $this->client(), null);
+        $commande = $this->service->passer([self::idOf($variante) => 2], $this->client(), null);
 
         self::assertNotNull($commande->getId());
         self::assertMatchesRegularExpression('/^ESC-\d{6}-[0-9A-F]{4}$/', (string) $commande->getReference());
@@ -64,7 +64,7 @@ final class CommandeServiceTest extends DatabaseTestCase
         $variante = $this->variante(1);
 
         try {
-            $this->service->passer([$variante->getId() => 3], $this->client(), null);
+            $this->service->passer([self::idOf($variante) => 3], $this->client(), null);
             self::fail('Une commande supérieure au stock doit être refusée.');
         } catch (StockInsuffisantException $e) {
             self::assertStringContainsString('Il ne reste que 1 exemplaire', $e->getMessage());
@@ -80,7 +80,7 @@ final class CommandeServiceTest extends DatabaseTestCase
         $this->expectException(StockInsuffisantException::class);
         $this->expectExceptionMessageMatches('/épuisé/');
 
-        $this->service->passer([$variante->getId() => 1], $this->client(), null);
+        $this->service->passer([self::idOf($variante) => 1], $this->client(), null);
     }
 
     public function testArchivedArticleCannotBeOrdered(): void
@@ -91,7 +91,7 @@ final class CommandeServiceTest extends DatabaseTestCase
 
         $this->expectException(StockInsuffisantException::class);
 
-        $this->service->passer([$variante->getId() => 1], $this->client(), null);
+        $this->service->passer([self::idOf($variante) => 1], $this->client(), null);
     }
 
     public function testUnknownVariantIsRefused(): void
@@ -104,7 +104,7 @@ final class CommandeServiceTest extends DatabaseTestCase
     public function testCancellingGivesTheStockBack(): void
     {
         $variante = $this->variante(5);
-        $commande = $this->service->passer([$variante->getId() => 4], $this->client(), null);
+        $commande = $this->service->passer([self::idOf($variante) => 4], $this->client(), null);
         self::assertSame(1, $variante->getStock());
 
         $this->service->appliquer($commande, 'annuler');
@@ -115,7 +115,7 @@ final class CommandeServiceTest extends DatabaseTestCase
 
     public function testPaidThenCancelledOrderMustBeRefunded(): void
     {
-        $commande = $this->service->passer([$this->variante()->getId() => 1], $this->client(), null);
+        $commande = $this->service->passer([self::idOf($this->variante()) => 1], $this->client(), null);
         $this->service->appliquer($commande, 'payer');
         $this->service->appliquer($commande, 'annuler');
 
@@ -129,7 +129,7 @@ final class CommandeServiceTest extends DatabaseTestCase
 
     public function testUnpaidCancelledOrderNeedsNoRefund(): void
     {
-        $commande = $this->service->passer([$this->variante()->getId() => 1], $this->client(), null);
+        $commande = $this->service->passer([self::idOf($this->variante()) => 1], $this->client(), null);
         $this->service->appliquer($commande, 'annuler');
 
         self::assertFalse($commande->isRemboursementDu());
@@ -139,7 +139,7 @@ final class CommandeServiceTest extends DatabaseTestCase
 
     public function testCancelledOrderCannotBeCancelledOrPaidAgain(): void
     {
-        $commande = $this->service->passer([$this->variante()->getId() => 1], $this->client(), null);
+        $commande = $this->service->passer([self::idOf($this->variante()) => 1], $this->client(), null);
         $this->service->appliquer($commande, 'annuler');
 
         foreach (['annuler', 'payer', 'preparer', 'retirer'] as $action) {
@@ -154,7 +154,7 @@ final class CommandeServiceTest extends DatabaseTestCase
 
     public function testNormalLifecycle(): void
     {
-        $commande = $this->service->passer([$this->variante()->getId() => 1], $this->client(), null);
+        $commande = $this->service->passer([self::idOf($this->variante()) => 1], $this->client(), null);
 
         $this->service->appliquer($commande, 'preparer');
         self::assertSame(Commande::STATUT_PRETE, $commande->getStatut());
@@ -169,7 +169,7 @@ final class CommandeServiceTest extends DatabaseTestCase
 
     public function testPreparingTwiceIsRefused(): void
     {
-        $commande = $this->service->passer([$this->variante()->getId() => 1], $this->client(), null);
+        $commande = $this->service->passer([self::idOf($this->variante()) => 1], $this->client(), null);
         $this->service->appliquer($commande, 'preparer');
 
         $this->expectException(\DomainException::class);
@@ -178,7 +178,7 @@ final class CommandeServiceTest extends DatabaseTestCase
 
     public function testUnknownActionIsRefused(): void
     {
-        $commande = $this->service->passer([$this->variante()->getId() => 1], $this->client(), null);
+        $commande = $this->service->passer([self::idOf($this->variante()) => 1], $this->client(), null);
 
         $this->expectException(\DomainException::class);
         $this->service->appliquer($commande, 'rembourser');
@@ -200,14 +200,14 @@ final class CommandeServiceTest extends DatabaseTestCase
         $this->expectException(PromoCodeException::class);
         $this->expectExceptionMessageMatches('/adresse de livraison complète/');
 
-        $this->service->passer([$this->variante()->getId() => 1], $this->client(['codePromo' => 'BON-LIVRAISON']), null);
+        $this->service->passer([self::idOf($this->variante()) => 1], $this->client(['codePromo' => 'BON-LIVRAISON']), null);
     }
 
     public function testDeliveryVoucherIsAppliedWithAddress(): void
     {
         $promo = $this->savePromo();
 
-        $commande = $this->service->passer([$this->variante()->getId() => 1], $this->client([
+        $commande = $this->service->passer([self::idOf($this->variante()) => 1], $this->client([
             'codePromo' => 'BON-LIVRAISON', 'livraisonAdresse' => '1 rue du Test', 'livraisonCodePostal' => '50200', 'livraisonVille' => 'Coutances',
         ]), null);
 
@@ -221,7 +221,7 @@ final class CommandeServiceTest extends DatabaseTestCase
     {
         $this->expectException(PromoCodeException::class);
 
-        $this->service->passer([$this->variante()->getId() => 1], $this->client(['codePromo' => 'INCONNU']), null);
+        $this->service->passer([self::idOf($this->variante()) => 1], $this->client(['codePromo' => 'INCONNU']), null);
     }
 
     public function testExpiredVoucherIsRefused(): void
@@ -231,7 +231,7 @@ final class CommandeServiceTest extends DatabaseTestCase
 
         $this->expectException(PromoCodeException::class);
 
-        $this->service->passer([$this->variante()->getId() => 1], $this->client(['codePromo' => 'PERIME']), null);
+        $this->service->passer([self::idOf($this->variante()) => 1], $this->client(['codePromo' => 'PERIME']), null);
     }
 
     public function testVoucherReservedToAnotherAccountIsRefused(): void
@@ -241,6 +241,6 @@ final class CommandeServiceTest extends DatabaseTestCase
 
         $this->expectException(PromoCodeException::class);
 
-        $this->service->passer([$this->variante()->getId() => 1], $this->client(['codePromo' => $promo->getCode()]), $this->createUser(['ROLE_FAMILLE']));
+        $this->service->passer([self::idOf($this->variante()) => 1], $this->client(['codePromo' => $promo->getCode()]), $this->createUser(['ROLE_FAMILLE']));
     }
 }

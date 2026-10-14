@@ -35,8 +35,8 @@ class MessageRepository extends ServiceEntityRepository
 
         if ($after !== null) {
             // Tout ce qui est arrivé depuis (borné, par prudence).
-            return array_values($qb->andWhere('m.id > :after')->setParameter('after', $after)
-                ->orderBy('m.id', SortDirection::Ascending)->setMaxResults(200)->getQuery()->getResult());
+            return $qb->andWhere('m.id > :after')->setParameter('after', $after)
+                ->orderBy('m.id', SortDirection::Ascending)->setMaxResults(200)->getQuery()->getResult();
         }
 
         if ($before !== null) {
@@ -83,7 +83,7 @@ class MessageRepository extends ServiceEntityRepository
 
         $last = [];
         foreach ($this->createQueryBuilder('m')->addSelect('a')->leftJoin('m.author', 'a')->where('m.id IN (:ids)')->setParameter('ids', $ids)->getQuery()->getResult() as $message) {
-            $last[$message->getConversation()->getId()] = $message;
+            $last[(int) $message->getConversation()->getId()] = $message;
         }
 
         return $last;

@@ -4,8 +4,11 @@
 
 {% block body %}
     <div class="flex flex-wrap items-center justify-between gap-3 mb-2">
-        <h1 class="text-2xl font-black" style="font-family:'Barlow Condensed',sans-serif;">Paiements des licences</h1>
-        {% if can_url(path('admin_adhesion_new')) %}<a href="{{ path('admin_adhesion_new') }}" class="rounded-lg admin-gradient px-4 py-2 text-sm font-semibold text-white">+ Nouvelle licence</a>{% endif %}
+        <h1 class="u-66972700 text-2xl font-black">Paiements des licences</h1>
+        <div class="flex flex-wrap items-center gap-2">
+            {% if can_url(path('admin_adhesion_export')) %}<a href="{{ path('admin_adhesion_export') }}" class="admin-btn admin-btn-ghost" data-turbo="false"><i class="fa-solid fa-file-csv"></i> Export comptable (CSV)</a>{% endif %}
+            {% if can_url(path('admin_adhesion_new')) %}<a href="{{ path('admin_adhesion_new') }}" class="rounded-lg admin-gradient px-4 py-2 text-sm font-semibold text-white">+ Nouvelle licence</a>{% endif %}
+        </div>
     </div>
     <p class="text-sm text-admin-text-muted mb-5">Suivi des règlements (espèces, carte, chèques) et des aides (Pass'Sport, Spot 50…) pour chaque licence, saison après saison.</p>
 

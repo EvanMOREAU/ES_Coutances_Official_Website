@@ -72,7 +72,7 @@ class MembreController extends AbstractController
     #[Route('/{id}/supprimer', name: 'admin_membre_delete', methods: ['POST'])]
     public function delete(Request $request, Membre $membre, EntityManagerInterface $em): Response
     {
-        if ($this->isCsrfTokenValid('delete-membre-'.$membre->getId(), $request->request->get('_token'))) {
+        if ($this->isCsrfTokenValid('delete-membre-'.$membre->getId(), $request->request->getString('_token'))) {
             $em->remove($membre);
             $em->flush();
             $this->addFlash('success', 'Membre supprimé.');

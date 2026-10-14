@@ -107,26 +107,28 @@ class NotificationMailer
         }
         $url = $this->urls->generate($routes[$type], [], UrlGeneratorInterface::ABSOLUTE_URL);
 
-        foreach ($this->users->findAll() as $user) {
-            if (!$user->isStaff() || $user->getId() === $actorId || !$this->permissions->can((string) $permission, $user) || !$this->prefs->wants($user, $type, NotificationPreferences::EMAIL)) {
+        foreach ($this->users->findStaff() as $user) {
+            if ($user->getId() === $actorId || !$this->permissions->can((string) $permission, $user) || !$this->prefs->wants($user, $type, NotificationPreferences::EMAIL)) {
                 continue;
             }
             $this->send($user, $title, $lines, $url, "Ouvrir dans l'administration");
         }
     }
 
-    /** @param list<Entrainement> $events */
-    private function planningMails(array $events, ?int $actorId): void
+    /** @param list<object> $entities */
+    private function planningMails(array $entities, ?int $actorId): void
     {
+        $events = array_values(array_filter($entities, static fn (object $e): bool => $e instanceof Entrainement));
         if (count($events) > self::BULK_LIMIT) {
             return; // création en série : pas d'e-mail en masse
         }
+        $users = $this->users->findAll(); // chargés une seule fois pour tous les événements
         foreach ($events as $event) {
             $title = sprintf('%s : %s', $event->isEvenement() ? 'Nouvel événement' : ($event->isRencontre() ? 'Nouvelle rencontre' : 'Nouvel entraînement'), $event->getTitre());
             $when  = ($event->getDate()?->format('d/m/Y') ?? '').' à '.($event->getHeureDebut()?->format('H:i') ?? '');
-            $lines = array_values(array_filter([$when, $event->getLieu() ? 'Lieu : '.$event->getLieu() : null]));
+            $lines = array_filter([$when, $event->getLieu() ? 'Lieu : '.$event->getLieu() : null]);
 
-            foreach ($this->users->findAll() as $user) {
+            foreach ($users as $user) {
                 if ($user->getId() === $actorId || !$this->prefs->wants($user, 'planning', NotificationPreferences::EMAIL)) {
                     continue;
                 }

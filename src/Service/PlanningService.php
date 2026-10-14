@@ -59,10 +59,8 @@ class PlanningService
     public function userChoices(): array
     {
         $choices = [];
-        foreach ($this->userRepository->findAll() as $user) {
-            if ($user->isStaff()) {
-                $choices[] = ['id' => $user->getId(), 'nom' => $user->getNomComplet() ?: (string) $user->getEmail()];
-            }
+        foreach ($this->userRepository->findStaff() as $user) {
+            $choices[] = ['id' => $user->getId(), 'nom' => $user->getNomComplet() ?: (string) $user->getEmail()];
         }
         usort($choices, static fn (array $a, array $b) => $a['nom'] <=> $b['nom']);
 
@@ -75,7 +73,7 @@ class PlanningService
         if (null === $this->equipes) {
             $this->equipes = [];
             foreach ($this->equipeRepository->findAll() as $equipe) {
-                $this->equipes[$equipe->getId()] = $equipe;
+                $this->equipes[(int) $equipe->getId()] = $equipe;
             }
         }
 

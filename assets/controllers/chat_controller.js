@@ -1,12 +1,14 @@
 import { Controller } from '@hotwired/stimulus';
+import { KIND_ICONS } from '../lib/file_kinds.js';
 
-const KIND_ICONS = {
-    image: 'fa-file-image', pdf: 'fa-file-pdf', doc: 'fa-file-word', sheet: 'fa-file-excel', slide: 'fa-file-powerpoint',
-    text: 'fa-file-lines', archive: 'fa-file-zipper', video: 'fa-file-video', audio: 'fa-file-audio', other: 'fa-file',
-};
 
 const POLL_VISIBLE_MS = 2500;
 const POLL_HIDDEN_MS = 12000;
+// Sans nouveauté depuis un moment, on interroge le serveur de moins en moins souvent (retour à la cadence normale dès qu'il se passe quelque chose).
+const POLL_IDLE_AFTER_MS = 60000;
+const POLL_IDLE_FACTOR = 3;
+const POLL_VERY_IDLE_AFTER_MS = 300000;
+const POLL_VERY_IDLE_FACTOR = 6;
 
 /**
  * Messagerie en direct (admin et espace familles).
@@ -91,6 +93,11 @@ export default class extends Controller {
         try {
             const params = new URLSearchParams({ active: String(requestedActive), after: String(this.lastId) });
             const data = await this.api(`sync?${params}`);
+            const fingerprint = JSON.stringify([data.unread, data.conversations, data.active?.messages?.length ?? 0]);
+            if (fingerprint !== this.fingerprint) {
+                this.fingerprint = fingerprint;
+                this.lastActivity = Date.now();
+            }
             this.conversations = data.conversations;
             this.renderList();
             this.updateBadges(data.unread);
@@ -114,8 +121,10 @@ export default class extends Controller {
         } finally {
             this.polling = false;
             if (this.running) {
-                const base = document.hidden ? POLL_HIDDEN_MS : POLL_VISIBLE_MS;
-                this.timer = setTimeout(() => this.poll(), Math.min(base * (1 + (this.failures ?? 0)), 30000));
+                const idle = Date.now() - (this.lastActivity ?? Date.now());
+                const factor = idle > POLL_VERY_IDLE_AFTER_MS ? POLL_VERY_IDLE_FACTOR : (idle > POLL_IDLE_AFTER_MS ? POLL_IDLE_FACTOR : 1);
+                const base = (document.hidden ? POLL_HIDDEN_MS : POLL_VISIBLE_MS) * factor;
+                this.timer = setTimeout(() => this.poll(), Math.min(base * (1 + (this.failures ?? 0)), 60000));
             }
         }
     }

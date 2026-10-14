@@ -12,6 +12,9 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: LicencieRepository::class)]
+#[ORM\Index(name: 'IDX_LICENCIE_STATUT', columns: ['statut'])]
+#[ORM\Index(name: 'IDX_LICENCIE_SAISON_STATUT', columns: ['saison_id', 'statut'])]
+#[ORM\Index(name: 'IDX_LICENCIE_NOM', columns: ['nom', 'prenom'])]
 #[ORM\HasLifecycleCallbacks]
 class Licencie
 {

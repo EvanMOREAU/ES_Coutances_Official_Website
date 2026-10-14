@@ -25,18 +25,6 @@ parameters:
 			path: src/Audit/EntityAuditListener.php
 
 		-
-			message: '#^Using nullsafe method call on non\-nullable type App\\Entity\\Categorie\. Use \-\> instead\.$#'
-			identifier: nullsafe.neverNull
-			count: 1
-			path: src/Controller/Admin/CategorieController.php
-
-		-
-			message: '#^Using nullsafe method call on non\-nullable type App\\Entity\\CategoriePartenaire\. Use \-\> instead\.$#'
-			identifier: nullsafe.neverNull
-			count: 1
-			path: src/Controller/Admin/CategoriePartenaireController.php
-
-		-
 			message: '#^Match expression does not handle remaining value\: string$#'
 			identifier: match.unhandled
 			count: 1
@@ -61,52 +49,16 @@ parameters:
 			path: src/Controller/Admin/PartenaireController.php
 
 		-
-			message: '#^Using nullsafe method call on non\-nullable type App\\Entity\\Partenaire\. Use \-\> instead\.$#'
-			identifier: nullsafe.neverNull
-			count: 1
-			path: src/Controller/Admin/PartenaireController.php
-
-		-
-			message: '#^Using nullsafe method call on non\-nullable type App\\Entity\\SlideCarousel\. Use \-\> instead\.$#'
-			identifier: nullsafe.neverNull
-			count: 1
-			path: src/Controller/Admin/SlideCarouselController.php
-
-		-
 			message: '#^Offset ''state'' on array\{state\: string\} on left side of \?\? always exists and is not nullable\.$#'
 			identifier: nullCoalesce.offset
 			count: 2
 			path: src/Controller/BoutiqueController.php
 
 		-
-			message: '#^Parameter \#1 \$array \(list\<string\>\) of array_values is already a list, call has no effect\.$#'
-			identifier: arrayValues.list
-			count: 3
-			path: src/Entity/User.php
-
-		-
-			message: '#^Parameter \#1 \$array \(list\<App\\Entity\\Message\>\) of array_values is already a list, call has no effect\.$#'
-			identifier: arrayValues.list
-			count: 1
-			path: src/Repository/MessageRepository.php
-
-		-
 			message: '#^Call to function is_array\(\) with Doctrine\\ORM\\Mapping\\FieldMapping will always evaluate to false\.$#'
 			identifier: function.impossibleType
 			count: 2
 			path: src/Service/FileManager/OrphanFileFinder.php
-
-		-
-			message: '#^Parameter \#1 \$array \(array\{0\: non\-falsy\-string, 1\?\: non\-falsy\-string\}\) of array_values is already a list, call has no effect\.$#'
-			identifier: arrayValues.list
-			count: 1
-			path: src/Service/Notification/NotificationMailer.php
-
-		-
-			message: '#^Property App\\Service\\SiteAdvisor\:\:\$licencies is never read, only written\.$#'
-			identifier: property.onlyWritten
-			count: 1
-			path: src/Service/SiteAdvisor.php
 
 		-
 			message: '#^Call to an undefined method Symfony\\Component\\Routing\\RouterInterface\:\:matchRequest\(\)\.$#'

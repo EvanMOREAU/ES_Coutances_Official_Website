@@ -20,6 +20,7 @@ use Vich\UploaderBundle\Mapping\Attribute as Vich;
  * unique variante « Unique ».
  */
 #[ORM\Entity(repositoryClass: ArticleRepository::class)]
+#[ORM\Index(name: 'IDX_ARTICLE_STATUT', columns: ['statut'])]
 #[ORM\HasLifecycleCallbacks]
 #[Vich\Uploadable]
 class Article
@@ -228,6 +229,8 @@ class Article
     /** Vrai s'il n'y a qu'une variante « sans taille » : le client n'a rien à choisir. */
     public function isSansDeclinaison(): bool
     {
-        return 1 === $this->variantes->count() && ArticleVariante::LIBELLE_UNIQUE === $this->variantes->first()->getLibelle();
+        $premiere = $this->variantes->first();
+
+        return 1 === $this->variantes->count() && $premiere instanceof ArticleVariante && ArticleVariante::LIBELLE_UNIQUE === $premiere->getLibelle();
     }
 }

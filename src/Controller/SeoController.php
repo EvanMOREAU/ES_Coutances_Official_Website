@@ -6,6 +6,7 @@ use App\Repository\ArticleRepository;
 use App\Repository\PageContenuRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\EventListener\AbstractSessionListener;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
@@ -17,6 +18,9 @@ final class SeoController extends AbstractController
         'app_home', 'app_histoire', 'app_encadrement', 'app_infrastructure', 'app_contact', 'boutique_index',
         'app_legal_mentions', 'app_legal_confidentialite', 'app_legal_cgv', 'app_legal_cookies',
     ];
+
+    /** Adresses de pages de contenu qui ont leur propre route (/histoire, /mentions-legales…). */
+    private const DEDICATED_SLUGS = ['histoire', 'infrastructure', 'mentions-legales', 'confidentialite', 'conditions-de-vente', 'cookies'];
 
     #[Route('/robots.txt', name: 'app_robots', methods: ['GET'])]
     public function robots(): Response
@@ -37,6 +41,7 @@ final class SeoController extends AbstractController
         return new Response(implode("\n", $lines)."\n", Response::HTTP_OK, [
             'Content-Type' => 'text/plain; charset=UTF-8',
             'Cache-Control' => 'public, max-age=3600',
+            AbstractSessionListener::NO_AUTO_CACHE_CONTROL_HEADER => 'true',
         ]);
     }
 
@@ -48,7 +53,8 @@ final class SeoController extends AbstractController
             $urls[] = ['loc' => $this->generateUrl($route, [], UrlGeneratorInterface::ABSOLUTE_URL), 'lastmod' => null];
         }
         foreach ($pages->findAll() as $page) {
-            if (null === $page->getSlug()) {
+            // Les pages servies par une route dédiée (déjà listée plus haut) ne doivent pas apparaître en double.
+            if (null === $page->getSlug() || in_array($page->getSlug(), self::DEDICATED_SLUGS, true)) {
                 continue;
             }
             $urls[] = [
@@ -66,6 +72,7 @@ final class SeoController extends AbstractController
         $response = $this->render('seo/sitemap.xml.twig', ['urls' => $urls]);
         $response->headers->set('Content-Type', 'application/xml; charset=UTF-8');
         $response->headers->set('Cache-Control', 'public, max-age=3600');
+        $response->headers->set(AbstractSessionListener::NO_AUTO_CACHE_CONTROL_HEADER, 'true');
 
         return $response;
     }

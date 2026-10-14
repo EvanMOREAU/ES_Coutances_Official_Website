@@ -42,7 +42,7 @@ final class SecretBoxTest extends TestCase
     public function testDecryptDetectsTampering(): void
     {
         $box = new SecretBox('secret');
-        $raw = base64_decode($box->encrypt('valeur'), true);
+        $raw = base64_decode($box->encrypt('valeur'), true) ?: '';
         $raw[strlen($raw) - 1] = $raw[strlen($raw) - 1] ^ "\x01";
 
         self::assertNull($box->decrypt(base64_encode($raw)));

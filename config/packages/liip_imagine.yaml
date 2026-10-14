@@ -1,0 +1,46 @@
+# Miniatures et formats légers (WebP) générés à la demande à partir de public/uploads, puis mises en cache
+# dans public/media/cache (dossier inscriptible par PHP, ignoré par Git). Gabarits : filtre Twig |thumb('carte').
+liip_imagine:
+    driver: gd
+    resolvers:
+        default:
+            web_path:
+                web_root: '%kernel.project_dir%/public'
+                cache_prefix: media/cache
+    filter_sets:
+        cache: ~
+        # Bandeau, diaporama et bannière de l'accueil
+        hero:
+            quality: 80
+            format: webp
+            filters:
+                relative_resize: { widen: 1600 }
+        # Photo d'une fiche (article, page de contenu)
+        detail:
+            quality: 82
+            format: webp
+            filters:
+                relative_resize: { widen: 1000 }
+        # Vignette de carte (boutique, offres, rejoindre)
+        carte:
+            quality: 80
+            format: webp
+            filters:
+                relative_resize: { widen: 600 }
+        # Photos de l'encadrement, logos des partenaires
+        portrait:
+            quality: 82
+            format: webp
+            filters:
+                relative_resize: { widen: 400 }
+        logo:
+            quality: 85
+            format: webp
+            filters:
+                relative_resize: { heighten: 240 }
+        # Avatars et petites images de listes
+        mini:
+            quality: 80
+            format: webp
+            filters:
+                thumbnail: { size: [96, 96], mode: outbound }

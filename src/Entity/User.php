@@ -194,7 +194,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, TotpTwo
     /** @param list<string> $permissions */
     public function setPermissionsAjoutees(array $permissions): static
     {
-        $this->permissionsAjoutees = array_values($permissions);
+        $this->permissionsAjoutees = $permissions;
 
         return $this;
     }
@@ -207,7 +207,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, TotpTwo
     /** @param list<string> $permissions */
     public function setPermissionsRetirees(array $permissions): static
     {
-        $this->permissionsRetirees = array_values($permissions);
+        $this->permissionsRetirees = $permissions;
 
         return $this;
     }
@@ -241,7 +241,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, TotpTwo
 
     public function getUserIdentifier(): string
     {
-        return (string) $this->email;
+        return $this->email ?: '(sans e-mail)';
     }
 
     public function getRoles(): array
@@ -544,7 +544,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, TotpTwo
     /** @param list<string> $hashedCodes */
     public function setBackupCodes(array $hashedCodes): static
     {
-        $this->backupCodes = array_values($hashedCodes);
+        $this->backupCodes = $hashedCodes;
 
         return $this;
     }

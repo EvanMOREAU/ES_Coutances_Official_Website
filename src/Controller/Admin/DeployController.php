@@ -25,6 +25,7 @@ class DeployController extends AbstractController
 
         return $this->render('admin/deploy/index.html.twig', [
             'status'      => $deploy->status(),
+            'enabled'     => $deploy->isEnabled(),
             'running'     => $deploy->running(),
             'history'     => $result['rows'],
             'page'        => $page,

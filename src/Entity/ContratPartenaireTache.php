@@ -9,6 +9,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity]
 #[ORM\HasLifecycleCallbacks]
 #[ORM\Table(name: 'contrat_partenaire_tache')]
+#[ORM\Index(name: 'IDX_TACHE_ECHEANCE', columns: ['fait', 'echeance'])]
 class ContratPartenaireTache
 {
     /** Une tâche faite (telle qu'enregistrée en base) est définitive : plus aucun champ ne peut être modifié. */

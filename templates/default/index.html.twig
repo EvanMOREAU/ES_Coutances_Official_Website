@@ -17,7 +17,7 @@
 {% endblock %}
 
 {% block stylesheets %}
-<style>
+<style nonce="{{ csp_nonce() }}">
 /* ============================================================
    RESET & ROOT
    ============================================================ */
@@ -204,7 +204,7 @@ a.homepage-banner:hover img { transform: scale(1.02); }
       {% for slide in slides %}
         <div class="slide">
           <img
-            src="{{ asset('uploads/slides/' ~ slide.imageName) }}"
+            src="{{ ('uploads/slides/' ~ slide.imageName)|thumb('hero') }}"
             alt="{{ slide.titre }}"
             loading="eager"
           >
@@ -255,7 +255,7 @@ a.homepage-banner:hover img { transform: scale(1.02); }
         aria-selected="{{ loop.first ? 'true' : 'false' }}"
       ></button>
     {% else %}
-      <button class="dot active" data-index="0" role="tab" aria-selected="true"></button>
+      <button class="dot active" data-index="0" role="tab" aria-label="Diapositive 1" aria-selected="true"></button>
     {% endfor %}
   </div>
 
@@ -270,19 +270,19 @@ a.homepage-banner:hover img { transform: scale(1.02); }
    ============================================================ #}
 <section class="quick-links">
   <div class="container">
-    <div class="section-eyebrow center reveal" style="--d:0">FFF Normandie</div>
-    <div class="section-title center reveal" style="--d:1;margin-bottom:32px">Nos compétitions</div>
+    <div class="u-08723a1b section-eyebrow center reveal">FFF Normandie</div>
+    <div class="u-5aed37a1 section-title center reveal">Nos compétitions</div>
     <div class="quick-links-grid">
-      <a href="https://normandie.fff.fr/recherche-clubs?subtab=resultats&tab=resultats&scl=548" target="_blank" class="quick-card reveal" style="--d:2">
+      <a href="https://normandie.fff.fr/recherche-clubs?subtab=resultats&tab=resultats&scl=548" target="_blank" class="u-c9a8d5cd quick-card reveal">
         <i class="fa-solid fa-trophy"></i><h5>Résultats</h5>
       </a>
-      <a href="https://normandie.fff.fr/recherche-clubs?subtab=agenda&tab=resultats&scl=548" target="_blank" class="quick-card reveal" style="--d:3">
+      <a href="https://normandie.fff.fr/recherche-clubs?subtab=agenda&tab=resultats&scl=548" target="_blank" class="u-c3e885b2 quick-card reveal">
         <i class="fa-regular fa-calendar-days"></i><h5>Agenda</h5>
       </a>
-      <a href="https://normandie.fff.fr/recherche-clubs?subtab=ranking&tab=resultats&scl=548" target="_blank" class="quick-card reveal" style="--d:4">
+      <a href="https://normandie.fff.fr/recherche-clubs?subtab=ranking&tab=resultats&scl=548" target="_blank" class="u-d9f3d282 quick-card reveal">
         <i class="fa-solid fa-ranking-star"></i><h5>Classements</h5>
       </a>
-      <a href="https://normandie.fff.fr/recherche-clubs?subtab=calendar&tab=resultats&scl=548" target="_blank" class="quick-card reveal" style="--d:5">
+      <a href="https://normandie.fff.fr/recherche-clubs?subtab=calendar&tab=resultats&scl=548" target="_blank" class="u-cf521ccb quick-card reveal">
         <i class="fa-solid fa-calendar-check"></i><h5>Calendrier</h5>
       </a>
     </div>
@@ -296,7 +296,7 @@ a.homepage-banner:hover img { transform: scale(1.02); }
 <section class="section-sm banner-section">
   {% set banner_tag = homepage_banner.url ? 'a' : 'div' %}
   <{{ banner_tag }} class="homepage-banner reveal"{% if homepage_banner.url %} href="{{ homepage_banner.url }}" target="_blank" rel="noopener"{% endif %}>
-    <img src="/uploads/banniere/{{ homepage_banner.imageName }}" alt="{{ homepage_banner.titre|default('') }}">
+    <img src="{{ ('uploads/banniere/' ~ homepage_banner.imageName)|thumb('hero') }}" alt="{{ homepage_banner.titre|default('') }}">
     {% if homepage_banner.titre %}
       <h3 class="homepage-banner-title">{{ homepage_banner.titre }}</h3>
     {% endif %}
@@ -310,16 +310,16 @@ a.homepage-banner:hover img { transform: scale(1.02); }
 {% if rejoindre_cards is defined and rejoindre_cards|length > 0 %}
 <section class="section">
   <div class="container">
-    <div class="section-eyebrow center reveal" style="--d:0">Rejoignez-nous</div>
-    <div class="section-title center reveal" style="--d:1;margin-bottom:0">Nous rejoindre</div>
-    <div class="red-stripe center reveal" style="--d:2"></div>
+    <div class="u-08723a1b section-eyebrow center reveal">Rejoignez-nous</div>
+    <div class="u-e948f654 section-title center reveal">Nous rejoindre</div>
+    <div class="u-c9a8d5cd red-stripe center reveal"></div>
     <div class="join-grid">
 
       {% for card in rejoindre_cards %}
-        <div class="join-card reveal" style="--d:{{ loop.index0 }}">
+        <div class="join-card reveal reveal-d-{{ min(loop.index0, 11) }}">
           {% if card.imageName %}
             <img
-              src="{{ asset('uploads/rejoindre/' ~ card.imageName) }}"
+              src="{{ ('uploads/rejoindre/' ~ card.imageName)|thumb('carte') }}"
               alt="{{ card.titre }}"
               loading="lazy"
             >
@@ -338,7 +338,7 @@ a.homepage-banner:hover img { transform: scale(1.02); }
               {% set card_href = null %}
             {% endif %}
             {% if card_href and card.boutonTexte %}
-              <a href="{{ card_href }}" {% if is_external %}target="_blank" rel="noopener noreferrer"{% endif %} class="btn btn-primary" style="align-self:flex-start;margin-top:4px">{{ card.boutonTexte }}</a>
+              <a href="{{ card_href }}" {% if is_external %}target="_blank" rel="noopener noreferrer"{% endif %} class="u-1f709867 btn btn-primary">{{ card.boutonTexte }}</a>
             {% endif %}
           </div>
         </div>
@@ -355,18 +355,18 @@ a.homepage-banner:hover img { transform: scale(1.02); }
 {% if offres|length > 0 %}
 <section class="section emploi-section">
   <div class="container">
-    <div class="section-eyebrow center reveal" style="--d:0;color:rgba(255,255,255,.45)">Carrière</div>
-    <div class="section-title center light reveal" style="--d:1">Formations et Emplois</div>
-    <div class="red-stripe center reveal" style="--d:2"></div>
-    <p class="reveal" style="--d:3;text-align:center;color:rgba(255,255,255,.6);font-size:15px;margin-top:-4px">
+    <div class="u-9c5f4b7c section-eyebrow center reveal">Carrière</div>
+    <div class="u-ee58eb4c section-title center light reveal">Formations et Emplois</div>
+    <div class="u-c9a8d5cd red-stripe center reveal"></div>
+    <p class="u-6c4473a2 reveal">
       Découvrez nos formations et nos offres.
     </p>
     <div class="emploi-grid">
       {% for offre in offres %}
-        <div class="emploi-card reveal" style="--d:{{ loop.index0 }}">
+        <div class="emploi-card reveal reveal-d-{{ min(loop.index0, 11) }}">
           {% if offre.imageName %}
             <img
-              src="{{ asset('uploads/offres/' ~ offre.imageName) }}"
+              src="{{ ('uploads/offres/' ~ offre.imageName)|thumb('carte') }}"
               alt="{{ offre.titre }}"
               loading="lazy"
             >
@@ -395,9 +395,9 @@ a.homepage-banner:hover img { transform: scale(1.02); }
 {% if partenaires_carousel is defined and partenaires_carousel|length > 0 %}
 <section class="logos-section">
 
-  <div style="text-align:center;margin-bottom:28px;">
-    <div class="section-eyebrow center reveal" style="--d:0">Ils nous soutiennent</div>
-    <div class="section-title center reveal" style="--d:1">Nos partenaires <span style="color:var(--red)">&</span> sponsors</div>
+  <div class="u-d592e9c8">
+    <div class="u-08723a1b section-eyebrow center reveal">Ils nous soutiennent</div>
+    <div class="u-ee58eb4c section-title center reveal">Nos partenaires <span class="u-e0936291">&</span> sponsors</div>
   </div>
 
   <div class="logos-track-wrap">
@@ -411,7 +411,7 @@ a.homepage-banner:hover img { transform: scale(1.02); }
           {% endif %}
           {% if partenaire.logoName %}
             <img
-              src="{{ asset('uploads/partenaires/' ~ partenaire.logoName) }}"
+              src="{{ ('uploads/partenaires/' ~ partenaire.logoName)|thumb('logo') }}"
               alt="{{ partenaire.nom }}"
               loading="lazy"
             >
@@ -432,7 +432,7 @@ a.homepage-banner:hover img { transform: scale(1.02); }
           {% endif %}
           {% if partenaire.logoName %}
             <img
-              src="{{ asset('uploads/partenaires/' ~ partenaire.logoName) }}"
+              src="{{ ('uploads/partenaires/' ~ partenaire.logoName)|thumb('logo') }}"
               alt="{{ partenaire.nom }}"
               loading="lazy"
             >
@@ -455,12 +455,12 @@ a.homepage-banner:hover img { transform: scale(1.02); }
    ============================================================ #}
 <section class="section-sm reseaux-section">
   <div class="container">
-    <div class="section-eyebrow center reveal" style="--d:0;color:rgba(255,255,255,.4)">Communauté</div>
-    <div class="section-title center light reveal" style="--d:1">Sur les réseaux</div>
-    <div class="reveal" style="--d:2;text-align:center;margin-top:36px;color:rgba(255,255,255,.5);font-size:14px;margin-bottom:24px">
+    <div class="u-bb5af742 section-eyebrow center reveal">Communauté</div>
+    <div class="u-ee58eb4c section-title center light reveal">Sur les réseaux</div>
+    <div class="u-50fef44f reveal">
       Suivez-nous pour ne rien manquer de l'actualité du club.
     </div>
-    <div class="reveal" style="--d:3;text-align:center;display:flex;justify-content:center;gap:16px;flex-wrap:wrap;">
+    <div class="u-1fa2f570 reveal">
       <a href="https://www.facebook.com/ententesportivecoutancaise" target="_blank" rel="noopener" class="btn btn-outline-white">
         <i class="fa-brands fa-facebook-f"></i> Facebook
       </a>
@@ -474,54 +474,5 @@ a.homepage-banner:hover img { transform: scale(1.02); }
 {% endblock %}
 
 {% block javascripts %}
-<script nonce="{{ csp_nonce() }}">
-/* ---- Carousel hero ---- */
-(function() {
-  const track = document.getElementById('slidesTrack');
-  if (!track) return;
-  const slides = track.querySelectorAll('.slide');
-  const dots   = document.querySelectorAll('.dot');
-  let current  = 0, timer;
-
-  function goTo(n) {
-    current = (n + slides.length) % slides.length;
-    track.style.transform = `translateX(-${current * 100}%)`;
-    dots.forEach((d, i) => {
-      d.classList.toggle('active', i === current);
-      d.setAttribute('aria-selected', i === current);
-    });
-  }
-  function autoplay() { clearInterval(timer); timer = setInterval(() => goTo(current + 1), 4500); }
-
-  const prev = document.getElementById('slidePrev');
-  const next = document.getElementById('slideNext');
-  if (prev) prev.addEventListener('click', () => { goTo(current - 1); autoplay(); });
-  if (next) next.addEventListener('click', () => { goTo(current + 1); autoplay(); });
-  dots.forEach(d => d.addEventListener('click', () => { goTo(+d.dataset.index); autoplay(); }));
-
-  let startX = 0;
-  track.addEventListener('touchstart', e => { startX = e.changedTouches[0].clientX; }, { passive: true });
-  track.addEventListener('touchend', e => {
-    const dx = e.changedTouches[0].clientX - startX;
-    if (Math.abs(dx) > 40) { goTo(current + (dx < 0 ? 1 : -1)); autoplay(); }
-  }, { passive: true });
-
-  if (slides.length > 1) autoplay();
-})();
-
-/* ---- Scroll reveal ---- */
-(function() {
-  const els = document.querySelectorAll('.reveal');
-  if (!els.length) return;
-  const io = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('is-visible');
-        io.unobserve(entry.target);
-      }
-    });
-  }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
-  els.forEach(el => io.observe(el));
-})();
-</script>
+<script src="{{ asset('pages/home.js') }}" defer></script>
 {% endblock %}

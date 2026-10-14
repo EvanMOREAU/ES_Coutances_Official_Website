@@ -78,7 +78,7 @@ class RejoindreCardController extends AbstractController
     #[Route('/{id}/basculer', name: 'admin_rejoindre_card_toggle', methods: ['POST'])]
     public function toggle(Request $request, RejoindreCard $card, EntityManagerInterface $em): Response
     {
-        if ($this->isCsrfTokenValid('toggle-card-'.$card->getId(), $request->request->get('_token'))) {
+        if ($this->isCsrfTokenValid('toggle-card-'.$card->getId(), $request->request->getString('_token'))) {
             $card->setActif(!$card->isActif());
             $em->flush();
             $this->addFlash('success', $card->isActif() ? 'Carte activée : elle est de nouveau visible sur le site.' : 'Carte désactivée : elle n’est plus visible sur le site.');
@@ -90,7 +90,7 @@ class RejoindreCardController extends AbstractController
     #[Route('/{id}/supprimer', name: 'admin_rejoindre_card_delete', methods: ['POST'])]
     public function delete(Request $request, RejoindreCard $card, EntityManagerInterface $em): Response
     {
-        if ($this->isCsrfTokenValid('delete-card-'.$card->getId(), $request->request->get('_token'))) {
+        if ($this->isCsrfTokenValid('delete-card-'.$card->getId(), $request->request->getString('_token'))) {
             $em->remove($card);
             $em->flush();
             $this->addFlash('success', 'Carte supprimée.');

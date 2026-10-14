@@ -146,15 +146,15 @@ class UserController extends AbstractController
             return;
         }
 
-        $user->setPermissionsAjoutees(array_diff($submitted, $base))
-            ->setPermissionsRetirees(array_diff($base, $submitted))
+        $user->setPermissionsAjoutees(array_values(array_diff($submitted, $base)))
+            ->setPermissionsRetirees(array_values(array_diff($base, $submitted)))
             ->setAccesRestreint(true);
     }
 
     #[Route('/{id}/renvoyer-activation', name: 'admin_user_resend_activation', methods: ['POST'])]
     public function resendActivation(Request $request, User $user, AccountActivationMailer $activationMailer): Response
     {
-        if ($this->isCsrfTokenValid('resend-activation-'.$user->getId(), $request->request->get('_token'))) {
+        if ($this->isCsrfTokenValid('resend-activation-'.$user->getId(), $request->request->getString('_token'))) {
             $activationMailer->sendActivationEmail($user);
             $this->addFlash('success', sprintf('Email d\'activation renvoyé à %s.', $user->getEmail()));
         }
@@ -169,7 +169,7 @@ class UserController extends AbstractController
             throw $this->createAccessDeniedException('Seul un développeur peut supprimer un compte développeur.');
         }
 
-        if ($this->isCsrfTokenValid('delete-user-'.$user->getId(), $request->request->get('_token'))) {
+        if ($this->isCsrfTokenValid('delete-user-'.$user->getId(), $request->request->getString('_token'))) {
             $em->remove($user);
             $em->flush();
             $this->addFlash('success', 'Utilisateur supprimé.');

@@ -5,7 +5,7 @@
 {% block body %}
     <div class="flex flex-wrap items-start justify-between gap-4 mb-6">
         <div>
-            <h1 class="text-2xl font-black" style="font-family:'Barlow Condensed',sans-serif;">Mise à jour</h1>
+            <h1 class="u-66972700 text-2xl font-black">Mise à jour</h1>
             <p class="text-sm text-admin-text-muted">Mettre le site à jour depuis le dépôt GitHub, en un clic. La base de données et les fichiers sont sauvegardés avant chaque mise à jour, et restaurés automatiquement en cas d'échec.</p>
         </div>
         <div class="flex flex-wrap gap-2">
@@ -40,7 +40,7 @@
                         <button type="button" class="admin-btn admin-btn-ghost" data-deploy-target="checkButton" data-action="click->deploy#check">
                             <i class="fa-solid fa-arrows-rotate"></i> Vérifier maintenant
                         </button>
-                        <button type="button" class="admin-btn admin-btn-primary" data-deploy-target="deployButton" data-action="click->deploy#deploy" {{ status.pending is empty or status.dirty ? 'disabled' }}>
+                        <button type="button" class="admin-btn admin-btn-primary" data-deploy-target="deployButton" data-action="click->deploy#deploy" {{ status.pending is empty or status.dirty or not enabled ? 'disabled' }}{% if not enabled %} title="Désactivée sur ce serveur (DEPLOY_FROM_ADMIN=0)"{% endif %}>
                             <i class="fa-solid fa-rocket"></i> Mettre à jour
                         </button>
                     </div>

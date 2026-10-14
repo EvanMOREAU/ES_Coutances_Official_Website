@@ -10,64 +10,8 @@ import { adminConfirm } from '../modal.js';
  * « __id__ » est remplacé par l'identifiant de la séance.
  */
 
-const MONTH = new Intl.DateTimeFormat('fr-FR', { month: 'long', year: 'numeric' });
-const LONG_DATE = new Intl.DateTimeFormat('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-const DAY_MONTH = new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'short' });
-const SHORT_MONTH = new Intl.DateTimeFormat('fr-FR', { month: 'short' });
-const SHORT_WEEKDAY = new Intl.DateTimeFormat('fr-FR', { weekday: 'short' });
-const WEEKDAYS = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
-const MAX_CHIPS = 3;
-const TONES = 8;
+import { MONTH, LONG_DATE, DAY_MONTH, SHORT_MONTH, SHORT_WEEKDAY, WEEKDAYS, MAX_CHIPS, TONES, cap, pad, iso, fromIso, addDays, esc, tone, toneOf, targets, partageLabel, timeRange } from '../lib/planning_helpers.js';
 
-const cap = (text) => text.charAt(0).toUpperCase() + text.slice(1);
-const pad = (n) => String(n).padStart(2, '0');
-const iso = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
-const fromIso = (s) => {
-    const [y, m, d] = s.split('-').map(Number);
-
-    return new Date(y, m - 1, d);
-};
-const addDays = (d, n) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
-const esc = (value) => String(value ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
-const tone = (category) => (category === 'Senior' ? 6 : (parseInt(category.slice(1), 10) || 0) % TONES);
-const toneOf = (event, category = null) => {
-    if (event.type === 'rencontre') return 'match';
-    if (event.type === 'evenement') return 'event';
-
-    return tone(category ?? event.categories[0] ?? '');
-};
-/** Libellés de ce qu'une séance vise : « A vs B » pour une rencontre, le titre pour un
- *  événement interne, sinon catégories (ou équipes choisies) pour un entraînement. */
-const targets = (event) => {
-    if (event.type === 'rencontre') {
-        return [event.equipes.map((q) => q.nom).join(' vs ')];
-    }
-    if (event.type === 'evenement') {
-        return [event.titre];
-    }
-
-    return event.categories.map((c) => {
-        const teams = event.equipes.filter((q) => q.categorie === c).map((q) => q.nom);
-
-        return teams.length ? teams.join(' / ') : c;
-    });
-};
-/** Libellé du partage d'un événement interne, pour affichage dans la fiche. */
-const partageLabel = (event) => {
-    if (event.type !== 'evenement' || event.partage === 'tous') {
-        return 'Tout le monde';
-    }
-    if (event.partage === 'utilisateurs') {
-        const noms = event.partageUtilisateurs.map((u) => u.nom);
-
-        return noms.length ? noms.join(', ') : 'Tout le monde';
-    }
-    const roleLabels = { ROLE_DEV: 'Développeur', ROLE_ADMIN: 'Administrateur', ROLE_EDITOR: 'Éditeur' };
-    const parts = [...event.partageProfils.map((p) => p.nom), ...event.partageRoles.map((r) => roleLabels[r] ?? r)];
-
-    return parts.length ? parts.join(', ') : 'Tout le monde';
-};
-const timeRange = (event) => (event.fin ? `${event.debut} – ${event.fin}` : event.debut);
 
 export default class extends Controller {
     static targets = ['root'];
@@ -707,7 +651,7 @@ export default class extends Controller {
                             ${Object.entries(roleLabels).map(([role, label]) => `
                                 <label class="pl-check"><input type="checkbox" name="roles" value="${esc(role)}" ${roleValues.includes(role) ? 'checked' : ''}><span>${esc(label)}</span></label>`).join('')}
                         </div>
-                        <span class="admin-modal-label" style="margin-top:.6rem;display:block;">Profils d'autorisation</span>
+                        <span class="admin-modal-label u-modal-sublabel">Profils d'autorisation</span>
                         <div class="pl-checks">
                             ${this.profilsValue.map((p) => `
                                 <label class="pl-check"><input type="checkbox" name="profils" value="${p.id}" ${profilIds.includes(p.id) ? 'checked' : ''}><span>${esc(p.nom)}</span></label>`).join('') || '<p class="pl-muted">Aucun profil d\'autorisation défini pour le moment.</p>'}

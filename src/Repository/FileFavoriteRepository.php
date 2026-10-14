@@ -20,10 +20,10 @@ class FileFavoriteRepository extends ServiceEntityRepository
     /** @return list<string> chemins virtuels favoris de l'utilisateur */
     public function pathsFor(User $user): array
     {
-        return array_map(
+        return array_values(array_map(
             static fn (array $row) => $row['path'],
             $this->createQueryBuilder('f')->select('f.path')->where('f.user = :u')->setParameter('u', $user)->getQuery()->getArrayResult(),
-        );
+        ));
     }
 
     /** Un fichier ou dossier disparaît : ses favoris (et ceux de son contenu) aussi. */

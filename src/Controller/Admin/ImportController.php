@@ -83,6 +83,7 @@ class ImportController extends AbstractController
         }
 
         $session = $requestStack->getSession();
+        /** @var array{groups: array<int, array<string, mixed>>, summary: array<string, int>}|null $preview aperçu enregistré en session par l'étape précédente */
         $preview = $session->get(self::SESSION_KEY);
 
         if (!\is_array($preview) || empty($preview['groups'])) {
@@ -98,7 +99,7 @@ class ImportController extends AbstractController
             @set_time_limit(0);
         }
 
-        $detach  = array_map('strval', $request->request->all('detach'));
+        $detach  = array_values(array_map('strval', $request->request->all('detach')));
         $preview = $parser->applyDetachments($preview, $detach);
 
         try {

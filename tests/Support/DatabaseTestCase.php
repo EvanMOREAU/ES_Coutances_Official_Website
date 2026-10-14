@@ -49,6 +49,24 @@ abstract class DatabaseTestCase extends WebTestCase
         parent::tearDown();
     }
 
+    /** Identifiant d'une entité enregistrée (échoue clairement si elle ne l'est pas). */
+    protected static function idOf(ArticleVariante $entity): int
+    {
+        $id = $entity->getId();
+        self::assertIsInt($id);
+
+        return $id;
+    }
+
+    /** Première déclinaison d'un article (échoue clairement si l'article n'en a pas). */
+    protected function firstVariante(Article $article): ArticleVariante
+    {
+        $variante = $article->getVariantes()->first();
+        self::assertInstanceOf(ArticleVariante::class, $variante);
+
+        return $variante;
+    }
+
     /** @param list<string> $roles */
     protected function createUser(array $roles = [], ?string $email = null, string $password = self::PASSWORD): User
     {

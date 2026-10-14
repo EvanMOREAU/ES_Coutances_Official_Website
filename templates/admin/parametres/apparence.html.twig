@@ -25,7 +25,7 @@
             {% for child in form.colorScheme %}
                 <label class="choice-card p-3">
                     {{ form_widget(child, {attr: {class: 'sr-only', 'data-action': 'change->appearance#apply'}}) }}
-                    <span class="block h-5 w-5 rounded-full mx-auto mb-2" style="background-color: {{ scheme_colors[child.vars.value] }};"></span>
+                    <span class="block h-5 w-5 rounded-full mx-auto mb-2 scheme-{{ child.vars.value }}"></span>
                     <span class="text-xs">{{ child.vars.label }}</span>
                 </label>
             {% endfor %}

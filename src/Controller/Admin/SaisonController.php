@@ -68,7 +68,7 @@ class SaisonController extends AbstractController
     #[Route('/{id}/supprimer', name: 'admin_saison_delete', methods: ['POST'])]
     public function delete(Request $request, Saison $saison, EntityManagerInterface $em): Response
     {
-        if ($this->isCsrfTokenValid('delete-saison-'.$saison->getId(), $request->request->get('_token'))) {
+        if ($this->isCsrfTokenValid('delete-saison-'.$saison->getId(), $request->request->getString('_token'))) {
             if ($em->getRepository(Licencie::class)->count(['saison' => $saison]) > 0) {
                 $this->addFlash('error', 'Cette saison est utilisée par des licenciés : elle ne peut pas être supprimée (archivez-la à la place).');
 

@@ -7,7 +7,7 @@
 
     <div class="flex flex-wrap items-center justify-between gap-3 mt-3 mb-6">
         <div class="flex flex-wrap items-center gap-3">
-            <h1 class="text-2xl font-black" style="font-family:'Barlow Condensed',sans-serif;">{{ article.nom }}</h1>
+            <h1 class="u-66972700 text-2xl font-black">{{ article.nom }}</h1>
             <span class="badge badge-{{ article.statut }}">{{ article.statutLabel }}</span>
             {% if article.stockTotal == 0 %}<span class="badge badge-cmd-annulee">Épuisé</span>{% endif %}
         </div>
@@ -41,7 +41,7 @@
             </div>
             <div class="mt-6">
                 <h2 class="font-semibold mb-2">Description</h2>
-                <p class="text-sm text-admin-text-muted" style="white-space:pre-line">{{ article.description ?: 'Aucune description.' }}</p>
+                <p class="u-11305aad text-sm text-admin-text-muted">{{ article.description ?: 'Aucune description.' }}</p>
             </div>
         </section>
 

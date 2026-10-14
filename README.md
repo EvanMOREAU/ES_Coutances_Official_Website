@@ -20,9 +20,10 @@ Développé par **Evan MOREAU**. Licence propriétaire (voir [LICENSE](LICENSE))
 | AssetMapper + Stimulus + Turbo | Pas de bundler Node ; polices, icônes et Trix hébergés dans `assets/` |
 | TailwindCSS (symfonycasts/tailwind-bundle) | Styles du back-office |
 | scheb/2fa + WebAuthn | Double authentification (appli TOTP, code par e-mail, codes de secours) et clés d'accès |
-| VichUploader + LiipImagine | Envois d'images |
+| VichUploader + LiipImagine | Envois d'images ; miniatures WebP à la demande (filtre Twig `|thumb`) |
 | PhpSpreadsheet, endroid/qr-code | Imports/exports Excel, QR codes |
-| PHPUnit 13, PHPStan 2, PHP-CS-Fixer | Qualité (voir plus bas) |
+| PHPUnit 13, PHPStan 2 (niveau 7), PHP-CS-Fixer, Playwright | Qualité : tests unitaires et fonctionnels, tests de bout en bout dans un navigateur (voir plus bas) |
+| Sentry (facultatif) | Suivi des erreurs en production, activé par `SENTRY_DSN` |
 
 ## Installation (développement)
 
@@ -48,13 +49,25 @@ composer test:setup   # (re)crée la base de test, à refaire après chaque nouv
 composer hooks:install  # active le contrôle avant commit (.githooks/pre-commit)
 ```
 
-L'intégration continue (`.github/workflows/ci.yml`) rejoue le tout à chaque *push* et chaque *pull request*, plus `composer audit` (failles connues des dépendances). Dependabot propose chaque semaine les mises à jour.
+L'intégration continue (`.github/workflows/ci.yml`) rejoue le tout à chaque *push* et chaque *pull request* : style, lint, PHPStan, tests (PHP 8.4 et 8.5, avec couverture), build de production (`--no-dev`, cache, assets), tests de bout en bout dans un navigateur, plus `composer audit` (failles connues des dépendances) et la liste des mises à jour majeures. Dependabot propose chaque semaine les mises à jour.
+
+```bash
+cd e2e && npm install && E2E_CHANNEL=msedge npx playwright test   # parcours de bout en bout (E2E_CHANNEL=chrome|msedge évite de télécharger Chromium)
+```
+
+Les tests E2E (`e2e/`) utilisent leur propre base (`*_teste2e`, créée et migrée automatiquement) : ils parcourent le site public, la commande boutique de bout en bout, la connexion à l'administration, et échouent à la moindre erreur JavaScript ou violation de Content-Security-Policy.
+
+**Couverture** : le plancher est dans `deploy/coverage-floor.txt` (la CI échoue en dessous) ; le résumé du job propose la nouvelle valeur quand la couverture progresse.
+
+**Tests en parallèle** : une même base ne supporte pas deux suites PHPUnit simultanées (transaction de test, compteurs de limitation). Pour en lancer plusieurs, donner à chacune sa base avec `TEST_TOKEN` (ex. `TEST_TOKEN=a composer test:setup` puis `TEST_TOKEN=a vendor/bin/phpunit`).
 
 Règles à connaître :
 
 - toute **nouvelle route `/admin`** doit être déclarée dans `PermissionCatalog` et `RoutePermissions`, sinon `AccessControlTest` échoue ;
 - tout **nouveau formulaire de création** est couvert par `EmptyFormsTest` (mettre `Assert\NotBlank` sur les colonnes `NOT NULL`) ;
-- le moindre `<script>` en ligne doit porter `nonce="{{ csp_nonce() }}"` (voir *Sécurité*), pas de gestionnaire `onclick=""` ; une feuille de style CSS se déclare dans `templates/_importmap.html.twig`, pas via `import './x.css'` en JavaScript.
+- aucun attribut `style=""` ni `<script>` en ligne (la CSP les interdit, `StrictCspTest` le vérifie) : les styles vont dans une classe CSS (`assets/styles/`), les scripts dans un fichier (`assets/pages/` pour les pages publiques, `assets/controllers/` pour Stimulus). Un `<style>` de page doit porter `nonce="{{ csp_nonce() }}"`. Une feuille de style CSS se déclare dans `templates/_importmap.html.twig`, pas via `import './x.css'` en JavaScript ;
+- une taille ou une largeur dynamique se fait avec les classes utilitaires de `assets/styles/inline-utilities.css` (`pct-NN`, `reveal-d-N`…) ;
+- une image envoyée par un utilisateur s'affiche avec `{{ ('uploads/dossier/'~nom)|thumb('carte') }}` (filtres dans `config/packages/liip_imagine.yaml`).
 
 ## Rôles et droits
 
@@ -82,6 +95,9 @@ Les comptes **développeur et administrateur doivent activer une double authenti
 | `ENFORCE_PRIVILEGED_2FA` | `0` pour suspendre la double authentification obligatoire des comptes privilégiés |
 | `LEGAL_PUBLICATION_DIRECTOR`, `LEGAL_ASSOCIATION_ID`, `LEGAL_HOST` | Mentions légales obligatoires : `app:securite:verifier` échoue si elles sont vides |
 | `LEGAL_CONSUMER_MEDIATOR`, `LEGAL_DPO_CONTACT`, `LEGAL_VAT_MENTION` | Médiateur de la consommation (obligatoire pour vendre à des consommateurs), contact RGPD, mention de TVA des factures |
+| `MAILER_ASYNC` | `1` : les e-mails sont mis en file d'attente et envoyés par un *worker* (cron `messenger:consume`, voir `deploy/crontab.example`) ; `0` (défaut) : envoi direct |
+| `SENTRY_DSN` | Suivi des erreurs en production (Sentry ou GlitchTip) ; vide = désactivé. Aucune donnée personnelle n'est transmise |
+| `DEPLOY_FROM_ADMIN` | `0` désactive le bouton *Mise à jour* de l'administration (déploiement par un pipeline externe : plus de code exécuté depuis le site) |
 
 HelloAsso (paiement en ligne) se configure dans l'admin (`Configuration > HelloAsso`) ; renseigner l'URL de notification `…/boutique/helloasso/notification` côté HelloAsso.
 
@@ -92,9 +108,10 @@ HelloAsso (paiement en ligne) se configure dans l'admin (`Configuration > HelloA
 ## Sécurité
 
 - connexion limitée à 5 essais / 15 min (par compte et par IP) ; formulaires publics limités par IP (`framework.rate_limiter`, `PublicFormThrottleListener`) ; pot de miel sur le formulaire de contact ;
-- **Content-Security-Policy** stricte (`SecurityHeadersListener`) : scripts limités au site et à ceux portant le *nonce* de la requête, aucune ressource externe (polices, icônes et éditeur Trix sont locaux) ; autres en-têtes : HSTS, `X-Frame-Options`, `Referrer-Policy`, `Permissions-Policy`, `nosniff` ;
+- **Content-Security-Policy** stricte (`SecurityHeadersListener`) : scripts et feuilles de style limités au site et à ceux portant le *nonce* de la requête, **aucun style ni gestionnaire en ligne** (`style-src-attr 'none'`), aucune ressource externe (polices, icônes et éditeur Trix sont locaux) ; autres en-têtes : HSTS, `X-Frame-Options`, `Referrer-Policy`, `Permissions-Policy`, `nosniff`. Navigation Turbo : le navigateur renvoie le nonce courant (en-tête `X-Csp-Nonce`, `assets/csp_nonce.js`) pour que les pages suivantes, comme les styles créés par Turbo et Trix, restent autorisés (`App\Security\CspNonce`) ;
+- documents confidentiels (contrats des partenaires) stockés hors du dossier public, dans `var/private/`, servis après contrôle des droits ;
 - double authentification, clés d'accès, codes de secours ; mots de passe hachés (`auto`) ;
-- journal d'activité (`/admin/journal`), conservé 12 mois (`app:audit:purger`) ;
+- journal d'activité (`/admin/journal`), conservé 12 mois (`app:audit:purger`) ; les exports (journal, comptabilité) y sont eux-mêmes consignés ;
 - mise à jour : un e-mail récapitulatif part vers tous les comptes développeur à chaque mise à jour, réussie ou non ;
 - RGPD : export des données et suppression/anonymisation du compte depuis l'espace connecté.
 
@@ -112,6 +129,7 @@ Fichiers de référence : [`deploy/nginx.conf.example`](deploy/nginx.conf.exampl
 
 ```
 src/
+  Message/ MessageHandler/  e-mails mis en file d'attente (MAILER_ASYNC)
   Audit/          journal d'activité (écouteurs Doctrine, requêtes, sécurité)
   Command/        commandes console (utilisateurs, pages, saison, purges, déploiement)
   Controller/     public, portail (/mon-compte), Admin/, Security/
@@ -122,9 +140,12 @@ src/
   Service/        planning, boutique, import FootClub, déploiement, messagerie, HelloAsso, RGPD…
   Twig/           extensions (dont csp_nonce)
 templates/        gabarits (admin/, boutique/, club/, portail/, legal/, email/, bundles/TwigBundle/Exception/)
-assets/           JavaScript (Stimulus), CSS, polices et bibliothèques hébergées (vendor/)
+assets/           JavaScript (Stimulus : controllers/ ; scripts de pages publiques : pages/ ; fonctions pures : lib/), CSS, polices et bibliothèques hébergées (vendor/)
+e2e/              tests de bout en bout (Playwright)
+Dockerfile, compose.prod.example.yaml, deploy/docker/   image de production (PHP-FPM + nginx + worker)
 migrations/       migrations Doctrine
 tests/            Unit/ et Functional/ (base de test dédiée)
+public/           manifest.webmanifest, sw.js, offline.html : application installable (aucune page ni donnée privée n'est mise en cache)
 deploy/ docs/     serveur web, sauvegardes, planification, procédures
 changelog/        notes de version affichées dans l'admin (releases.yaml)
 ```

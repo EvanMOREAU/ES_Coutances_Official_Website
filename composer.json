@@ -19,6 +19,7 @@
         "scheb/2fa-bundle": "^8.6",
         "scheb/2fa-email": "^8.6",
         "scheb/2fa-totp": "^8.6",
+        "sentry/sentry-symfony": "^5.14",
         "stof/doctrine-extensions-bundle": "^1.15",
         "symfony/asset": "8.1.*",
         "symfony/asset-mapper": "8.1.*",

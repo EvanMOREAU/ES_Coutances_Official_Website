@@ -107,7 +107,14 @@ class Panier
         }
 
         // Variantes supprimées depuis : on les oublie.
-        $items = array_intersect_key($items, array_flip(array_map(static fn (array $l) => $l['variante']->getId(), $lignes)));
+        $presentes = array_flip(array_map(static fn (array $l) => $l['variante']->getId(), $lignes));
+        $conservees = [];
+        foreach ($items as $id => $quantite) {
+            if (isset($presentes[$id])) {
+                $conservees[(int) $id] = $quantite;
+            }
+        }
+        $items = $conservees;
         if ($items !== $this->raw()) {
             $this->save($items);
         }

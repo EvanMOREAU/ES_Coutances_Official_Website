@@ -7,6 +7,10 @@
     <meta name="csp-nonce" content="{{ csp_nonce() }}">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" type="image/png" href="{{ asset('images/favicon.png') }}">
+    <link rel="stylesheet" href="{{ asset('styles/inline-utilities.css') }}">
+    <link rel="manifest" href="/manifest.webmanifest">
+    <meta name="theme-color" content="#C8102E">
+    <script src="{{ asset('pages/sw-register.js') }}" defer></script>
     <title>{% block title %}Mon compte{% endblock %} — ES Coutances</title>
     {% block head_assets %}{% endblock %}
     <link rel="stylesheet" href="{{ asset('fonts/fonts.css') }}">
@@ -35,7 +39,7 @@
             </nav>
             <div class="mc-user">
                 <a class="mc-user-link" href="{{ path('portail_parametres_profil') }}" title="Paramètres du compte">
-                    <span class="mc-avatar" aria-hidden="true">{% if app.user.avatarName %}<img src="{{ asset('uploads/avatars/' ~ app.user.avatarName) }}" alt="">{% else %}{{ app.user.initiale }}{% endif %}</span>
+                    <span class="mc-avatar" aria-hidden="true">{% if app.user.avatarName %}<img src="{{ ('uploads/avatars/' ~ app.user.avatarName)|thumb('mini') }}" alt="">{% else %}{{ app.user.initiale }}{% endif %}</span>
                     <span class="mc-user-name">{{ app.user.nomComplet ?: app.user.email }}</span>
                 </a>
                 <a class="mc-logout" href="{{ path('portail_logout') }}" title="Se déconnecter" aria-label="Se déconnecter"><i class="fa-solid fa-right-from-bracket"></i></a>

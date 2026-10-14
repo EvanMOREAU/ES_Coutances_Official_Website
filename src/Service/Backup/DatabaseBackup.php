@@ -185,14 +185,14 @@ class DatabaseBackup
 
         foreach ($tables as $table) {
             $quoted = $this->connection->quoteSingleIdentifier($table);
-            $create = (string) $this->connection->fetchNumeric('SHOW CREATE TABLE '.$quoted)[1];
+            $create = (string) ($this->connection->fetchNumeric('SHOW CREATE TABLE '.$quoted)[1] ?? '');
             $write('DROP TABLE IF EXISTS '.$quoted.';');
             $write($this->oneLine($create).';');
             $this->dumpRows($table, $quoted, $write);
         }
         foreach ($views as $view) {
             $quoted = $this->connection->quoteSingleIdentifier($view);
-            $create = (string) $this->connection->fetchNumeric('SHOW CREATE VIEW '.$quoted)[1];
+            $create = (string) ($this->connection->fetchNumeric('SHOW CREATE VIEW '.$quoted)[1] ?? '');
             $write('DROP VIEW IF EXISTS '.$quoted.';');
             $write($this->oneLine((string) preg_replace('/DEFINER=`[^`]*`@`[^`]*`\s*/', '', $create)).';');
         }

@@ -64,6 +64,20 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
             ->addOrderBy('u.prenom', SortDirection::Ascending);
     }
 
+    /**
+     * Comptes de l'équipe du club (encadrant, administrateur, développeur) : évite de charger tous les comptes
+     * (familles, licenciés, clients) pour ne garder ensuite que ceux-ci.
+     *
+     * @return list<User>
+     */
+    public function findStaff(): array
+    {
+        return $this->createQueryBuilder('u')
+            ->andWhere("u.roles LIKE '%ROLE_EDITOR%' OR u.roles LIKE '%ROLE_ADMIN%' OR u.roles LIKE '%ROLE_DEV%'")
+            ->getQuery()
+            ->getResult();
+    }
+
     /** @return list<User> */
     public function findAllOrderedByRole(): array
     {

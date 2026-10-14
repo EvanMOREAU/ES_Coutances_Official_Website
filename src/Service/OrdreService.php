@@ -27,13 +27,16 @@ class OrdreService
             ->getQuery()
             ->getSingleScalarResult();
 
-        return ($result ?? 0) + 1;
+        return (int) ($result ?? 0) + 1;
     }
 
     /** @param class-string $entityClass */
     public function ensureUniqueOrdre(string $entityClass, object $entity): void
     {
         $repo = $this->em->getRepository($entityClass);
+        if (!method_exists($entity, 'getOrdre')) {
+            return;
+        }
         $ordre = $entity->getOrdre();
         $id = method_exists($entity, 'getId') ? $entity->getId() : null;
 

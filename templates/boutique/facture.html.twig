@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
 <title>Facture {{ commande.numeroFacture }} — ES Coutances</title>
-<style>
+<style nonce="{{ csp_nonce() }}">
 body { font: 14px/1.5 Arial, Helvetica, sans-serif; color: #111; margin: 0; background: #f3f3f3; }
 .sheet { max-width: 800px; margin: 24px auto; background: #fff; padding: 48px; box-shadow: 0 2px 12px rgba(0,0,0,.1); }
 h1 { font-size: 26px; margin: 0 0 4px; }
@@ -68,8 +68,6 @@ tfoot td { border-bottom: 0; font-weight: 700; }
     Facture acquittée. Aucun escompte pour paiement anticipé. Document à conserver : le Club en garde un exemplaire pendant 10 ans.
   </p>
 </div>
-<script nonce="{{ csp_nonce() }}">
-document.getElementById('print-invoice').addEventListener('click', function () { window.print(); });
-</script>
+<script src="{{ asset('pages/print-invoice.js') }}" defer></script>
 </body>
 </html>

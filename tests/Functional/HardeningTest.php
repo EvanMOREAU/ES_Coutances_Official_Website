@@ -43,7 +43,10 @@ final class HardeningTest extends DatabaseTestCase
         $this->client->request('GET', '/health');
 
         self::assertResponseIsSuccessful();
-        self::assertSame('{"status":"ok"}', $this->client->getResponse()->getContent());
+        $body = json_decode((string) $this->client->getResponse()->getContent(), true, 512, JSON_THROW_ON_ERROR);
+        self::assertContains($body['status'], ['ok', 'degraded'], 'Sans sauvegarde récente, le site reste en ligne mais signale l\'état dégradé.');
+        self::assertSame(['database' => 'ok', 'storage' => 'ok', 'disk' => 'ok'], array_intersect_key($body['checks'], array_flip(['database', 'storage', 'disk'])));
+        self::assertArrayHasKey('backup', $body['checks']);
         self::assertStringContainsString('no-store', (string) $this->client->getResponse()->headers->get('Cache-Control'));
     }
 
@@ -89,8 +92,9 @@ final class HardeningTest extends DatabaseTestCase
         self::assertStringContainsString("frame-ancestors 'self'", $csp);
         self::assertStringNotContainsString('unsafe-eval', $csp);
 
-        preg_match("/'nonce-([\w-]+)'/", $csp, $header);
-        $this->assertNotEmpty($header);
+        if (1 !== preg_match("/'nonce-([\w-]+)'/", $csp, $header)) {
+            self::fail('La Content-Security-Policy doit contenir le nonce de la requête.');
+        }
         $inline = $crawler->filter('script:not([src]):not([type="application/ld+json"])');
         self::assertGreaterThan(0, $inline->count());
         foreach ($inline->each(static fn (Crawler $script) => $script->attr('nonce')) as $nonce) {

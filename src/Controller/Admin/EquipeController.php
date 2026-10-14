@@ -59,7 +59,7 @@ class EquipeController extends AbstractController
     #[Route('/{id}/supprimer', name: 'admin_equipe_delete', methods: ['POST'])]
     public function delete(Request $request, Equipe $equipe, EntityManagerInterface $em): Response
     {
-        if ($this->isCsrfTokenValid('delete-equipe-'.$equipe->getId(), $request->request->get('_token'))) {
+        if ($this->isCsrfTokenValid('delete-equipe-'.$equipe->getId(), $request->request->getString('_token'))) {
             $em->remove($equipe);
             $em->flush();
             $this->addFlash('success', 'Équipe supprimée.');

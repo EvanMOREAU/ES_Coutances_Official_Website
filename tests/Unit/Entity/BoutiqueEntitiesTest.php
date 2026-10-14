@@ -22,6 +22,14 @@ final class BoutiqueEntitiesTest extends TestCase
         return $article;
     }
 
+    private function firstVariante(Article $article): ArticleVariante
+    {
+        $variante = $article->getVariantes()->first();
+        self::assertInstanceOf(ArticleVariante::class, $variante);
+
+        return $variante;
+    }
+
     private function user(int $id): User
     {
         $user = new User();
@@ -77,8 +85,8 @@ final class BoutiqueEntitiesTest extends TestCase
     public function testOrderTotalsFollowItsLines(): void
     {
         $commande = new Commande();
-        $commande->addLigne(CommandeLigne::depuis($this->article('Maillot', 3500, 5)->getVariantes()->first(), 2));
-        $commande->addLigne(CommandeLigne::depuis($this->article('Écharpe', 1200, 5)->getVariantes()->first(), 1));
+        $commande->addLigne(CommandeLigne::depuis($this->firstVariante($this->article('Maillot', 3500, 5)), 2));
+        $commande->addLigne(CommandeLigne::depuis($this->firstVariante($this->article('Écharpe', 1200, 5)), 1));
 
         self::assertSame(8200, $commande->getSousTotalCentimes());
         self::assertSame(8200, $commande->getTotalCentimes());
@@ -88,7 +96,7 @@ final class BoutiqueEntitiesTest extends TestCase
     public function testOrderLineKeepsASnapshotOfTheArticle(): void
     {
         $article = $this->article('Maillot', 3500, 5);
-        $ligne = CommandeLigne::depuis($article->getVariantes()->first(), 2);
+        $ligne = CommandeLigne::depuis($this->firstVariante($article), 2);
 
         $article->setNom('Renommé')->setPrixCentimes(9999);
 
@@ -100,7 +108,7 @@ final class BoutiqueEntitiesTest extends TestCase
     public function testAddingTheSameLineTwiceDoesNotDuplicateIt(): void
     {
         $commande = new Commande();
-        $ligne = CommandeLigne::depuis($this->article()->getVariantes()->first(), 1);
+        $ligne = CommandeLigne::depuis($this->firstVariante($this->article()), 1);
 
         $commande->addLigne($ligne)->addLigne($ligne);
 
@@ -110,7 +118,7 @@ final class BoutiqueEntitiesTest extends TestCase
 
     public function testDiscountNeverGoesBelowZero(): void
     {
-        $commande = (new Commande())->addLigne(CommandeLigne::depuis($this->article('Maillot', 1000, 5)->getVariantes()->first(), 1));
+        $commande = (new Commande())->addLigne(CommandeLigne::depuis($this->firstVariante($this->article('Maillot', 1000, 5)), 1));
 
         $commande->appliquerReduction(null, 5000);
         self::assertSame(0, $commande->getTotalCentimes());

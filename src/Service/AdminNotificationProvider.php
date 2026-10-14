@@ -2,9 +2,11 @@
 
 namespace App\Service;
 
-use App\Entity\Famille;
+use App\Entity\ArticleVariante;
 use App\Entity\NotificationState;
 use App\Entity\User;
+use App\Repository\ArticleVarianteRepository;
+use App\Repository\BoutiqueSettingsRepository;
 use App\Repository\CommandeRepository;
 use App\Repository\EntrainementRepository;
 use App\Repository\FamilleRepository;
@@ -51,6 +53,8 @@ class AdminNotificationProvider
         private readonly PlanningService $planning,
         private readonly ChatService $chat,
         private readonly UpdateWatcher $updates,
+        private readonly ArticleVarianteRepository $varianteRepository,
+        private readonly BoutiqueSettingsRepository $boutiqueSettings,
     ) {
     }
 
@@ -201,6 +205,21 @@ class AdminNotificationProvider
             ];
         }
 
+        // Stock bas : une seule notification pour toute la boutique ; sa clé change avec les tailles concernées, elle redevient non lue.
+        if ($wants('stock') && $this->permissions->can('article.voir')) {
+            $basses = $this->varianteRepository->findStockBas($this->boutiqueSettings->getSingleton()?->getSeuilStockBas() ?? 3, 10);
+            if ([] !== $basses) {
+                $noms = array_map(static fn (ArticleVariante $v): string => sprintf('%s (%s) : %d', $v->getArticle()?->getNom(), $v->getLibelle(), $v->getStock()), $basses);
+                $notifications[] = [
+                    'key'  => 'stock:'.substr(md5(implode('|', $noms)), 0, 10),
+                    'icon' => 'fa-box-open',
+                    'text' => sprintf('%d taille%s en stock bas', count($basses), count($basses) > 1 ? 's' : ''),
+                    'meta' => implode(' · ', array_slice($noms, 0, 3)),
+                    'url'  => $this->urls->generate('admin_article_index'),
+                ];
+            }
+        }
+
         // Conseils de configuration : simples invitations à compléter le site, jamais bloquantes.
         $hubs = [
             SiteAdvisor::HUB_VITRINE    => ['vitrine', 'Site vitrine', '/admin/site-vitrine'],
@@ -232,8 +251,7 @@ class AdminNotificationProvider
         // la clé inclut le compte pour que la notification réapparaisse si elle a été masquée puis
         // que le nombre de familles concernées change à nouveau.
         if ($wants('conseils') && $this->permissions->can('famille.voir')) {
-            $sansEmailValide = array_filter($this->familleRepository->findAll(), static fn (Famille $f) => !$f->hasEmailValide());
-            $count = count($sansEmailValide);
+            $count = $this->familleRepository->countSansEmailValide();
             if ($count > 0) {
                 $notifications[] = [
                     'key'  => sprintf('email-invalide:%d', $count),

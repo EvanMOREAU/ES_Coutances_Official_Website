@@ -21,7 +21,7 @@
 <section class="page-content">
   <div class="container">
     {% if page.imageName %}
-      <img class="page-content-image" src="/uploads/pages/{{ page.imageName }}" alt="{{ page.titre }}">
+      <img class="page-content-image" src="{{ ('uploads/pages/' ~ page.imageName)|thumb('detail') }}" alt="{{ page.titre }}">
     {% endif %}
     {% if page.chapo %}
       <p class="page-content-chapo">{{ page.chapo }}</p>

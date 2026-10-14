@@ -14,7 +14,7 @@
     <a href="{{ path('admin_commande_index') }}" class="text-sm text-admin-text-muted hover:text-admin-text"><i class="fa-solid fa-arrow-left"></i> Toutes les commandes</a>
 
     <div class="flex flex-wrap items-center gap-3 mt-3 mb-6">
-        <h1 class="text-2xl font-black" style="font-family:'Barlow Condensed',sans-serif;">Commande {{ commande.reference }}</h1>
+        <h1 class="u-66972700 text-2xl font-black">Commande {{ commande.reference }}</h1>
         <span class="badge badge-cmd-{{ commande.statut }}">{{ commande.statutLabel }}</span>
         {% if commande.remboursementDu %}<span class="badge badge-attente">À rembourser</span>{% elseif commande.statut == 'annulee' and commande.rembourse %}<span class="badge badge-paye">Remboursée</span>{% endif %}
         <span class="badge badge-{{ commande.payee ? 'paye' : (commande.statut == 'annulee' ? 'archived' : 'attente') }}">{{ commande.payee ? 'Payée' : (commande.statut == 'annulee' ? 'Non payée' : 'Règlement en attente') }}</span>
@@ -91,9 +91,9 @@
                     {% endif %}
                     {% if commande.statut == 'annulee' and commande.payee %}
                         {% if commande.rembourse %}
-                            <p class="text-sm" style="color: var(--color-admin-success);"><i class="fa-solid fa-circle-check"></i> Remboursée le {{ commande.rembourseeLe|date('d/m/Y') }}{% if commande.remboursementNote %} — {{ commande.remboursementNote }}{% endif %}</p>
+                            <p class="u-2d59a411 text-sm"><i class="fa-solid fa-circle-check"></i> Remboursée le {{ commande.rembourseeLe|date('d/m/Y') }}{% if commande.remboursementNote %} — {{ commande.remboursementNote }}{% endif %}</p>
                         {% else %}
-                            <p class="text-sm font-semibold" style="color: var(--color-admin-danger);"><i class="fa-solid fa-triangle-exclamation"></i> Commande payée puis annulée : le client doit être remboursé ({{ commande.totalCentimes|money }}).</p>
+                            <p class="u-2de5f215 text-sm font-semibold"><i class="fa-solid fa-triangle-exclamation"></i> Commande payée puis annulée : le client doit être remboursé ({{ commande.totalCentimes|money }}).</p>
                             <form method="post" action="{{ path('admin_commande_action', {id: commande.id, action: 'rembourser'}) }}"
                                   data-confirm="Confirmez que le client a bien été remboursé de {{ commande.totalCentimes|money }}." data-confirm-title="Remboursement effectué ?" data-confirm-label="Oui, remboursé" data-confirm-neutral>
                                 <input type="hidden" name="_token" value="{{ csrf_token('commande-' ~ commande.id) }}">
@@ -132,7 +132,7 @@
     </div>
 
     {% if commande.user and not commande.user.staff and not commande.user.anonymized and can_url(path('admin_compte_anonymiser', {id: commande.user.id}), 'POST') %}
-        <section class="admin-card rounded-2xl p-6 mt-6" style="border-color: color-mix(in srgb, var(--color-admin-danger) 35%, transparent);">
+        <section class="u-869f86b1 admin-card rounded-2xl p-6 mt-6">
             <h2 class="font-semibold mb-1">Anonymiser le compte client</h2>
             <p class="text-sm text-admin-text-muted mb-4">À la demande du client (RGPD) : efface les données personnelles de son compte et de ses commandes. Les commandes (références, articles, montants) sont conservées pour la comptabilité, sans lien avec son identité.</p>
             <form method="post" action="{{ path('admin_compte_anonymiser', {id: commande.user.id}) }}"

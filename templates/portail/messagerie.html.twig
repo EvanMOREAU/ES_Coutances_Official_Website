@@ -4,7 +4,7 @@
 
 {% block head_assets %}
     {{ include('_importmap.html.twig', {entry: 'portail'}) }}
-    <style>
+    <style nonce="{{ csp_nonce() }}">
         .ch { height: clamp(26rem, calc(100vh - 15rem), 50rem); box-shadow: var(--mc-shadow); border-radius: var(--mc-radius); }
         .ch, .admin-modal { font-family: 'Inter', sans-serif; }
         .admin-modal h2 { font-family: 'Inter', sans-serif; text-transform: none; color: inherit; font-size: 1.05rem; letter-spacing: 0; margin: 0; }

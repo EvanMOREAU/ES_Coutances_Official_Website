@@ -39,7 +39,7 @@ final class ShopFlowTest extends DatabaseTestCase
 
     public function testCartLifecycle(): void
     {
-        $variante = $this->createArticle('Écharpe', 1500, [8])->getVariantes()->first();
+        $variante = $this->firstVariante($this->createArticle('Écharpe', 1500, [8]));
 
         $this->addToCart($variante, 2);
         self::assertResponseRedirects('/boutique/panier');
@@ -59,8 +59,8 @@ final class ShopFlowTest extends DatabaseTestCase
 
     public function testCartQuantityIsCappedByStockAndByTheMaximum(): void
     {
-        $limited = $this->createArticle('Stock limité', 1000, [2])->getVariantes()->first();
-        $plenty = $this->createArticle('Beaucoup', 1000, [500])->getVariantes()->first();
+        $limited = $this->firstVariante($this->createArticle('Stock limité', 1000, [2]));
+        $plenty = $this->firstVariante($this->createArticle('Beaucoup', 1000, [500]));
 
         $this->addToCart($limited, 5);
         $this->addToCart($plenty, 99);
@@ -73,7 +73,7 @@ final class ShopFlowTest extends DatabaseTestCase
 
     public function testCartActionsRequireAValidCsrfToken(): void
     {
-        $variante = $this->createArticle()->getVariantes()->first();
+        $variante = $this->firstVariante($this->createArticle());
 
         $this->client->request('POST', '/boutique/panier/ajouter', ['_token' => 'faux', 'variante' => $variante->getId(), 'quantite' => 1]);
         $this->client->request('GET', '/boutique/panier');
@@ -83,7 +83,7 @@ final class ShopFlowTest extends DatabaseTestCase
 
     public function testCheckoutRequiresAnAccount(): void
     {
-        $variante = $this->createArticle()->getVariantes()->first();
+        $variante = $this->firstVariante($this->createArticle());
         $this->addToCart($variante);
 
         $this->client->request('GET', '/boutique/commande');
@@ -103,7 +103,7 @@ final class ShopFlowTest extends DatabaseTestCase
 
     public function testCashOrderIsPlacedAndStockDecremented(): void
     {
-        $variante = $this->createArticle('Polo', 2500, [5])->getVariantes()->first();
+        $variante = $this->firstVariante($this->createArticle('Polo', 2500, [5]));
         $user = $this->loginAs(['ROLE_FAMILLE']);
         $this->addToCart($variante, 2);
 
@@ -135,7 +135,7 @@ final class ShopFlowTest extends DatabaseTestCase
 
     public function testOrderTrackingNeedsTheSecretToken(): void
     {
-        $variante = $this->createArticle()->getVariantes()->first();
+        $variante = $this->firstVariante($this->createArticle());
         $commande = (new Commande())->setReference('ESC-261007-TEST')->setPrenom('A')->setNom('B')->setEmail('a@test.local')->setModePaiement(Commande::PAIEMENT_ESPECES);
         $commande->addLigne(\App\Entity\CommandeLigne::depuis($variante, 1));
         $this->em->persist($commande);

@@ -27,3 +27,7 @@ PHP=/usr/bin/php8.4
 
 # Archivage des licenciés dont la saison est terminée : chaque jour.
 15 4 * * *  cd $PROJECT && $PHP bin/console app:saison:cloturer --env=prod --no-interaction >> var/log/cron.log 2>&1
+
+# E-mails en file d'attente (MAILER_ASYNC=1 dans .env.local) : un worker court qui se relance chaque minute.
+# Les envois qui échouent trois fois atterrissent dans la file « failed » (php bin/console messenger:failed:show).
+* * * * *   cd $PROJECT && $PHP bin/console messenger:consume async --time-limit=55 --limit=100 --memory-limit=128M --env=prod --no-interaction >> var/log/messenger.log 2>&1

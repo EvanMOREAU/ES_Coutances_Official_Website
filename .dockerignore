@@ -1,0 +1,15 @@
+.git
+.github
+.githooks
+.claude
+.phpunit.cache
+.env.local
+.env.*.local
+node_modules
+var
+vendor
+public/uploads/*
+public/media
+public/assets
+tests
+docs

@@ -5,7 +5,7 @@
 {% block hero_title %}Finaliser ma <span>commande</span>{% endblock %}
 
 {% block boutique_styles %}
-<style>
+<style nonce="{{ csp_nonce() }}">
 .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 @media (max-width: 560px) { .form-grid { grid-template-columns: minmax(0, 1fr); } }
 .f-group { display: flex; flex-direction: column; gap: 6px; }
@@ -46,7 +46,7 @@
 
 {% block shop_body %}
   <ol class="steps">
-    <li class="is-done"><span class="n"><i class="fa-solid fa-check" style="font-size:11px"></i></span> Panier</li>
+    <li class="is-done"><span class="n"><i class="u-8b685211 fa-solid fa-check"></i></span> Panier</li>
     <li class="is-current"><span class="n">2</span> Vos informations</li>
     <li><span class="n">3</span> Confirmation</li>
   </ol>
@@ -56,11 +56,11 @@
     <div class="shop-flash error" role="alert"><i class="fa-solid fa-triangle-exclamation"></i><span>{% for error in form.vars.errors %}{{ error.message }} {% endfor %}</span></div>
   {% endif %}
   <div class="shop-cols" data-promo-code data-promo-code-url="{{ path('boutique_code_promo_verifier') }}">
-    <div style="display:grid; gap:24px;">
+    <div class="u-5e813e87">
       <div class="box">
         <h2>Vos coordonnées</h2>
         {% if app.user is null %}
-          <p class="note" style="margin:-8px 0 16px;">Pas besoin de compte pour commander. <a href="{{ path('portail_login') }}" style="color:var(--red); text-decoration:underline;">J'ai un compte</a></p>
+          <p class="u-4e1e2e50 note">Pas besoin de compte pour commander. <a href="{{ path('portail_login') }}" class="u-0c08644b">J'ai un compte</a></p>
         {% endif %}
         <div class="form-grid">
           {% for field in [form.prenom, form.nom, form.email, form.telephone] %}
@@ -126,12 +126,12 @@
       {% endfor %}
       <div class="sum-row total"><span>Total</span><span class="price">{{ total|money }}</span></div>
       <div class="pickup"><i class="fa-solid fa-store"></i><span><strong>Retrait au club</strong> — pas de livraison. Nous vous prévenons par e-mail dès que votre commande est prête.</span></div>
-      <div class="f-group" style="margin-top:16px;">
+      <div class="u-b0043ef4 f-group">
         <label class="cgv-check">{{ form_widget(form.cgv) }}<span>J'ai lu et j'accepte les <a href="{{ path('app_legal_cgv') }}" target="_blank" rel="noopener" >conditions de vente</a> (dont le droit de rétractation) et la <a href="{{ path('app_legal_confidentialite') }}" target="_blank" rel="noopener">politique de confidentialité</a>.</span></label>
         {{ form_errors(form.cgv) }}
       </div>
-      <button type="submit" class="btn btn-primary btn-block" style="margin-top:18px;"><i class="fa-solid fa-lock"></i> Commander avec obligation de paiement</button>
-      <p style="margin-top:12px; text-align:center;"><a href="{{ path('boutique_panier') }}" class="note"><i class="fa-solid fa-arrow-left"></i> Modifier mon panier</a></p>
+      <button type="submit" class="u-4a909ea7 btn btn-primary btn-block"><i class="fa-solid fa-lock"></i> Commander avec obligation de paiement</button>
+      <p class="u-7eb530c1"><a href="{{ path('boutique_panier') }}" class="note"><i class="fa-solid fa-arrow-left"></i> Modifier mon panier</a></p>
     </aside>
   </div>
   {{ form_end(form) }}

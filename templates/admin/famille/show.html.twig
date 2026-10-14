@@ -6,7 +6,7 @@
     <p class="mb-4"><a href="{{ path('admin_famille_index') }}" class="text-sm text-admin-text-muted hover:text-white">&larr; Retour aux familles</a></p>
 
     <div class="flex items-center justify-between mb-6">
-        <h1 class="text-2xl font-black" style="font-family:'Barlow Condensed',sans-serif;">{{ famille.nomAffiche }}</h1>
+        <h1 class="u-66972700 text-2xl font-black">{{ famille.nomAffiche }}</h1>
         <a href="{{ path('admin_famille_edit', {id: famille.id}) }}" class="rounded-lg admin-gradient px-4 py-2 text-sm font-semibold text-white">Modifier</a>
     </div>
 
@@ -38,7 +38,7 @@
     </div>
 
     {% if famille.user and not famille.user.staff and not famille.user.anonymized and can_url(path('admin_compte_anonymiser', {id: famille.user.id}), 'POST') %}
-        <section class="admin-card rounded-2xl p-6 mt-6" style="border-color: color-mix(in srgb, var(--color-admin-danger) 35%, transparent);">
+        <section class="u-869f86b1 admin-card rounded-2xl p-6 mt-6">
             <h2 class="font-bold mb-1">Anonymiser le compte</h2>
             <p class="text-sm text-admin-text-muted mb-4">Efface les données personnelles de {{ famille.user.nomComplet ?: famille.user.email }} (compte, famille, licenciés, messages, documents) à sa demande (RGPD). Les factures — licences, règlements, commandes — sont conservées, sans lien avec une identité.</p>
             <form method="post" action="{{ path('admin_compte_anonymiser', {id: famille.user.id}) }}"

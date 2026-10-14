@@ -17,6 +17,30 @@ class LicencieRepository extends ServiceEntityRepository
         parent::__construct($registry, Licencie::class);
     }
 
+    /**
+     * Licenciés de la liste d'administration, avec famille, compte, saison et équipes chargés d'un coup
+     * (sans cela chaque ligne déclencherait plusieurs requêtes supplémentaires).
+     *
+     * @return list<Licencie>
+     */
+    public function findForList(?Saison $saison = null): array
+    {
+        $qb = $this->createQueryBuilder('l')
+            ->addSelect('f', 'fu', 'u', 's', 'e')
+            ->leftJoin('l.famille', 'f')
+            ->leftJoin('f.user', 'fu')
+            ->leftJoin('l.user', 'u')
+            ->leftJoin('l.saison', 's')
+            ->leftJoin('l.equipes', 'e')
+            ->orderBy('l.nom', 'ASC')
+            ->addOrderBy('l.prenom', 'ASC');
+        if (null !== $saison) {
+            $qb->andWhere('l.saison = :saison')->setParameter('saison', $saison);
+        }
+
+        return $qb->getQuery()->getResult();
+    }
+
     public function countActifsBySaison(Saison $saison): int
     {
         return (int) $this->createQueryBuilder('l')

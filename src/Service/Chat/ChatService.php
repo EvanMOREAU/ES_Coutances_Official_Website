@@ -56,6 +56,7 @@ class ChatService
         private readonly FileStorage $storage,
         private readonly UserDocumentSpace $space,
         private readonly ChatNotifier $notifier,
+        private readonly ChatDocuments $documents,
     ) {
     }
 
@@ -307,7 +308,7 @@ class ChatService
             'staff'      => $author !== null && $author->isStaff(),
             'authorName' => $this->authorLabel($message, $author, $me),
             'read'       => $mine && $message->getId() <= $readUpTo,
-            'attachment' => $this->serializeAttachment($this->attachmentOf($message)),
+            'attachment' => $this->documents->serialize($this->attachmentOf($message)),
         ];
     }
 
@@ -321,26 +322,29 @@ class ChatService
         return $author?->getNomComplet() ?: 'Compte supprimé';
     }
 
-    /** @return array<string, mixed>|null */
-    private function serializeAttachment(?ChatAttachment $attachment): ?array
-    {
-        if ($attachment === null) {
-            return null;
-        }
-        $ext = strtolower(pathinfo($attachment->getName(), \PATHINFO_EXTENSION));
+    // -- Documents joints ------------------------------------------------------
 
-        return [
-            'id'        => $attachment->getId(),
-            'name'      => $attachment->getName(),
-            'size'      => $attachment->getSize(),
-            'kind'      => $this->storage->kindOf($ext),
-            'expiresAt' => $attachment->getExpiresAt()->format(\DATE_ATOM),
-            'purgedAt'  => $attachment->getPurgedAt()?->format(\DATE_ATOM),
-            'available' => $this->fileOf($attachment) !== null,
-        ];
+    /** Chemin réel du fichier si le document est encore disponible (non périmé, toujours présent), sinon null. */
+    public function fileOf(ChatAttachment $attachment): ?string
+    {
+        return $this->documents->fileOf($attachment);
     }
 
-    // -- Documents joints ------------------------------------------------------
+    /**
+     * Documents de l'espace personnel que l'utilisateur peut partager (hors fichiers temporaires de la messagerie).
+     *
+     * @return list<array{name: string, path: string, size: int, mtime: int}>
+     */
+    public function shareableDocuments(User $me): array
+    {
+        return $this->documents->shareableDocuments($me);
+    }
+
+    /** Supprime du disque les documents temporaires arrivés à échéance (voir ChatDocuments::purgeExpired). */
+    public function purgeExpired(): int
+    {
+        return $this->documents->purgeExpired();
+    }
 
     /** @param list<Message> $messages */
     private function preloadAttachments(array $messages): void
@@ -364,21 +368,6 @@ class ChatService
         }
 
         return $this->attachments[(int) $message->getId()] ?? null;
-    }
-
-    /** Chemin réel du fichier si le document est encore disponible (non périmé, toujours présent), sinon null. */
-    public function fileOf(ChatAttachment $attachment): ?string
-    {
-        if ($attachment->isExpired()) {
-            return null;
-        }
-        try {
-            $resolved = $this->storage->resolve($attachment->getPath());
-        } catch (FileManagerException) {
-            return null;
-        }
-
-        return $resolved->exists && $resolved->real !== null && is_file($resolved->real) ? $resolved->real : null;
     }
 
     /** Envoie un fichier de l'appareil : il rejoint l'espace de l'expéditeur et sera supprimé à l'échéance. */
@@ -467,54 +456,6 @@ class ChatService
         if ($this->participation($conversation, $author) === null) {
             throw new ChatException('Vous ne faites pas partie de cette discussion.');
         }
-    }
-
-    /**
-     * Documents de l'espace personnel que l'utilisateur peut partager (hors fichiers temporaires de la messagerie).
-     *
-     * @return list<array{name: string, path: string, size: int, mtime: int}>
-     */
-    public function shareableDocuments(User $me): array
-    {
-        $root  = $this->space->ensure($me);
-        $files = [];
-        foreach ($this->storage->filesUnder($root) as $entry) {
-            if (str_starts_with($entry['path'], $this->space->tempPath($me).'/')) {
-                continue;
-            }
-            $files[] = ['name' => $entry['name'], 'path' => $entry['path'], 'size' => (int) $entry['size'], 'mtime' => (int) $entry['mtime']];
-        }
-        usort($files, static fn (array $a, array $b) => $b['mtime'] <=> $a['mtime']);
-
-        return array_slice($files, 0, 200);
-    }
-
-    /**
-     * Supprime du disque les documents temporaires arrivés à échéance et ferme l'accès aux documents partagés.
-     * Les lignes sont conservées : l'historique garde la trace de l'échange.
-     */
-    public function purgeExpired(): int
-    {
-        $count = 0;
-        foreach ($this->attachmentRepository->expired() as $attachment) {
-            if ($attachment->isTemporary()) {
-                try {
-                    $resolved = $this->storage->resolve($attachment->getPath());
-                    if ($resolved->exists && $resolved->real !== null && is_file($resolved->real)) {
-                        @unlink($resolved->real);
-                    }
-                } catch (FileManagerException) {
-                    // déjà supprimé à la main : rien à faire
-                }
-            }
-            $attachment->markPurged();
-            ++$count;
-        }
-        if ($count > 0) {
-            $this->em->flush();
-        }
-
-        return $count;
     }
 
     // -- Écriture --------------------------------------------------------------

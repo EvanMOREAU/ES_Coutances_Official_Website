@@ -45,3 +45,13 @@ DirectoryIndex index.php
     ExpiresByType image/jpeg "access plus 1 month"
     ExpiresByType image/webp "access plus 1 month"
 </IfModule>
+
+# Application installable : type du manifeste, et service worker jamais mis en cache durablement.
+<IfModule mod_mime.c>
+    AddType application/manifest+json .webmanifest
+</IfModule>
+<IfModule mod_headers.c>
+    <Files "sw.js">
+        Header set Cache-Control "no-cache"
+    </Files>
+</IfModule>

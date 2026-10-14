@@ -8,6 +8,7 @@ use App\Entity\User;
 use App\Form\LicencieType;
 use App\Repository\AdhesionRepository;
 use App\Repository\LicencieRepository;
+use App\Repository\SaisonRepository;
 use App\Repository\UserRepository;
 use App\Service\AccountActivationMailer;
 use Doctrine\ORM\EntityManagerInterface;
@@ -32,10 +33,16 @@ class LicencieController extends AbstractController
     }
 
     #[Route('', name: 'admin_licencie_index', methods: ['GET'])]
-    public function index(LicencieRepository $repository): Response
+    public function index(Request $request, LicencieRepository $repository, SaisonRepository $saisons): Response
     {
+        // Par défaut, seule la saison en cours est listée ; « Toutes les saisons » (?saison=toutes) ou une saison précise au choix.
+        $choice  = (string) $request->query->get('saison', '');
+        $current = 'toutes' === $choice ? null : ('' !== $choice ? $saisons->find((int) $choice) : $saisons->findActive());
+
         return $this->render('admin/licencie/index.html.twig', [
-            'licencies' => $repository->findBy([], ['nom' => 'ASC']),
+            'licencies'  => $repository->findForList($current),
+            'saison'     => $current,
+            'saisons'    => $saisons->findBy([], ['dateDebut' => 'DESC']),
         ]);
     }
 

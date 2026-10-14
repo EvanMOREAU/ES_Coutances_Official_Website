@@ -6,11 +6,12 @@
     <meta name="csp-nonce" content="{{ csp_nonce() }}">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" type="image/png" href="{{ asset('images/favicon.png') }}">
+    <link rel="stylesheet" href="{{ asset('styles/inline-utilities.css') }}">
     <title>Connexion — ES Coutances Admin</title>
     <link rel="stylesheet" href="{{ asset('fonts/fonts.css') }}">
     <link rel="stylesheet" href="{{ asset('vendor/fontawesome/all.min.css') }}">
     <link rel="stylesheet" href="{{ asset('styles/admin.css') }}">
-    <style>body { font-family: 'Inter', sans-serif; }</style>
+    <style nonce="{{ csp_nonce() }}">body { font-family: 'Inter', sans-serif; }</style>
     {{ include('_importmap.html.twig', {entry: 'admin'}) }}
 </head>
 <body class="admin-shell h-full bg-admin-bg text-admin-text flex items-center justify-center p-4">
@@ -19,7 +20,7 @@
             <div class="admin-hero-glow"></div>
             <div class="relative">
                 <img src="{{ asset('images/logo_hd_trans3_gt.png') }}" alt="ES Coutances" class="h-14 mx-auto mb-3">
-                <h1 class="text-xl font-black text-white uppercase tracking-wide" style="font-family:'Barlow Condensed',sans-serif;">Espace Administration</h1>
+                <h1 class="u-66972700 text-xl font-black text-white uppercase tracking-wide">Espace Administration</h1>
             </div>
         </div>
 

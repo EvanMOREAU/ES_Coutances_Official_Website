@@ -79,8 +79,8 @@ class ChatNotifier implements EventSubscriberInterface
             if ($last !== null && $last > $limit) {
                 return;
             }
-            foreach ($this->users->findAll() as $user) {
-                if ($user->isStaff() && $user->getId() !== $author->getId() && $this->permissions->can('messagerie.support', $user) && !$this->isOnline($user) && $this->prefs->wants($user, 'messages', NotificationPreferences::EMAIL)) {
+            foreach ($this->users->findStaff() as $user) {
+                if ($user->getId() !== $author->getId() && $this->permissions->can('messagerie.support', $user) && !$this->isOnline($user) && $this->prefs->wants($user, 'messages', NotificationPreferences::EMAIL)) {
                     $this->send($user, $message, 'Un client a écrit au support');
                 }
             }

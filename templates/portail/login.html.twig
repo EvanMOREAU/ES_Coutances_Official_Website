@@ -29,13 +29,13 @@
         <button type="submit" class="mc-submit">Se connecter</button>
     </form>
 
-    <div style="margin-top:18px; padding-top:18px; border-top:1px solid var(--mc-border);" data-controller="passkey"
+    <div class="u-9fa20676" data-controller="passkey"
          data-passkey-options-url-value="{{ path('portail_webauthn_login_options') }}"
          data-passkey-finish-url-value="{{ path('portail_webauthn_login_check') }}">
-        <button type="button" data-passkey-target="button" data-action="click->passkey#login" class="mc-btn" style="width:100%; justify-content:center;">
+        <button type="button" data-passkey-target="button" data-action="click->passkey#login" class="mc-btn u-btn-full">
             <i class="fa-solid fa-fingerprint"></i> Se connecter avec une clé d'accès
         </button>
-        <p class="mc-err" data-passkey-target="status" style="text-align:center;"></p>
+        <p class="u-13076d95 mc-err" data-passkey-target="status"></p>
     </div>
 
     <div class="mc-auth-links">

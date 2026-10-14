@@ -1,0 +1,65 @@
+{% extends 'admin/_layout.html.twig' %}
+
+{% block title %}Statistiques d'effectifs{% endblock %}
+
+{% block body %}
+    <div class="flex flex-wrap items-center justify-between gap-3 mb-2">
+        <h1 class="u-66972700 text-2xl font-black">Statistiques d'effectifs</h1>
+        <form method="get" class="flex items-center gap-2 text-sm">
+            <label for="stat-saison" class="text-admin-text-muted">Saison</label>
+            <select id="stat-saison" name="saison" class="admin-input" data-auto-submit>
+                {% for s in saisons %}<option value="{{ s.id }}"{{ stats.saison and stats.saison.id == s.id ? ' selected' }}>{{ s }}{{ s.active ? ' (en cours)' }}</option>{% endfor %}
+            </select>
+            <noscript><button type="submit" class="admin-btn admin-btn-ghost admin-btn-sm">Afficher</button></noscript>
+        </form>
+    </div>
+    <p class="text-sm text-admin-text-muted mb-5">
+        Licenciés actifs de la saison {{ stats.saison ?? '—' }}{% if stats.precedente %}, comparés à la saison {{ stats.precedente }}{% endif %}.
+        Une personne est reconnue d'une saison à l'autre par son numéro de licence FFF, à défaut par son nom, son prénom et sa date de naissance.
+    </p>
+
+    {% if not stats.saison %}
+        <p class="admin-card rounded-2xl p-6 text-sm">Aucune saison n'est encore enregistrée.</p>
+    {% else %}
+        <div class="ad-tiles">
+            <div class="ad-tile"><span>Licenciés actifs</span><strong>{{ stats.total }}</strong></div>
+            <div class="ad-tile">
+                <span>Évolution</span>
+                <strong>{% if stats.evolution is null %}—{% else %}{{ stats.evolution > 0 ? '+' }}{{ stats.evolution|number_format(1, ',', ' ') }} %{% endif %}</strong>
+            </div>
+            <div class="ad-tile">
+                <span>Réinscription</span>
+                <strong>{% if stats.tauxReinscription is null %}—{% else %}{{ stats.tauxReinscription|number_format(1, ',', ' ') }} %{% endif %}</strong>
+            </div>
+            <div class="ad-tile"><span>Nouveaux / partants</span><strong>{{ stats.nouveaux }} / {{ stats.partants }}</strong></div>
+        </div>
+
+        <div class="admin-card rounded-2xl p-6 mt-6">
+            <h2 class="text-lg font-bold mb-4">Répartition par catégorie</h2>
+            {% if stats.categories is empty %}
+                <p class="text-sm text-admin-text-muted">Aucun licencié actif pour cette saison.</p>
+            {% else %}
+                <table class="admin-table w-full text-sm">
+                    <thead>
+                        <tr>
+                            <th class="text-left">Catégorie</th>
+                            <th class="text-right">{{ stats.saison }}</th>
+                            <th class="text-right">{{ stats.precedente ?? 'Saison précédente' }}</th>
+                            <th class="text-right">Écart</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ligne in stats.categories %}
+                            <tr>
+                                <td class="font-medium">{{ ligne.categorie }}</td>
+                                <td class="text-right">{{ ligne.actuel }}</td>
+                                <td class="text-right">{{ ligne.precedent }}</td>
+                                <td class="text-right">{{ ligne.ecart > 0 ? '+' }}{{ ligne.ecart }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
+        </div>
+    {% endif %}
+{% endblock %}

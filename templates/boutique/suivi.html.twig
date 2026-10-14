@@ -6,7 +6,7 @@
 {% block hero_lead %}<p class="lead">Référence {{ commande.reference }} · passée le {{ commande.createdAt|date('d/m/Y à H:i') }}</p>{% endblock %}
 
 {% block boutique_styles %}
-<style>
+<style nonce="{{ csp_nonce() }}">
 .track { list-style: none; display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; margin-bottom: 8px; }
 .track li { position: relative; text-align: center; padding-top: 44px; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 14px; letter-spacing: .08em; text-transform: uppercase; color: #aaa; }
 .track li::before { content: ''; position: absolute; top: 15px; left: -50%; width: 100%; height: 3px; background: var(--border); z-index: 0; }
@@ -37,24 +37,24 @@
   {% elseif statut == 'retiree' %}
     <div class="callout done"><i class="fa-solid fa-circle-check"></i><div><strong>Commande retirée</strong>Merci pour votre achat, et à bientôt au stade !</div></div>
   {% elseif statut == 'prete' %}
-    <div class="callout ready"><i class="fa-solid fa-box-open"></i><div><strong>Votre commande est prête !</strong>Vous pouvez venir la retirer au club en indiquant la référence <strong style="display:inline">{{ commande.reference }}</strong>.{% if not commande.payee %} Règlement à prévoir : {{ commande.totalCentimes|money }} ({{ commande.modePaiementLabel|lower }}).{% endif %}</div></div>
+    <div class="callout ready"><i class="fa-solid fa-box-open"></i><div><strong>Votre commande est prête !</strong>Vous pouvez venir la retirer au club en indiquant la référence <strong class="u-5677b988">{{ commande.reference }}</strong>.{% if not commande.payee %} Règlement à prévoir : {{ commande.totalCentimes|money }} ({{ commande.modePaiementLabel|lower }}).{% endif %}</div></div>
   {% elseif not commande.payee and commande.modePaiement == 'carte' %}
     <div class="callout due">
       <i class="fa-solid fa-credit-card"></i>
       <div>
         <strong>Paiement par carte en attente</strong>
         Votre commande est réservée, mais son règlement n'est pas finalisé.
-        <p style="margin-top:12px;"><a class="btn btn-primary" href="{{ path('boutique_paiement', {reference: commande.reference, token: commande.token}) }}">Payer {{ commande.totalCentimes|money }}</a></p>
+        <p class="u-002535c2"><a class="btn btn-primary" href="{{ path('boutique_paiement', {reference: commande.reference, token: commande.token}) }}">Payer {{ commande.totalCentimes|money }}</a></p>
       </div>
     </div>
   {% elseif not commande.payee %}
-    <div class="callout due"><i class="fa-solid fa-hourglass-half"></i><div><strong>Règlement à effectuer au club</strong>Merci de prévoir <strong style="display:inline">{{ commande.totalCentimes|money }}</strong> en {{ commande.modePaiement == 'cheque' ? 'chèque (à l\'ordre de l\'ES Coutances)' : 'espèces' }} lors du retrait. Nous vous prévenons par e-mail dès que votre commande est prête.</div></div>
+    <div class="callout due"><i class="fa-solid fa-hourglass-half"></i><div><strong>Règlement à effectuer au club</strong>Merci de prévoir <strong class="u-5677b988">{{ commande.totalCentimes|money }}</strong> en {{ commande.modePaiement == 'cheque' ? 'chèque (à l\'ordre de l\'ES Coutances)' : 'espèces' }} lors du retrait. Nous vous prévenons par e-mail dès que votre commande est prête.</div></div>
   {% else %}
     <div class="callout done"><i class="fa-solid fa-circle-check"></i><div><strong>Commande enregistrée et payée</strong>Nous vous prévenons par e-mail dès qu'elle est prête à être retirée au club.</div></div>
   {% endif %}
 
   {% if statut != 'annulee' %}
-    <div class="box" style="margin-bottom:24px;">
+    <div class="u-37d30b7f box">
       <ol class="track">
         <li class="is-done"><span class="dot"><i class="fa-solid fa-check"></i></span>Commande reçue<small>{{ commande.createdAt|date('d/m à H:i') }}</small></li>
         <li class="{{ statut == 'nouvelle' ? 'is-current' : 'is-done' }}"><span class="dot"><i class="fa-solid {{ statut == 'nouvelle' ? 'fa-box-open' : 'fa-check' }}"></i></span>{{ statut == 'nouvelle' ? 'En préparation' : 'Prête' }}</li>
@@ -80,16 +80,16 @@
       <h2>Informations</h2>
       <div class="sum-row"><span>Statut</span><span class="tag {{ {nouvelle: 'tag-wait', prete: 'tag-blue', retiree: 'tag-ok', annulee: 'tag-ko'}[statut] }}">{{ commande.statutLabel }}</span></div>
       <div class="sum-row"><span>Règlement</span><span class="tag {{ commande.payee ? 'tag-ok' : 'tag-wait' }}">{{ commande.payee ? 'Payée' : 'En attente' }}</span></div>
-      {% if commande.numeroFacture %}<p style="margin-top:12px;"><a href="{{ path('boutique_commande_facture', {reference: commande.reference, token: commande.token}) }}"><i class="fa-solid fa-file-invoice"></i> Facture {{ commande.numeroFacture }}</a></p>{% endif %}
+      {% if commande.numeroFacture %}<p class="u-002535c2"><a href="{{ path('boutique_commande_facture', {reference: commande.reference, token: commande.token}) }}"><i class="fa-solid fa-file-invoice"></i> Facture {{ commande.numeroFacture }}</a></p>{% endif %}
       <div class="sum-row"><span>Mode</span><span>{{ commande.modePaiementLabel }}</span></div>
       <div class="sum-row"><span>Client</span><span>{{ commande.nomComplet }}</span></div>
-      <div class="sum-row"><span>E-mail</span><span style="overflow-wrap:anywhere; text-align:right;">{{ commande.email }}</span></div>
+      <div class="sum-row"><span>E-mail</span><span class="u-3dbd5a5f">{{ commande.email }}</span></div>
       {% if commande.livraisonDemandee %}
-        <p class="note" style="margin-top:14px;"><i class="fa-solid fa-truck"></i> Livraison à : {{ commande.livraisonAdresse }}{% if commande.livraisonComplement %}, {{ commande.livraisonComplement }}{% endif %}, {{ commande.livraisonCodePostal }} {{ commande.livraisonVille }}.</p>
+        <p class="u-553a645f note"><i class="fa-solid fa-truck"></i> Livraison à : {{ commande.livraisonAdresse }}{% if commande.livraisonComplement %}, {{ commande.livraisonComplement }}{% endif %}, {{ commande.livraisonCodePostal }} {{ commande.livraisonVille }}.</p>
       {% else %}
-        <p class="note" style="margin-top:14px;"><i class="fa-solid fa-store"></i> Retrait au club, sans livraison.</p>
+        <p class="u-553a645f note"><i class="fa-solid fa-store"></i> Retrait au club, sans livraison.</p>
       {% endif %}
-      <p style="margin-top:18px;"><a class="btn btn-outline btn-block" href="{{ path('boutique_index') }}">Retour à la boutique</a></p>
+      <p class="u-4a909ea7"><a class="btn btn-outline btn-block" href="{{ path('boutique_index') }}">Retour à la boutique</a></p>
     </aside>
   </div>
 {% endblock %}

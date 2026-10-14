@@ -83,7 +83,7 @@ class SlideCarouselController extends AbstractController
         }
 
         foreach (array_values($data['ids'] ?? []) as $index => $id) {
-            $byId[$id]?->setOrdre($index);
+            ($byId[$id] ?? null)?->setOrdre($index);
         }
         $em->flush();
 
@@ -93,7 +93,7 @@ class SlideCarouselController extends AbstractController
     #[Route('/{id}/supprimer', name: 'admin_slide_carousel_delete', methods: ['POST'])]
     public function delete(Request $request, SlideCarousel $slide, EntityManagerInterface $em): Response
     {
-        if ($this->isCsrfTokenValid('delete-slide-'.$slide->getId(), $request->request->get('_token'))) {
+        if ($this->isCsrfTokenValid('delete-slide-'.$slide->getId(), $request->request->getString('_token'))) {
             $em->remove($slide);
             $em->flush();
             $this->addFlash('success', 'Slide supprimée.');

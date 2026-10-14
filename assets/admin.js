@@ -6,10 +6,12 @@ import { initCustomNumbers } from './custom_number.js';
 import { initCustomCombobox } from './custom_combobox.js';
 import { initConfirmForms } from './modal.js';
 import { initAutoSubmit } from './auto_submit.js';
+import { initCspNonce } from './csp_nonce.js';
 
 // Listes déroulantes, sélecteurs de date/heure, champs numériques, combobox « choisir ou créer » et fenêtres de confirmation (data-confirm) personnalisés.
 initConfirmForms();
 initAutoSubmit();
+initCspNonce();
 const initInputs = () => {
     initCustomSelects();
     initCustomDates();

@@ -3,7 +3,7 @@
 {% block title %}Gestion des stocks{% endblock %}
 
 {% block body %}
-    <h1 class="text-xl font-black mb-1" style="font-family:'Barlow Condensed',sans-serif;">Gestion des stocks — {{ article.nom }}</h1>
+    <h1 class="u-66972700 text-xl font-black mb-1">Gestion des stocks — {{ article.nom }}</h1>
     <p class="text-sm text-admin-text-muted mb-5">Indiquez la quantité reçue pour chaque taille : elle s'ajoute au stock déjà en place.</p>
 
     <form method="post" action="{{ path('admin_article_stock', {id: article.id}) }}">

@@ -24,6 +24,8 @@ class AppExtension extends AbstractExtension
             new TwigFilter('date_fr', $this->formatDate(...)),
             // {{ 2999|money }} => « 29,99 € » (montants stockés en centimes).
             new TwigFilter('money', Money::format(...)),
+            // {{ ('uploads/slides/'~nom)|thumb('hero') }} => adresse d'une miniature WebP mise en cache.
+            new TwigFilter('thumb', [AppRuntime::class, 'thumb']),
         ];
     }
 

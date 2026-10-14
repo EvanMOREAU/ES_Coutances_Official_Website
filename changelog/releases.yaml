@@ -7,6 +7,40 @@
 #   version : numéro (ex. 1.2.0)      date : AAAA-MM-JJ      titre : résumé court (facultatif)
 #   added / improved / fixed / removed : listes de phrases (Ajouté / Amélioré / Corrigé / Retiré)
 
+- version: "1.0.13"
+  date: "2026-10-14"
+  titre: "Sécurité renforcée, site plus rapide, notifications et statistiques, application installable"
+  added:
+    - "Boutique > Réglages (ex-« Maintenance boutique ») : nouveau seuil d'alerte de stock. Une taille dont le stock descend au seuil (3 par défaut, 0 pour désactiver) est surlignée dans la liste des articles et signalée dans la cloche (nouvelle rubrique « Stock bas de la boutique » dans les préférences de notification). Migration Version20261014101854."
+    - "Paiements des licences : bouton « Export comptable (CSV) » (une ligne par règlement, montants en euros, lisible par Excel). Il suit le droit de voir les paiements et chaque export est consigné au journal d'activité."
+    - "Gestion des licenciés > Saisons : page « Statistiques d'effectifs » (licenciés par catégorie, évolution, taux de réinscription, nouveaux et partants, comparés à la saison précédente à partir des licences enregistrées)."
+    - "Liste des licenciés : choix de la saison (la saison en cours par défaut, « Toutes les saisons » au choix) ; le filtrage se fait désormais côté serveur."
+    - "Site installable sur téléphone et ordinateur (manifeste, icônes, page « hors ligne »). Le service worker ne met en cache que des fichiers statiques publics : jamais de page, ni d'administration, ni de donnée personnelle."
+    - "Suivi des erreurs en production avec Sentry ou GlitchTip : renseigner SENTRY_DSN dans .env.local (vide = désactivé ; aucune donnée personnelle transmise)."
+    - "E-mails en file d'attente (MAILER_ASYNC=1) : la requête n'attend plus le serveur SMTP ; un worker (cron messenger:consume) envoie les messages avec les mêmes réglages et le même journal. Les envois en échec sont retentés 3 fois puis rangés dans la file « failed »."
+    - "Option DEPLOY_FROM_ADMIN=0 : désactive le bouton « Mettre à jour » de l'administration quand le déploiement est fait par un pipeline externe."
+    - "Page /health enrichie : base de données, écriture dans var/, espace disque et âge de la dernière sauvegarde (état « degraded » si la sauvegarde est absente ou trop ancienne)."
+    - "Données structurées pour les moteurs de recherche : fiche produit (Product) pour chaque article de la boutique, fil d'Ariane (BreadcrumbList) sur les pages du club ; image de partage 1200×630 et icône iOS."
+    - "Images par défaut de l'accueil (hero-default.jpg, offre-default.jpg) : elles manquaient et produisaient une erreur 404 sur un site sans diaporama ni offre illustrée."
+    - "Index de base de données sur les colonnes les plus filtrées (statut, saison, échéances de règlement…) — migration Version20261014093054."
+    - "Outils de développement : tests de bout en bout dans un navigateur (Playwright : site public, commande boutique complète, connexion à l'administration, accessibilité WCAG 2 A/AA, absence de violation de sécurité), job CI « Build de production » (--no-dev), job « Dépendances à jour », tests sur PHP 8.4 et 8.5, plancher de couverture versionné (deploy/coverage-floor.txt), Dockerfile et exemple de déploiement par conteneurs (compose.prod.example.yaml)."
+  improved:
+    - "SÉCURITÉ — Contrats des partenaires : les documents ne sont plus dans le dossier public (public/uploads) mais dans var/private, servis uniquement après vérification du droit « contrat_partenaire.voir » (en-têtes no-store et nosniff). Les fichiers existants sont déplacés automatiquement par la migration Version20261014090000, et la sauvegarde nocturne inclut var/private."
+    - "SÉCURITÉ — Content-Security-Policy : plus aucun style ni script en ligne autorisé (style-src limité au site et au nonce, style-src-attr 'none'). Plus de 200 attributs style=\"\" des gabarits sont devenus des classes CSS, les scripts en ligne des fichiers externes (assets/pages), les blocs <style> portent le nonce. Pendant la navigation Turbo, le navigateur renvoie le nonce courant (en-tête X-Csp-Nonce) pour que les pages suivantes ne soient pas bloquées."
+    - "SÉCURITÉ — Clés d'accès (WebAuthn) : la désérialisation des données de session et de base est désormais limitée à la liste exacte des classes attendues, au lieu d'accepter n'importe quelle classe."
+    - "Performance — Images : logo et favicon passent de 865 Ko à 50 Ko et 5 Ko, image de partage dédiée. Les photos envoyées (articles, diaporama, bannière, encadrement, partenaires, avatars) sont redimensionnées et servies en WebP à la demande (LiipImagine, filtre |thumb) au lieu de l'original."
+    - "Performance — Notifications, messagerie et planning : suppression des chargements de tous les comptes (findAll) au profit de requêtes ciblées sur l'équipe du club ; compteur « familles sans e-mail valide » calculé sur une seule colonne ; liste des licenciés chargée avec ses relations en une requête (fin du N+1)."
+    - "Performance — Les pages publiques identiques pour tous (accueil, club, pages légales) reçoivent un cache HTTP de 5 min à 1 h pour les visiteurs sans cookie (avant, le pare-feu les rendait toutes privées). Feuille de style du site extraite dans un fichier mis en cache par le navigateur."
+    - "Performance — Messagerie : le navigateur espace ses interrogations (×3 après 1 minute, ×6 après 5 minutes) quand il ne se passe rien, et reprend la cadence normale dès qu'un message arrive."
+    - "SEO — Le plan du site ne liste plus en double les pages qui ont leur propre adresse (histoire, infrastructure, pages légales) ; /page/<adresse> y redirige (301)."
+    - "Accessibilité — Menus déroulants navigables au clavier (aria-expanded, ouverture au focus, Échap), focus visible, respect de « mouvement réduit », boutons du diaporama nommés, contrastes insuffisants corrigés ; vérifié automatiquement (axe, WCAG 2 A/AA) sur les pages publiques."
+    - "Qualité — PHPStan passe du niveau 6 au niveau 7 (une cinquantaine de corrections de typage), baseline réduite de 20 à 12 règles ; CSRF lu en chaîne dans tous les contrôleurs ; code mort retiré."
+    - "Qualité — Fichiers volumineux allégés : documents joints de la messagerie dans un service dédié (ChatDocuments), fonctions pures du planning et icônes de fichiers dans assets/lib/."
+    - "Exploitation — Documentation (README, docs/EXPLOITATION.md) mise à jour : worker, Sentry, miniatures, cache public, application installable, conteneurs, tests de bout en bout, tests en parallèle (TEST_TOKEN). Exemples nginx et Apache : cache des miniatures, service worker, manifeste."
+  fixed:
+    - "Une page de contenu appelée « histoire » ou « infrastructure » pouvait être indexée sous deux adresses."
+    - "Un dossier « -p » vide (issu d'une commande mal saisie) traînait à la racine du projet."
+
 - version: "1.0.12"
   date: "2026-10-12"
   titre: "Suivi des partenaires, clients de la boutique, clôture du support et remboursements"

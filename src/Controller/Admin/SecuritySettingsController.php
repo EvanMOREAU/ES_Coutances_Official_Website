@@ -80,7 +80,7 @@ class SecuritySettingsController extends AbstractAccountController
         $label = is_string($data['label'] ?? null) ? $data['label'] : '';
 
         try {
-            $webauthn->verifyRegistration($user, json_encode($data['response'] ?? null), $label);
+            $webauthn->verifyRegistration($user, json_encode($data['response'] ?? null, JSON_THROW_ON_ERROR), $label);
         } catch (\Throwable $e) {
             return new JsonResponse(['error' => "L'enregistrement de la clé d'accès a échoué : ".$e->getMessage()], 422);
         }

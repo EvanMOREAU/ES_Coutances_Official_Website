@@ -8,7 +8,6 @@ use App\Repository\ContactSettingsRepository;
 use App\Repository\EquipeRepository;
 use App\Repository\FamilleRepository;
 use App\Repository\HomepageBannerRepository;
-use App\Repository\LicencieRepository;
 use App\Repository\MembreRepository;
 use App\Repository\PartenaireRepository;
 use App\Repository\RejoindreCardRepository;
@@ -47,7 +46,6 @@ class SiteAdvisor
         private readonly SaisonRepository $saisons,
         private readonly EquipeRepository $equipes,
         private readonly FamilleRepository $familles,
-        private readonly LicencieRepository $licencies,
     ) {
     }
 

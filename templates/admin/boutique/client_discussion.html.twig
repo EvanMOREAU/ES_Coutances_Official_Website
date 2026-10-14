@@ -5,7 +5,7 @@
 {% block body %}
     <a href="{{ path('admin_client_boutique_show', {id: client.id}) }}" class="text-sm text-admin-text-muted hover:text-admin-text"><i class="fa-solid fa-arrow-left"></i> {{ client.nomComplet }}</a>
     <div class="mt-3 mb-5">
-        <h1 class="text-2xl font-black" style="font-family:'Barlow Condensed',sans-serif;">{{ conversation.subject ?: 'Discussion du ' ~ conversation.createdAt|date('d/m/Y') }}</h1>
+        <h1 class="u-66972700 text-2xl font-black">{{ conversation.subject ?: 'Discussion du ' ~ conversation.createdAt|date('d/m/Y') }}</h1>
         <p class="text-sm text-admin-text-muted">Support client · lecture seule</p>
     </div>
 

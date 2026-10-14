@@ -43,7 +43,7 @@ class AccountPrivacyController extends AbstractController
         $name    = sprintf('mes-donnees-es-coutances-%s.%s', date('Y-m-d'), $format);
 
         $response = $format === 'json'
-            ? new Response(json_encode($content, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), 200, ['Content-Type' => 'application/json; charset=UTF-8'])
+            ? new Response(json_encode($content, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR), 200, ['Content-Type' => 'application/json; charset=UTF-8'])
             : $this->render('portail/export.html.twig', ['data' => $content, 'user' => $user]);
         $response->headers->set('Content-Disposition', $response->headers->makeDisposition(ResponseHeaderBag::DISPOSITION_ATTACHMENT, $name));
         $response->headers->set('Cache-Control', 'private, no-store');

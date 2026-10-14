@@ -4,7 +4,7 @@
 
 {% block head_assets %}
     {{ include('_importmap.html.twig', {entry: 'portail'}) }}
-    <style>
+    <style nonce="{{ csp_nonce() }}">
         /* La feuille de style du portail réinitialise les titres : on garde la police du calendrier. */
         .pl-layout h2, .pl-layout h3 { font-family: 'Inter', sans-serif; }
         .pl-card { box-shadow: 0 4px 16px rgba(0,0,0,.06); }

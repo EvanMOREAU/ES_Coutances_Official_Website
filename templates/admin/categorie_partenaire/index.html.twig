@@ -4,7 +4,7 @@
 
 {% block body %}
     <div class="flex items-center justify-between mb-6">
-        <h1 class="text-2xl font-black" style="font-family:'Barlow Condensed',sans-serif;">Catégories de partenaires</h1>
+        <h1 class="u-66972700 text-2xl font-black">Catégories de partenaires</h1>
         {% if can_url(path('admin_categorie_partenaire_new')) %}<a href="{{ path('admin_categorie_partenaire_new') }}" class="rounded-lg admin-gradient px-4 py-2 text-sm font-semibold text-white">+ Nouvelle catégorie</a>{% endif %}
     </div>
     <p class="text-sm text-admin-text-muted mb-6">Ces catégories (or, argent, fournisseur…) sont ensuite proposées sur la fiche de chaque partenaire.</p>

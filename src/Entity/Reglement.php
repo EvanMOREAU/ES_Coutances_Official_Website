@@ -9,6 +9,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity]
 #[ORM\HasLifecycleCallbacks]
 #[ORM\Table(name: 'reglement')]
+#[ORM\Index(name: 'IDX_REGLEMENT_ECHEANCE', columns: ['date_echeance', 'recu'])]
 class Reglement
 {
     public const MODE_ESPECES = 'especes';
