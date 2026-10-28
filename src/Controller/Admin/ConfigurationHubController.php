@@ -5,6 +5,7 @@ namespace App\Controller\Admin;
 use App\Repository\CategoriePartenaireRepository;
 use App\Repository\CategorieRepository;
 use App\Repository\HelloAssoSettingsRepository;
+use App\Service\Locale\LocaleRegistry;
 use App\Repository\MailSettingsRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -17,10 +18,11 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route('/admin/configuration', name: 'admin_configuration_hub', methods: ['GET'])]
 class ConfigurationHubController extends AbstractController
 {
-    public function __invoke(MailSettingsRepository $mailSettings, HelloAssoSettingsRepository $helloAssoSettings, CategorieRepository $categories, CategoriePartenaireRepository $categoriesPartenaires): Response
+    public function __invoke(MailSettingsRepository $mailSettings, HelloAssoSettingsRepository $helloAssoSettings, CategorieRepository $categories, CategoriePartenaireRepository $categoriesPartenaires, LocaleRegistry $locales): Response
     {
         $mail      = $mailSettings->getSingleton();
         $helloAsso = $helloAssoSettings->getSingleton();
+        $nbLangues = count($locales->enabled());
         $nbCategories = $categories->count([]);
         $nbCategoriesPartenaires = $categoriesPartenaires->count([]);
 
@@ -50,6 +52,18 @@ class ConfigurationHubController extends AbstractController
                         'onLabel'  => 'HelloAsso actif' . ($helloAsso->isUtilisable() ? ' (' . ($helloAsso->isSandbox() ? 'sandbox' : 'production') . ')' : ''),
                         'offLabel' => 'Non configuré',
                         'detail'   => 'Identifiants d\'API pour le paiement en ligne par carte de la boutique.',
+                    ],
+                ],
+                [
+                    'key' => 'langues', 'group' => 'Technique', 'icon' => 'fa-language', 'title' => 'Langues du site',
+                    'url' => $this->generateUrl('admin_langues_settings'),
+                    'new' => null, 'value' => null, 'label' => null, 'sub' => null,
+                    'visual' => [
+                        'type'     => 'status',
+                        'on'       => $nbLangues > 1,
+                        'onLabel'  => $nbLangues . ' langues actives',
+                        'offLabel' => 'Français uniquement',
+                        'detail'   => 'Les langues proposées dans le sélecteur de la barre de navigation (le français est toujours actif).',
                     ],
                 ],
                 [

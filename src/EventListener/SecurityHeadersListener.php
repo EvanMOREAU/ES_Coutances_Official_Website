@@ -3,6 +3,7 @@
 namespace App\EventListener;
 
 use App\Security\CspNonce;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
@@ -23,6 +24,10 @@ final class SecurityHeadersListener
         'X-Frame-Options' => 'SAMEORIGIN',
         'Referrer-Policy' => 'strict-origin-when-cross-origin',
         'Permissions-Policy' => 'camera=(), microphone=(), geolocation=(), payment=()',
+        // Isole la fenêtre du site des autres origines (pas de lecture croisée via window.opener) et réserve les
+        // réponses de l'application à ce site (les images servies par nginx ne sont pas concernées).
+        'Cross-Origin-Opener-Policy' => 'same-origin',
+        'Cross-Origin-Resource-Policy' => 'same-site',
     ];
 
     /**
@@ -50,6 +55,7 @@ final class SecurityHeadersListener
     public function __construct(
         private readonly CspNonce $nonce,
         private readonly string $kernelEnvironment,
+        #[Autowire('%env(CSP_REPORT_URI)%')] private readonly string $reportUri = '',
     ) {
     }
 
@@ -81,6 +87,11 @@ final class SecurityHeadersListener
         if ('dev' === $this->kernelEnvironment) {
             $directives[2] = "style-src 'self' 'unsafe-inline'";
             $directives[3] = "style-src-attr 'unsafe-inline'";
+        }
+
+        // Violations signalées à une adresse de collecte (Sentry, report-uri.com…) quand CSP_REPORT_URI est renseigné.
+        if ('' !== $this->reportUri) {
+            $directives[] = 'report-uri '.$this->reportUri;
         }
 
         return sprintf(implode('; ', $directives), $this->nonce->value());

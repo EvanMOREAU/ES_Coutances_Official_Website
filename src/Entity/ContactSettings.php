@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\ContactSettingsRepository;
+use App\Translation\Translatable;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ContactSettingsRepository::class)]
@@ -16,30 +17,38 @@ class ContactSettings
     #[ORM\Column(length: 180)]
     private string $email = '';
 
+    #[Translatable]
     #[ORM\Column(length: 255)]
     private string $adresse = '';
 
     #[ORM\Column(length: 30)]
     private string $telephone = '';
 
+    #[Translatable]
     #[ORM\Column(length: 100)]
     private string $horaireLundi = '';
 
+    #[Translatable]
     #[ORM\Column(length: 100)]
     private string $horaireMardi = '';
 
+    #[Translatable]
     #[ORM\Column(length: 100)]
     private string $horaireMercredi = '';
 
+    #[Translatable]
     #[ORM\Column(length: 100)]
     private string $horaireJeudi = '';
 
+    #[Translatable]
     #[ORM\Column(length: 100)]
     private string $horaireVendredi = '';
 
+    #[Translatable]
     #[ORM\Column(length: 100)]
     private string $horaireSamedi = '';
 
+    #[Translatable]
     #[ORM\Column(length: 100)]
     private string $horaireDimanche = '';
 

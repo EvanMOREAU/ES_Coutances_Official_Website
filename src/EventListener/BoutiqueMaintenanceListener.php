@@ -2,7 +2,7 @@
 
 namespace App\EventListener;
 
-use App\Controller\BoutiqueController;
+use App\Controller\BoutiqueAreaInterface;
 use App\Repository\BoutiqueSettingsRepository;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -42,7 +42,7 @@ class BoutiqueMaintenanceListener implements EventSubscriberInterface
 
         $controller = $event->getController();
         $instance   = is_array($controller) ? $controller[0] : null;
-        if (!$instance instanceof BoutiqueController) {
+        if (!$instance instanceof BoutiqueAreaInterface) {
             return;
         }
 

@@ -32,12 +32,17 @@ class AdhesionController extends AbstractController
     }
 
     #[Route('', name: 'admin_adhesion_index', methods: ['GET'])]
-    public function index(): Response
+    public function index(Request $request, SaisonRepository $saisons): Response
     {
-        $adhesions = $this->adhesions->findAllDetailed();
+        // Par défaut, seule la saison en cours est listée ; « Toutes les saisons » (?saison=toutes) ou une saison précise au choix.
+        $choice    = (string) $request->query->get('saison', '');
+        $current   = 'toutes' === $choice ? null : ('' !== $choice ? $saisons->find((int) $choice) : $saisons->findActive());
+        $adhesions = $this->adhesions->findAllDetailed($current);
 
         return $this->render('admin/adhesion/index.html.twig', [
             'adhesions'    => $adhesions,
+            'saison'       => $current,
+            'saisons'      => $saisons->findBy([], ['dateDebut' => 'DESC']),
             'totalDu'      => array_sum(array_map(static fn (Adhesion $a) => $a->getMontantDuCentimes(), $adhesions)),
             'totalRecu'    => array_sum(array_map(static fn (Adhesion $a) => $a->getRecuCentimes(), $adhesions)),
             'totalAides'   => array_sum(array_map(static fn (Adhesion $a) => $a->getAidesAttenduesCentimes(), $adhesions)),

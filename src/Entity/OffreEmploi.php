@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\OffreEmploiRepository;
 use Doctrine\DBAL\Types\Types;
+use App\Translation\Translatable;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -18,11 +19,13 @@ class OffreEmploi
     #[ORM\Column]
     private ?int $id = null;
 
+    #[Translatable]
     #[ORM\Column(length: 100)]
     #[Assert\NotBlank(message: 'Donnez un titre à l\'offre.')]
     #[Assert\Length(max: 150, maxMessage: 'Maximum 150 caractères.')]
     private ?string $titre = null;
 
+    #[Translatable(html: true)]
     #[ORM\Column(type: Types::TEXT)]
     #[Assert\NotBlank(message: 'Décrivez l\'offre.')]
     private ?string $description = null;

@@ -69,6 +69,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, TotpTwo
     #[ORM\Column(length: 20)]
     private string $density = 'comfortable';
 
+    /** Langue de l'interface (fr, en, de) ; voir App\Service\Locale\Locales. */
+    #[ORM\Column(length: 5, options: ['default' => 'fr'])]
+    private string $locale = 'fr';
+
     /**
      * Choix de notification : ['bell' => [clé => bool], 'email' => [clé => bool]] (voir NotificationPreferences).
      *
@@ -378,6 +382,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, TotpTwo
     public function setDensity(string $density): static
     {
         $this->density = $density;
+
+        return $this;
+    }
+
+    public function getLocale(): string
+    {
+        return $this->locale;
+    }
+    public function setLocale(string $locale): static
+    {
+        $this->locale = $locale;
 
         return $this;
     }

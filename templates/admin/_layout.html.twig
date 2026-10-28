@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr" class="h-full"
+<html lang="{{ app.request.locale }}" class="h-full"
       {% if app.user and app.user.theme != 'system' %}data-theme="{{ app.user.theme }}"{% endif %}
       data-scheme="{{ app.user ? app.user.colorScheme : 'rouge' }}"
       data-density="{{ app.user ? app.user.density : 'comfortable' }}">
@@ -9,7 +9,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" type="image/png" href="{{ asset('images/favicon.png') }}">
     <link rel="stylesheet" href="{{ asset('styles/inline-utilities.css') }}">
-    <title>{% block title %}Tableau de bord{% endblock %} — ES Coutances Admin</title>
+    <title>{% block title %}{{ 'admin.nav.dashboard'|trans }}{% endblock %} — {{ 'admin.title_suffix'|trans }}</title>
     <link rel="stylesheet" href="{{ asset('fonts/fonts.css') }}">
     <link rel="stylesheet" href="{{ asset('vendor/fontawesome/all.min.css') }}">
     <link rel="stylesheet" href="{{ asset('vendor/trix/trix.css') }}">
@@ -54,7 +54,7 @@
                 <img src="{{ asset('images/logo_hd_trans3_gt.png') }}" alt="ES Coutances" class="h-9 shrink-0">
                 <div data-admin-sidebar-target="label">
                     <p class="u-66972700 font-black uppercase tracking-wide text-sm whitespace-nowrap">ES Coutances</p>
-                    <p class="text-[11px] uppercase tracking-widest text-admin-text-muted whitespace-nowrap">Admin</p>
+                    <p class="text-[11px] uppercase tracking-widest text-admin-text-muted whitespace-nowrap">{{ 'admin.brand_sub'|trans }}</p>
                 </div>
 
                 <button type="button" data-action="click->admin-sidebar#toggleCollapse"
@@ -65,74 +65,74 @@
 
             <nav class="flex-1 overflow-y-auto overflow-x-hidden admin-scrollbar px-3 py-4 space-y-6">
                 <div data-controller="nav-section" data-nav-section-id-value="vue-ensemble">
-                    {{ _self.nav_section_label('Vue d\'ensemble') }}
+                    {{ _self.nav_section_label('admin.nav.overview') }}
                     <div class="space-y-1" data-nav-section-target="links">
-                        {{ _self.nav_link('admin', 'admin', 'fa-gauge', 'Tableau de bord', true) }}
+                        {{ _self.nav_link('admin', 'admin', 'fa-gauge', 'admin.nav.dashboard', true) }}
                     </div>
                 </div>
 
                 {% if can('famille.voir,licencie.voir,equipe.voir,saison.voir,adhesion.voir,planning.voir,import.voir') %}
                 <div data-controller="nav-section" data-nav-section-id-value="licencies">
-                    {{ _self.nav_section_label('Licenciés') }}
+                    {{ _self.nav_section_label('admin.nav.members') }}
                     {# Une seule entrée : familles, licenciés, équipes et saisons s'ouvrent depuis cette page #}
                     <div class="space-y-1" data-nav-section-target="links">
-                        {% if can('famille.voir,licencie.voir,equipe.voir,saison.voir,adhesion.voir,import.voir') %}{{ _self.nav_link('admin_licencies_hub', ['admin_licencies_hub', 'admin_famille', 'admin_licencie', 'admin_equipe', 'admin_saison'], 'fa-users-rectangle', 'Gestion des licenciés', false, advice_count('licencies')) }}{% endif %}
-                        {% if can('adhesion.voir') %}{{ _self.nav_link('admin_adhesion_index', 'admin_adhesion', 'fa-file-invoice-dollar', 'Paiements des licences') }}{% endif %}
-                        {% if can('planning.voir') %}{{ _self.nav_link('admin_planning_index', 'admin_planning', 'fa-calendar-days', 'Planning') }}{% endif %}
+                        {% if can('famille.voir,licencie.voir,equipe.voir,saison.voir,adhesion.voir,import.voir') %}{{ _self.nav_link('admin_licencies_hub', ['admin_licencies_hub', 'admin_famille', 'admin_licencie', 'admin_equipe', 'admin_saison'], 'fa-users-rectangle', 'admin.nav.members_hub', false, advice_count('licencies')) }}{% endif %}
+                        {% if can('adhesion.voir') %}{{ _self.nav_link('admin_adhesion_index', 'admin_adhesion', 'fa-file-invoice-dollar', 'admin.nav.payments') }}{% endif %}
+                        {% if can('planning.voir') %}{{ _self.nav_link('admin_planning_index', 'admin_planning', 'fa-calendar-days', 'admin.nav.planning') }}{% endif %}
                     </div>
                 </div>
                 {% endif %}
 
                 {% if can('messagerie.utiliser,messagerie.support') %}
                 <div data-controller="nav-section" data-nav-section-id-value="echanges">
-                    {{ _self.nav_section_label('Échanges') }}
+                    {{ _self.nav_section_label('admin.nav.exchanges') }}
                     <div class="space-y-1" data-nav-section-target="links">
-                        {{ _self.nav_link('admin_chat_index', 'admin_chat', 'fa-comments', 'Messagerie', false, chat_unread(), true) }}
+                        {{ _self.nav_link('admin_chat_index', 'admin_chat', 'fa-comments', 'admin.nav.messaging', false, chat_unread(), true) }}
                     </div>
                 </div>
                 {% endif %}
 
                 {% if can('partenaire.voir') %}
                 <div data-controller="nav-section" data-nav-section-id-value="partenaires">
-                    {{ _self.nav_section_label('Partenaires') }}
+                    {{ _self.nav_section_label('admin.nav.partners') }}
                     {# Une seule entrée : le hub ouvre chaque rubrique (liste, contrats…) dans une grande fenêtre #}
                     <div class="space-y-1" data-nav-section-target="links">
-                        {{ _self.nav_link('admin_partenaire_hub', 'admin_partenaire', 'fa-handshake', 'Partenaires', false, advice_count('partenaire')) }}
+                        {{ _self.nav_link('admin_partenaire_hub', 'admin_partenaire', 'fa-handshake', 'admin.nav.partners', false, advice_count('partenaire')) }}
                     </div>
                 </div>
                 {% endif %}
 
                 {% if can('commande.voir,article.voir,code_promo.voir,client_boutique.voir') %}
                 <div data-controller="nav-section" data-nav-section-id-value="boutique">
-                    {{ _self.nav_section_label('Boutique') }}
+                    {{ _self.nav_section_label('admin.nav.shop') }}
                     <div class="space-y-1" data-nav-section-target="links">
-                        {% if can('commande.voir') %}{{ _self.nav_link('admin_commande_index', 'admin_commande', 'fa-bag-shopping', 'Commandes', false, commandes_a_preparer(), false, 'à préparer') }}{% endif %}
-                        {% if can('article.voir') %}{{ _self.nav_link('admin_article_index', 'admin_article', 'fa-shirt', 'Articles') }}{% endif %}
-                        {% if can('code_promo.voir') %}{{ _self.nav_link('admin_code_promo_index', 'admin_code_promo', 'fa-truck', 'Bons de livraison') }}{% endif %}
-                        {% if can('client_boutique.voir') %}{{ _self.nav_link('admin_client_boutique_index', 'admin_client_boutique', 'fa-users', 'Clients') }}{% endif %}
+                        {% if can('commande.voir') %}{{ _self.nav_link('admin_commande_index', 'admin_commande', 'fa-bag-shopping', 'admin.nav.orders', false, commandes_a_preparer(), false, 'admin.nav.orders_to_prepare') }}{% endif %}
+                        {% if can('article.voir') %}{{ _self.nav_link('admin_article_index', 'admin_article', 'fa-shirt', 'admin.nav.articles') }}{% endif %}
+                        {% if can('code_promo.voir') %}{{ _self.nav_link('admin_code_promo_index', 'admin_code_promo', 'fa-truck', 'admin.nav.delivery_notes') }}{% endif %}
+                        {% if can('client_boutique.voir') %}{{ _self.nav_link('admin_client_boutique_index', 'admin_client_boutique', 'fa-users', 'admin.nav.customers') }}{% endif %}
                     </div>
                 </div>
                 {% endif %}
 
                 {% if can('rejoindre_card.voir,offre_emploi.voir,slide_carousel.voir,page_contenu.voir,membre.voir,reglages.voir') %}
                 <div data-controller="nav-section" data-nav-section-id-value="site-vitrine">
-                    {{ _self.nav_section_label('Site vitrine') }}
+                    {{ _self.nav_section_label('admin.nav.website') }}
                     {# Une seule entrée : nous rejoindre, offres, carousel, pages, encadrement et réglages s'ouvrent depuis cette page #}
                     <div class="space-y-1" data-nav-section-target="links">
-                        {{ _self.nav_link('admin_site_vitrine', ['admin_site_vitrine', 'admin_rejoindre_card', 'admin_offre_emploi', 'admin_slide_carousel', 'admin_page_contenu', 'admin_membre', 'admin_reglages'], 'fa-globe', 'Site vitrine', false, advice_count('vitrine')) }}
+                        {{ _self.nav_link('admin_site_vitrine', ['admin_site_vitrine', 'admin_rejoindre_card', 'admin_offre_emploi', 'admin_slide_carousel', 'admin_page_contenu', 'admin_membre', 'admin_reglages'], 'fa-globe', 'admin.nav.website', false, advice_count('vitrine')) }}
                     </div>
                 </div>
                 {% endif %}
 
                 {% if can('utilisateur.voir,autorisation.voir,import.voir,fichiers.voir,mail.voir,categorie.voir,categorie_partenaire.voir,helloasso.voir,boutique_maintenance.voir') %}
                 <div data-controller="nav-section" data-nav-section-id-value="administration">
-                    {{ _self.nav_section_label('Administration') }}
+                    {{ _self.nav_section_label('admin.nav.administration') }}
                     <div class="space-y-1" data-nav-section-target="links">
-                        {% if can('utilisateur.voir,autorisation.voir') %}{{ _self.nav_link('admin_acces_hub', ['admin_acces_hub', 'admin_user', 'admin_profil'], 'fa-user-shield', 'Utilisateurs et autorisations') }}{% endif %}
-                        {% if can('import.voir') %}{{ _self.nav_link('admin_import_hub', 'admin_import', 'fa-file-import', 'Import') }}{% endif %}
-                        {% if can('fichiers.voir') %}{{ _self.nav_link('admin_files_index', 'admin_files', 'fa-folder-tree', 'Fichiers') }}{% endif %}
-                        {% if can('mail.voir,categorie.voir,categorie_partenaire.voir,helloasso.voir') and not is_granted('ROLE_DEV') %}{{ _self.nav_link('admin_configuration_hub', ['admin_configuration_hub', 'admin_mail_settings', 'admin_categorie_index', 'admin_categorie_partenaire_index', 'admin_helloasso_settings'], 'fa-gears', 'Configuration') }}{% endif %}
-                        {% if can('boutique_maintenance.voir') and not is_granted('ROLE_DEV') %}{{ _self.nav_link('admin_boutique_maintenance', 'admin_boutique_maintenance', 'fa-shop-slash', 'Réglages boutique') }}{% endif %}
+                        {% if can('utilisateur.voir,autorisation.voir') %}{{ _self.nav_link('admin_acces_hub', ['admin_acces_hub', 'admin_user', 'admin_profil'], 'fa-user-shield', 'admin.nav.users') }}{% endif %}
+                        {% if can('import.voir') %}{{ _self.nav_link('admin_import_hub', 'admin_import', 'fa-file-import', 'admin.nav.import') }}{% endif %}
+                        {% if can('fichiers.voir') %}{{ _self.nav_link('admin_files_index', 'admin_files', 'fa-folder-tree', 'admin.nav.files') }}{% endif %}
+                        {% if can('mail.voir,langues.voir,categorie.voir,categorie_partenaire.voir,helloasso.voir') and not is_granted('ROLE_DEV') %}{{ _self.nav_link('admin_configuration_hub', ['admin_configuration_hub', 'admin_mail_settings', 'admin_categorie_index', 'admin_categorie_partenaire_index', 'admin_helloasso_settings', 'admin_langues_settings'], 'fa-gears', 'admin.nav.configuration') }}{% endif %}
+                        {% if can('boutique_maintenance.voir') and not is_granted('ROLE_DEV') %}{{ _self.nav_link('admin_boutique_maintenance', 'admin_boutique_maintenance', 'fa-shop-slash', 'admin.nav.shop_settings') }}{% endif %}
                     </div>
                 </div>
                 {% endif %}
@@ -140,22 +140,22 @@
                 {% if is_granted('ROLE_DEV') %}
                 <div data-controller="nav-section" data-nav-section-id-value="developpeur">
                     {% set update_count = update_pending() %}
-                    {{ _self.nav_section_label('Développeur', 'data-update-dot', update_count) }}
+                    {{ _self.nav_section_label('admin.nav.developer', 'data-update-dot', update_count) }}
                     <div class="space-y-1" data-nav-section-target="links">
-                        {{ _self.nav_link('admin_configuration_hub', ['admin_configuration_hub', 'admin_mail_settings', 'admin_categorie_index', 'admin_categorie_partenaire_index', 'admin_helloasso_settings'], 'fa-gears', 'Configuration') }}
-                        {{ _self.nav_link('admin_boutique_maintenance', 'admin_boutique_maintenance', 'fa-shop-slash', 'Réglages boutique') }}
-                        {{ _self.nav_link('admin_deploy_index', 'admin_deploy', 'fa-rocket', 'Mise à jour', false, update_count, true, 'mise(s) à jour disponible(s)', 'data-update-badge') }}
-                        {{ _self.nav_link('admin_dev_backup_index', 'admin_dev_backup', 'fa-database', 'Sauvegardes') }}
-                        {{ _self.nav_link('admin_journal_index', 'admin_journal', 'fa-scroll', "Journal d'activité") }}
-                        {{ _self.nav_link('admin_changelog_index', 'admin_changelog', 'fa-clock-rotate-left', 'Changelog', false, changelog_non_lu(), false, 'nouvelle version') }}
+                        {{ _self.nav_link('admin_configuration_hub', ['admin_configuration_hub', 'admin_mail_settings', 'admin_categorie_index', 'admin_categorie_partenaire_index', 'admin_helloasso_settings', 'admin_langues_settings'], 'fa-gears', 'admin.nav.configuration') }}
+                        {{ _self.nav_link('admin_boutique_maintenance', 'admin_boutique_maintenance', 'fa-shop-slash', 'admin.nav.shop_settings') }}
+                        {{ _self.nav_link('admin_deploy_index', 'admin_deploy', 'fa-rocket', 'admin.nav.update', false, update_count, true, 'admin.nav.updates_available', 'data-update-badge') }}
+                        {{ _self.nav_link('admin_dev_backup_index', 'admin_dev_backup', 'fa-database', 'admin.nav.backups') }}
+                        {{ _self.nav_link('admin_journal_index', 'admin_journal', 'fa-scroll', 'admin.nav.activity_log') }}
+                        {{ _self.nav_link('admin_changelog_index', 'admin_changelog', 'fa-clock-rotate-left', 'admin.nav.changelog', false, changelog_non_lu(), false, 'admin.nav.new_version') }}
                     </div>
                 </div>
                 {% endif %}
             </nav>
 
             <div class="border-t border-admin-border p-3">
-                <a href="{{ path('app_logout') }}" title="Déconnexion" class="admin-surface-hover flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-admin-text-muted hover:text-admin-text transition-colors">
-                    <i class="fa-solid fa-right-from-bracket w-4 text-center"></i> <span data-admin-sidebar-target="label" class="whitespace-nowrap">Déconnexion</span>
+                <a href="{{ path('app_logout') }}" title="{{ 'admin.nav.logout'|trans }}" class="admin-surface-hover flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-admin-text-muted hover:text-admin-text transition-colors">
+                    <i class="fa-solid fa-right-from-bracket w-4 text-center"></i> <span data-admin-sidebar-target="label" class="whitespace-nowrap">{{ 'admin.nav.logout'|trans }}</span>
                 </a>
             </div>
         </aside>
@@ -168,7 +168,7 @@
 
                 <div class="hidden sm:flex items-center gap-2 rounded-lg border border-admin-border bg-admin-surface px-3 py-2 text-sm text-admin-text-muted w-full max-w-sm">
                     <i class="fa-solid fa-magnifying-glass"></i>
-                    <span>Recherche à venir…</span>
+                    <span>{{ 'admin.search_soon'|trans }}</span>
                 </div>
 
                 <div class="flex items-center gap-3 ml-auto">
@@ -177,18 +177,18 @@
                          data-notifications-read-url-value="{{ path('admin_notification_read') }}"
                          data-notifications-dismiss-url-value="{{ path('admin_notification_dismiss') }}"
                          data-notifications-token-value="{{ csrf_token('admin-notifications') }}">
-                        <button type="button" data-action="click->admin-dropdown#toggle" aria-label="Notifications"
+                        <button type="button" data-action="click->admin-dropdown#toggle" aria-label="{{ 'admin.notif.title'|trans }}"
                                 class="relative flex h-9 w-9 items-center justify-center rounded-full border border-admin-border bg-admin-surface text-admin-text-muted hover:text-admin-text">
                             <i class="fa-regular fa-bell"></i>
                             <span data-notif-badge {{ unread_count == 0 ? 'hidden' }} class="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full admin-gradient border-2 border-admin-surface"></span>
                         </button>
                         <div data-admin-dropdown-target="menu" class="notif-menu hidden absolute right-0 mt-2 w-[22rem] max-w-[calc(100vw-2rem)] rounded-lg border border-admin-border bg-admin-surface shadow-xl text-sm z-50">
                             <div class="notif-menu-head">
-                                <p class="font-semibold">Notifications
+                                <p class="font-semibold">{{ 'admin.notif.title'|trans }}
                                     <span class="notif-count" data-notif-count {{ unread_count == 0 ? 'hidden' }}><span data-notif-count-value>{{ unread_count }}</span></span>
                                 </p>
                                 {% if notifications|length > 0 %}
-                                    <button type="button" class="notif-link-btn" data-action="notifications#readAll"><i class="fa-solid fa-check-double"></i> Tout marquer comme lu</button>
+                                    <button type="button" class="notif-link-btn" data-action="notifications#readAll"><i class="fa-solid fa-check-double"></i> {{ 'admin.notif.read_all'|trans }}</button>
                                 {% endif %}
                             </div>
                             <div class="notif-list" data-notifications-target="list">
@@ -198,10 +198,10 @@
                             </div>
                             <p class="notif-empty" data-notifications-target="empty" {{ notifications is not empty ? 'hidden' }}>
                                 <i class="fa-regular fa-bell-slash"></i>
-                                Rien à signaler pour le moment.
+                                {{ 'admin.notif.empty'|trans }}
                             </p>
                             <a href="{{ path('admin_notification_index') }}" class="notif-menu-foot">
-                                Voir toutes les notifications{% if notifications|length > 6 %} ({{ notifications|length }}){% endif %}
+                                {{ 'admin.notif.see_all'|trans }}{% if notifications|length > 6 %} ({{ notifications|length }}){% endif %}
                             </a>
                         </div>
                     </div>
@@ -218,9 +218,9 @@
                                 <p class="font-semibold text-admin-text">{{ app.user ? app.user.nomComplet : '' }}</p>
                                 <p class="text-xs text-admin-text-muted">{{ app.user ? app.user.email : '' }}</p>
                             </div>
-                            <a href="{{ path('admin_parametres_profil') }}" class="admin-surface-hover flex items-center gap-2 px-4 py-2"><i class="fa-solid fa-sliders w-4 text-admin-text-muted"></i> Paramètres</a>
-                            <a href="{{ path('admin_parametres_preferences') }}" class="admin-surface-hover flex items-center gap-2 px-4 py-2"><i class="fa-regular fa-bell w-4 text-admin-text-muted"></i> Notifications</a>
-                            <a href="{{ path('app_logout') }}" class="admin-surface-hover flex items-center gap-2 px-4 py-2 border-t border-admin-border mt-1 pt-2"><i class="fa-solid fa-right-from-bracket w-4 text-admin-text-muted"></i> Déconnexion</a>
+                            <a href="{{ path('admin_parametres_profil') }}" class="admin-surface-hover flex items-center gap-2 px-4 py-2"><i class="fa-solid fa-sliders w-4 text-admin-text-muted"></i> {{ 'admin.menu.settings'|trans }}</a>
+                            <a href="{{ path('admin_parametres_preferences') }}" class="admin-surface-hover flex items-center gap-2 px-4 py-2"><i class="fa-regular fa-bell w-4 text-admin-text-muted"></i> {{ 'admin.menu.notifications'|trans }}</a>
+                            <a href="{{ path('app_logout') }}" class="admin-surface-hover flex items-center gap-2 px-4 py-2 border-t border-admin-border mt-1 pt-2"><i class="fa-solid fa-right-from-bracket w-4 text-admin-text-muted"></i> {{ 'admin.nav.logout'|trans }}</a>
                         </div>
                     </div>
                 </div>
@@ -231,7 +231,7 @@
                 {% for label, messages in app.flashes %}
                     {% for message in messages %}
                         <div class="mb-4 rounded-lg border {{ label == 'success' ? 'border-admin-success/30 bg-admin-success/10 text-admin-success' : 'border-admin-danger/30 bg-admin-danger/10 text-admin-danger' }} px-4 py-3 text-sm">
-                            {{ message }}
+                            {{ message|trans }}
                         </div>
                     {% endfor %}
                 {% endfor %}
@@ -253,7 +253,7 @@
 {% macro nav_section_label(label, dot_attr = '', dot_count = 0) %}
     <button type="button" data-admin-sidebar-target="label" data-action="click->nav-section#toggle"
             class="flex w-full items-center justify-between px-4 mb-2 text-[11px] font-semibold uppercase tracking-widest text-admin-text-muted whitespace-nowrap">
-        <span>{{ label }}{% if dot_attr == 'data-update-dot' %} <i data-update-dot {{ dot_count > 0 ? '' : 'hidden' }} class="ml-1 inline-block h-2 w-2 rounded-full admin-gradient align-middle" title="Une mise à jour est disponible"></i>{% endif %}</span>
+        <span>{{ label|trans }}{% if dot_attr == 'data-update-dot' %} <i data-update-dot {{ dot_count > 0 ? '' : 'hidden' }} class="ml-1 inline-block h-2 w-2 rounded-full admin-gradient align-middle" title="{{ 'admin.nav.update_dot'|trans }}"></i>{% endif %}</span>
         <i data-nav-section-target="icon" class="fa-solid fa-chevron-down text-[9px] transition-transform duration-150"></i>
     </button>
 {% endmacro %}
@@ -262,13 +262,13 @@
     {% set current = app.request.attributes.get('_route') %}
     {% set prefixes = prefix is iterable ? prefix : [prefix] %}
     {% set active = prefixes|filter(p => exact ? current == p : current starts with p)|length > 0 %}
-    <a href="{{ path(route) }}" title="{{ label }}"
+    <a href="{{ path(route) }}" title="{{ label|trans }}"
        class="group relative flex items-center gap-3 rounded-lg pl-4 pr-3 py-2 text-sm font-medium transition-colors {{ active ? 'admin-surface-active' : 'text-admin-text-muted admin-surface-hover hover:text-admin-text' }}">
         <span class="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-1 rounded-full transition-all duration-150 {{ active ? 'admin-gradient' : 'bg-transparent group-hover:bg-admin-text-muted/40' }}"></span>
-        <i class="fa-solid {{ icon }} w-4 text-center shrink-0"></i> <span data-admin-sidebar-target="label" class="whitespace-nowrap">{{ label }}</span>
+        <i class="fa-solid {{ icon }} w-4 text-center shrink-0"></i> <span data-admin-sidebar-target="label" class="whitespace-nowrap">{{ label|trans }}</span>
         {% if live|default(false) %}
-            <span data-admin-sidebar-target="label" {{ live_attr == 'data-update-badge' ? 'data-update-badge' : 'data-chat-badge' }} {{ badge|default(0) == 0 ? 'hidden' }} class="ml-auto rounded-full admin-gradient px-1.5 text-[10px] font-bold leading-4 text-white" title="{{ badge_title is empty ? 'Messages non lus' : badge_title }}">{{ badge|default(0) }}</span>
-        {% elseif badge|default(0) > 0 %}<span data-admin-sidebar-target="label" class="ml-auto rounded-full admin-gradient px-1.5 text-[10px] font-bold leading-4 text-white" title="{{ badge_title is empty ? badge ~ ' suggestion' ~ (badge > 1 ? 's') ~ ' de configuration' : badge ~ ' ' ~ badge_title }}">{{ badge }}</span>{% endif %}
+            <span data-admin-sidebar-target="label" {{ live_attr == 'data-update-badge' ? 'data-update-badge' : 'data-chat-badge' }} {{ badge|default(0) == 0 ? 'hidden' }} class="ml-auto rounded-full admin-gradient px-1.5 text-[10px] font-bold leading-4 text-white" title="{{ badge_title is empty ? 'admin.nav.unread_messages'|trans : badge_title|trans }}">{{ badge|default(0) }}</span>
+        {% elseif badge|default(0) > 0 %}<span data-admin-sidebar-target="label" class="ml-auto rounded-full admin-gradient px-1.5 text-[10px] font-bold leading-4 text-white" title="{{ badge_title is empty ? 'admin.nav.config_suggestions'|trans({'%count%': badge}) : badge ~ ' ' ~ (badge_title|trans) }}">{{ badge }}</span>{% endif %}
     </a>
 {% endmacro %}
 

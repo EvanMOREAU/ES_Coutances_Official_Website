@@ -10,11 +10,11 @@
         <div class="ad-cell">{{ form_label(row.mode) }}{{ form_widget(row.mode) }}{{ form_errors(row.mode) }}</div>
         <div class="ad-cell">{{ form_label(row.montantCentimes) }}{{ form_widget(row.montantCentimes) }}{{ form_errors(row.montantCentimes) }}</div>
         <div class="ad-cell">{{ form_label(row.dateEcheance) }}{{ form_widget(row.dateEcheance) }}</div>
-        <div class="ad-cell ad-check"><label class="sv-toggle">{{ form_widget(row.recu) }}<span class="sv-switch"></span><span>Encaissé</span></label></div>
+        <div class="ad-cell ad-check"><label class="sv-toggle">{{ form_widget(row.recu) }}<span class="sv-switch"></span><span>{{ 'Encaissé'|trans }}</span></label></div>
         <div class="ad-cell">{{ form_label(row.dateRemise) }}{{ form_widget(row.dateRemise) }}</div>
         <div class="ad-cell">{{ form_label(row.reference) }}{{ form_widget(row.reference) }}</div>
         {{ form_widget(row.ordre) }}
-        {% if locked %}<span class="ad-lock" title="Règlement encaissé : il n'est plus modifiable"><i class="fa-solid fa-lock"></i></span>{% else %}<button type="button" class="var-remove" data-action="adhesion-form#remove" title="Retirer" aria-label="Retirer ce règlement"><i class="fa-solid fa-xmark"></i></button>{% endif %}
+        {% if locked %}<span class="ad-lock" title="{{ 'Règlement encaissé : il n\'est plus modifiable'|trans }}"><i class="fa-solid fa-lock"></i></span>{% else %}<button type="button" class="var-remove" data-action="adhesion-form#remove" title="{{ 'Retirer'|trans }}" aria-label="{{ 'Retirer ce règlement'|trans }}"><i class="fa-solid fa-xmark"></i></button>{% endif %}
     </div>
 {% endmacro %}
 
@@ -26,12 +26,12 @@
         <div class="ad-cell">{{ form_label(row.statut) }}{{ form_widget(row.statut) }}</div>
         <div class="ad-cell">{{ form_label(row.dateReception) }}{{ form_widget(row.dateReception) }}</div>
         <div class="ad-cell ad-wide">{{ form_label(row.note) }}{{ form_widget(row.note) }}</div>
-        {% if locked %}<span class="ad-lock" title="Aide reçue : elle n'est plus modifiable"><i class="fa-solid fa-lock"></i></span>{% else %}<button type="button" class="var-remove" data-action="adhesion-form#remove" title="Retirer" aria-label="Retirer cette aide"><i class="fa-solid fa-xmark"></i></button>{% endif %}
+        {% if locked %}<span class="ad-lock" title="{{ 'Aide reçue : elle n\'est plus modifiable'|trans }}"><i class="fa-solid fa-lock"></i></span>{% else %}<button type="button" class="var-remove" data-action="adhesion-form#remove" title="{{ 'Retirer'|trans }}" aria-label="{{ 'Retirer cette aide'|trans }}"><i class="fa-solid fa-xmark"></i></button>{% endif %}
     </div>
 {% endmacro %}
 
 {% block body %}
-    <a href="{{ path('admin_adhesion_index') }}" class="text-sm text-admin-text-muted hover:text-admin-text"><i class="fa-solid fa-arrow-left"></i> Paiements des licences</a>
+    <a href="{{ path('admin_adhesion_index') }}" class="text-sm text-admin-text-muted hover:text-admin-text"><i class="fa-solid fa-arrow-left"></i> {{ 'Paiements des licences'|trans }}</a>
     <div class="flex flex-wrap items-center gap-3 mt-3 mb-5">
         <h1 class="u-66972700 text-2xl font-black">
             {% if adhesion.id %}Licence {{ adhesion.saison }} — {{ adhesion.licencieAffichage }}{% else %}Nouvelle licence{% endif %}
@@ -41,10 +41,10 @@
 
     {% if adhesion.id %}
         <div class="ad-tiles">
-            <div class="ad-tile"><span>Montant dû</span><strong>{{ adhesion.montantDuCentimes|money }}</strong></div>
-            <div class="ad-tile"><span>Encaissé</span><strong>{{ adhesion.recuCentimes|money }}</strong></div>
-            <div class="ad-tile"><span>Reste à encaisser</span><strong>{{ adhesion.resteCentimes|money }}</strong></div>
-            <div class="ad-tile"><span>Aides attendues</span><strong>{{ adhesion.aidesAttenduesCentimes|money }}</strong></div>
+            <div class="ad-tile"><span>{{ 'Montant dû'|trans }}</span><strong>{{ adhesion.montantDuCentimes|money }}</strong></div>
+            <div class="ad-tile"><span>{{ 'Encaissé'|trans }}</span><strong>{{ adhesion.recuCentimes|money }}</strong></div>
+            <div class="ad-tile"><span>{{ 'Reste à encaisser'|trans }}</span><strong>{{ adhesion.resteCentimes|money }}</strong></div>
+            <div class="ad-tile"><span>{{ 'Aides attendues'|trans }}</span><strong>{{ adhesion.aidesAttenduesCentimes|money }}</strong></div>
         </div>
     {% endif %}
 
@@ -59,7 +59,7 @@
         <div class="grid gap-6 lg:grid-cols-3 items-start">
             <div class="lg:col-span-2 space-y-6">
                 <section class="admin-card rounded-2xl p-6">
-                    <h2 class="font-semibold mb-5">Licence et montant</h2>
+                    <h2 class="font-semibold mb-5">{{ 'Licence et montant'|trans }}</h2>
                     {% if form.licencie is defined %}{{ form_row(form.licencie) }}{% endif %}
                     {{ form_row(form.saison) }}
                     <div class="grid sm:grid-cols-2 gap-4">
@@ -70,38 +70,38 @@
                 </section>
 
                 <section class="admin-card rounded-2xl p-6">
-                    <h2 class="font-semibold mb-1">Aides</h2>
-                    <p class="text-xs text-admin-text-muted mb-4">Pass'Sport, Spot 50, Atout Normandie, Bourse Évasion, chèques vacances, coupons sport… Une aide reste « attendue » jusqu'à sa réception : notez la date quand elle arrive. Une fois enregistrée comme reçue, elle est définitive.</p>
+                    <h2 class="font-semibold mb-1">{{ 'Aides'|trans }}</h2>
+                    <p class="text-xs text-admin-text-muted mb-4">{{ 'Pass\'Sport, Spot 50, Atout Normandie, Bourse Évasion, chèques vacances, coupons sport… Une aide reste « attendue » jusqu\'à sa réception : notez la date quand elle arrive. Une fois enregistrée comme reçue, elle est définitive.'|trans }}</p>
                     <div data-adhesion-form-target="aides">
                         {% for row in form.aides %}{{ _self.aide_row(row) }}{% endfor %}
                     </div>
-                    <p class="ad-empty" data-adhesion-form-target="aidesEmpty" {{ form.aides|length > 0 ? 'hidden' }}>Aucune aide enregistrée.</p>
-                    <button type="button" class="admin-btn admin-btn-ghost admin-btn-sm mt-3" data-action="adhesion-form#addAide"><i class="fa-solid fa-plus"></i> Ajouter une aide</button>
+                    <p class="ad-empty" data-adhesion-form-target="aidesEmpty" {{ form.aides|length > 0 ? 'hidden' }}>{{ 'Aucune aide enregistrée.'|trans }}</p>
+                    <button type="button" class="admin-btn admin-btn-ghost admin-btn-sm mt-3" data-action="adhesion-form#addAide"><i class="fa-solid fa-plus"></i> {{ 'Ajouter une aide'|trans }}</button>
                     {% do form.aides.setRendered %}
                 </section>
 
                 <section class="admin-card rounded-2xl p-6">
                     <div class="flex flex-wrap items-center justify-between gap-3 mb-1">
-                        <h2 class="font-semibold">Règlements</h2>
+                        <h2 class="font-semibold">{{ 'Règlements'|trans }}</h2>
                         <div class="ad-split">
-                            <span>Échelonner le reste en</span>
-                            <button type="button" class="admin-btn admin-btn-ghost admin-btn-sm" data-action="adhesion-form#split" data-adhesion-form-parts-param="1">1 fois</button>
-                            <button type="button" class="admin-btn admin-btn-ghost admin-btn-sm" data-action="adhesion-form#split" data-adhesion-form-parts-param="2">2 fois</button>
-                            <button type="button" class="admin-btn admin-btn-ghost admin-btn-sm" data-action="adhesion-form#split" data-adhesion-form-parts-param="3">3 fois</button>
+                            <span>{{ 'Échelonner le reste en'|trans }}</span>
+                            <button type="button" class="admin-btn admin-btn-ghost admin-btn-sm" data-action="adhesion-form#split" data-adhesion-form-parts-param="1">{{ '1 fois'|trans }}</button>
+                            <button type="button" class="admin-btn admin-btn-ghost admin-btn-sm" data-action="adhesion-form#split" data-adhesion-form-parts-param="2">{{ '2 fois'|trans }}</button>
+                            <button type="button" class="admin-btn admin-btn-ghost admin-btn-sm" data-action="adhesion-form#split" data-adhesion-form-parts-param="3">{{ '3 fois'|trans }}</button>
                         </div>
                     </div>
-                    <p class="text-xs text-admin-text-muted mb-4">Une ligne par échéance. Cochez « Encaissé » à la réception, et indiquez la date de remise en banque (chèques, espèces) ou de paiement (carte).</p>
+                    <p class="text-xs text-admin-text-muted mb-4">{{ 'Une ligne par échéance. Cochez « Encaissé » à la réception, et indiquez la date de remise en banque (chèques, espèces) ou de paiement (carte).'|trans }}</p>
                     {{ form_errors(form.reglements) }}
                     <div data-adhesion-form-target="reglements">
                         {% for row in form.reglements %}{{ _self.reglement_row(row) }}{% endfor %}
                     </div>
-                    <p class="ad-empty" data-adhesion-form-target="reglementsEmpty" {{ form.reglements|length > 0 ? 'hidden' }}>Aucun règlement enregistré.</p>
-                    <button type="button" class="admin-btn admin-btn-ghost admin-btn-sm mt-3" data-action="adhesion-form#addReglement"><i class="fa-solid fa-plus"></i> Ajouter un règlement</button>
+                    <p class="ad-empty" data-adhesion-form-target="reglementsEmpty" {{ form.reglements|length > 0 ? 'hidden' }}>{{ 'Aucun règlement enregistré.'|trans }}</p>
+                    <button type="button" class="admin-btn admin-btn-ghost admin-btn-sm mt-3" data-action="adhesion-form#addReglement"><i class="fa-solid fa-plus"></i> {{ 'Ajouter un règlement'|trans }}</button>
                     {% do form.reglements.setRendered %}
                 </section>
 
                 <section class="admin-card rounded-2xl p-6">
-                    <h2 class="font-semibold mb-5">Observations</h2>
+                    <h2 class="font-semibold mb-5">{{ 'Observations'|trans }}</h2>
                     {{ form_row(form.observation) }}
                 </section>
             </div>
@@ -109,14 +109,14 @@
             <aside class="space-y-6">
                 {% if adhesion.licencie %}
                     <section class="admin-card rounded-2xl p-6">
-                        <h2 class="font-semibold mb-3">Famille</h2>
+                        <h2 class="font-semibold mb-3">{{ 'Famille'|trans }}</h2>
                         <p class="text-sm">{{ adhesion.licencie.famille }}</p>
                         <p class="text-xs text-admin-text-muted mt-1">{{ adhesion.licencie.famille.licencies|length }} licencié{{ adhesion.licencie.famille.licencies|length > 1 ? 's' }}</p>
                     </section>
                 {% endif %}
                 {% if history is defined and history|length > 1 %}
                     <section class="admin-card rounded-2xl p-6">
-                        <h2 class="font-semibold mb-3">Historique des licences</h2>
+                        <h2 class="font-semibold mb-3">{{ 'Historique des licences'|trans }}</h2>
                         <ul class="space-y-2 text-sm">
                             {% for h in history %}
                                 <li class="flex items-center justify-between gap-3">
@@ -131,8 +131,8 @@
         </div>
 
         <div class="flex items-center gap-3 mt-6">
-            <button type="submit" class="rounded-lg admin-gradient px-5 py-2 text-sm font-semibold text-white">Enregistrer</button>
-            <a href="{{ path('admin_adhesion_index') }}" class="text-sm text-admin-text-muted hover:text-admin-text">Annuler</a>
+            <button type="submit" class="rounded-lg admin-gradient px-5 py-2 text-sm font-semibold text-white">{{ 'Enregistrer'|trans }}</button>
+            <a href="{{ path('admin_adhesion_index') }}" class="text-sm text-admin-text-muted hover:text-admin-text">{{ 'Annuler'|trans }}</a>
         </div>
     </div>
     {{ form_end(form) }}

@@ -1,5 +1,5 @@
 import { Controller } from '@hotwired/stimulus';
-import { adminConfirm } from '../modal.js';
+import { adminConfirm, adminPrompt } from '../modal.js';
 
 /**
  * Page « Mise à jour » : vérifie les mises à jour disponibles sur GitHub,
@@ -12,6 +12,7 @@ export default class extends Controller {
     static values = {
         checkUrl: String,
         startUrl: String,
+        reauthUrl: String,
         statusUrl: String, // contient __id__
         token: String,
         runningId: Number,
@@ -34,7 +35,7 @@ export default class extends Controller {
         });
         const data = await response.json().catch(() => ({}));
         if (!response.ok) {
-            throw new Error(data.error || `Erreur ${response.status}`);
+            throw Object.assign(new Error(data.error || `Erreur ${response.status}`), { data });
         }
 
         return data;
@@ -111,13 +112,49 @@ export default class extends Controller {
         this.deployButtonTarget.disabled = true;
         this.checkButtonTarget.disabled = true;
         try {
-            const data = await this.request(this.startUrlValue, { method: 'POST' });
+            let data;
+            try {
+                data = await this.request(this.startUrlValue, { method: 'POST' });
+            } catch (error) {
+                if (!error.data?.reauth) {
+                    throw error;
+                }
+                // Action sensible : le mot de passe est redemandé, puis le lancement est rejoué.
+                await this.reauthenticate();
+                data = await this.request(this.startUrlValue, { method: 'POST' });
+            }
             this.follow(data.id);
         } catch (error) {
             this.summaryTarget.textContent = error.message;
             this.summaryTarget.classList.add('is-error');
             this.checkButtonTarget.disabled = false;
+            this.deployButtonTarget.disabled = false;
         }
+    }
+
+    /** Demande le mot de passe du compte (trois essais) ; lève une erreur si l'utilisateur annule. */
+    async reauthenticate() {
+        for (let attempt = 0; attempt < 3; attempt++) {
+            const password = await adminPrompt({
+                title: 'Confirmez votre identité',
+                label: attempt === 0 ? 'Mot de passe de votre compte' : 'Mot de passe incorrect, réessayez',
+                confirmLabel: 'Confirmer',
+                type: 'password',
+            });
+            if (password === null) {
+                throw new Error('Mise à jour annulée.');
+            }
+            try {
+                await this.request(this.reauthUrlValue, { method: 'POST', body: new URLSearchParams({ password }) });
+
+                return;
+            } catch (error) {
+                if (error.message !== 'Mot de passe incorrect.') {
+                    throw error;
+                }
+            }
+        }
+        throw new Error('Mot de passe incorrect : mise à jour annulée.');
     }
 
     /** Supprime l'archive des fichiers d'une mise à jour, après confirmation (la sauvegarde de la base est conservée). */

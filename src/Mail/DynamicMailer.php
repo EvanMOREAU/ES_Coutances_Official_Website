@@ -24,7 +24,7 @@ use Symfony\Component\Mime\Email;
 use Symfony\Component\Mime\RawMessage;
 
 /**
- * Envoie les e-mails avec le serveur SMTP réglé dans l'administration (table mail_settings) quand il
+ * Envoie les e-mails avec le serveur SMTP réglé dans l'administration (table es_mail_settings) quand il
  * est activé, et avec MAILER_DSN sinon. Chaque envoi est consigné au journal d'activité (destinataires
  * et objet, jamais le contenu).
  *

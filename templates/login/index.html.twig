@@ -1,13 +1,13 @@
 {% block body %}
 <!DOCTYPE html>
-<html lang="fr" class="h-full">
+<html lang="{{ app.request.locale }}" dir="{{ locale_dir(app.request ? app.request.locale : 'fr') }}" class="h-full">
 <head>
     <meta charset="UTF-8">
     <meta name="csp-nonce" content="{{ csp_nonce() }}">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" type="image/png" href="{{ asset('images/favicon.png') }}">
     <link rel="stylesheet" href="{{ asset('styles/inline-utilities.css') }}">
-    <title>Connexion — ES Coutances Admin</title>
+    <title>{{ 'Connexion — ES Coutances Admin'|trans }}</title>
     <link rel="stylesheet" href="{{ asset('fonts/fonts.css') }}">
     <link rel="stylesheet" href="{{ asset('vendor/fontawesome/all.min.css') }}">
     <link rel="stylesheet" href="{{ asset('styles/admin.css') }}">
@@ -19,14 +19,14 @@
         <div class="admin-hero relative overflow-hidden rounded-2xl p-8 mb-6 text-center">
             <div class="admin-hero-glow"></div>
             <div class="relative">
-                <img src="{{ asset('images/logo_hd_trans3_gt.png') }}" alt="ES Coutances" class="h-14 mx-auto mb-3">
-                <h1 class="u-66972700 text-xl font-black text-white uppercase tracking-wide">Espace Administration</h1>
+                <img src="{{ asset('images/logo_hd_trans3_gt.png') }}" alt="{{ 'ES Coutances'|trans }}" class="h-14 mx-auto mb-3">
+                <h1 class="u-66972700 text-xl font-black text-white uppercase tracking-wide">{{ 'Espace Administration'|trans }}</h1>
             </div>
         </div>
 
         <div class="admin-card rounded-2xl p-8">
             {% for message in app.flashes('success') %}
-                <div class="mb-4 rounded-lg border border-admin-success/30 bg-admin-success/10 text-admin-success px-4 py-3 text-sm">{{ message }}</div>
+                <div class="mb-4 rounded-lg border border-admin-success/30 bg-admin-success/10 text-admin-success px-4 py-3 text-sm">{{ message|trans }}</div>
             {% endfor %}
             {% if error %}
                 <div class="mb-4 rounded-lg border border-admin-danger/30 bg-admin-danger/10 text-admin-danger px-4 py-3 text-sm">
@@ -36,12 +36,12 @@
 
             <form method="post" class="space-y-5">
                 <div>
-                    <label for="email" class="block text-xs font-semibold uppercase tracking-wide text-admin-text-muted mb-1.5">Adresse e-mail</label>
+                    <label for="email" class="block text-xs font-semibold uppercase tracking-wide text-admin-text-muted mb-1.5">{{ 'Adresse e-mail'|trans }}</label>
                     <input type="email" id="email" name="email" value="{{ last_username }}" autocomplete="email" required
                            class="w-full rounded-lg border border-admin-border bg-admin-bg px-3 py-2 text-sm text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-primary-to">
                 </div>
                 <div>
-                    <label for="password" class="block text-xs font-semibold uppercase tracking-wide text-admin-text-muted mb-1.5">Mot de passe</label>
+                    <label for="password" class="block text-xs font-semibold uppercase tracking-wide text-admin-text-muted mb-1.5">{{ 'Mot de passe'|trans }}</label>
                     <input type="password" id="password" name="password" autocomplete="current-password" required
                            class="w-full rounded-lg border border-admin-border bg-admin-bg px-3 py-2 text-sm text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-primary-to">
                 </div>
@@ -49,7 +49,7 @@
                 <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
 
                 <button type="submit" class="w-full rounded-lg admin-gradient px-5 py-2.5 text-sm font-semibold text-white">
-                    Se connecter
+                    {{ 'Se connecter'|trans }}
                 </button>
             </form>
 
@@ -58,12 +58,13 @@
                  data-passkey-finish-url-value="{{ path('admin_webauthn_login_check') }}">
                 <button type="button" data-passkey-target="button" data-action="click->passkey#login"
                         class="w-full rounded-lg border border-admin-border px-5 py-2.5 text-sm font-semibold text-admin-text hover:bg-admin-surface">
-                    <i class="fa-solid fa-fingerprint mr-1"></i> Se connecter avec une clé d'accès
+                    <i class="fa-solid fa-fingerprint mr-1"></i> {{ 'Se connecter avec une clé d\'accès'|trans }}
                 </button>
                 <p data-passkey-target="status" class="mt-2 text-xs text-admin-danger text-center"></p>
             </div>
 
-            <a href="{{ path('app_forgot_password_request') }}" class="block text-center mt-5 text-sm text-admin-text-muted hover:text-white">Mot de passe oublié ?</a>
+            {{ include('_locale_switcher.html.twig') }}
+            <a href="{{ path('app_forgot_password_request') }}" class="block text-center mt-5 text-sm text-admin-text-muted hover:text-white">{{ 'Mot de passe oublié ?'|trans }}</a>
         </div>
     </div>
 </body>

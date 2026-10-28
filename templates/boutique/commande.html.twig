@@ -1,8 +1,8 @@
 {% extends 'boutique/_layout.html.twig' %}
 
 {% block boutique_title %}Finaliser ma commande{% endblock %}
-{% block breadcrumb %}<a href="{{ path('boutique_index') }}">Boutique</a> <i class="fa-solid fa-chevron-right"></i> <a href="{{ path('boutique_panier') }}">Panier</a> <i class="fa-solid fa-chevron-right"></i> <span>Commande</span>{% endblock %}
-{% block hero_title %}Finaliser ma <span>commande</span>{% endblock %}
+{% block breadcrumb %}<a href="{{ path('boutique_index') }}">{{ 'Boutique'|trans }}</a> <i class="fa-solid fa-chevron-right"></i> <a href="{{ path('boutique_panier') }}">{{ 'Panier'|trans }}</a> <i class="fa-solid fa-chevron-right"></i> <span>{{ 'Commande'|trans }}</span>{% endblock %}
+{% block hero_title %}Finaliser ma <span>{{ 'commande'|trans }}</span>{% endblock %}
 
 {% block boutique_styles %}
 <style nonce="{{ csp_nonce() }}">
@@ -46,9 +46,9 @@
 
 {% block shop_body %}
   <ol class="steps">
-    <li class="is-done"><span class="n"><i class="u-8b685211 fa-solid fa-check"></i></span> Panier</li>
-    <li class="is-current"><span class="n">2</span> Vos informations</li>
-    <li><span class="n">3</span> Confirmation</li>
+    <li class="is-done"><span class="n"><i class="u-8b685211 fa-solid fa-check"></i></span> {{ 'Panier'|trans }}</li>
+    <li class="is-current"><span class="n">2</span> {{ 'Vos informations'|trans }}</li>
+    <li><span class="n">3</span> {{ 'Confirmation'|trans }}</li>
   </ol>
 
   {{ form_start(form, {attr: {novalidate: 'novalidate'}}) }}
@@ -58,9 +58,9 @@
   <div class="shop-cols" data-promo-code data-promo-code-url="{{ path('boutique_code_promo_verifier') }}">
     <div class="u-5e813e87">
       <div class="box">
-        <h2>Vos coordonnées</h2>
+        <h2>{{ 'Vos coordonnées'|trans }}</h2>
         {% if app.user is null %}
-          <p class="u-4e1e2e50 note">Pas besoin de compte pour commander. <a href="{{ path('portail_login') }}" class="u-0c08644b">J'ai un compte</a></p>
+          <p class="u-4e1e2e50 note">{{ 'Pas besoin de compte pour commander.'|trans }} <a href="{{ path('portail_login') }}" class="u-0c08644b">{{ 'J\'ai un compte'|trans }}</a></p>
         {% endif %}
         <div class="form-grid">
           {% for field in [form.prenom, form.nom, form.email, form.telephone] %}
@@ -75,7 +75,7 @@
       </div>
 
       <div class="box">
-        <h2>Mode de règlement</h2>
+        <h2>{{ 'Mode de règlement'|trans }}</h2>
         <div class="pay-options">
           {% set pay_meta = {
             carte:   {icon: 'fa-credit-card', sub: 'Règlement en ligne, immédiat.'},
@@ -105,7 +105,7 @@
       </div>
 
       <div class="box">
-        <h2>Code de livraison</h2>
+        <h2>{{ 'Code de livraison'|trans }}</h2>
         <div class="f-group">
           {{ form_label(form.codePromo, null, {label_attr: {class: 'lbl'}}) }}
           {{ form_widget(form.codePromo, {attr: {'data-promo-code-input': true}}) }}
@@ -117,21 +117,21 @@
     </div>
 
     <aside class="box summary">
-      <h2>Votre commande</h2>
+      <h2>{{ 'Votre commande'|trans }}</h2>
       {% for ligne in lignes %}
         <div class="mini-line">
           <span>{{ ligne.quantite }} × {{ ligne.variante.article.nom }}{% if not ligne.variante.article.sansDeclinaison %} <small>({{ ligne.variante.libelle }})</small>{% endif %}</span>
           <span>{{ ligne.total|money }}</span>
         </div>
       {% endfor %}
-      <div class="sum-row total"><span>Total</span><span class="price">{{ total|money }}</span></div>
-      <div class="pickup"><i class="fa-solid fa-store"></i><span><strong>Retrait au club</strong> — pas de livraison. Nous vous prévenons par e-mail dès que votre commande est prête.</span></div>
+      <div class="sum-row total"><span>{{ 'Total'|trans }}</span><span class="price">{{ total|money }}</span></div>
+      <div class="pickup"><i class="fa-solid fa-store"></i><span><strong>{{ 'Retrait au club'|trans }}</strong> {{ '— pas de livraison. Nous vous prévenons par e-mail dès que votre commande est prête.'|trans }}</span></div>
       <div class="u-b0043ef4 f-group">
-        <label class="cgv-check">{{ form_widget(form.cgv) }}<span>J'ai lu et j'accepte les <a href="{{ path('app_legal_cgv') }}" target="_blank" rel="noopener" >conditions de vente</a> (dont le droit de rétractation) et la <a href="{{ path('app_legal_confidentialite') }}" target="_blank" rel="noopener">politique de confidentialité</a>.</span></label>
+        <label class="cgv-check">{{ form_widget(form.cgv) }}<span>{{ 'J\'ai lu et j\'accepte les'|trans }} <a href="{{ path('app_legal_cgv') }}" target="_blank" rel="noopener" >{{ 'conditions de vente'|trans }}</a> {{ '(dont le droit de rétractation) et la'|trans }} <a href="{{ path('app_legal_confidentialite') }}" target="_blank" rel="noopener">{{ 'politique de confidentialité'|trans }}</a>.</span></label>
         {{ form_errors(form.cgv) }}
       </div>
-      <button type="submit" class="u-4a909ea7 btn btn-primary btn-block"><i class="fa-solid fa-lock"></i> Commander avec obligation de paiement</button>
-      <p class="u-7eb530c1"><a href="{{ path('boutique_panier') }}" class="note"><i class="fa-solid fa-arrow-left"></i> Modifier mon panier</a></p>
+      <button type="submit" class="u-4a909ea7 btn btn-primary btn-block"><i class="fa-solid fa-lock"></i> {{ 'Commander avec obligation de paiement'|trans }}</button>
+      <p class="u-7eb530c1"><a href="{{ path('boutique_panier') }}" class="note"><i class="fa-solid fa-arrow-left"></i> {{ 'Modifier mon panier'|trans }}</a></p>
     </aside>
   </div>
   {{ form_end(form) }}

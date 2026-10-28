@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="{{ app.request ? app.request.locale : 'fr' }}" dir="{{ locale_dir(app.request ? app.request.locale : 'fr') }}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Site en maintenance — ES Coutances</title>
+  <title>{{ 'Site en maintenance — ES Coutances'|trans }}</title>
   <style nonce="{{ csp_nonce() }}">
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -24,8 +24,8 @@
 </head>
 <body>
   <div class="box">
-    <h1>Site en maintenance</h1>
-    <p>Le site de l'ES Coutances est momentanément indisponible. Merci de revenir un peu plus tard.</p>
+    <h1>{{ 'Site en maintenance'|trans }}</h1>
+    <p>{{ 'Le site de l\'ES Coutances est momentanément indisponible. Merci de revenir un peu plus tard.'|trans }}</p>
   </div>
 </body>
 </html>

@@ -1,7 +1,7 @@
 {% extends 'boutique/email/_base.html.twig' %}
 
 {% block contenu %}
-    <p>Merci pour votre commande <strong>{{ commande.reference }}</strong>. Elle est bien enregistrée.</p>
+    <p>{{ 'Merci pour votre commande'|trans }} <strong>{{ commande.reference }}</strong>{{ '. Elle est bien enregistrée.'|trans }}</p>
 
     <table style="width:100%; border-collapse:collapse; margin:16px 0;">
         {% for ligne in commande.lignes %}
@@ -11,24 +11,24 @@
             </tr>
         {% endfor %}
         <tr>
-            <td style="padding:10px 0; font-weight:700;">Total</td>
+            <td style="padding:10px 0; font-weight:700;">{{ 'Total'|trans }}</td>
             <td style="padding:10px 0; font-weight:700; text-align:right;">{{ commande.totalCentimes|money }}</td>
         </tr>
     </table>
 
-    <p><strong>Retrait au club</strong> : il n'y a pas de livraison. Nous vous prévenons par email dès que votre commande est prête.</p>
+    <p><strong>{{ 'Retrait au club'|trans }}</strong> {{ ': il n\'y a pas de livraison. Nous vous prévenons par email dès que votre commande est prête.'|trans }}</p>
     {% if commande.isPayee %}
-        <p>Règlement : <strong>payé</strong> ({{ commande.modePaiementLabel|lower }}).</p>
+        <p>{{ 'Règlement :'|trans }} <strong>{{ 'payé'|trans }}</strong> ({{ commande.modePaiementLabel|lower }}).</p>
     {% elseif commande.modePaiement == 'carte' %}
-        <p>Règlement par carte : <strong>en attente</strong>. Vous pouvez le finaliser depuis la page de suivi ci-dessous.</p>
+        <p>{{ 'Règlement par carte :'|trans }} <strong>{{ 'en attente'|trans }}</strong>{{ '. Vous pouvez le finaliser depuis la page de suivi ci-dessous.'|trans }}</p>
     {% else %}
-        <p>Règlement : <strong>{{ commande.modePaiementLabel|lower }}</strong>, <strong>{{ commande.totalCentimes|money }}</strong> à régler lors du retrait.</p>
+        <p>{{ 'Règlement :'|trans }} <strong>{{ commande.modePaiementLabel|lower }}</strong>, <strong>{{ commande.totalCentimes|money }}</strong> {{ 'à régler lors du retrait.'|trans }}</p>
     {% endif %}
 
     <p style="text-align:center; margin:28px 0;">
         <a href="{{ url('boutique_commande_suivi', {reference: commande.reference, token: commande.token}) }}"
            style="background:#C8102E; color:#fff; padding:12px 26px; border-radius:4px; text-decoration:none; font-weight:700; text-transform:uppercase; letter-spacing:.05em; font-size:13px;">
-            Suivre ma commande
+            {{ 'Suivre ma commande'|trans }}
         </a>
     </p>
 {% endblock %}

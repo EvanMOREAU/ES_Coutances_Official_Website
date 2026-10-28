@@ -4,8 +4,8 @@
 
 {% block body %}
     <div class="mb-6">
-        <h1 class="u-66972700 text-2xl font-black">Gestion des licenciés</h1>
-        <p class="text-sm text-admin-text-muted">Familles, licenciés, équipes et saisons au même endroit. Cliquez sur une rubrique pour la gérer.</p>
+        <h1 class="u-66972700 text-2xl font-black">{{ 'Gestion des licenciés'|trans }}</h1>
+        <p class="text-sm text-admin-text-muted">{{ 'Familles, licenciés, équipes et saisons au même endroit. Cliquez sur une rubrique pour la gérer.'|trans }}</p>
     </div>
 
     {{ include('admin/_hub.html.twig', {groups: {'Gestion': 'Rubriques'}}) }}

@@ -1,11 +1,11 @@
 {% extends 'portail/_auth.html.twig' %}
 
-{% block title %}Créer un compte{% endblock %}
-{% block heading %}Créer un compte{% endblock %}
-{% block lead %}Commandez sur la boutique du club et retrouvez l'historique de vos commandes.{% endblock %}
+{% block title %}{{ 'Créer un compte'|trans }}{% endblock %}
+{% block heading %}{{ 'Créer un compte'|trans }}{% endblock %}
+{% block lead %}{{ 'Commandez sur la boutique du club et retrouvez l\'historique de vos commandes.'|trans }}{% endblock %}
 
 {% block card %}
-    <p class="mc-note">Vous êtes déjà une famille ou un licencié du club ? Utilisez plutôt l'accès qui vous a été communiqué.</p>
+    <p class="mc-note">{{ 'Vous êtes déjà une famille ou un licencié du club ? Utilisez plutôt l\'accès qui vous a été communiqué.'|trans }}</p>
 
     {{ form_start(form) }}
         <div class="mc-two">
@@ -17,14 +17,14 @@
         <div class="mc-field">{{ form_label(form.plainPassword.second) }}{{ form_widget(form.plainPassword.second) }}{{ form_errors(form.plainPassword.second) }}</div>
 
         <div class="mc-field">
-            <label class="mc-check">{{ form_widget(form.consent) }}<span>J'ai lu et j'accepte la <a href="{{ path('app_legal_confidentialite') }}" target="_blank" rel="noopener">politique de confidentialité</a> et les <a href="{{ path('app_legal_cgv') }}" target="_blank" rel="noopener">conditions de vente</a>.</span></label>
+            <label class="mc-check">{{ form_widget(form.consent) }}<span>{{ 'J\'ai lu et j\'accepte la'|trans }} <a href="{{ path('app_legal_confidentialite') }}" target="_blank" rel="noopener">{{ 'politique de confidentialité'|trans }}</a> {{ 'et les'|trans }} <a href="{{ path('app_legal_cgv') }}" target="_blank" rel="noopener">{{ 'conditions de vente'|trans }}</a>.</span></label>
             {{ form_errors(form.consent) }}
         </div>
 
-        <button type="submit" class="mc-submit">Créer mon compte</button>
+        <button type="submit" class="mc-submit">{{ 'Créer mon compte'|trans }}</button>
     {{ form_end(form) }}
 
     <div class="mc-auth-links">
-        <a href="{{ path('portail_login') }}">Vous avez déjà un compte ? <strong>Se connecter</strong></a>
+        <a href="{{ path('portail_login') }}">{{ 'Vous avez déjà un compte ?'|trans }} <strong>{{ 'Se connecter'|trans }}</strong></a>
     </div>
 {% endblock %}

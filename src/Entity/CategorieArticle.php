@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\CategorieArticleRepository;
+use App\Translation\Translatable;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\String\Slugger\AsciiSlugger;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -16,6 +17,7 @@ class CategorieArticle
     #[ORM\Column]
     private ?int $id = null;
 
+    #[Translatable]
     #[ORM\Column(length: 100)]
     #[Assert\NotBlank(message: 'Donnez un nom à la catégorie.')]
     private ?string $nom = null;

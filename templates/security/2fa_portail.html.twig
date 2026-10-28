@@ -1,17 +1,17 @@
 {% extends 'portail/_auth.html.twig' %}
 
-{% block title %}Vérification en deux étapes{% endblock %}
-{% block heading %}Vérification en deux étapes{% endblock %}
+{% block title %}{{ 'Vérification en deux étapes'|trans }}{% endblock %}
+{% block heading %}{{ 'Vérification en deux étapes'|trans }}{% endblock %}
 {% block lead %}
-    {% if twoFactorProvider == 'totp' %}Saisissez le code affiché dans votre application d'authentification.
-    {% elseif twoFactorProvider == 'email' %}Saisissez le code que nous venons de vous envoyer par e-mail.
-    {% else %}Saisissez votre code de vérification.{% endif %}
+    {% if twoFactorProvider == 'totp' %}{{ 'Saisissez le code affiché dans votre application d\'authentification.'|trans }}
+    {% elseif twoFactorProvider == 'email' %}{{ 'Saisissez le code que nous venons de vous envoyer par e-mail.'|trans }}
+    {% else %}{{ 'Saisissez votre code de vérification.'|trans }}{% endif %}
 {% endblock %}
 
 {% block head_assets %}{{ include('_importmap.html.twig', {entry: 'portail'}) }}{% endblock %}
 
 {% block card %}
-    {% for message in app.flashes('success') %}<div class="mc-alert ok">{{ message }}</div>{% endfor %}
+    {% for message in app.flashes('success') %}<div class="mc-alert ok">{{ message|trans }}</div>{% endfor %}
     {% if authenticationError %}
         <div class="mc-alert ko">{{ authenticationError|trans(authenticationErrorData, 'SchebTwoFactorBundle') }}</div>
     {% endif %}
@@ -25,22 +25,22 @@
             {% endfor %}
         </div>
         <div data-otp-input-target="backup" class="hidden mc-field">
-            <input type="text" autocomplete="off" placeholder="Code de secours" data-action="input->otp-input#backupInput" class="u-backup-code">
+            <input type="text" autocomplete="off" placeholder="{{ 'Code de secours'|trans }}" data-action="input->otp-input#backupInput" class="u-backup-code">
         </div>
 
         <input type="hidden" name="{{ authCodeParameterName }}" data-otp-input-target="hidden">
         {% if isCsrfProtectionEnabled %}<input type="hidden" name="{{ csrfParameterName }}" value="{{ csrf_token(csrfTokenId) }}">{% endif %}
         {% if displayTrustedOption %}
-            <label class="u-9fe8dc5a"><input type="checkbox" name="{{ trustedParameterName }}"> Faire confiance à cet appareil</label>
+            <label class="u-9fe8dc5a"><input type="checkbox" name="{{ trustedParameterName }}"> {{ 'Faire confiance à cet appareil'|trans }}</label>
         {% endif %}
-        <button type="submit" class="mc-submit">Vérifier</button>
+        <button type="submit" class="mc-submit">{{ 'Vérifier'|trans }}</button>
     </form>
 
     <div class="mc-auth-links">
         {% if twoFactorProvider == 'email' %}
             <form method="post" action="{{ path('portail_2fa_resend_email') }}">
                 <input type="hidden" name="_csrf_token" value="{{ csrf_token('2fa_resend_email') }}">
-                <button type="submit" class="u-313a2ad8">Renvoyer le code</button>
+                <button type="submit" class="u-313a2ad8">{{ 'Renvoyer le code'|trans }}</button>
             </form>
         {% endif %}
         {% if availableTwoFactorProviders|length > 1 %}
@@ -50,7 +50,7 @@
                 {% endif %}
             {% endfor %}
         {% endif %}
-        <a href="#" data-action="otp-input#toggleBackup">Utiliser un code de secours</a>
-        <a href="{{ logoutPath }}">Annuler et se déconnecter</a>
+        <a href="#" data-action="otp-input#toggleBackup">{{ 'Utiliser un code de secours'|trans }}</a>
+        <a href="{{ logoutPath }}">{{ 'Annuler et se déconnecter'|trans }}</a>
     </div>
 {% endblock %}

@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Doctrine\SingletonCacheInvalidator;
 use App\Entity\ContactSettings;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -23,6 +24,7 @@ class ContactSettingsRepository extends ServiceEntityRepository
             ->orderBy('c.id', SortDirection::Ascending)
             ->setMaxResults(1)
             ->getQuery()
+            ->enableResultCache(SingletonCacheInvalidator::CACHE_TTL, SingletonCacheInvalidator::cacheKey(ContactSettings::class))
             ->getOneOrNullResult();
     }
 }

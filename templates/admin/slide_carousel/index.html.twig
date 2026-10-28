@@ -4,8 +4,8 @@
 
 {% block body %}
     <div class="flex items-center justify-between mb-6">
-        <h1 class="u-66972700 text-2xl font-black">Slides du carousel</h1>
-        {% if can_url(path('admin_slide_carousel_new')) %}<a href="{{ path('admin_slide_carousel_new') }}" class="rounded-lg admin-gradient px-4 py-2 text-sm font-semibold text-white">+ Nouvelle slide</a>{% endif %}
+        <h1 class="u-66972700 text-2xl font-black">{{ 'Slides du carousel'|trans }}</h1>
+        {% if can_url(path('admin_slide_carousel_new')) %}<a href="{{ path('admin_slide_carousel_new') }}" class="rounded-lg admin-gradient px-4 py-2 text-sm font-semibold text-white">{{ '+ Nouvelle slide'|trans }}</a>{% endif %}
     </div>
 
     {% embed 'admin/_components/data_table.html.twig' with {
@@ -31,7 +31,7 @@
             {% for slide in slides %}
                 <tr data-data-table-target="row" data-reorder-target="row" data-action="dragover->reorder#over drop->reorder#drop" data-id="{{ slide.id }}" data-status="{{ slide.actif ? 'active' : 'inactive' }}">
                     {% if bulk %}<td class="dt-check-col"><input type="checkbox" data-row-check value="{{ slide.id }}" data-action="change->data-table#toggleRow" aria-label="Sélectionner {{ slide.titre }}"></td>{% endif %}
-                    <td data-col="drag" class="dt-drag-handle" draggable="true" data-action="dragstart->reorder#start dragend->reorder#end" title="Glisser pour réordonner"><i class="fa-solid fa-grip-vertical"></i></td>
+                    <td data-col="drag" class="dt-drag-handle" draggable="true" data-action="dragstart->reorder#start dragend->reorder#end" title="{{ 'Glisser pour réordonner'|trans }}"><i class="fa-solid fa-grip-vertical"></i></td>
                     <td data-col="apercu"><img src="{{ asset('uploads/slides/' ~ slide.imageName) }}" alt="" class="h-10 w-16 rounded object-cover bg-white/10"></td>
                     <td data-col="titre" data-sort="{{ slide.titre|lower }}" class="font-medium">{{ slide.titre }} {% if slide.titreMot %}<span class="text-admin-danger">{{ slide.titreMot }}</span>{% endif %}</td>
                     <td data-col="statut" data-sort="{{ slide.actif ? 1 : 0 }}"><span class="badge {{ slide.actif ? 'badge-active' : 'badge-archived' }}">{{ slide.actif ? 'Actif' : 'Inactif' }}</span></td>

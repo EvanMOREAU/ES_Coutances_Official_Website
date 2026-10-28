@@ -9,12 +9,12 @@
             <span class="notif-text">{{ n.text }}</span>
             <span class="notif-meta">{{ n.meta }}</span>
         </span>
-        <span class="notif-dot" aria-label="Non lue"></span>
+        <span class="notif-dot" aria-label="{{ 'admin.notif.unread'|trans }}"></span>
     </a>
     <span class="notif-actions">
         <button type="button" class="notif-btn" data-role="read" data-action="notifications#read"
-                title="Marquer comme lue" aria-label="Marquer comme lue"><i class="fa-solid fa-check"></i></button>
+                title="{{ 'admin.notif.mark_read'|trans }}" aria-label="{{ 'admin.notif.mark_read'|trans }}"><i class="fa-solid fa-check"></i></button>
         <button type="button" class="notif-btn" data-action="notifications#dismiss"
-                title="Supprimer la notification" aria-label="Supprimer la notification"><i class="fa-solid fa-xmark"></i></button>
+                title="{{ 'admin.notif.delete'|trans }}" aria-label="{{ 'admin.notif.delete'|trans }}"><i class="fa-solid fa-xmark"></i></button>
     </span>
 </div>

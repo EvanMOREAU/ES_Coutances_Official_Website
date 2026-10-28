@@ -4,13 +4,13 @@
 
 {% block body %}
     <div class="flex flex-wrap items-center justify-between gap-3 mb-2">
-        <h1 class="u-66972700 text-2xl font-black">Statistiques d'effectifs</h1>
+        <h1 class="u-66972700 text-2xl font-black">{{ 'Statistiques d\'effectifs'|trans }}</h1>
         <form method="get" class="flex items-center gap-2 text-sm">
-            <label for="stat-saison" class="text-admin-text-muted">Saison</label>
+            <label for="stat-saison" class="text-admin-text-muted">{{ 'Saison'|trans }}</label>
             <select id="stat-saison" name="saison" class="admin-input" data-auto-submit>
                 {% for s in saisons %}<option value="{{ s.id }}"{{ stats.saison and stats.saison.id == s.id ? ' selected' }}>{{ s }}{{ s.active ? ' (en cours)' }}</option>{% endfor %}
             </select>
-            <noscript><button type="submit" class="admin-btn admin-btn-ghost admin-btn-sm">Afficher</button></noscript>
+            <noscript><button type="submit" class="admin-btn admin-btn-ghost admin-btn-sm">{{ 'Afficher'|trans }}</button></noscript>
         </form>
     </div>
     <p class="text-sm text-admin-text-muted mb-5">
@@ -19,33 +19,33 @@
     </p>
 
     {% if not stats.saison %}
-        <p class="admin-card rounded-2xl p-6 text-sm">Aucune saison n'est encore enregistrée.</p>
+        <p class="admin-card rounded-2xl p-6 text-sm">{{ 'Aucune saison n\'est encore enregistrée.'|trans }}</p>
     {% else %}
         <div class="ad-tiles">
-            <div class="ad-tile"><span>Licenciés actifs</span><strong>{{ stats.total }}</strong></div>
+            <div class="ad-tile"><span>{{ 'Licenciés actifs'|trans }}</span><strong>{{ stats.total }}</strong></div>
             <div class="ad-tile">
-                <span>Évolution</span>
+                <span>{{ 'Évolution'|trans }}</span>
                 <strong>{% if stats.evolution is null %}—{% else %}{{ stats.evolution > 0 ? '+' }}{{ stats.evolution|number_format(1, ',', ' ') }} %{% endif %}</strong>
             </div>
             <div class="ad-tile">
-                <span>Réinscription</span>
+                <span>{{ 'Réinscription'|trans }}</span>
                 <strong>{% if stats.tauxReinscription is null %}—{% else %}{{ stats.tauxReinscription|number_format(1, ',', ' ') }} %{% endif %}</strong>
             </div>
-            <div class="ad-tile"><span>Nouveaux / partants</span><strong>{{ stats.nouveaux }} / {{ stats.partants }}</strong></div>
+            <div class="ad-tile"><span>{{ 'Nouveaux / partants'|trans }}</span><strong>{{ stats.nouveaux }} / {{ stats.partants }}</strong></div>
         </div>
 
         <div class="admin-card rounded-2xl p-6 mt-6">
-            <h2 class="text-lg font-bold mb-4">Répartition par catégorie</h2>
+            <h2 class="text-lg font-bold mb-4">{{ 'Répartition par catégorie'|trans }}</h2>
             {% if stats.categories is empty %}
-                <p class="text-sm text-admin-text-muted">Aucun licencié actif pour cette saison.</p>
+                <p class="text-sm text-admin-text-muted">{{ 'Aucun licencié actif pour cette saison.'|trans }}</p>
             {% else %}
                 <table class="admin-table w-full text-sm">
                     <thead>
                         <tr>
-                            <th class="text-left">Catégorie</th>
+                            <th class="text-left">{{ 'Catégorie'|trans }}</th>
                             <th class="text-right">{{ stats.saison }}</th>
                             <th class="text-right">{{ stats.precedente ?? 'Saison précédente' }}</th>
-                            <th class="text-right">Écart</th>
+                            <th class="text-right">{{ 'Écart'|trans }}</th>
                         </tr>
                     </thead>
                     <tbody>

@@ -1,6 +1,6 @@
 {% extends 'portail/_layout.html.twig' %}
 
-{% block title %}Planning{% endblock %}
+{% block title %}{{ 'Planning'|trans }}{% endblock %}
 
 {% block head_assets %}
     {{ include('_importmap.html.twig', {entry: 'portail'}) }}
@@ -13,16 +13,16 @@
 
 {% block page_head %}
     <div class="mc-page-head">
-        <span class="mc-eyebrow">Calendrier</span>
-        <h1>Planning des entraînements</h1>
-        {% if categories is not empty %}<p class="mc-sub">Catégories {{ categories|join(', ') }}.</p>{% endif %}
+        <span class="mc-eyebrow">{{ 'Calendrier'|trans }}</span>
+        <h1>{{ 'Planning des entraînements'|trans }}</h1>
+        {% if categories is not empty %}<p class="mc-sub">{{ 'portal.categories'|trans({'%list%': categories|join(', ')}) }}</p>{% endif %}
     </div>
 {% endblock %}
 
 {% block body %}
     {% if categories is empty %}
         <div class="card">
-            <div class="mc-empty"><i class="fa-regular fa-calendar-xmark"></i>Aucun licencié actif n'est rattaché à ce compte : il n'y a donc pas d'entraînement à afficher. Contactez le club si vous pensez qu'il s'agit d'une erreur.</div>
+            <div class="mc-empty"><i class="fa-regular fa-calendar-xmark"></i>{{ 'Aucun licencié actif n\'est rattaché à ce compte : il n\'y a donc pas d\'entraînement à afficher. Contactez le club si vous pensez qu\'il s\'agit d\'une erreur.'|trans }}</div>
         </div>
     {% else %}
         <div data-controller="planning"

@@ -1,6 +1,6 @@
 {% extends 'club/_layout.html.twig' %}
 
-{% block title %}{{ page.titre }} — ES Coutances{% endblock %}
+{% block title %}{{ page.titre|auto_trans }} — ES Coutances{% endblock %}
 
 {% block body %}
 
@@ -10,11 +10,11 @@
     <div class="breadcrumb">
       <a href="{{ path('app_home') }}">Accueil</a>
       <i class="fa-solid fa-chevron-right"></i>
-      <span>Le club</span>
+      <span>{{ 'Le club'|trans }}</span>
       <i class="fa-solid fa-chevron-right"></i>
-      <span>{{ page.titre }}</span>
+      <span>{{ page.titre|auto_trans }}</span>
     </div>
-    <h1>Nos<br><span>infrastructures</span></h1>
+    <h1>{{ 'Nos'|trans }}<br><span>{{ 'infrastructures'|trans }}</span></h1>
   </div>
 </section>
 
@@ -22,13 +22,13 @@
 <section class="page-content">
   <div class="container">
     {% if page.imageName %}
-      <img class="page-content-image" src="{{ ('uploads/pages/' ~ page.imageName)|thumb('detail') }}" alt="{{ page.titre }}">
+      <img class="page-content-image" src="{{ ('uploads/pages/' ~ page.imageName)|thumb('detail') }}" alt="{{ page.titre|auto_trans }}">
     {% endif %}
     {% if page.chapo %}
-      <p class="page-content-chapo">{{ page.chapo }}</p>
+      <p class="page-content-chapo">{{ page.chapo|auto_trans }}</p>
     {% endif %}
     <div class="prose">
-      {{ page.contenu|raw }}
+      {{ page.contenu|auto_trans|safe_html }}
     </div>
   </div>
 </section>

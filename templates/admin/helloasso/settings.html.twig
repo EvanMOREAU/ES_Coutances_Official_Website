@@ -12,8 +12,8 @@
 
 {% block body %}
     <div class="mb-6">
-        <h1 class="u-66972700 text-2xl font-black">Paramètres HelloAsso</h1>
-        <p class="text-sm text-admin-text-muted">Identifiants d'accès à l'API HelloAsso, pour le paiement en ligne de la boutique.</p>
+        <h1 class="u-66972700 text-2xl font-black">{{ 'Paramètres HelloAsso'|trans }}</h1>
+        <p class="text-sm text-admin-text-muted">{{ 'Identifiants d\'accès à l\'API HelloAsso, pour le paiement en ligne de la boutique.'|trans }}</p>
     </div>
 
     <div class="admin-card rounded-2xl p-5 mb-6 max-w-3xl flex items-center gap-4">
@@ -28,11 +28,9 @@
     </div>
 
     <div class="admin-card rounded-2xl p-5 mb-6 max-w-3xl">
-        <h2 class="font-semibold mb-2"><i class="fa-solid fa-bell text-admin-text-muted"></i> URL de notification</h2>
+        <h2 class="font-semibold mb-2"><i class="fa-solid fa-bell text-admin-text-muted"></i> {{ 'URL de notification'|trans }}</h2>
         <p class="text-xs text-admin-text-muted mb-3">
-            À coller dans l'espace HelloAsso de l'organisation, section « Notifications » : sans elle, un paiement
-            effectué par un client qui ne revient pas sur le site (onglet fermé, interruption…) reste indéfiniment
-            en attente ici alors qu'il a bien été encaissé par HelloAsso.
+            {{ 'À coller dans l\'espace HelloAsso de l\'organisation, section « Notifications » : sans elle, un paiement effectué par un client qui ne revient pas sur le site (onglet fermé, interruption…) reste indéfiniment en attente ici alors qu\'il a bien été encaissé par HelloAsso.'|trans }}
         </p>
         <code class="block break-all rounded-lg bg-admin-surface border border-admin-border px-3 py-2 text-xs">{{ url('boutique_helloasso_notification') }}</code>
     </div>
@@ -45,8 +43,8 @@
         </section>
 
         <section class="admin-card rounded-2xl p-6 mb-6 max-w-3xl">
-            <h2 class="font-semibold mb-4">Identifiants d'API</h2>
-            <p class="text-xs text-admin-text-muted mb-4">Générés depuis l'espace HelloAsso de l'organisation (section « API » / « Développeurs »), séparément pour le sandbox et la production.</p>
+            <h2 class="font-semibold mb-4">{{ 'Identifiants d\'API'|trans }}</h2>
+            <p class="text-xs text-admin-text-muted mb-4">{{ 'Générés depuis l\'espace HelloAsso de l\'organisation (section « API » / « Développeurs »), séparément pour le sandbox et la production.'|trans }}</p>
             {{ form_row(form.clientId) }}
             {{ form_row(form.clientSecret) }}
             {% if settings.hasClientSecret %}
@@ -57,7 +55,7 @@
         </section>
 
         <div class="flex items-center gap-3 mb-8">
-            <button type="submit" class="rounded-lg admin-gradient px-5 py-2 text-sm font-semibold text-white">Enregistrer</button>
+            <button type="submit" class="rounded-lg admin-gradient px-5 py-2 text-sm font-semibold text-white">{{ 'Enregistrer'|trans }}</button>
         </div>
     {{ form_end(form) }}
 {% endblock %}

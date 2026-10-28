@@ -12,8 +12,8 @@
 
 {% block body %}
     <div class="mb-6">
-        <h1 class="u-66972700 text-2xl font-black">Paramètres e-mail</h1>
-        <p class="text-sm text-admin-text-muted">Le serveur qui envoie les e-mails du site : création de mot de passe, confirmations de commande, commande prête…</p>
+        <h1 class="u-66972700 text-2xl font-black">{{ 'Paramètres e-mail'|trans }}</h1>
+        <p class="text-sm text-admin-text-muted">{{ 'Le serveur qui envoie les e-mails du site : création de mot de passe, confirmations de commande, commande prête…'|trans }}</p>
     </div>
 
     <div class="admin-card rounded-2xl p-5 mb-6 max-w-3xl flex items-center gap-4">
@@ -46,7 +46,7 @@
         </section>
 
         <section class="admin-card rounded-2xl p-6 mb-6 max-w-3xl">
-            <h2 class="font-semibold mb-4">Expéditeur</h2>
+            <h2 class="font-semibold mb-4">{{ 'Expéditeur'|trans }}</h2>
             <div class="grid gap-4 sm:grid-cols-2">
                 {{ form_row(form.expediteurAdresse) }}
                 {{ form_row(form.expediteurNom) }}
@@ -54,21 +54,21 @@
         </section>
 
         <div class="flex items-center gap-3 mb-8">
-            <button type="submit" class="rounded-lg admin-gradient px-5 py-2 text-sm font-semibold text-white">Enregistrer</button>
+            <button type="submit" class="rounded-lg admin-gradient px-5 py-2 text-sm font-semibold text-white">{{ 'Enregistrer'|trans }}</button>
         </div>
     {{ form_end(form) }}
 
     {% if can_url(path('admin_mail_test'), 'POST') %}
         <section class="admin-card rounded-2xl p-6 max-w-3xl">
-            <h2 class="font-semibold mb-1">Envoyer un e-mail de test</h2>
-            <p class="text-xs text-admin-text-muted mb-4">Utilise les paramètres <strong>enregistrés</strong> ci-dessus. Enregistrez avant de tester. En cas d'échec, le message d'erreur du serveur s'affiche.</p>
+            <h2 class="font-semibold mb-1">{{ 'Envoyer un e-mail de test'|trans }}</h2>
+            <p class="text-xs text-admin-text-muted mb-4">{{ 'Utilise les paramètres'|trans }} <strong>{{ 'enregistrés'|trans }}</strong> {{ 'ci-dessus. Enregistrez avant de tester. En cas d\'échec, le message d\'erreur du serveur s\'affiche.'|trans }}</p>
             <form method="post" action="{{ path('admin_mail_test') }}" class="flex flex-wrap items-end gap-3">
                 <input type="hidden" name="_token" value="{{ csrf_token('mail-test') }}">
                 <label class="grow">
-                    <span class="block text-xs font-semibold uppercase tracking-wide text-admin-text-muted mb-1.5">Envoyer à</span>
+                    <span class="block text-xs font-semibold uppercase tracking-wide text-admin-text-muted mb-1.5">{{ 'Envoyer à'|trans }}</span>
                     <input type="email" name="to" value="{{ testTo }}" required class="w-full rounded-lg border border-admin-border bg-admin-bg px-3 py-2 text-sm text-admin-text">
                 </label>
-                <button type="submit" class="admin-btn admin-btn-primary"><i class="fa-solid fa-paper-plane"></i> Envoyer le test</button>
+                <button type="submit" class="admin-btn admin-btn-primary"><i class="fa-solid fa-paper-plane"></i> {{ 'Envoyer le test'|trans }}</button>
             </form>
         </section>
     {% endif %}

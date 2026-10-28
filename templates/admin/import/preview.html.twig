@@ -4,26 +4,26 @@
 
 {% block body %}
     <div class="mb-6">
-        <h1 class="u-66972700 text-2xl font-black">Aperçu de l'import</h1>
-        <p class="text-sm text-admin-text-muted">Vérifiez ce qui va être créé ou mis à jour, puis confirmez pour écrire en base.</p>
+        <h1 class="u-66972700 text-2xl font-black">{{ 'Aperçu de l\'import'|trans }}</h1>
+        <p class="text-sm text-admin-text-muted">{{ 'Vérifiez ce qui va être créé ou mis à jour, puis confirmez pour écrire en base.'|trans }}</p>
     </div>
 
     <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
         <div class="admin-card rounded-xl p-4">
             <p class="text-2xl font-black">{{ preview.summary.famillesNouvelles }}</p>
-            <p class="text-xs text-admin-text-muted">Famille(s) nouvelle(s)</p>
+            <p class="text-xs text-admin-text-muted">{{ 'Famille(s) nouvelle(s)'|trans }}</p>
         </div>
         <div class="admin-card rounded-xl p-4">
             <p class="text-2xl font-black">{{ preview.summary.famillesExistantes }}</p>
-            <p class="text-xs text-admin-text-muted">Famille(s) déjà connue(s)</p>
+            <p class="text-xs text-admin-text-muted">{{ 'Famille(s) déjà connue(s)'|trans }}</p>
         </div>
         <div class="admin-card rounded-xl p-4">
             <p class="text-2xl font-black">{{ preview.summary.licenciesNouveaux }}</p>
-            <p class="text-xs text-admin-text-muted">Licencié(s) nouveau(x)</p>
+            <p class="text-xs text-admin-text-muted">{{ 'Licencié(s) nouveau(x)'|trans }}</p>
         </div>
         <div class="admin-card rounded-xl p-4">
             <p class="text-2xl font-black">{{ preview.summary.licenciesMisAJour }}</p>
-            <p class="text-xs text-admin-text-muted">Licencié(s) mis à jour</p>
+            <p class="text-xs text-admin-text-muted">{{ 'Licencié(s) mis à jour'|trans }}</p>
         </div>
     </div>
 
@@ -34,12 +34,12 @@
             <table class="w-full text-sm">
                 <thead class="bg-admin-surface text-left text-xs uppercase tracking-wide text-admin-text-muted">
                     <tr>
-                        <th class="px-4 py-3">Famille</th>
-                        <th class="px-4 py-3">Licencié</th>
-                        <th class="px-4 py-3">Né(e) le</th>
-                        <th class="px-4 py-3">Catégorie</th>
-                        <th class="px-4 py-3">N° personne FFF</th>
-                        <th class="px-4 py-3">Statut</th>
+                        <th class="px-4 py-3">{{ 'Famille'|trans }}</th>
+                        <th class="px-4 py-3">{{ 'Licencié'|trans }}</th>
+                        <th class="px-4 py-3">{{ 'Né(e) le'|trans }}</th>
+                        <th class="px-4 py-3">{{ 'Catégorie'|trans }}</th>
+                        <th class="px-4 py-3">{{ 'N° personne FFF'|trans }}</th>
+                        <th class="px-4 py-3">{{ 'Statut'|trans }}</th>
                         <th class="px-4 py-3"></th>
                     </tr>
                 </thead>
@@ -67,7 +67,7 @@
                                 <td class="px-4 py-2 dt-muted">{{ licencie.numeroPersonne ?? '—' }}</td>
                                 <td class="px-4 py-2">
                                     {% if licencie.status == 'new' %}
-                                        <span class="badge badge-draft">Nouveau</span>
+                                        <span class="badge badge-draft">{{ 'Nouveau'|trans }}</span>
                                     {% else %}
                                         <span class="badge badge-active">Mise à jour</span>
                                     {% endif %}
@@ -76,7 +76,7 @@
                                     {% if group.licencies|length > 1 %}
                                         <label class="flex items-center gap-1.5 text-xs whitespace-nowrap">
                                             <input type="checkbox" name="detach[]" value="{{ licencie.rowToken }}">
-                                            Retirer de cette famille
+                                            {{ 'Retirer de cette famille'|trans }}
                                         </label>
                                     {% endif %}
                                 </td>
@@ -89,9 +89,9 @@
 
         <div class="flex items-center gap-3">
             <button type="submit" class="rounded-lg admin-gradient px-5 py-2 text-sm font-semibold text-white">
-                <i class="fa-solid fa-check"></i> Confirmer l'import
+                <i class="fa-solid fa-check"></i> {{ 'Confirmer l\'import'|trans }}
             </button>
-            <a href="{{ path('admin_import_index') }}" class="rounded-lg border border-admin-border px-5 py-2 text-sm font-semibold">Annuler</a>
+            <a href="{{ path('admin_import_index') }}" class="rounded-lg border border-admin-border px-5 py-2 text-sm font-semibold">{{ 'Annuler'|trans }}</a>
         </div>
     </form>
 {% endblock %}

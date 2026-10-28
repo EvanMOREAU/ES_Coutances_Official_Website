@@ -1,0 +1,8 @@
+{# Sélecteur de langue : liens simples (fonctionne sans JavaScript), mémorisé en cookie et sur le compte. #}
+<nav class="lang-switch" aria-label="{{ 'lang.label'|trans }}">
+    <i class="fa-solid fa-globe" aria-hidden="true"></i>
+    {% for code, lang in app_locales() %}
+        <a href="{{ path('app_locale_switch', {locale: code}) }}" lang="{{ code }}" hreflang="{{ code }}"
+           class="{{ app.request.locale == code ? 'is-active' }}"{% if app.request.locale == code %} aria-current="true"{% endif %}>{{ lang.name }}</a>
+    {% endfor %}
+</nav>

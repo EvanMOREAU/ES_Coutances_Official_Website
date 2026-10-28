@@ -2,14 +2,14 @@
 
 {% block tab_content %}
     {{ form_start(form) }}
-        <p class="reglage-section">Coordonnées</p>
+        <p class="reglage-section">{{ 'Coordonnées'|trans }}</p>
         <div class="grid gap-x-4 reglage-auto">
             {{ form_row(form.email) }}
             {{ form_row(form.adresse) }}
             {{ form_row(form.telephone) }}
         </div>
 
-        <p class="reglage-section">Horaires d'ouverture</p>
+        <p class="reglage-section">{{ 'Horaires d\'ouverture'|trans }}</p>
         <div class="hr-grid">
             {{ form_row(form.horaireLundi) }}
             {{ form_row(form.horaireMardi) }}

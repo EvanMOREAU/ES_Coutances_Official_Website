@@ -54,9 +54,9 @@ final class DatabaseBackupTest extends DatabaseTestCase
         $lines = $this->lines($result['path']);
         self::assertSame('-- escoutances-backup v1', $lines[0]);
         self::assertSame('-- fin de la sauvegarde', end($lines));
-        self::assertContains('DROP TABLE IF EXISTS `user`;', $lines);
+        self::assertContains('DROP TABLE IF EXISTS `es_user`;', $lines);
 
-        $inserts = array_values(array_filter($lines, static fn (string $l) => str_starts_with($l, 'INSERT INTO `user` ')));
+        $inserts = array_values(array_filter($lines, static fn (string $l) => str_starts_with($l, 'INSERT INTO `es_user` ')));
         self::assertNotEmpty($inserts);
         self::assertStringContainsString('sauvegarde-test@test.local', implode("\n", $inserts));
         // Une instruction par ligne : le retour à la ligne de la valeur est échappé.
@@ -97,7 +97,7 @@ final class DatabaseBackupTest extends DatabaseTestCase
         $this->createUser(['ROLE_EDITOR'], 'toujours-la@test.local');
         $path = $this->backup->directory().'/auto-20260101-000000.sql.gz';
         $gz = gzopen($path, 'wb') ?: throw new \RuntimeException('Écriture impossible.');
-        gzwrite($gz, "-- escoutances-backup v1\nDROP TABLE IF EXISTS `user`;\n"); // pas de marqueur de fin
+        gzwrite($gz, "-- escoutances-backup v1\nDROP TABLE IF EXISTS `es_user`;\n"); // pas de marqueur de fin
         gzclose($gz);
 
         try {

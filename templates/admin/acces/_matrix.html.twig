@@ -7,10 +7,10 @@
 {% set standard = {voir: 'Voir', creer: 'Créer', modifier: 'Modifier', supprimer: 'Supprimer'} %}
 <div class="pm" data-controller="permission-matrix">
     <div class="pm-toolbar">
-        <span class="pm-count"><strong data-permission-matrix-target="count">0</strong> autorisation<span data-permission-matrix-target="plural"></span> accordée<span data-permission-matrix-target="plural"></span></span>
+        <span class="pm-count"><strong data-permission-matrix-target="count">0</strong> {{ 'autorisation'|trans }}<span data-permission-matrix-target="plural"></span> {{ 'accordée'|trans }}<span data-permission-matrix-target="plural"></span></span>
         <span class="pm-quick">
-            <label class="sv-toggle pm-master"><input type="checkbox" data-permission-matrix-target="master" data-action="permission-matrix#master"><span class="sv-switch"></span><span>Toutes les autorisations</span></label>
-            <button type="button" class="pm-link" data-action="permission-matrix#readOnly">Lecture seule</button>
+            <label class="sv-toggle pm-master"><input type="checkbox" data-permission-matrix-target="master" data-action="permission-matrix#master"><span class="sv-switch"></span><span>{{ 'Toutes les autorisations'|trans }}</span></label>
+            <button type="button" class="pm-link" data-action="permission-matrix#readOnly">{{ 'Lecture seule'|trans }}</button>
         </span>
     </div>
 
@@ -18,15 +18,15 @@
         <section class="pm-group">
             <header>
                 <h3>{{ group }}</h3>
-                <label class="sv-toggle sv-toggle-sm"><input type="checkbox" data-permission-matrix-target="groupMaster" data-action="permission-matrix#groupToggle"><span class="sv-switch"></span><span>Toute la rubrique</span></label>
+                <label class="sv-toggle sv-toggle-sm"><input type="checkbox" data-permission-matrix-target="groupMaster" data-action="permission-matrix#groupToggle"><span class="sv-switch"></span><span>{{ 'Toute la rubrique'|trans }}</span></label>
             </header>
             <div class="pm-scroll">
                 <table class="pm-table">
                     <thead>
                         <tr>
-                            <th>Élément</th>
+                            <th>{{ 'Élément'|trans }}</th>
                             {% for label in standard %}<th>{{ label }}</th>{% endfor %}
-                            <th>Actions particulières</th>
+                            <th>{{ 'Actions particulières'|trans }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -34,7 +34,7 @@
                             <tr data-resource="{{ key }}">
                                 <th scope="row">
                                     {{ resource.label }}
-                                    <label class="sv-toggle sv-toggle-sm pm-rowtoggle" title="Tout cocher pour cette ligne"><input type="checkbox" data-permission-matrix-target="rowMaster" data-action="permission-matrix#rowToggle" aria-label="Toutes les autorisations : {{ resource.label }}"><span class="sv-switch"></span></label>
+                                    <label class="sv-toggle sv-toggle-sm pm-rowtoggle" title="{{ 'Tout cocher pour cette ligne'|trans }}"><input type="checkbox" data-permission-matrix-target="rowMaster" data-action="permission-matrix#rowToggle" aria-label="Toutes les autorisations : {{ resource.label }}"><span class="sv-switch"></span></label>
                                 </th>
                                 {% for action, label in standard %}
                                     <td>

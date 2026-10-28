@@ -197,7 +197,7 @@ a.homepage-banner:hover img { transform: scale(1.02); }
 {# ============================================================
    HERO CAROUSEL
    ============================================================ #}
-<section class="hero" aria-label="Diaporama">
+<section class="hero" aria-label="{{ 'Diaporama'|trans }}">
   <div class="slides-wrapper">
     <div class="slides-track" id="slidesTrack">
 
@@ -205,19 +205,21 @@ a.homepage-banner:hover img { transform: scale(1.02); }
         <div class="slide">
           <img
             src="{{ ('uploads/slides/' ~ slide.imageName)|thumb('hero') }}"
-            alt="{{ slide.titre }}"
+            alt="{{ slide.titre|auto_trans }}"
             loading="eager"
           >
           <div class="slide-accent"></div>
           <div class="slide-caption">
             <h2>
+              {% set slide_titre = slide.titre|auto_trans %}
               {% if slide.titreMot %}
-                {{ slide.titre|replace({(slide.titreMot): '<span>' ~ slide.titreMot ~ '</span>'})|raw }}
+                {% set slide_mot = slide.titreMot|auto_trans %}
+                {{ slide_titre|e|replace({(slide_mot|e): '<span>' ~ slide_mot|e ~ '</span>'})|raw }}
               {% else %}
-                {{ slide.titre }}
+                {{ slide_titre }}
               {% endif %}
             </h2>
-            {% if slide.sousTitre %}<p>{{ slide.sousTitre }}</p>{% endif %}
+            {% if slide.sousTitre %}<p>{{ slide.sousTitre|auto_trans }}</p>{% endif %}
           </div>
         </div>
       {% else %}
@@ -230,7 +232,7 @@ a.homepage-banner:hover img { transform: scale(1.02); }
           <div class="slide-accent"></div>
           <div class="slide-caption">
             <h2>Entente<br><span>Sportive</span><br>Coutançaise</h2>
-            <p>Une passion qui nous unit depuis 1961.</p>
+            <p>{{ 'Une passion qui nous unit depuis 1961.'|trans }}</p>
           </div>
         </div>
       {% endfor %}
@@ -238,14 +240,14 @@ a.homepage-banner:hover img { transform: scale(1.02); }
     </div>
   </div>
 
-  <button class="carousel-ctrl prev" id="slidePrev" aria-label="Diapositive précédente">
+  <button class="carousel-ctrl prev" id="slidePrev" aria-label="{{ 'Diapositive précédente'|trans }}">
     <i class="fa-solid fa-chevron-left"></i>
   </button>
-  <button class="carousel-ctrl next" id="slideNext" aria-label="Diapositive suivante">
+  <button class="carousel-ctrl next" id="slideNext" aria-label="{{ 'Diapositive suivante'|trans }}">
     <i class="fa-solid fa-chevron-right"></i>
   </button>
 
-  <div class="carousel-dots" role="tablist" aria-label="Diapositives">
+  <div class="carousel-dots" role="tablist" aria-label="{{ 'Diapositives'|trans }}">
     {% for slide in slides %}
       <button
         class="dot {{ loop.first ? 'active' : '' }}"
@@ -260,7 +262,7 @@ a.homepage-banner:hover img { transform: scale(1.02); }
   </div>
 
   <div class="scroll-cue" aria-hidden="true">
-    <span>Découvrir</span>
+    <span>{{ 'Découvrir'|trans }}</span>
     <i class="fa-solid fa-chevron-down"></i>
   </div>
 </section>
@@ -271,19 +273,19 @@ a.homepage-banner:hover img { transform: scale(1.02); }
 <section class="quick-links">
   <div class="container">
     <div class="u-08723a1b section-eyebrow center reveal">FFF Normandie</div>
-    <div class="u-5aed37a1 section-title center reveal">Nos compétitions</div>
+    <div class="u-5aed37a1 section-title center reveal">{{ 'Nos compétitions'|trans }}</div>
     <div class="quick-links-grid">
       <a href="https://normandie.fff.fr/recherche-clubs?subtab=resultats&tab=resultats&scl=548" target="_blank" class="u-c9a8d5cd quick-card reveal">
-        <i class="fa-solid fa-trophy"></i><h5>Résultats</h5>
+        <i class="fa-solid fa-trophy"></i><h5>{{ 'Résultats'|trans }}</h5>
       </a>
       <a href="https://normandie.fff.fr/recherche-clubs?subtab=agenda&tab=resultats&scl=548" target="_blank" class="u-c3e885b2 quick-card reveal">
-        <i class="fa-regular fa-calendar-days"></i><h5>Agenda</h5>
+        <i class="fa-regular fa-calendar-days"></i><h5>{{ 'Agenda'|trans }}</h5>
       </a>
       <a href="https://normandie.fff.fr/recherche-clubs?subtab=ranking&tab=resultats&scl=548" target="_blank" class="u-d9f3d282 quick-card reveal">
-        <i class="fa-solid fa-ranking-star"></i><h5>Classements</h5>
+        <i class="fa-solid fa-ranking-star"></i><h5>{{ 'Classements'|trans }}</h5>
       </a>
       <a href="https://normandie.fff.fr/recherche-clubs?subtab=calendar&tab=resultats&scl=548" target="_blank" class="u-cf521ccb quick-card reveal">
-        <i class="fa-solid fa-calendar-check"></i><h5>Calendrier</h5>
+        <i class="fa-solid fa-calendar-check"></i><h5>{{ 'Calendrier'|trans }}</h5>
       </a>
     </div>
   </div>
@@ -296,9 +298,9 @@ a.homepage-banner:hover img { transform: scale(1.02); }
 <section class="section-sm banner-section">
   {% set banner_tag = homepage_banner.url ? 'a' : 'div' %}
   <{{ banner_tag }} class="homepage-banner reveal"{% if homepage_banner.url %} href="{{ homepage_banner.url }}" target="_blank" rel="noopener"{% endif %}>
-    <img src="{{ ('uploads/banniere/' ~ homepage_banner.imageName)|thumb('hero') }}" alt="{{ homepage_banner.titre|default('') }}">
+    <img src="{{ ('uploads/banniere/' ~ homepage_banner.imageName)|thumb('hero') }}" alt="{{ homepage_banner.titre|auto_trans|default('') }}">
     {% if homepage_banner.titre %}
-      <h3 class="homepage-banner-title">{{ homepage_banner.titre }}</h3>
+      <h3 class="homepage-banner-title">{{ homepage_banner.titre|auto_trans }}</h3>
     {% endif %}
   </{{ banner_tag }}>
 </section>
@@ -310,8 +312,8 @@ a.homepage-banner:hover img { transform: scale(1.02); }
 {% if rejoindre_cards is defined and rejoindre_cards|length > 0 %}
 <section class="section">
   <div class="container">
-    <div class="u-08723a1b section-eyebrow center reveal">Rejoignez-nous</div>
-    <div class="u-e948f654 section-title center reveal">Nous rejoindre</div>
+    <div class="u-08723a1b section-eyebrow center reveal">{{ 'Rejoignez-nous'|trans }}</div>
+    <div class="u-e948f654 section-title center reveal">{{ 'Nous rejoindre'|trans }}</div>
     <div class="u-c9a8d5cd red-stripe center reveal"></div>
     <div class="join-grid">
 
@@ -320,13 +322,13 @@ a.homepage-banner:hover img { transform: scale(1.02); }
           {% if card.imageName %}
             <img
               src="{{ ('uploads/rejoindre/' ~ card.imageName)|thumb('carte') }}"
-              alt="{{ card.titre }}"
+              alt="{{ card.titre|auto_trans }}"
               loading="lazy"
             >
           {% endif %}
           <div class="join-card-body">
-            <h5>{{ card.titre }}</h5>
-            {% if card.description %}<p>{{ card.description }}</p>{% endif %}
+            <h5>{{ card.titre|auto_trans }}</h5>
+            {% if card.description %}<p>{{ card.description|auto_trans }}</p>{% endif %}
             {% set is_external = card.boutonUrl starts with 'http://' or card.boutonUrl starts with 'https://' %}
             {% if is_external %}
               {% set card_href = card.boutonUrl %}
@@ -338,7 +340,7 @@ a.homepage-banner:hover img { transform: scale(1.02); }
               {% set card_href = null %}
             {% endif %}
             {% if card_href and card.boutonTexte %}
-              <a href="{{ card_href }}" {% if is_external %}target="_blank" rel="noopener noreferrer"{% endif %} class="u-1f709867 btn btn-primary">{{ card.boutonTexte }}</a>
+              <a href="{{ card_href }}" {% if is_external %}target="_blank" rel="noopener noreferrer"{% endif %} class="u-1f709867 btn btn-primary">{{ card.boutonTexte|auto_trans }}</a>
             {% endif %}
           </div>
         </div>
@@ -355,11 +357,11 @@ a.homepage-banner:hover img { transform: scale(1.02); }
 {% if offres|length > 0 %}
 <section class="section emploi-section">
   <div class="container">
-    <div class="u-9c5f4b7c section-eyebrow center reveal">Carrière</div>
-    <div class="u-ee58eb4c section-title center light reveal">Formations et Emplois</div>
+    <div class="u-9c5f4b7c section-eyebrow center reveal">{{ 'Carrière'|trans }}</div>
+    <div class="u-ee58eb4c section-title center light reveal">{{ 'Formations et Emplois'|trans }}</div>
     <div class="u-c9a8d5cd red-stripe center reveal"></div>
     <p class="u-6c4473a2 reveal">
-      Découvrez nos formations et nos offres.
+      {{ 'Découvrez nos formations et nos offres.'|trans }}
     </p>
     <div class="emploi-grid">
       {% for offre in offres %}
@@ -367,20 +369,20 @@ a.homepage-banner:hover img { transform: scale(1.02); }
           {% if offre.imageName %}
             <img
               src="{{ ('uploads/offres/' ~ offre.imageName)|thumb('carte') }}"
-              alt="{{ offre.titre }}"
+              alt="{{ offre.titre|auto_trans }}"
               loading="lazy"
             >
           {% else %}
             <img
               src="{{ asset('images/offre-default.jpg') }}"
-              alt="{{ offre.titre }}"
+              alt="{{ offre.titre|auto_trans }}"
               loading="lazy"
             >
           {% endif %}
           <div class="emploi-card-body">
-            <h5>{{ offre.titre }}</h5>
-            <p>{{ offre.description|striptags|slice(0, 120) ~ '...' }}</p>
-            <a href="/emploi/{{ offre.id }}" class="btn btn-primary">En savoir plus</a>
+            <h5>{{ offre.titre|auto_trans }}</h5>
+            <p>{{ offre.description|auto_trans|striptags|slice(0, 120) ~ '...' }}</p>
+            <a href="/emploi/{{ offre.id }}" class="btn btn-primary">{{ 'En savoir plus'|trans }}</a>
           </div>
         </div>
       {% endfor %}
@@ -396,8 +398,8 @@ a.homepage-banner:hover img { transform: scale(1.02); }
 <section class="logos-section">
 
   <div class="u-d592e9c8">
-    <div class="u-08723a1b section-eyebrow center reveal">Ils nous soutiennent</div>
-    <div class="u-ee58eb4c section-title center reveal">Nos partenaires <span class="u-e0936291">&</span> sponsors</div>
+    <div class="u-08723a1b section-eyebrow center reveal">{{ 'Ils nous soutiennent'|trans }}</div>
+    <div class="u-ee58eb4c section-title center reveal">{{ 'Nos partenaires'|trans }} <span class="u-e0936291">&</span> sponsors</div>
   </div>
 
   <div class="logos-track-wrap">
@@ -455,10 +457,10 @@ a.homepage-banner:hover img { transform: scale(1.02); }
    ============================================================ #}
 <section class="section-sm reseaux-section">
   <div class="container">
-    <div class="u-bb5af742 section-eyebrow center reveal">Communauté</div>
-    <div class="u-ee58eb4c section-title center light reveal">Sur les réseaux</div>
+    <div class="u-bb5af742 section-eyebrow center reveal">{{ 'Communauté'|trans }}</div>
+    <div class="u-ee58eb4c section-title center light reveal">{{ 'Sur les réseaux'|trans }}</div>
     <div class="u-50fef44f reveal">
-      Suivez-nous pour ne rien manquer de l'actualité du club.
+      {{ 'Suivez-nous pour ne rien manquer de l\'actualité du club.'|trans }}
     </div>
     <div class="u-1fa2f570 reveal">
       <a href="https://www.facebook.com/ententesportivecoutancaise" target="_blank" rel="noopener" class="btn btn-outline-white">

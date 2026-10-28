@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\Adhesion;
 use App\Entity\Famille;
 use App\Entity\Licencie;
+use App\Entity\Saison;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use SortDirection;
@@ -17,15 +18,19 @@ class AdhesionRepository extends ServiceEntityRepository
         parent::__construct($registry, Adhesion::class);
     }
 
-    /** @return list<Adhesion> toutes les adhésions, dernières saisons d'abord, avec règlements et aides */
-    public function findAllDetailed(): array
+    /** @return list<Adhesion> les adhésions (d'une saison, ou de toutes), dernières saisons d'abord, avec règlements et aides */
+    public function findAllDetailed(?Saison $saison = null): array
     {
-        return $this->createQueryBuilder('a')
+        $qb = $this->createQueryBuilder('a')
             ->addSelect('l', 's', 'r', 'ai')
             ->leftJoin('a.licencie', 'l')->join('a.saison', 's')
             ->leftJoin('a.reglements', 'r')->leftJoin('a.aides', 'ai')
-            ->orderBy('s.dateDebut', SortDirection::Descending)->addOrderBy('a.licencieLabel', SortDirection::Ascending)->addOrderBy('l.nom', SortDirection::Ascending)
-            ->getQuery()->getResult();
+            ->orderBy('s.dateDebut', SortDirection::Descending)->addOrderBy('a.licencieLabel', SortDirection::Ascending)->addOrderBy('l.nom', SortDirection::Ascending);
+        if (null !== $saison) {
+            $qb->andWhere('a.saison = :saison')->setParameter('saison', $saison);
+        }
+
+        return $qb->getQuery()->getResult();
     }
 
     /** @return list<Adhesion> historique d'un licencié, saison la plus récente d'abord */

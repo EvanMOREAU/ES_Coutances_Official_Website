@@ -4,10 +4,10 @@
 
 {% block body %}
     <div class="flex items-center justify-between mb-6">
-        <h1 class="u-66972700 text-2xl font-black">Catégories de partenaires</h1>
-        {% if can_url(path('admin_categorie_partenaire_new')) %}<a href="{{ path('admin_categorie_partenaire_new') }}" class="rounded-lg admin-gradient px-4 py-2 text-sm font-semibold text-white">+ Nouvelle catégorie</a>{% endif %}
+        <h1 class="u-66972700 text-2xl font-black">{{ 'Catégories de partenaires'|trans }}</h1>
+        {% if can_url(path('admin_categorie_partenaire_new')) %}<a href="{{ path('admin_categorie_partenaire_new') }}" class="rounded-lg admin-gradient px-4 py-2 text-sm font-semibold text-white">{{ '+ Nouvelle catégorie'|trans }}</a>{% endif %}
     </div>
-    <p class="text-sm text-admin-text-muted mb-6">Ces catégories (or, argent, fournisseur…) sont ensuite proposées sur la fiche de chaque partenaire.</p>
+    <p class="text-sm text-admin-text-muted mb-6">{{ 'Ces catégories (or, argent, fournisseur…) sont ensuite proposées sur la fiche de chaque partenaire.'|trans }}</p>
 
     {% embed 'admin/_components/data_table.html.twig' with {
         key: 'categorie_partenaire',
@@ -26,7 +26,7 @@
         {% block rows %}
             {% for categorie in categories %}
                 <tr data-data-table-target="row" data-reorder-target="row" data-action="dragover->reorder#over drop->reorder#drop" data-id="{{ categorie.id }}">
-                    <td data-col="drag" class="dt-drag-handle" draggable="true" data-action="dragstart->reorder#start dragend->reorder#end" title="Glisser pour réordonner"><i class="fa-solid fa-grip-vertical"></i></td>
+                    <td data-col="drag" class="dt-drag-handle" draggable="true" data-action="dragstart->reorder#start dragend->reorder#end" title="{{ 'Glisser pour réordonner'|trans }}"><i class="fa-solid fa-grip-vertical"></i></td>
                     <td data-col="nom" data-sort="{{ categorie.nom|lower }}" class="font-medium">{{ categorie.nom }}</td>
                     {% include 'admin/_components/row_menu.html.twig' with {
                         edit_url: path('admin_categorie_partenaire_edit', {id: categorie.id}),

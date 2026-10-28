@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="fr">
+<html lang="{{ app.request ? app.request.locale : 'fr' }}" dir="{{ locale_dir(app.request ? app.request.locale : 'fr') }}">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -25,8 +25,8 @@ tfoot td { border-bottom: 0; font-weight: 700; }
 </head>
 <body>
 <div class="actions">
-  <a href="{{ path('boutique_commande_suivi', {reference: commande.reference, token: commande.token}) }}">Retour à la commande</a>
-  <button type="button" id="print-invoice">Imprimer / enregistrer en PDF</button>
+  <a href="{{ path('boutique_commande_suivi', {reference: commande.reference, token: commande.token}) }}">{{ 'Retour à la commande'|trans }}</a>
+  <button type="button" id="print-invoice">{{ 'Imprimer / enregistrer en PDF'|trans }}</button>
 </div>
 <div class="sheet">
   <h1>Facture {{ commande.numeroFacture }}</h1>
@@ -34,21 +34,21 @@ tfoot td { border-bottom: 0; font-weight: 700; }
 
   <div class="parties">
     <div>
-      <h2>Vendeur</h2>
+      <h2>{{ 'Vendeur'|trans }}</h2>
       <strong>Entente Sportive Coutançaise</strong><br>
       {% if contact and contact.adresse %}{{ contact.adresse|nl2br }}<br>{% else %}Coutances (50200){% endif %}
       {% if association_id %}{{ association_id }}<br>{% endif %}
       {% if contact and contact.email %}{{ contact.email }}{% endif %}
     </div>
     <div>
-      <h2>Client</h2>
+      <h2>{{ 'Client'|trans }}</h2>
       <strong>{{ commande.nomComplet }}</strong><br>
       {{ commande.email }}
     </div>
   </div>
 
   <table>
-    <thead><tr><th>Désignation</th><th class="num">Qté</th><th class="num">Prix unitaire</th><th class="num">Total</th></tr></thead>
+    <thead><tr><th>{{ 'Désignation'|trans }}</th><th class="num">{{ 'Qté'|trans }}</th><th class="num">{{ 'Prix unitaire'|trans }}</th><th class="num">{{ 'Total'|trans }}</th></tr></thead>
     <tbody>
     {% for ligne in commande.lignes %}
       <tr><td>{{ ligne.libelle }}</td><td class="num">{{ ligne.quantite }}</td><td class="num">{{ ligne.prixCentimes|money }}</td><td class="num">{{ ligne.totalCentimes|money }}</td></tr>
@@ -56,10 +56,10 @@ tfoot td { border-bottom: 0; font-weight: 700; }
     </tbody>
     <tfoot>
       {% if commande.reductionCentimes > 0 %}
-        <tr><td colspan="3">Sous-total</td><td class="num">{{ commande.sousTotalCentimes|money }}</td></tr>
-        <tr><td colspan="3">Réduction</td><td class="num">− {{ commande.reductionCentimes|money }}</td></tr>
+        <tr><td colspan="3">{{ 'Sous-total'|trans }}</td><td class="num">{{ commande.sousTotalCentimes|money }}</td></tr>
+        <tr><td colspan="3">{{ 'Réduction'|trans }}</td><td class="num">− {{ commande.reductionCentimes|money }}</td></tr>
       {% endif %}
-      <tr><td colspan="3">Total à payer (TTC)</td><td class="num">{{ commande.totalCentimes|money }}</td></tr>
+      <tr><td colspan="3">{{ 'Total à payer (TTC)'|trans }}</td><td class="num">{{ commande.totalCentimes|money }}</td></tr>
     </tfoot>
   </table>
 

@@ -4,10 +4,10 @@
 
 {% block body %}
     <div class="flex items-center justify-between mb-6">
-        <h1 class="u-66972700 text-2xl font-black">Bons de livraison</h1>
-        {% if can_url(path('admin_code_promo_new')) %}<a href="{{ path('admin_code_promo_new') }}" class="rounded-lg admin-gradient px-4 py-2 text-sm font-semibold text-white">+ Nouveau bon</a>{% endif %}
+        <h1 class="u-66972700 text-2xl font-black">{{ 'Bons de livraison'|trans }}</h1>
+        {% if can_url(path('admin_code_promo_new')) %}<a href="{{ path('admin_code_promo_new') }}" class="rounded-lg admin-gradient px-4 py-2 text-sm font-semibold text-white">{{ '+ Nouveau bon'|trans }}</a>{% endif %}
     </div>
-    <p class="text-sm text-admin-text-muted mb-6">Un code saisi par le client au paiement débloque une étape pour indiquer une adresse de livraison, au lieu du retrait au club. Aucune réduction n'est appliquée.</p>
+    <p class="text-sm text-admin-text-muted mb-6">{{ 'Un code saisi par le client au paiement débloque une étape pour indiquer une adresse de livraison, au lieu du retrait au club. Aucune réduction n\'est appliquée.'|trans }}</p>
 
     {% embed 'admin/_components/data_table.html.twig' with {
         key: 'code_promo',
@@ -32,7 +32,7 @@
                         {% if codePromo.utilisateur %}
                             <span class="badge badge-active"><i class="fa-solid fa-user-lock"></i> {{ codePromo.utilisateur.nomComplet }}</span>
                         {% else %}
-                            <span class="badge badge-draft"><i class="fa-solid fa-users"></i> Tout le monde</span>
+                            <span class="badge badge-draft"><i class="fa-solid fa-users"></i> {{ 'Tout le monde'|trans }}</span>
                         {% endif %}
                     </td>
                     <td data-col="usage" data-sort="{{ codePromo.usageActuel }}">
@@ -47,13 +47,13 @@
                     </td>
                     <td data-col="statut">
                         {% if codePromo.isOuvertATous and not codePromo.approuve %}
-                            <span class="badge badge-draft">En attente de validation</span>
+                            <span class="badge badge-draft">{{ 'En attente de validation'|trans }}</span>
                         {% elseif codePromo.valide %}
-                            <span class="badge badge-active">Valide</span>
+                            <span class="badge badge-active">{{ 'Valide'|trans }}</span>
                         {% elseif not codePromo.actif %}
-                            <span class="badge badge-archived">Désactivé</span>
+                            <span class="badge badge-archived">{{ 'Désactivé'|trans }}</span>
                         {% else %}
-                            <span class="badge badge-draft">Expiré / épuisé</span>
+                            <span class="badge badge-draft">{{ 'Expiré / épuisé'|trans }}</span>
                         {% endif %}
                     </td>
                     {% include 'admin/_components/row_menu.html.twig' with {

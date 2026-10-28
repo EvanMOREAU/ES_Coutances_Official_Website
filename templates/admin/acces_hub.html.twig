@@ -4,8 +4,8 @@
 
 {% block body %}
     <div class="mb-6">
-        <h1 class="u-66972700 text-2xl font-black">Utilisateurs et autorisations</h1>
-        <p class="text-sm text-admin-text-muted">Qui peut se connecter au back-office, et ce que chacun a le droit d'y faire. Cliquez sur une carte pour la gérer.</p>
+        <h1 class="u-66972700 text-2xl font-black">{{ 'Utilisateurs et autorisations'|trans }}</h1>
+        <p class="text-sm text-admin-text-muted">{{ 'Qui peut se connecter au back-office, et ce que chacun a le droit d\'y faire. Cliquez sur une carte pour la gérer.'|trans }}</p>
     </div>
 
     {{ include('admin/_hub.html.twig', {groups: {'Accès': 'Gestion des accès'}, advice: [], hide_advice: true}) }}

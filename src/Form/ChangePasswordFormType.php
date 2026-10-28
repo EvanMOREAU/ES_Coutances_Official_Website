@@ -37,7 +37,8 @@ class ChangePasswordFormType extends AbstractType
                             max: 4096,
                         ),
                         new PasswordStrength(),
-                        new NotCompromisedPassword(),
+                        // Si le service de vérification est indisponible, la réinitialisation n'est pas bloquée.
+                        new NotCompromisedPassword(skipOnError: true),
                     ],
                     'label' => 'Nouveau mot de passe',
                 ],

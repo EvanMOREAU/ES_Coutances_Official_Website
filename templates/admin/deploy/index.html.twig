@@ -17,6 +17,7 @@
     <div data-controller="deploy"
          data-deploy-check-url-value="{{ path('admin_deploy_check') }}"
          data-deploy-start-url-value="{{ path('admin_deploy_start') }}"
+         data-deploy-reauth-url-value="{{ path('admin_deploy_reauth') }}"
          data-deploy-status-url-value="{{ path('admin_deploy_status', {id: 0})|replace({'/0/': '/__id__/'}) }}"
          data-deploy-token-value="{{ csrf_token('deploy') }}"
          data-deploy-running-id-value="{{ running ? running.id : 0 }}">
@@ -93,7 +94,7 @@
                 <div class="dt-scroll">
                     <table class="dt-table">
                         <thead>
-                            <tr><th>Date</th><th>Par</th><th>De</th><th>Vers</th><th>Statut</th><th>Sauvegardes</th></tr>
+                            <tr><th>Date</th><th>Par</th><th>De</th><th>Vers</th><th>{{ 'Statut'|trans }}</th><th>Sauvegardes</th></tr>
                         </thead>
                         <tbody>
                             {% for d in history %}
@@ -125,7 +126,7 @@
                                                                 data-action="click->deploy#purge"
                                                                 data-deploy-url-param="{{ path('admin_deploy_backup_purge', {id: d.id}) }}"
                                                                 data-deploy-failed-param="{{ d.status == 'success' ? '0' : '1' }}">
-                                                            <i class="fa-solid fa-trash"></i> Supprimer
+                                                            <i class="fa-solid fa-trash"></i> {{ 'Supprimer'|trans }}
                                                         </button>
                                                     {% endif %}
                                                 </span>

@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Form\ContactType;
 use App\Repository\ContactSettingsRepository;
+use App\Service\Notification\NotificationMailer;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
@@ -23,7 +24,7 @@ class ContactController extends AbstractController
     private const DEFAULT_CONTACT_EMAIL = 'evan.moreau@etik.com';
 
     #[Route('/contact', name: 'app_contact')]
-    public function index(Request $request, MailerInterface $mailer, ContactSettingsRepository $contactSettingsRepo, LoggerInterface $logger): Response
+    public function index(Request $request, MailerInterface $mailer, ContactSettingsRepository $contactSettingsRepo, LoggerInterface $logger, NotificationMailer $notifications): Response
     {
         $form = $this->createForm(ContactType::class);
         $form->handleRequest($request);
@@ -61,6 +62,7 @@ class ContactController extends AbstractController
             try {
                 $mailer->send($email);
                 $success = true;
+                $notifications->contactReceived((string) $data['nom'], (string) $data['email'], (string) $data['sujet'], (string) $data['message']);
             } catch (TransportExceptionInterface $e) {
                 // Panne du serveur d'e-mails : le visiteur garde son message à l'écran et peut réessayer.
                 $logger->error('Message du formulaire de contact non envoyé : {message}', ['message' => $e->getMessage()]);

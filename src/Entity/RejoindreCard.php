@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\RejoindreCardRepository;
+use App\Translation\Translatable;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -17,11 +18,13 @@ class RejoindreCard
     #[ORM\Column]
     private ?int $id = null;
 
+    #[Translatable]
     #[ORM\Column(length: 150)]
     #[Assert\NotBlank(message: 'Donnez un titre à la carte.')]
     #[Assert\Length(max: 150, maxMessage: 'Maximum 150 caractères.')]
     private ?string $titre = null;
 
+    #[Translatable]
     #[ORM\Column(type: 'text', nullable: true)]
     private ?string $description = null;
 
@@ -31,6 +34,7 @@ class RejoindreCard
     #[Vich\UploadableField(mapping: 'rejoindre_image', fileNameProperty: 'imageName')]
     private ?File $imageFile = null;
 
+    #[Translatable]
     #[ORM\Column(length: 100, nullable: true)]
     private ?string $boutonTexte = null;
 

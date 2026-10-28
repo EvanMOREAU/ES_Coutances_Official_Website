@@ -241,6 +241,24 @@ class ChatService
         return $summaries;
     }
 
+    /**
+     * Empreinte très bon marché de l'état de la messagerie (quelques agrégats indexés, sans charger de discussion) :
+     * tant qu'elle ne change pas, le navigateur n'a rien de nouveau à recevoir. Elle est volontairement globale
+     * (pas propre à un utilisateur) et expire toutes les 20 s pour rafraîchir la présence « en ligne ».
+     */
+    public function changeStamp(User $me, int $active, int $after): string
+    {
+        $table = fn ($metadata): string => $metadata->getTableName();
+        $row   = $this->em->getConnection()->fetchNumeric(sprintf(
+            'SELECT (SELECT MAX(id) FROM %1$s), (SELECT MAX(updated_at) FROM %2$s), (SELECT MAX(id) FROM %2$s), (SELECT MAX(closed_at) FROM %2$s), (SELECT MAX(last_read_message_id) FROM %3$s), (SELECT COUNT(*) FROM %3$s)',
+            $table($this->em->getClassMetadata(Message::class)),
+            $table($this->em->getClassMetadata(Conversation::class)),
+            $table($this->em->getClassMetadata(ConversationParticipant::class)),
+        ));
+
+        return substr(sha1(json_encode([$row, $me->getId(), $active, $after, intdiv(time(), 20)], \JSON_THROW_ON_ERROR)), 0, 16);
+    }
+
     public function unreadTotal(User $me): int
     {
         return array_sum($this->unreadMap($me, $this->canSupport($me) || $this->isClient($me) ? $this->conversationsFor($me) : []));

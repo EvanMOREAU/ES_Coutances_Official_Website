@@ -4,8 +4,8 @@
 
 {% block body %}
     <div class="flex items-center justify-between mb-6">
-        <h1 class="u-66972700 text-2xl font-black">Encadrement</h1>
-        {% if can_url(path('admin_membre_new')) %}<a href="{{ path('admin_membre_new') }}" class="rounded-lg admin-gradient px-4 py-2 text-sm font-semibold text-white">+ Nouveau membre</a>{% endif %}
+        <h1 class="u-66972700 text-2xl font-black">{{ 'Encadrement'|trans }}</h1>
+        {% if can_url(path('admin_membre_new')) %}<a href="{{ path('admin_membre_new') }}" class="rounded-lg admin-gradient px-4 py-2 text-sm font-semibold text-white">{{ '+ Nouveau membre'|trans }}</a>{% endif %}
     </div>
 
     {% embed 'admin/_components/data_table.html.twig' with {

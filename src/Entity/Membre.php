@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\MembreRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use App\Translation\Translatable;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -24,6 +25,7 @@ class Membre
     #[Assert\Length(max: 150, maxMessage: 'Maximum 150 caractères.')]
     private ?string $nom = null;
 
+    #[Translatable]
     #[ORM\Column(length: 150)]
     #[Assert\NotBlank(message: 'Indiquez le poste.')]
     #[Assert\Length(max: 150, maxMessage: 'Maximum 150 caractères.')]
@@ -44,6 +46,7 @@ class Membre
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $updatedAt = null;
 
+    #[Translatable]
     #[ORM\Column(length: 150, nullable: true)]
     private ?string $diplome = null;
 

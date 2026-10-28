@@ -23,6 +23,7 @@ export default class extends Controller {
     static values = {
         points: Array, unit: { type: String, default: 'élément' }, unitPlural: String,
         compact: Boolean, height: { type: Number, default: 240 },
+        thisMonth: { type: String, default: '+%n% ce mois-ci' }, none: { type: String, default: 'aucun ajout ce mois-ci' },
     };
 
     connect() {
@@ -31,8 +32,8 @@ export default class extends Controller {
             return;
         }
 
-        const monthFormat = new Intl.DateTimeFormat('fr-FR', { month: 'short' });
-        const longFormat = new Intl.DateTimeFormat('fr-FR', { month: 'long', year: 'numeric' });
+        const monthFormat = new Intl.DateTimeFormat(document.documentElement.lang || 'fr', { month: 'short' });
+        const longFormat = new Intl.DateTimeFormat(document.documentElement.lang || 'fr', { month: 'long', year: 'numeric' });
         this.series = points.map((point) => {
             const [year, month] = point.month.split('-').map(Number);
             const date = new Date(year, month - 1, 1);
@@ -131,7 +132,7 @@ export default class extends Controller {
         this.dots.forEach((dot, i) => dot.setAttribute('r', i === index ? 5 : (this.compactValue ? 0 : 3.5)));
 
         const unit = point.total > 1 ? (this.unitPluralValue || `${this.unitValue}s`) : this.unitValue;
-        const gain = point.new > 0 ? `<span>+${point.new} ce mois-ci</span>` : '<span>aucun ajout ce mois-ci</span>';
+        const gain = point.new > 0 ? `<span>${this.thisMonthValue.replace('%n%', point.new)}</span>` : `<span>${this.noneValue}</span>`;
         this.tooltipTarget.innerHTML = `<strong>${point.long}</strong>${point.total} ${unit}<br>${gain}`;
         this.tooltipTarget.hidden = false;
 

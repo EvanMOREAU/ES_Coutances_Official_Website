@@ -60,7 +60,7 @@ export function adminConfirm({ title = 'Confirmer', message = '', confirmLabel =
  *
  *   const name = await adminPrompt({ title, label, value, confirmLabel });   // null si annulé
  */
-export function adminPrompt({ title = 'Saisie', label = '', value = '', placeholder = '', confirmLabel = 'Valider', cancelLabel = 'Annuler' } = {}) {
+export function adminPrompt({ title = 'Saisie', label = '', value = '', placeholder = '', confirmLabel = 'Valider', cancelLabel = 'Annuler', type = 'text' } = {}) {
     return new Promise((resolve) => {
         const dialog = document.createElement('dialog');
         dialog.className = 'admin-modal';
@@ -81,8 +81,12 @@ export function adminPrompt({ title = 'Saisie', label = '', value = '', placehol
         dialog.querySelector('[data-role="cancel"]').textContent = cancelLabel;
         dialog.querySelector('[data-role="ok"]').textContent = confirmLabel;
         const input = dialog.querySelector('input');
+        input.type = type;
         input.value = value;
         input.placeholder = placeholder;
+        if ('password' === type) {
+            input.autocomplete = 'current-password';
+        }
 
         let done = false;
         const finish = (result) => {
@@ -97,7 +101,8 @@ export function adminPrompt({ title = 'Saisie', label = '', value = '', placehol
 
         dialog.querySelector('form').addEventListener('submit', (event) => {
             event.preventDefault();
-            const text = input.value.trim();
+            // Un mot de passe est transmis tel quel (les espaces en début ou fin en font partie).
+            const text = 'password' === type ? input.value : input.value.trim();
             finish(text === '' ? null : text);
         });
         dialog.querySelector('[data-role="cancel"]').addEventListener('click', () => finish(null));

@@ -3,10 +3,14 @@
 namespace App\Twig;
 
 use App\Entity\MatchLive;
+use App\Service\Locale\LocaleRegistry;
+use App\Translation\TranslationStore;
+use Symfony\Component\HttpFoundation\RequestStack;
 use App\Repository\BoutiqueSettingsRepository;
 use App\Repository\MatchLiveRepository;
 use Liip\ImagineBundle\Imagine\Cache\CacheManager;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\HtmlSanitizer\HtmlSanitizerInterface;
 use Twig\Extension\RuntimeExtensionInterface;
 
 /**
@@ -19,8 +23,38 @@ class AppRuntime implements RuntimeExtensionInterface
         private readonly MatchLiveRepository $matchLiveRepository,
         private readonly BoutiqueSettingsRepository $boutiqueSettingsRepository,
         private readonly CacheManager $imagine,
+        private readonly LocaleRegistry $localeRegistry,
+        private readonly TranslationStore $translations,
+        private readonly RequestStack $requestStack,
+        #[Autowire(service: 'html_sanitizer.sanitizer.rich_content')] private readonly HtmlSanitizerInterface $richContentSanitizer,
         #[Autowire('%kernel.project_dir%/public')] private readonly string $publicDir,
     ) {
+    }
+
+    public function safeHtml(?string $html): string
+    {
+        return $this->richContentSanitizer->sanitize((string) $html);
+    }
+
+    /** @return array<string, array{name: string, icu: string, dir: string, flag: string, deepl: string}> */
+    public function getLocales(): array
+    {
+        return $this->localeRegistry->enabled();
+    }
+
+    /**
+     * Texte saisi en français dans l'administration, dans la langue du visiteur : traduction enregistrée en base à la
+     * création du contenu, sinon le texte d'origine (aucun appel au service de traduction ici).
+     */
+    public function autoTrans(?string $text): string
+    {
+        $text = (string) $text;
+        $locale = $this->requestStack->getCurrentRequest()?->getLocale() ?? 'fr';
+        if ('' === $text || 'fr' === $locale) {
+            return $text;
+        }
+
+        return $this->translations->get($text, $locale) ?? $text;
     }
 
     public function getMatchLive(): ?MatchLive

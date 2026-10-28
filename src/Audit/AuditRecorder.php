@@ -2,6 +2,7 @@
 
 namespace App\Audit;
 
+use App\Doctrine\TablePrefixListener;
 use App\Entity\AuditLog;
 use App\Entity\User;
 use Doctrine\DBAL\Connection;
@@ -13,7 +14,7 @@ use Symfony\Component\Mime\Email;
 use Symfony\Component\Mime\RawMessage;
 
 /**
- * Écrit dans le journal d'activité (table audit_log). Chaque ligne est enrichie du contexte de la
+ * Écrit dans le journal d'activité (table es_audit_log). Chaque ligne est enrichie du contexte de la
  * requête : compte connecté, adresse IP, navigateur, page, identifiant de requête. L'écriture passe
  * par DBAL (pas par l'ORM) pour ne jamais se déclencher elle-même, et une panne du journal ne doit
  * jamais faire échouer l'action de l'utilisateur : elle est seulement signalée dans les logs techniques.
@@ -63,7 +64,7 @@ class AuditRecorder
     {
         try {
             foreach ($rows as $row) {
-                $this->connection->insert('audit_log', $row);
+                $this->connection->insert(TablePrefixListener::prefixed('audit_log'), $row);
             }
         } catch (\Throwable $e) {
             $this->logger->error('Journal d\'activité : écriture impossible — '.$e->getMessage());

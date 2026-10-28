@@ -16,10 +16,13 @@ use Symfony\Component\Routing\Attribute\Route;
 class CommandeController extends AbstractController
 {
     #[Route('', name: 'admin_commande_index', methods: ['GET'])]
-    public function index(CommandeRepository $repository): Response
+    public function index(Request $request, CommandeRepository $repository): Response
     {
+        $toutes = 'toutes' === $request->query->get('periode');
+
         return $this->render('admin/boutique/commande_index.html.twig', [
-            'commandes' => $repository->findBy([], ['createdAt' => 'DESC', 'id' => 'DESC']),
+            'commandes' => $repository->findForAdminList($toutes),
+            'toutes'    => $toutes,
         ]);
     }
 

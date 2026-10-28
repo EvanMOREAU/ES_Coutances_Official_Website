@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\CategorieRepository;
 use Doctrine\Common\Collections\Collection;
+use App\Translation\Translatable;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -15,6 +16,7 @@ class Categorie
     #[ORM\Column]
     private ?int $id = null;
 
+    #[Translatable]
     #[ORM\Column(length: 100)]
     #[Assert\NotBlank(message: 'Donnez un nom à la catégorie.')]
     #[Assert\Length(max: 100, maxMessage: 'Maximum 100 caractères.')]

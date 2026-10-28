@@ -15,6 +15,7 @@ use Symfony\Component\Mime\Address;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * Confidentialité (RGPD) de l'espace « Mon compte » : récapitulatif téléchargeable des données du compte,
@@ -58,6 +59,7 @@ class AccountPrivacyController extends AbstractController
         UserPasswordHasherInterface $hasher,
         MailerInterface $mailer,
         LoggerInterface $logger,
+        TranslatorInterface $translator,
         string $mailerFromAddress,
         string $mailerFromName,
     ): Response {
@@ -89,7 +91,7 @@ class AccountPrivacyController extends AbstractController
                 (new TemplatedEmail())
                     ->from(new Address($mailerFromAddress, $mailerFromName))
                     ->to($address)
-                    ->subject('Votre compte ES Coutances a été supprimé')
+                    ->subject($translator->trans('Votre compte ES Coutances a été supprimé'))
                     ->htmlTemplate('email/account_deleted.html.twig')
                     ->context(['name' => $name]),
             );

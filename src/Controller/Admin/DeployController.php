@@ -5,6 +5,7 @@ namespace App\Controller\Admin;
 use App\Entity\Deployment;
 use App\Entity\User;
 use App\Repository\DeploymentRepository;
+use App\Security\Reauthentication;
 use App\Service\Deploy\DeployService;
 use App\Service\Deploy\UpdateWatcher;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -12,9 +13,16 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-/** Mise à jour du site depuis le dépôt GitHub (menu « Mise à jour »). */
+/**
+ * Mise à jour du site depuis le dépôt GitHub (menu « Mise à jour »).
+ *
+ * Réservée au rôle développeur, quelles que soient les autorisations accordées. Lancer une mise à jour exige
+ * en plus une seconde authentification activée sur le compte et une ressaisie récente du mot de passe.
+ */
 #[Route('/admin/mise-a-jour')]
+#[IsGranted('ROLE_DEV')]
 class DeployController extends AbstractController
 {
     #[Route('', name: 'admin_deploy_index', methods: ['GET'])]
@@ -70,14 +78,47 @@ class DeployController extends AbstractController
         ]);
     }
 
-    #[Route('/lancer', name: 'admin_deploy_start', methods: ['POST'])]
-    public function start(Request $request, DeployService $deploy): JsonResponse
+    /** Ressaisie du mot de passe : autorise le lancement d'une mise à jour pendant quelques minutes. */
+    #[Route('/reauthentification', name: 'admin_deploy_reauth', methods: ['POST'])]
+    public function reauth(Request $request, Reauthentication $reauth): JsonResponse
     {
         $this->denyUnlessCsrf($request);
 
         $user = $this->getUser();
+        if (!$user instanceof User) {
+            throw $this->createAccessDeniedException();
+        }
+
         try {
-            $deployment = $deploy->start($user instanceof User ? $user : null);
+            $ok = $reauth->confirm($user, (string) $request->request->get('password', ''), $request->getSession());
+        } catch (\RuntimeException $e) {
+            return $this->json(['error' => $e->getMessage()], Response::HTTP_TOO_MANY_REQUESTS);
+        }
+
+        return $ok ? $this->json(['ok' => true]) : $this->json(['error' => 'Mot de passe incorrect.'], Response::HTTP_FORBIDDEN);
+    }
+
+    #[Route('/lancer', name: 'admin_deploy_start', methods: ['POST'])]
+    public function start(Request $request, DeployService $deploy, Reauthentication $reauth): JsonResponse
+    {
+        $this->denyUnlessCsrf($request);
+
+        $user = $this->getUser();
+        if (!$user instanceof User) {
+            throw $this->createAccessDeniedException();
+        }
+        if (!$reauth->hasSecondFactor($user)) {
+            return $this->json(['error' => 'Activez une double authentification (Paramètres > Sécurité) pour lancer une mise à jour.'], Response::HTTP_FORBIDDEN);
+        }
+        if (!$reauth->isFresh($request->getSession())) {
+            return $this->json(['error' => 'Confirmez votre mot de passe pour lancer la mise à jour.', 'reauth' => true], Response::HTTP_FORBIDDEN);
+        }
+
+        // Une ressaisie vaut pour un seul lancement.
+        $reauth->forget($request->getSession());
+
+        try {
+            $deployment = $deploy->start($user);
         } catch (\RuntimeException $e) {
             return $this->json(['error' => $e->getMessage()], Response::HTTP_CONFLICT);
         }

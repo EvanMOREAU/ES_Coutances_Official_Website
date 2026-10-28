@@ -53,7 +53,7 @@
 
     <div class="dt-toolbar">
         {% if statuses %}
-            <div class="dt-tabs" role="group" aria-label="Filtrer par statut">
+            <div class="dt-tabs" role="group" aria-label="{{ 'Filtrer par statut'|trans }}">
                 {% for status, label in status_tabs %}
                     <button type="button" class="dt-tab" data-data-table-target="tab" data-status="{{ status }}" data-action="click->data-table#filterStatus">{{ label }}<span data-count></span></button>
                 {% endfor %}
@@ -62,17 +62,17 @@
 
         <label class="dt-search">
             <i class="fa-solid fa-magnifying-glass"></i>
-            <input type="search" placeholder="{{ search_placeholder|default('Rechercher…') }}" aria-label="Rechercher dans le tableau"
+            <input type="search" placeholder="{{ search_placeholder|default('Rechercher…') }}" aria-label="{{ 'Rechercher dans le tableau'|trans }}"
                    data-data-table-target="search" data-action="input->data-table#search">
         </label>
 
         <div class="dt-toolbar-end">
             <div data-controller="menu" class="relative">
                 <button type="button" class="admin-btn admin-btn-ghost" data-menu-target="button" data-action="click->menu#toggle" aria-haspopup="true" aria-expanded="false">
-                    <i class="fa-solid fa-sliders"></i> Colonnes
+                    <i class="fa-solid fa-sliders"></i> {{ 'Colonnes'|trans }}
                 </button>
                 <div data-menu-target="panel" class="admin-menu-panel hidden">
-                    <p class="admin-menu-title">Afficher les colonnes</p>
+                    <p class="admin-menu-title">{{ 'Afficher les colonnes'|trans }}</p>
                     {% for column in columns %}
                         <label class="admin-menu-item admin-menu-check">
                             <input type="checkbox" checked data-col="{{ column.key }}"
@@ -89,12 +89,12 @@
         <div class="dt-bulk" hidden data-data-table-target="bulkBar">
             <span class="dt-bulk-count" data-data-table-target="bulkCount"></span>
             {% if status_actions %}
-                <button type="button" class="admin-btn admin-btn-ghost admin-btn-sm" data-action="click->data-table#bulk" data-bulk-action="statut:active"><i class="fa-solid fa-circle-check"></i> Activer</button>
-                <button type="button" class="admin-btn admin-btn-ghost admin-btn-sm" data-action="click->data-table#bulk" data-bulk-action="statut:draft"><i class="fa-solid fa-pen-ruler"></i> Brouillon</button>
-                <button type="button" class="admin-btn admin-btn-ghost admin-btn-sm" data-action="click->data-table#bulk" data-bulk-action="statut:archived"><i class="fa-solid fa-box-archive"></i> Archiver</button>
+                <button type="button" class="admin-btn admin-btn-ghost admin-btn-sm" data-action="click->data-table#bulk" data-bulk-action="statut:active"><i class="fa-solid fa-circle-check"></i> {{ 'Activer'|trans }}</button>
+                <button type="button" class="admin-btn admin-btn-ghost admin-btn-sm" data-action="click->data-table#bulk" data-bulk-action="statut:draft"><i class="fa-solid fa-pen-ruler"></i> {{ 'Brouillon'|trans }}</button>
+                <button type="button" class="admin-btn admin-btn-ghost admin-btn-sm" data-action="click->data-table#bulk" data-bulk-action="statut:archived"><i class="fa-solid fa-box-archive"></i> {{ 'Archiver'|trans }}</button>
             {% endif %}
-            <button type="button" class="admin-btn admin-btn-danger admin-btn-sm" data-action="click->data-table#bulk" data-bulk-action="delete"><i class="fa-solid fa-trash"></i> Supprimer</button>
-            <button type="button" class="admin-btn admin-btn-ghost admin-btn-sm" data-action="click->data-table#clearSelection">Désélectionner</button>
+            <button type="button" class="admin-btn admin-btn-danger admin-btn-sm" data-action="click->data-table#bulk" data-bulk-action="delete"><i class="fa-solid fa-trash"></i> {{ 'Supprimer'|trans }}</button>
+            <button type="button" class="admin-btn admin-btn-ghost admin-btn-sm" data-action="click->data-table#clearSelection">{{ 'Désélectionner'|trans }}</button>
         </div>
     {% endif %}
 
@@ -104,7 +104,7 @@
                 <thead>
                     <tr>
                         {% if bulk %}
-                            <th class="dt-check-col"><input type="checkbox" aria-label="Tout sélectionner" data-data-table-target="selectAll" data-action="change->data-table#toggleAll"></th>
+                            <th class="dt-check-col"><input type="checkbox" aria-label="{{ 'Tout sélectionner'|trans }}" data-data-table-target="selectAll" data-action="change->data-table#toggleAll"></th>
                         {% endif %}
                         {% for column in columns %}
                             {% if column.sortable|default(true) %}
@@ -117,7 +117,7 @@
                                 <th data-col="{{ column.key }}">{{ column.label }}</th>
                             {% endif %}
                         {% endfor %}
-                        <th class="dt-actions-col"><span class="sr-only">Actions</span></th>
+                        <th class="dt-actions-col"><span class="sr-only">{{ 'Actions'|trans }}</span></th>
                     </tr>
                 </thead>
                 <tbody data-data-table-target="body">
@@ -134,7 +134,7 @@
         <span data-data-table-target="info"></span>
         <div class="dt-footer-end">
             <label class="dt-rows">
-                <span>Lignes</span>
+                <span>{{ 'Lignes'|trans }}</span>
                 <select data-compact data-data-table-target="perPage" data-action="change->data-table#changePerPage">
                     {% for n in [10, 25, 50, 100] %}
                         <option value="{{ n }}" {{ n == per_page ? 'selected' }}>{{ n }}</option>

@@ -4,10 +4,10 @@
 
 {% block body %}
     <div class="flex items-center justify-between mb-2">
-        <h1 class="u-66972700 text-2xl font-black">Équipes</h1>
-        {% if can_url(path('admin_equipe_new')) %}<a href="{{ path('admin_equipe_new') }}" class="rounded-lg admin-gradient px-4 py-2 text-sm font-semibold text-white">+ Nouvelle équipe</a>{% endif %}
+        <h1 class="u-66972700 text-2xl font-black">{{ 'Équipes'|trans }}</h1>
+        {% if can_url(path('admin_equipe_new')) %}<a href="{{ path('admin_equipe_new') }}" class="rounded-lg admin-gradient px-4 py-2 text-sm font-semibold text-white">{{ '+ Nouvelle équipe'|trans }}</a>{% endif %}
     </div>
-    <p class="text-sm text-admin-text-muted mb-6">La catégorie d'un licencié (U11, U12…) est calculée automatiquement d'après sa date de naissance. Les équipes servent à l'affilier pour les matchs à l'intérieur de sa catégorie.</p>
+    <p class="text-sm text-admin-text-muted mb-6">{{ 'La catégorie d\'un licencié (U11, U12…) est calculée automatiquement d\'après sa date de naissance. Les équipes servent à l\'affilier pour les matchs à l\'intérieur de sa catégorie.'|trans }}</p>
 
     {% embed 'admin/_components/data_table.html.twig' with {
         key: 'equipe',

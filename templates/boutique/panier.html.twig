@@ -1,8 +1,8 @@
 {% extends 'boutique/_layout.html.twig' %}
 
 {% block boutique_title %}Mon panier{% endblock %}
-{% block breadcrumb %}<a href="{{ path('boutique_index') }}">Boutique</a> <i class="fa-solid fa-chevron-right"></i> <span>Panier</span>{% endblock %}
-{% block hero_title %}Mon <span>panier</span>{% endblock %}
+{% block breadcrumb %}<a href="{{ path('boutique_index') }}">{{ 'Boutique'|trans }}</a> <i class="fa-solid fa-chevron-right"></i> <span>{{ 'Panier'|trans }}</span>{% endblock %}
+{% block hero_title %}Mon <span>{{ 'panier'|trans }}</span>{% endblock %}
 
 {% block boutique_styles %}
 <style nonce="{{ csp_nonce() }}">
@@ -37,9 +37,9 @@
   {% if lignes is empty %}
     <div class="cart-empty">
       <i class="fa-solid fa-bag-shopping"></i>
-      <h2>Votre panier est vide</h2>
-      <p class="u-9fc544e4">Découvrez les articles du club et ajoutez-les à votre panier.</p>
-      <a class="btn btn-primary" href="{{ path('boutique_index') }}">Voir la boutique</a>
+      <h2>{{ 'Votre panier est vide'|trans }}</h2>
+      <p class="u-9fc544e4">{{ 'Découvrez les articles du club et ajoutez-les à votre panier.'|trans }}</p>
+      <a class="btn btn-primary" href="{{ path('boutique_index') }}">{{ 'Voir la boutique'|trans }}</a>
     </div>
   {% else %}
     <div class="shop-cols">
@@ -53,7 +53,7 @@
               {% if article.imageName %}<img src="{{ ('uploads/articles/' ~ article.imageName)|thumb('mini') }}" alt="" loading="lazy">{% else %}<i class="fa-solid fa-shirt"></i>{% endif %}
             </a>
             <div>
-              <p class="cart-name"><a href="{{ path('boutique_article', {slug: article.slug}) }}">{{ article.nom }}</a></p>
+              <p class="cart-name"><a href="{{ path('boutique_article', {slug: article.slug}) }}">{{ article.nom|auto_trans }}</a></p>
               <p class="cart-meta">{% if not article.sansDeclinaison %}Taille {{ v.libelle }} · {% endif %}{{ article.prixCentimes|money }} l'unité</p>
               <div class="cart-controls">
                 <div class="qty-inline">
@@ -61,39 +61,39 @@
                     <input type="hidden" name="_token" value="{{ csrf_token('boutique-panier') }}">
                     <input type="hidden" name="variante" value="{{ v.id }}">
                     <input type="hidden" name="quantite" value="{{ ligne.quantite - 1 }}">
-                    <button type="submit" aria-label="Diminuer la quantité">−</button>
+                    <button type="submit" aria-label="{{ 'Diminuer la quantité'|trans }}">−</button>
                   </form>
                   <span>{{ ligne.quantite }}</span>
                   <form method="post" action="{{ path('boutique_panier_modifier') }}">
                     <input type="hidden" name="_token" value="{{ csrf_token('boutique-panier') }}">
                     <input type="hidden" name="variante" value="{{ v.id }}">
                     <input type="hidden" name="quantite" value="{{ ligne.quantite + 1 }}">
-                    <button type="submit" aria-label="Augmenter la quantité" {{ ligne.quantite >= min(v.stock, constant('App\\Service\\Boutique\\Panier::QUANTITE_MAX')) ? 'disabled' }}>+</button>
+                    <button type="submit" aria-label="{{ 'Augmenter la quantité'|trans }}" {{ ligne.quantite >= min(v.stock, constant('App\\Service\\Boutique\\Panier::QUANTITE_MAX')) ? 'disabled' }}>+</button>
                   </form>
                 </div>
                 <form method="post" action="{{ path('boutique_panier_retirer') }}">
                   <input type="hidden" name="_token" value="{{ csrf_token('boutique-panier') }}">
                   <input type="hidden" name="variante" value="{{ v.id }}">
-                  <button type="submit" class="link-remove">Retirer</button>
+                  <button type="submit" class="link-remove">{{ 'Retirer'|trans }}</button>
                 </form>
               </div>
             </div>
             <div class="cart-total"><span class="price">{{ ligne.total|money }}</span></div>
           </div>
         {% endfor %}
-        <p class="u-d4316970"><a href="{{ path('boutique_index') }}" class="note"><i class="fa-solid fa-arrow-left"></i> Continuer mes achats</a></p>
+        <p class="u-d4316970"><a href="{{ path('boutique_index') }}" class="note"><i class="fa-solid fa-arrow-left"></i> {{ 'Continuer mes achats'|trans }}</a></p>
       </div>
 
       <aside class="box summary">
-        <h2>Récapitulatif</h2>
-        <div class="sum-row"><span>Sous-total</span><span>{{ total|money }}</span></div>
-        <div class="sum-row"><span>Retrait au club</span><span>Gratuit</span></div>
-        <div class="sum-row total"><span>Total</span><span class="price">{{ total|money }}</span></div>
-        <a href="{{ path('boutique_commande') }}" class="u-4a909ea7 btn btn-primary btn-block">Commander <i class="fa-solid fa-arrow-right"></i></a>
+        <h2>{{ 'Récapitulatif'|trans }}</h2>
+        <div class="sum-row"><span>{{ 'Sous-total'|trans }}</span><span>{{ total|money }}</span></div>
+        <div class="sum-row"><span>{{ 'Retrait au club'|trans }}</span><span>{{ 'Gratuit'|trans }}</span></div>
+        <div class="sum-row total"><span>{{ 'Total'|trans }}</span><span class="price">{{ total|money }}</span></div>
+        <a href="{{ path('boutique_commande') }}" class="u-4a909ea7 btn btn-primary btn-block">{{ 'Commander'|trans }} <i class="fa-solid fa-arrow-right"></i></a>
         {% if not app.user %}
-          <p class="u-553a645f note"><i class="fa-solid fa-circle-info"></i> Un compte est nécessaire pour valider la commande : <a href="{{ path('portail_login') }}">se connecter</a> ou <a href="{{ path('portail_inscription') }}">créer un compte</a>.</p>
+          <p class="u-553a645f note"><i class="fa-solid fa-circle-info"></i> {{ 'Un compte est nécessaire pour valider la commande :'|trans }} <a href="{{ path('portail_login') }}">{{ 'se connecter'|trans }}</a> {{ 'ou'|trans }} <a href="{{ path('portail_inscription') }}">{{ 'créer un compte'|trans }}</a>.</p>
         {% endif %}
-        <p class="u-553a645f note"><i class="fa-solid fa-store"></i> Pas de livraison : vous retirez votre commande au club.</p>
+        <p class="u-553a645f note"><i class="fa-solid fa-store"></i> {{ 'Pas de livraison : vous retirez votre commande au club.'|trans }}</p>
       </aside>
     </div>
   {% endif %}

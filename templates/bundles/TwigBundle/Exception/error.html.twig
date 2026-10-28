@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="{{ app.request ? app.request.locale : 'fr' }}" dir="{{ locale_dir(app.request ? app.request.locale : 'fr') }}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -31,7 +31,7 @@
     <div class="code">{{ status_code }}</div>
     <h1>{% block heading %}Une erreur est survenue{% endblock %}</h1>
     <p>{% block message %}Un problème est survenu de notre côté. Réessayez dans quelques instants ; s'il persiste, contactez le club.{% endblock %}</p>
-    <a href="/">Retour à l'accueil</a>
+    <a href="/">{{ 'Retour à l\'accueil'|trans }}</a>
   </main>
 </body>
 </html>

@@ -6,6 +6,7 @@ use App\Entity\Message;
 use App\Entity\User;
 use App\Repository\UserRepository;
 use App\Security\PermissionChecker;
+use App\Service\Locale\MailLocale;
 use App\Service\Notification\NotificationPreferences;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
@@ -14,6 +15,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Address;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * Prévient par e-mail les personnes qui reçoivent un message alors qu'elles ne sont pas en ligne.
@@ -35,6 +37,8 @@ class ChatNotifier implements EventSubscriberInterface
         private readonly UserRepository $users,
         private readonly PermissionChecker $permissions,
         private readonly NotificationPreferences $prefs,
+        private readonly MailLocale $mailLocale,
+        private readonly TranslatorInterface $translator,
         private readonly string $mailerFromAddress,
         private readonly string $mailerFromName,
     ) {
@@ -120,22 +124,26 @@ class ChatNotifier implements EventSubscriberInterface
     {
         $conversation = $message->getConversation();
         $fromSupport  = $conversation->isSupport() && !$recipient->isStaff();
-        $sender       = $fromSupport ? 'Le support' : ($message->getAuthor()?->getNomComplet() ?: 'Quelqu\'un');
 
-        $this->mailer->send(
-            (new TemplatedEmail())
-                ->from(new Address($this->mailerFromAddress, $this->mailerFromName))
-                ->to((string) $recipient->getEmail())
-                ->subject($subject.' — ES Coutances')
-                ->htmlTemplate('email/chat_notification.html.twig')
-                ->context([
-                    'recipient'  => $recipient,
-                    'sender'     => $sender,
-                    'staff'      => $recipient->isStaff(),
-                    'support'    => $conversation->isSupport(),
-                    'conversationId' => $conversation->getId(),
-                    'withDocument'   => $message->getBody() === '' ,
-                ]),
-        );
+        // Le message est rédigé dans la langue du destinataire.
+        $this->mailLocale->runFor($recipient, function () use ($recipient, $message, $subject, $conversation, $fromSupport): void {
+            $sender = $fromSupport ? $this->translator->trans('Le support') : ($message->getAuthor()?->getNomComplet() ?: $this->translator->trans('Quelqu\'un'));
+
+            $this->mailer->send(
+                (new TemplatedEmail())
+                    ->from(new Address($this->mailerFromAddress, $this->mailerFromName))
+                    ->to((string) $recipient->getEmail())
+                    ->subject($this->translator->trans($subject).' — ES Coutances')
+                    ->htmlTemplate('email/chat_notification.html.twig')
+                    ->context([
+                        'recipient'      => $recipient,
+                        'sender'         => $sender,
+                        'staff'          => $recipient->isStaff(),
+                        'support'        => $conversation->isSupport(),
+                        'conversationId' => $conversation->getId(),
+                        'withDocument'   => '' === $message->getBody(),
+                    ]),
+            );
+        });
     }
 }

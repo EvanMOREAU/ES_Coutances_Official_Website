@@ -396,3 +396,59 @@ trix-editor:focus { outline: 2px solid var(--color-admin-primary-to); outline-of
 .vt-pill.is-hint { color: var(--color-admin-text-muted); border: 1px solid var(--color-admin-border); }
 :root[data-theme="light"] .vt-pill.is-todo { color: #c2410c; }
 .vt-bars-caption { margin-bottom: .4rem; }
+
+/* ------------------------------------------------------------------ */
+/* Tableau de bord : histogrammes, classements, anneaux                */
+/* ------------------------------------------------------------------ */
+.chart-c1, .chart-s1 { fill: var(--color-admin-primary-to); }
+.chart-c2, .chart-s2 { fill: #64748b; }
+.chart-c3, .chart-s3 { fill: #3b82f6; }
+.chart-c4, .chart-s4 { fill: #10b981; }
+.chart-c5, .chart-s5 { fill: #f59e0b; }
+.chart-c6, .chart-s6 { fill: #8b5cf6; }
+.chart-arc { fill: none; stroke: var(--color-admin-primary-to); cursor: default; transition: opacity .15s; }
+.chart-arc:hover { opacity: .8; }
+.chart-s2 { stroke: #64748b; }
+.chart-s3 { stroke: #3b82f6; }
+.chart-s4 { stroke: #10b981; }
+.chart-s5 { stroke: #f59e0b; }
+.chart-s6 { stroke: #8b5cf6; }
+.chart-bar { transition: opacity .15s; }
+.chart-bar:hover { opacity: .8; }
+.chart-center { fill: var(--color-admin-text); font-size: 20px; font-weight: 800; }
+.chart-bg1 { background-color: var(--color-admin-primary-to); }
+.chart-bg2 { background-color: #64748b; }
+.chart-bg3 { background-color: #3b82f6; }
+.chart-bg4 { background-color: #10b981; }
+.chart-bg5 { background-color: #f59e0b; }
+.chart-bg6 { background-color: #8b5cf6; }
+.chart-empty { padding: 2.5rem 0; text-align: center; font-size: .875rem; color: var(--color-admin-text-muted); }
+.chart.chart-donut { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 1.25rem; }
+.chart-legend { display: grid; gap: .45rem; font-size: .8125rem; margin: 0; padding: 0; list-style: none; }
+.chart-legend li { display: flex; align-items: center; gap: .5rem; }
+.chart-legend-value { margin-left: auto; padding-left: 1rem; color: var(--color-admin-text-muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.chart-bars-legend .chart-legend { display: flex; flex-wrap: wrap; gap: .4rem 1.1rem; margin-top: .6rem; }
+.chart-sw { display: inline-block; width: .7rem; height: .7rem; border-radius: .2rem; flex: none; }
+.chart-tip-row { display: block; color: var(--color-admin-text-muted); }
+.chart-hbars { display: grid; gap: .55rem; }
+.chart-hrow { display: grid; grid-template-columns: minmax(5rem, 38%) 1fr auto; align-items: center; gap: .75rem; font-size: .8125rem; }
+.chart-hlabel { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.chart-htrack { height: .55rem; border-radius: 999px; background-color: var(--color-admin-border); overflow: hidden; }
+.chart-hfill { display: block; height: 100%; border-radius: 999px; }
+.chart-hvalue { font-weight: 700; font-variant-numeric: tabular-nums; }
+
+/* Tuiles d'indicateurs et listes du tableau de bord */
+.kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(10.5rem, 1fr)); gap: 1rem; }
+.kpi-tile { display: block; padding: 1rem 1.1rem; border-radius: .9rem; background-color: rgba(255, 255, 255, .1); border: 1px solid rgba(255, 255, 255, .12); color: #fff; transition: background-color .15s; }
+a.kpi-tile:hover { background-color: rgba(255, 255, 255, .18); }
+.kpi-label { display: flex; align-items: center; gap: .5rem; font-size: .7rem; letter-spacing: .06em; text-transform: uppercase; color: rgba(255, 255, 255, .72); }
+.kpi-value { margin-top: .4rem; font-size: 1.6rem; font-weight: 900; line-height: 1.1; }
+.kpi-sub { margin-top: .2rem; font-size: .72rem; color: rgba(255, 255, 255, .65); }
+.kpi-up { color: #6ee7b7; }
+.kpi-down { color: #fca5a5; }
+.dash-section { display: flex; align-items: center; gap: .6rem; margin: 2rem 0 .9rem; font-size: .7rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--color-admin-text-muted); }
+.dash-section::after { content: ''; flex: 1; height: 1px; background-color: var(--color-admin-border); }
+.dash-stat { display: grid; grid-template-columns: repeat(auto-fit, minmax(7.5rem, 1fr)); gap: .75rem; margin-bottom: 1rem; }
+.dash-stat > div { padding: .65rem .8rem; border-radius: .7rem; background-color: var(--color-admin-bg); border: 1px solid var(--color-admin-border); }
+.dash-stat-value { font-size: 1.15rem; font-weight: 800; }
+.dash-stat-label { font-size: .7rem; color: var(--color-admin-text-muted); }

@@ -22,8 +22,8 @@
             {{ form_row(form.statut) }}
 
             <div class="flex items-center gap-3 mt-6">
-                <button type="submit" class="rounded-lg admin-gradient px-5 py-2 text-sm font-semibold text-white">Enregistrer</button>
-                <a href="{{ path('admin_famille_index') }}" class="text-sm text-admin-text-muted hover:text-white">Annuler</a>
+                <button type="submit" class="rounded-lg admin-gradient px-5 py-2 text-sm font-semibold text-white">{{ 'Enregistrer'|trans }}</button>
+                <a href="{{ path('admin_famille_index') }}" class="text-sm text-admin-text-muted hover:text-white">{{ 'Annuler'|trans }}</a>
             </div>
         {{ form_end(form) }}
     </div>

@@ -3,34 +3,34 @@
 {% block title %}Licence {{ adhesion.saison }} — {{ adhesion.licencieAffichage }}{% endblock %}
 
 {% block body %}
-    <p class="mb-4"><a href="{{ path('admin_adhesion_index') }}" class="text-sm text-admin-text-muted hover:text-white">&larr; Paiements des licences</a></p>
+    <p class="mb-4"><a href="{{ path('admin_adhesion_index') }}" class="text-sm text-admin-text-muted hover:text-white">{{ '&larr; Paiements des licences'|trans }}</a></p>
 
     <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
         <div class="flex items-center gap-3">
             <h1 class="u-66972700 text-2xl font-black">{{ adhesion.licencieAffichage }} — {{ adhesion.saison }}</h1>
             <span class="badge badge-pay-{{ adhesion.statutPaiement }}">{{ adhesion.statutPaiementLabel }}</span>
-            {% if not adhesion.licencie %}<span class="badge badge-draft" title="Pas encore rattaché à une fiche licencié">libellé</span>{% endif %}
+            {% if not adhesion.licencie %}<span class="badge badge-draft" title="{{ 'Pas encore rattaché à une fiche licencié'|trans }}">libellé</span>{% endif %}
         </div>
         {% if can_url(path('admin_adhesion_edit', {id: adhesion.id})) %}
-            <a href="{{ path('admin_adhesion_edit', {id: adhesion.id}) }}" class="rounded-lg admin-gradient px-4 py-2 text-sm font-semibold text-white">Modifier</a>
+            <a href="{{ path('admin_adhesion_edit', {id: adhesion.id}) }}" class="rounded-lg admin-gradient px-4 py-2 text-sm font-semibold text-white">{{ 'Modifier'|trans }}</a>
         {% endif %}
     </div>
 
     <div class="ad-tiles mb-6">
-        <div class="ad-tile"><span>Montant dû</span><strong>{{ adhesion.montantDuCentimes|money }}</strong></div>
-        <div class="ad-tile"><span>Encaissé</span><strong>{{ adhesion.recuCentimes|money }}</strong></div>
-        <div class="ad-tile"><span>Reste à encaisser</span><strong>{{ adhesion.resteCentimes|money }}</strong></div>
-        <div class="ad-tile"><span>Aides attendues</span><strong>{{ adhesion.aidesAttenduesCentimes|money }}</strong></div>
+        <div class="ad-tile"><span>{{ 'Montant dû'|trans }}</span><strong>{{ adhesion.montantDuCentimes|money }}</strong></div>
+        <div class="ad-tile"><span>{{ 'Encaissé'|trans }}</span><strong>{{ adhesion.recuCentimes|money }}</strong></div>
+        <div class="ad-tile"><span>{{ 'Reste à encaisser'|trans }}</span><strong>{{ adhesion.resteCentimes|money }}</strong></div>
+        <div class="ad-tile"><span>{{ 'Aides attendues'|trans }}</span><strong>{{ adhesion.aidesAttenduesCentimes|money }}</strong></div>
     </div>
 
     <div class="grid gap-6 lg:grid-cols-3 items-start">
         <div class="lg:col-span-2 space-y-6">
             <section class="admin-card rounded-2xl p-6">
-                <h2 class="font-semibold mb-4">Licence et montant</h2>
+                <h2 class="font-semibold mb-4">{{ 'Licence et montant'|trans }}</h2>
                 <dl class="text-sm space-y-2">
-                    <div class="flex justify-between"><dt class="text-admin-text-muted">Licencié</dt><dd>{{ adhesion.licencieAffichage }}</dd></div>
-                    <div class="flex justify-between"><dt class="text-admin-text-muted">Saison</dt><dd>{{ adhesion.saison }}</dd></div>
-                    <div class="flex justify-between"><dt class="text-admin-text-muted">Prix de la licence</dt><dd>{{ adhesion.montantBaseCentimes|money }}</dd></div>
+                    <div class="flex justify-between"><dt class="text-admin-text-muted">{{ 'Licencié'|trans }}</dt><dd>{{ adhesion.licencieAffichage }}</dd></div>
+                    <div class="flex justify-between"><dt class="text-admin-text-muted">{{ 'Saison'|trans }}</dt><dd>{{ adhesion.saison }}</dd></div>
+                    <div class="flex justify-between"><dt class="text-admin-text-muted">{{ 'Prix de la licence'|trans }}</dt><dd>{{ adhesion.montantBaseCentimes|money }}</dd></div>
                     {% if adhesion.reductionCentimes > 0 %}
                         <div class="flex justify-between"><dt class="text-admin-text-muted">Réduction{{ adhesion.reductionMotif ? ' (' ~ adhesion.reductionMotif ~ ')' }}</dt><dd>− {{ adhesion.reductionCentimes|money }}</dd></div>
                     {% endif %}
@@ -38,9 +38,9 @@
             </section>
 
             <section class="admin-card rounded-2xl p-6">
-                <h2 class="font-semibold mb-1">Aides</h2>
+                <h2 class="font-semibold mb-1">{{ 'Aides'|trans }}</h2>
                 {% if adhesion.aides is empty %}
-                    <p class="text-sm text-admin-text-muted">Aucune aide enregistrée.</p>
+                    <p class="text-sm text-admin-text-muted">{{ 'Aucune aide enregistrée.'|trans }}</p>
                 {% else %}
                     <ul class="text-sm divide-y divide-admin-border">
                         {% for aide in adhesion.aides %}
@@ -57,9 +57,9 @@
             </section>
 
             <section class="admin-card rounded-2xl p-6">
-                <h2 class="font-semibold mb-1">Règlements</h2>
+                <h2 class="font-semibold mb-1">{{ 'Règlements'|trans }}</h2>
                 {% if adhesion.reglements is empty %}
-                    <p class="text-sm text-admin-text-muted">Aucun règlement enregistré.</p>
+                    <p class="text-sm text-admin-text-muted">{{ 'Aucun règlement enregistré.'|trans }}</p>
                 {% else %}
                     <ul class="text-sm divide-y divide-admin-border">
                         {% for reglement in adhesion.reglements %}
@@ -77,7 +77,7 @@
 
             {% if adhesion.observation %}
                 <section class="admin-card rounded-2xl p-6">
-                    <h2 class="font-semibold mb-3">Observations</h2>
+                    <h2 class="font-semibold mb-3">{{ 'Observations'|trans }}</h2>
                     <p class="text-sm whitespace-pre-line">{{ adhesion.observation }}</p>
                 </section>
             {% endif %}
@@ -86,7 +86,7 @@
         <aside class="space-y-6">
             {% if adhesion.licencie %}
                 <section class="admin-card rounded-2xl p-6">
-                    <h2 class="font-semibold mb-3">Famille</h2>
+                    <h2 class="font-semibold mb-3">{{ 'Famille'|trans }}</h2>
                     <p class="text-sm">{{ adhesion.licencie.famille }}</p>
                 </section>
             {% endif %}

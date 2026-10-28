@@ -6,6 +6,7 @@ use App\Entity\User;
 use App\Repository\FamilleRepository;
 use App\Repository\LicencieRepository;
 use App\Security\PermissionChecker;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * Catalogue des notifications que chaque compte peut choisir de recevoir, dans la clochette de
@@ -16,6 +17,7 @@ use App\Security\PermissionChecker;
  * ils sont toujours envoyés.
  *
  * Seuls les choix explicites sont mémorisés ; l'ancien format (simple liste de clés) est ignoré.
+ * Les libellés vivent dans translations/messages.*.yaml sous « notif.catalog.<clé>.label|help ».
  */
 class NotificationPreferences
 {
@@ -23,42 +25,56 @@ class NotificationPreferences
     public const EMAIL = 'email';
 
     /**
-     * audience : « all » (tout compte), « staff » (équipe du club uniquement).
+     * audience : « all » (tout compte), « staff » (équipe du club), « dev » (développeurs uniquement).
      * permission : exigée d'un membre de l'équipe pour que la rubrique lui soit proposée.
      * channels : canaux disponibles.
+     * members_only : pour un compte hors équipe, proposée seulement aux familles et licenciés.
      */
     public const CATALOG = [
         'messages' => [
-            'label' => 'Nouveaux messages', 'help' => "Quelqu'un vous écrit dans la messagerie.",
             'audience' => 'all', 'permission' => 'messagerie.utiliser,messagerie.support', 'channels' => [self::BELL, self::EMAIL],
         ],
         'planning' => [
-            'label' => 'Entraînements, rencontres et événements', 'help' => 'Un événement du planning qui vous concerne est créé ou approche.',
             'audience' => 'all', 'permission' => 'planning.voir', 'channels' => [self::BELL, self::EMAIL], 'members_only' => true,
         ],
+        'rappels' => [
+            'audience' => 'all', 'permission' => 'planning.voir', 'channels' => [self::EMAIL], 'members_only' => true,
+        ],
+        'mes_licencies' => [
+            'audience' => 'members', 'permission' => null, 'channels' => [self::EMAIL], 'members_only' => true,
+        ],
+        'paiements' => [
+            'audience' => 'members', 'permission' => null, 'channels' => [self::EMAIL], 'members_only' => true,
+        ],
         'commandes' => [
-            'label' => 'Nouvelles commandes de la boutique', 'help' => 'Un client passe une commande.',
             'audience' => 'staff', 'permission' => 'commande.voir', 'channels' => [self::BELL, self::EMAIL],
         ],
         'stock' => [
-            'label' => 'Stock bas de la boutique', 'help' => 'Une taille est bientôt épuisée (seuil réglé dans Boutique > Réglages).',
-            'audience' => 'staff', 'permission' => 'article.voir', 'channels' => [self::BELL],
+            'audience' => 'staff', 'permission' => 'article.voir', 'channels' => [self::BELL, self::EMAIL],
         ],
         'familles' => [
-            'label' => 'Nouvelles familles', 'help' => "Une famille est ajoutée ou s'inscrit.",
             'audience' => 'staff', 'permission' => 'famille.voir', 'channels' => [self::BELL, self::EMAIL],
         ],
         'licencies' => [
-            'label' => 'Nouveaux licenciés', 'help' => 'Un licencié est ajouté.',
             'audience' => 'staff', 'permission' => 'licencie.voir', 'channels' => [self::BELL, self::EMAIL],
         ],
+        'adhesions' => [
+            'audience' => 'staff', 'permission' => 'adhesion.voir', 'channels' => [self::BELL, self::EMAIL],
+        ],
         'utilisateurs' => [
-            'label' => 'Nouveaux comptes utilisateurs', 'help' => 'Un compte (client, famille, licencié) est créé.',
             'audience' => 'staff', 'permission' => 'utilisateur.voir', 'channels' => [self::BELL, self::EMAIL],
         ],
+        'partenaires' => [
+            'audience' => 'staff', 'permission' => 'partenaire.voir', 'channels' => [self::BELL, self::EMAIL],
+        ],
+        'contact' => [
+            'audience' => 'staff', 'permission' => 'reglages.voir', 'channels' => [self::EMAIL],
+        ],
         'conseils' => [
-            'label' => 'Conseils et points à corriger', 'help' => 'Éléments du site à compléter, e-mails de familles invalides…',
             'audience' => 'staff', 'permission' => null, 'channels' => [self::BELL],
+        ],
+        'systeme' => [
+            'audience' => 'dev', 'permission' => null, 'channels' => [self::BELL],
         ],
     ];
 
@@ -66,11 +82,12 @@ class NotificationPreferences
         private readonly PermissionChecker $permissions,
         private readonly FamilleRepository $familles,
         private readonly LicencieRepository $licencies,
+        private readonly TranslatorInterface $translator,
     ) {
     }
 
     /** Famille ou licencié du club (par opposition à un simple client de la boutique). */
-    private function isMember(User $user): bool
+    public function isMember(User $user): bool
     {
         return null !== $this->familles->findOneBy(['user' => $user]) || null !== $this->licencies->findOneBy(['user' => $user]);
     }
@@ -82,22 +99,35 @@ class NotificationPreferences
      */
     public function availableFor(User $user): array
     {
+        $isStaff = $user->isStaff();
+        $isDev   = \in_array('ROLE_DEV', $user->getRoles(), true);
+
         $available = [];
         foreach (self::CATALOG as $key => $entry) {
-            if ($entry['audience'] === 'staff' && !$user->isStaff()) {
+            if ('staff' === $entry['audience'] && !$isStaff) {
                 continue;
             }
-            if (!$user->isStaff() && ($entry['members_only'] ?? false) && !$this->isMember($user)) {
+            if ('dev' === $entry['audience'] && !$isDev) {
                 continue;
             }
-            if ($user->isStaff() && $entry['permission'] !== null && !$this->permissions->can($entry['permission'], $user)) {
+            if ('members' === $entry['audience'] && !$this->isMember($user)) {
                 continue;
             }
-            $channels = array_values(array_filter($entry['channels'], static fn (string $c) => $c !== self::BELL || $user->isStaff()));
-            if ($channels === []) {
+            if (!$isStaff && ($entry['members_only'] ?? false) && !$this->isMember($user)) {
                 continue;
             }
-            $available[$key] = ['label' => $entry['label'], 'help' => $entry['help'], 'channels' => $channels];
+            if ($isStaff && null !== $entry['permission'] && !$this->permissions->can($entry['permission'], $user)) {
+                continue;
+            }
+            $channels = array_values(array_filter($entry['channels'], static fn (string $c) => self::BELL !== $c || $isStaff));
+            if ([] === $channels) {
+                continue;
+            }
+            $available[$key] = [
+                'label'    => $this->translator->trans('notif.catalog.'.$key.'.label'),
+                'help'     => $this->translator->trans('notif.catalog.'.$key.'.help'),
+                'channels' => $channels,
+            ];
         }
 
         return $available;
@@ -109,7 +139,7 @@ class NotificationPreferences
         $stored = $user->getNotificationPreferences();
         $value  = $stored[$channel][$key] ?? null;
 
-        return $value === null ? true : (bool) $value;
+        return null === $value ? true : (bool) $value;
     }
 
     /**
@@ -119,7 +149,8 @@ class NotificationPreferences
      */
     public function save(User $user, array $submitted): void
     {
-        $prefs = [self::BELL => [], self::EMAIL => []];
+        // Les choix déjà mémorisés pour des rubriques qui ne sont (plus) pas proposées sont conservés tels quels.
+        $prefs = $user->getNotificationPreferences() + [self::BELL => [], self::EMAIL => []];
         foreach ($this->availableFor($user) as $key => $entry) {
             foreach ($entry['channels'] as $channel) {
                 $prefs[$channel][$key] = isset($submitted[$channel][$key]);

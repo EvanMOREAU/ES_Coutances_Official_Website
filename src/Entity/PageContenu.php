@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\PageContenuRepository;
 use Doctrine\DBAL\Types\Types;
+use App\Translation\Translatable;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -23,11 +24,13 @@ class PageContenu
     #[Assert\Length(max: 150, maxMessage: 'Maximum 150 caractères.')]
     private ?string $slug = null;
 
+    #[Translatable]
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank(message: 'Donnez un titre à la page.')]
     #[Assert\Length(max: 150, maxMessage: 'Maximum 150 caractères.')]
     private ?string $titre = null;
 
+    #[Translatable]
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $chapo = null;
 
@@ -37,6 +40,7 @@ class PageContenu
     #[Vich\UploadableField(mapping: 'page_contenu_image', fileNameProperty: 'imageName')]
     private ?File $imageFile = null;
 
+    #[Translatable(html: true)]
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $contenu = null;
 

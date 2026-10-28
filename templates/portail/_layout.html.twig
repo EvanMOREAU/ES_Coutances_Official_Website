@@ -1,7 +1,7 @@
 {# Gabarit commun de l'espace « Mon compte ». Blocs : title, head_assets, page_head (facultatif), body. #}
 {% set route = app.request.attributes.get('_route') ?? '' %}
 <!DOCTYPE html>
-<html lang="fr" {% if app.user and app.user.theme != 'system' %}data-theme="{{ app.user.theme }}"{% endif %} data-scheme="{{ app.user ? app.user.colorScheme : 'rouge' }}" data-density="{{ app.user ? app.user.density : 'comfortable' }}">
+<html lang="{{ app.request.locale }}" dir="{{ locale_dir(app.request ? app.request.locale : 'fr') }}" {% if app.user and app.user.theme != 'system' %}data-theme="{{ app.user.theme }}"{% endif %} data-scheme="{{ app.user ? app.user.colorScheme : 'rouge' }}" data-density="{{ app.user ? app.user.density : 'comfortable' }}">
 <head>
     <meta charset="UTF-8">
     <meta name="csp-nonce" content="{{ csp_nonce() }}">
@@ -11,7 +11,7 @@
     <link rel="manifest" href="/manifest.webmanifest">
     <meta name="theme-color" content="#C8102E">
     <script src="{{ asset('pages/sw-register.js') }}" defer></script>
-    <title>{% block title %}Mon compte{% endblock %} — ES Coutances</title>
+    <title>{% block title %}{{ 'nav.account'|trans }}{% endblock %} — ES Coutances</title>
     {% block head_assets %}{% endblock %}
     <link rel="stylesheet" href="{{ asset('fonts/fonts.css') }}">
     <link rel="stylesheet" href="{{ asset('vendor/fontawesome/all.min.css') }}">
@@ -22,27 +22,27 @@
         <div class="mc-top-in">
             <a class="mc-brand" href="{{ path('portail_index') }}">
                 <img src="{{ asset('images/logo_hd_trans3_gt.png') }}" alt="ES Coutances">
-                <span>Mon compte<small>ES Coutances</small></span>
+                <span>{{ 'Mon compte'|trans }}<small>ES Coutances</small></span>
             </a>
-            <nav class="mc-nav" aria-label="Navigation du compte">
-                <a href="{{ path('portail_index') }}" class="{{ route in ['portail_index', 'portail_licencie'] ? 'is-active' }}"><i class="fa-solid fa-house"></i> Accueil</a>
+            <nav class="mc-nav" aria-label="{{ 'Navigation du compte'|trans }}">
+                <a href="{{ path('portail_index') }}" class="{{ route in ['portail_index', 'portail_licencie'] ? 'is-active' }}"><i class="fa-solid fa-house"></i> {{ 'Accueil'|trans }}</a>
                 {% if not portail_est_boutique() %}
-                    <a href="{{ path('portail_planning') }}" class="{{ route starts with 'portail_planning' ? 'is-active' }}"><i class="fa-regular fa-calendar"></i> Planning</a>
-                    {% if portail_facturation() %}<a href="{{ path('portail_factures') }}" class="{{ route starts with 'portail_factures' ? 'is-active' }}"><i class="fa-solid fa-file-invoice"></i> Factures</a>{% endif %}
+                    <a href="{{ path('portail_planning') }}" class="{{ route starts with 'portail_planning' ? 'is-active' }}"><i class="fa-regular fa-calendar"></i> {{ 'Planning'|trans }}</a>
+                    {% if portail_facturation() %}<a href="{{ path('portail_factures') }}" class="{{ route starts with 'portail_factures' ? 'is-active' }}"><i class="fa-solid fa-file-invoice"></i> {{ 'Factures'|trans }}</a>{% endif %}
                     <a href="{{ path('portail_chat_index') }}" class="{{ route starts with 'portail_chat' ? 'is-active' }}"><i class="fa-regular fa-comments"></i> Messagerie{% set unread = chat_unread() %}<span class="pastille" data-chat-badge {{ unread == 0 ? 'hidden' }}>{{ unread }}</span></a>
                 {% endif %}
                 {% if portail_est_boutique() %}
                     <a href="{{ path('portail_chat_index') }}" class="{{ route starts with 'portail_chat' ? 'is-active' }}"><i class="fa-solid fa-headset"></i> Support{% set unread = chat_unread() %}<span class="pastille" data-chat-badge {{ unread == 0 ? 'hidden' }}>{{ unread }}</span></a>
                 {% endif %}
-                {% if portail_commandes_visible() %}<a href="{{ path('portail_commandes') }}" class="{{ route starts with 'portail_commandes' ? 'is-active' }}"><i class="fa-solid fa-bag-shopping"></i> Commandes</a>{% endif %}
-                <a href="{{ path('boutique_index') }}"><i class="fa-solid fa-store"></i> Boutique</a>
+                {% if portail_commandes_visible() %}<a href="{{ path('portail_commandes') }}" class="{{ route starts with 'portail_commandes' ? 'is-active' }}"><i class="fa-solid fa-bag-shopping"></i> {{ 'Commandes'|trans }}</a>{% endif %}
+                <a href="{{ path('boutique_index') }}"><i class="fa-solid fa-store"></i> {{ 'Boutique'|trans }}</a>
             </nav>
             <div class="mc-user">
-                <a class="mc-user-link" href="{{ path('portail_parametres_profil') }}" title="Paramètres du compte">
+                <a class="mc-user-link" href="{{ path('portail_parametres_profil') }}" title="{{ 'Paramètres du compte'|trans }}">
                     <span class="mc-avatar" aria-hidden="true">{% if app.user.avatarName %}<img src="{{ ('uploads/avatars/' ~ app.user.avatarName)|thumb('mini') }}" alt="">{% else %}{{ app.user.initiale }}{% endif %}</span>
                     <span class="mc-user-name">{{ app.user.nomComplet ?: app.user.email }}</span>
                 </a>
-                <a class="mc-logout" href="{{ path('portail_logout') }}" title="Se déconnecter" aria-label="Se déconnecter"><i class="fa-solid fa-right-from-bracket"></i></a>
+                <a class="mc-logout" href="{{ path('portail_logout') }}" title="{{ 'Se déconnecter'|trans }}" aria-label="{{ 'Se déconnecter'|trans }}"><i class="fa-solid fa-right-from-bracket"></i></a>
             </div>
         </div>
     </header>
@@ -50,6 +50,7 @@
         {% block page_head %}{% endblock %}
         {% block body %}{% endblock %}
     </main>
+    <footer class="mc-main">{{ include('_locale_switcher.html.twig') }}</footer>
     {% include 'chat/_badge_poller.html.twig' with {url: path('portail_chat_unread')} only %}
 </body>
 </html>

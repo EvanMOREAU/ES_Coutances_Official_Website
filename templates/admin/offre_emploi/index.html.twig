@@ -4,8 +4,8 @@
 
 {% block body %}
     <div class="flex items-center justify-between mb-6">
-        <h1 class="u-66972700 text-2xl font-black">Offres d'emploi</h1>
-        {% if can_url(path('admin_offre_emploi_new')) %}<a href="{{ path('admin_offre_emploi_new') }}" class="rounded-lg admin-gradient px-4 py-2 text-sm font-semibold text-white">+ Nouvelle offre</a>{% endif %}
+        <h1 class="u-66972700 text-2xl font-black">{{ 'Offres d\'emploi'|trans }}</h1>
+        {% if can_url(path('admin_offre_emploi_new')) %}<a href="{{ path('admin_offre_emploi_new') }}" class="rounded-lg admin-gradient px-4 py-2 text-sm font-semibold text-white">{{ '+ Nouvelle offre'|trans }}</a>{% endif %}
     </div>
 
     {% embed 'admin/_components/data_table.html.twig' with {

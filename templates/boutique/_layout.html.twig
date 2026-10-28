@@ -71,11 +71,11 @@
 {% block body %}
 <section class="page-hero">
   <div class="container page-hero-inner">
-    <nav class="breadcrumb" aria-label="Fil d'Ariane">
-      <a href="{{ path('app_home') }}">Accueil</a> <i class="fa-solid fa-chevron-right"></i>
-      {% block breadcrumb %}<span>Boutique</span>{% endblock %}
+    <nav class="breadcrumb" aria-label="{{ 'Fil d\'Ariane'|trans }}">
+      <a href="{{ path('app_home') }}">{{ 'Accueil'|trans }}</a> <i class="fa-solid fa-chevron-right"></i>
+      {% block breadcrumb %}<span>{{ 'Boutique'|trans }}</span>{% endblock %}
     </nav>
-    <h1>{% block hero_title %}La <span>boutique</span>{% endblock %}</h1>
+    <h1>{% block hero_title %}La <span>{{ 'boutique'|trans }}</span>{% endblock %}</h1>
     {% block hero_lead %}{% endblock %}
   </div>
 </section>
@@ -85,7 +85,7 @@
     {% if boutique_en_maintenance() and is_granted('ROLE_DEV') %}
       <div class="shop-flash warning" role="status">
         <i class="fa-solid fa-triangle-exclamation"></i>
-        <span>Cette boutique n'est pas publiée — vous la voyez uniquement parce que vous êtes développeur.</span>
+        <span>{{ 'Cette boutique n\'est pas publiée — vous la voyez uniquement parce que vous êtes développeur.'|trans }}</span>
       </div>
     {% endif %}
 
@@ -93,7 +93,7 @@
       {% for message in app.flashes('boutique_' ~ type) %}
         <div class="shop-flash {{ type }}" role="{{ type == 'error' ? 'alert' : 'status' }}">
           <i class="fa-solid {{ type == 'success' ? 'fa-circle-check' : 'fa-triangle-exclamation' }}"></i>
-          <span>{{ message }}</span>
+          <span>{{ message|trans }}</span>
         </div>
       {% endfor %}
     {% endfor %}

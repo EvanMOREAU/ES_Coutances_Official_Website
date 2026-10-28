@@ -15,6 +15,24 @@ class CommandeRepository extends ServiceEntityRepository
         parent::__construct($registry, Commande::class);
     }
 
+    /**
+     * Commandes pour la liste d'administration : les 12 derniers mois, plus toute commande encore ouverte
+     * (à préparer ou prête) quelle que soit son ancienneté. $toutes = tout l'historique.
+     *
+     * @return list<Commande>
+     */
+    public function findForAdminList(bool $toutes = false): array
+    {
+        $qb = $this->createQueryBuilder('c')->orderBy('c.createdAt', 'DESC')->addOrderBy('c.id', 'DESC');
+        if (!$toutes) {
+            $qb->andWhere('c.createdAt >= :depuis OR c.statut IN (:ouvertes)')
+                ->setParameter('depuis', new \DateTimeImmutable('-12 months'))
+                ->setParameter('ouvertes', [Commande::STATUT_NOUVELLE, Commande::STATUT_PRETE]);
+        }
+
+        return $qb->getQuery()->getResult();
+    }
+
     /** Référence lisible et unique : ESC-260925-A3F9. */
     public function nouvelleReference(): string
     {

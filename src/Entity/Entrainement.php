@@ -14,6 +14,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: EntrainementRepository::class)]
 #[ORM\HasLifecycleCallbacks]
 #[ORM\Index(name: 'IDX_ENTRAINEMENT_DATE', columns: ['date'])]
+#[ORM\Index(name: 'IDX_ENTRAINEMENT_SERIE_DATE', columns: ['serie', 'date'])]
 class Entrainement
 {
     use CreatedAtTrait;

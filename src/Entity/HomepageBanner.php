@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\HomepageBannerRepository;
+use App\Translation\Translatable;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\HttpFoundation\File\File;
 use Vich\UploaderBundle\Mapping\Attribute as Vich;
@@ -16,6 +17,7 @@ class HomepageBanner
     #[ORM\Column]
     private ?int $id = null;
 
+    #[Translatable]
     #[ORM\Column(length: 150, nullable: true)]
     private ?string $titre = null;
 

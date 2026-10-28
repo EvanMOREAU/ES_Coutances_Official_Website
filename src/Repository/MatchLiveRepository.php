@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Doctrine\SingletonCacheInvalidator;
 use App\Entity\MatchLive;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -23,6 +24,7 @@ class MatchLiveRepository extends ServiceEntityRepository
             ->orderBy('m.id', SortDirection::Ascending)
             ->setMaxResults(1)
             ->getQuery()
+            ->enableResultCache(SingletonCacheInvalidator::CACHE_TTL, SingletonCacheInvalidator::cacheKey(MatchLive::class))
             ->getOneOrNullResult();
     }
 }

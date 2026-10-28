@@ -4,10 +4,15 @@
 
 {% block body %}
     <div class="flex flex-wrap items-center justify-between gap-3 mb-2">
-        <h1 class="u-66972700 text-2xl font-black">Commandes</h1>
-        <a href="{{ path('admin_article_index') }}" class="admin-btn admin-btn-ghost"><i class="fa-solid fa-shirt"></i> Articles</a>
+        <h1 class="u-66972700 text-2xl font-black">{{ 'Commandes'|trans }}</h1>
+        <a href="{{ path('admin_article_index') }}" class="admin-btn admin-btn-ghost"><i class="fa-solid fa-shirt"></i> {{ 'Articles'|trans }}</a>
     </div>
-    <p class="text-sm text-admin-text-muted mb-6">Les commandes se retirent au club. Ouvrez une commande pour la préparer, encaisser le règlement (espèces, chèque) et la remettre au client.</p>
+    <p class="text-sm text-admin-text-muted mb-6">{{ 'Les commandes se retirent au club. Ouvrez une commande pour la préparer, encaisser le règlement (espèces, chèque) et la remettre au client.'|trans }}</p>
+
+    <p class="text-sm text-admin-text-muted mb-4">
+        {% if toutes %}Tout l'historique est affiché. <a href="{{ path('admin_commande_index') }}" class="underline">{{ 'Revenir aux 12 derniers mois'|trans }}</a>.
+        {% else %}Les 12 derniers mois et les commandes encore ouvertes sont affichés. <a href="{{ path('admin_commande_index', {periode: 'toutes'}) }}" class="underline">{{ 'Afficher tout l\'historique'|trans }}</a>.{% endif %}
+    </p>
 
     {% embed 'admin/_components/data_table.html.twig' with {
         key: 'commande',
@@ -40,7 +45,7 @@
                     <td data-col="paiement" data-sort="{{ commande.reglement }}">
                         <span class="badge badge-{{ commande.payee ? 'paye' : (commande.statut == 'annulee' ? 'archived' : 'attente') }}">{{ commande.payee ? 'Payée' : (commande.statut == 'annulee' ? '—' : 'À encaisser') }}</span>
                         <span class="dt-muted text-xs ml-1">{{ commande.modePaiementLabel }}</span>
-                        {% if commande.remboursementDu %}<span class="badge badge-attente ml-1">À rembourser</span>{% elseif commande.statut == 'annulee' and commande.rembourse %}<span class="badge badge-paye ml-1">Remboursée</span>{% endif %}
+                        {% if commande.remboursementDu %}<span class="badge badge-attente ml-1">{{ 'À rembourser'|trans }}</span>{% elseif commande.statut == 'annulee' and commande.rembourse %}<span class="badge badge-paye ml-1">{{ 'Remboursée'|trans }}</span>{% endif %}
                     </td>
                     <td data-col="statut"><span class="badge badge-cmd-{{ commande.statut }}">{{ commande.statutLabel }}</span></td>
                     <td data-col="date" data-sort="{{ commande.createdAt|date('Y-m-d H:i') }}" class="dt-muted">{{ commande.createdAt|date('d/m/Y H:i') }}</td>

@@ -13,7 +13,7 @@
         <summary>
             <span class="vt-advice-icon"><i class="fa-solid fa-lightbulb"></i></span>
             <span class="vt-advice-head">
-                <strong>Conseils de configuration</strong>
+                <strong>{{ 'Conseils de configuration'|trans }}</strong>
                 <span>{{ advice|length }} suggestion{{ advice|length > 1 ? 's' }}{{ required > 0 ? ' · ' ~ required ~ ' à compléter' }} — rien n'est obligatoire</span>
             </span>
             <i class="fa-solid fa-chevron-down vt-advice-chevron"></i>
@@ -30,7 +30,7 @@
                             data-action="click->section-modal#open pointerenter->section-modal#warm focusin->section-modal#warm">
                         <span class="vt-icon vt-icon-sm"><i class="fa-solid {{ a.icon }}"></i></span>
                         <span class="vt-advice-text">
-                            <span class="vt-advice-label">{{ a.label }}{% if a.optional %} <em>optionnel</em>{% endif %}</span>
+                            <span class="vt-advice-label">{{ a.label }}{% if a.optional %} <em>{{ 'optionnel'|trans }}</em>{% endif %}</span>
                             <span class="vt-advice-detail">{{ a.detail }}</span>
                         </span>
                         <i class="fa-solid fa-arrow-right vt-advice-go"></i>
@@ -40,7 +40,7 @@
         </ul>
     </details>
 {% else %}
-    <p class="vt-allgood"><i class="fa-solid fa-circle-check"></i> Tout est renseigné : il n'y a rien à compléter pour le moment.</p>
+    <p class="vt-allgood"><i class="fa-solid fa-circle-check"></i> {{ 'Tout est renseigné : il n\'y a rien à compléter pour le moment.'|trans }}</p>
 {% endif %}
 
     {% for group, group_label in groups %}
@@ -65,7 +65,7 @@
                             <span class="vt-pill {{ todo_required ? 'is-todo' : 'is-hint' }}" title="{{ (todo|first).label }}">{{ todo_required ? 'À compléter' : 'Suggestion' }}</span>
                         {% endif %}
                         {% if s.new and can_url(s.new) %}
-                            <button type="button" class="vt-add" title="Ajouter" aria-label="Ajouter : {{ s.title }}"
+                            <button type="button" class="vt-add" title="{{ 'Ajouter'|trans }}" aria-label="Ajouter : {{ s.title }}"
                                     data-action="click->section-modal#open pointerenter->section-modal#warm"
                                     data-section-modal-url-param="{{ s.new }}"
                                     data-section-modal-title-param="{{ s.title }} — Nouveau"><i class="fa-solid fa-plus"></i></button>
@@ -89,7 +89,7 @@
                                 <div data-line-chart-target="plot"></div>
                                 <div class="chart-tooltip" data-line-chart-target="tooltip" hidden></div>
                             </div>
-                            <p class="vt-caption">Évolution sur 12 mois</p>
+                            <p class="vt-caption">{{ 'Évolution sur 12 mois'|trans }}</p>
 
                         {% elseif v.type == 'split' %}
                             {% set total = v.active + v.inactive %}
@@ -109,7 +109,7 @@
 
                         {% elseif v.type == 'bars' %}
                             {% if v.items is empty %}
-                                <p class="vt-caption">Aucune donnée pour le moment</p>
+                                <p class="vt-caption">{{ 'Aucune donnée pour le moment'|trans }}</p>
                             {% else %}
                                 {% if v.caption is defined %}<p class="vt-caption vt-bars-caption">{{ v.caption }}</p>{% endif %}
                                 <ul class="vt-bars">
@@ -125,7 +125,7 @@
 
                         {% elseif v.type == 'list' %}
                             {% if v.items is empty %}
-                                <p class="vt-caption">Aucune page pour le moment</p>
+                                <p class="vt-caption">{{ 'Aucune page pour le moment'|trans }}</p>
                             {% else %}
                                 <ul class="vt-list">
                                     {% for item in v.items %}
@@ -135,7 +135,7 @@
                             {% endif %}
 
                         {% elseif v.type == 'days' %}
-                            <div class="vt-days" role="img" aria-label="Jours avec des horaires renseignés">
+                            <div class="vt-days" role="img" aria-label="{{ 'Jours avec des horaires renseignés'|trans }}">
                                 {% for day in v.days %}
                                     <span class="vt-day {{ day.set ? 'is-set' }}">{{ day.letter }}</span>
                                 {% endfor %}

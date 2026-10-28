@@ -26,6 +26,8 @@ final class HardeningTest extends DatabaseTestCase
         self::assertResponseHeaderSame('X-Frame-Options', 'SAMEORIGIN');
         self::assertResponseHeaderSame('Referrer-Policy', 'strict-origin-when-cross-origin');
         self::assertResponseHasHeader('Permissions-Policy');
+        self::assertResponseHeaderSame('Cross-Origin-Opener-Policy', 'same-origin');
+        self::assertResponseHeaderSame('Cross-Origin-Resource-Policy', 'same-site');
         self::assertResponseNotHasHeader('X-Powered-By');
     }
 
@@ -56,7 +58,7 @@ final class HardeningTest extends DatabaseTestCase
         $html = static::getContainer()->get(Environment::class)->render($template, ['status_code' => $code, 'status_text' => $text]);
 
         self::assertStringContainsString((string) $code, $html);
-        self::assertStringContainsString('Retour à l\'accueil', $html);
+        self::assertStringContainsString("Retour à l'accueil", html_entity_decode($html, \ENT_QUOTES));
         self::assertStringNotContainsString('Exception', $html, 'Aucune trace technique ne doit être affichée.');
     }
 

@@ -2,7 +2,7 @@
 
 {% block boutique_title %}Boutique indisponible{% endblock %}
 
-{% block hero_lead %}<p class="lead">La boutique n'est pas ouverte pour le moment.</p>{% endblock %}
+{% block hero_lead %}<p class="lead">{{ 'La boutique n\'est pas ouverte pour le moment.'|trans }}</p>{% endblock %}
 
 {% block boutique_styles %}
 <style nonce="{{ csp_nonce() }}">
@@ -15,7 +15,7 @@
 {% block shop_body %}
     <div class="shop-empty">
         <i class="fa-solid fa-shop-slash"></i>
-        <h2>Boutique en maintenance</h2>
-        <p>Nous préparons la boutique. Revenez un peu plus tard !</p>
+        <h2>{{ 'Boutique en maintenance'|trans }}</h2>
+        <p>{{ 'Nous préparons la boutique. Revenez un peu plus tard !'|trans }}</p>
     </div>
 {% endblock %}

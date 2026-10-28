@@ -13,7 +13,7 @@ use Doctrine\ORM\EntityManagerInterface;
 class OrphanFileFinder
 {
     /** Tables qui citent des chemins sans « utiliser » le fichier (favoris du gestionnaire, journal). */
-    private const IGNORED_TABLES = ['file_favorite', 'audit_log'];
+    private const IGNORED_TABLES = ['es_file_favorite', 'es_audit_log'];
 
     public function __construct(
         private readonly FileStorage $storage,

@@ -7,6 +7,7 @@ use App\Entity\Concern\StatutTrait;
 use App\Repository\ArticleRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use App\Translation\Translatable;
 use Doctrine\ORM\Mapping as ORM;
 use SortDirection;
 use Symfony\Component\HttpFoundation\File\File;
@@ -37,6 +38,7 @@ class Article
     #[ORM\Column]
     private ?int $id = null;
 
+    #[Translatable]
     #[ORM\Column(length: 150)]
     #[Assert\NotBlank(message: 'Donnez un nom à l\'article.')]
     private ?string $nom = null;
@@ -44,6 +46,7 @@ class Article
     #[ORM\Column(length: 190, unique: true)]
     private ?string $slug = null;
 
+    #[Translatable]
     #[ORM\Column(type: 'text', nullable: true)]
     private ?string $description = null;
 

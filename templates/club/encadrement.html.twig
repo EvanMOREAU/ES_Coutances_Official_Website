@@ -181,11 +181,11 @@
     <div class="breadcrumb">
       <a href="{{ path('app_home') }}">Accueil</a>
       <i class="fa-solid fa-chevron-right"></i>
-      <span>Le club</span>
+      <span>{{ 'Le club'|trans }}</span>
       <i class="fa-solid fa-chevron-right"></i>
-      <span>Encadrement</span>
+      <span>{{ 'Encadrement'|trans }}</span>
     </div>
-    <h1>Notre<br><span>encadrement</span></h1>
+    <h1>{{ 'Notre'|trans }}<br><span>{{ 'encadrement'|trans }}</span></h1>
   </div>
 </section>
 
@@ -196,7 +196,7 @@
     {% if categories|length == 0 %}
       <div class="encadrement-empty">
         <i class="fa-solid fa-people-group"></i>
-        <p>Aucun membre d'encadrement à afficher pour le moment.</p>
+        <p>{{ 'Aucun membre d\'encadrement à afficher pour le moment.'|trans }}</p>
       </div>
 
     {% else %}
@@ -211,7 +211,7 @@
           <div class="categorie-section">
 
             <div class="categorie-header">
-              <h2 class="categorie-titre">{{ categorie.nom }}</h2>
+              <h2 class="categorie-titre">{{ categorie.nom|auto_trans }}</h2>
               <span class="categorie-count">
                 {{ membres_actifs|length }} membre{{ membres_actifs|length > 1 ? 's' : '' }}
               </span>
@@ -240,12 +240,12 @@
                   {# Infos #}
                   <div class="membre-info">
                     <div class="membre-nom">{{ membre.nom }}</div>
-                    <div class="membre-poste">{{ membre.poste }}</div>
+                    <div class="membre-poste">{{ membre.poste|auto_trans }}</div>
 
                     {% if membre.diplome %}
                       <div class="membre-diplome">
                         <i class="fa-solid fa-medal"></i>
-                        {{ membre.diplome }}
+                        {{ membre.diplome|auto_trans }}
                       </div>
                     {% endif %}
 
@@ -254,10 +254,10 @@
                     {% if autres_cats|length > 0 %}
                       <div class="u-0e29f7da membre-categories">
                         <span class="u-1b4c0762">
-                          Aussi dans :
+                          {{ 'Aussi dans :'|trans }}
                         </span>
                         {% for cat in autres_cats %}
-                          <span class="membre-cat-badge">{{ cat.nom }}</span>
+                          <span class="membre-cat-badge">{{ cat.nom|auto_trans }}</span>
                         {% endfor %}
                       </div>
                     {% endif %}

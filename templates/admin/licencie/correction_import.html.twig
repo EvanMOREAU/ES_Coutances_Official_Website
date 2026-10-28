@@ -3,27 +3,27 @@
 {% block title %}Correction d'import{% endblock %}
 
 {% block body %}
-    <h1 class="u-66972700 text-xl font-black mb-1">Correction d'import</h1>
+    <h1 class="u-66972700 text-xl font-black mb-1">{{ 'Correction d\'import'|trans }}</h1>
     <p class="text-sm text-admin-text-muted mb-4">
         {{ licencie.prenom }} {{ licencie.nom }} est actuellement rattaché à la famille
-        <strong>{{ licencie.famille.nomAffiche }}</strong>. Choisissez la famille à laquelle il appartient réellement.
+        <strong>{{ licencie.famille.nomAffiche }}</strong>{{ '. Choisissez la famille à laquelle il appartient réellement.'|trans }}
     </p>
 
     <form method="post" class="admin-card rounded-2xl p-6 max-w-lg">
         <input type="hidden" name="_token" value="{{ csrf_token('correction-import-' ~ licencie.id) }}">
 
-        <label class="block text-sm font-medium mb-1" for="correction-famille">Nouvelle famille</label>
+        <label class="block text-sm font-medium mb-1" for="correction-famille">{{ 'Nouvelle famille'|trans }}</label>
         <select id="correction-famille" name="famille" class="w-full rounded-lg border border-admin-border bg-admin-bg px-3 py-2 text-sm text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-primary-to mb-1">
             {% for famille in familles %}
                 <option value="{{ famille.id }}" {{ famille.id == licencie.famille.id ? 'selected' }}>{{ famille.nomAffiche }}{{ famille.ville ? ' — ' ~ famille.ville : '' }}</option>
             {% endfor %}
         </select>
         <p class="text-xs text-admin-text-muted mb-4">
-            Si l'ancienne famille ne compte plus aucun licencié après ce déplacement, elle est supprimée automatiquement.
+            {{ 'Si l\'ancienne famille ne compte plus aucun licencié après ce déplacement, elle est supprimée automatiquement.'|trans }}
         </p>
 
         <button type="submit" class="rounded-lg admin-gradient px-5 py-2 text-sm font-semibold text-white">
-            <i class="fa-solid fa-people-arrows"></i> Déplacer vers cette famille
+            <i class="fa-solid fa-people-arrows"></i> {{ 'Déplacer vers cette famille'|trans }}
         </button>
     </form>
 {% endblock %}

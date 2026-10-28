@@ -14,9 +14,9 @@
         <div class="ch-side-head">
             <label class="ch-search">
                 <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="search" placeholder="Rechercher une discussion…" data-chat-target="search" data-action="input->chat#filter" autocomplete="off">
+                <input type="search" placeholder="{{ 'Rechercher une discussion…'|trans }}" data-chat-target="search" data-action="input->chat#filter" autocomplete="off">
             </label>
-            <button type="button" class="ch-icon-btn" data-action="click->chat#openNew" aria-label="Nouvelle discussion" title="Nouvelle discussion"><i class="fa-solid fa-pen-to-square"></i></button>
+            <button type="button" class="ch-icon-btn" data-action="click->chat#openNew" aria-label="{{ 'Nouvelle discussion'|trans }}" title="{{ 'Nouvelle discussion'|trans }}"><i class="fa-solid fa-pen-to-square"></i></button>
         </div>
         <div class="ch-list" data-chat-target="list" role="list"></div>
     </aside>
@@ -24,50 +24,50 @@
     <section class="ch-thread" data-chat-target="thread">
         <div class="ch-empty" data-chat-target="placeholder">
             <i class="fa-regular fa-comments"></i>
-            <strong>Vos messages</strong>
+            <strong>{{ 'Vos messages'|trans }}</strong>
             <span>Choisissez une discussion ou{% if chat_staff %} démarrez-en une nouvelle.{% else %} écrivez à un membre du club.{% endif %}</span>
-            <button type="button" class="ch-btn" data-action="click->chat#openNew"><i class="fa-solid fa-plus"></i> Nouvelle discussion</button>
+            <button type="button" class="ch-btn" data-action="click->chat#openNew"><i class="fa-solid fa-plus"></i> {{ 'Nouvelle discussion'|trans }}</button>
         </div>
 
         <div class="ch-conversation" data-chat-target="conversation" hidden
              data-action="dragover->chat#dragOverThread dragleave->chat#dragLeaveThread drop->chat#dropOnThread">
-            <div class="ch-drop" data-chat-target="dropZone" hidden><div><i class="fa-solid fa-cloud-arrow-up"></i><strong>Déposez le document ici</strong><span>Il sera disponible 14 jours dans cette discussion.</span></div></div>
+            <div class="ch-drop" data-chat-target="dropZone" hidden><div><i class="fa-solid fa-cloud-arrow-up"></i><strong>{{ 'Déposez le document ici'|trans }}</strong><span>{{ 'Il sera disponible 14 jours dans cette discussion.'|trans }}</span></div></div>
             <div class="ch-header">
-                <button type="button" class="ch-icon-btn ch-back" data-action="click->chat#closeConversation" aria-label="Retour aux discussions"><i class="fa-solid fa-arrow-left"></i></button>
+                <button type="button" class="ch-icon-btn ch-back" data-action="click->chat#closeConversation" aria-label="{{ 'Retour aux discussions'|trans }}"><i class="fa-solid fa-arrow-left"></i></button>
                 <span class="ch-avatar" data-chat-target="headAvatar"></span>
                 <div class="ch-header-text" data-action="click->chat#showMembers">
                     <strong data-chat-target="headTitle"></strong>
                     <span data-chat-target="headStatus"></span>
                 </div>
                 {% if chat_staff %}
-                    <button type="button" class="ch-btn ch-close" data-chat-target="closeButton" data-action="click->chat#closeSupport" hidden title="Le problème est résolu : clôturer cette discussion"><i class="fa-solid fa-circle-check"></i> Clôturer</button>
+                    <button type="button" class="ch-btn ch-close" data-chat-target="closeButton" data-action="click->chat#closeSupport" hidden title="{{ 'Le problème est résolu : clôturer cette discussion'|trans }}"><i class="fa-solid fa-circle-check"></i> {{ 'Clôturer'|trans }}</button>
                 {% endif %}
             </div>
 
             <div class="ch-messages" data-chat-target="messages" data-action="scroll->chat#onScroll" role="log" aria-live="polite"></div>
 
-            <button type="button" class="ch-jump" data-chat-target="jump" data-action="click->chat#jumpToEnd" hidden><i class="fa-solid fa-arrow-down"></i> Nouveaux messages</button>
+            <button type="button" class="ch-jump" data-chat-target="jump" data-action="click->chat#jumpToEnd" hidden><i class="fa-solid fa-arrow-down"></i> {{ 'Nouveaux messages'|trans }}</button>
 
             <div class="ch-staged" data-chat-target="staged" hidden></div>
 
             <div class="ch-closed" data-chat-target="closedBar" hidden>
-                <span><i class="fa-solid fa-circle-check"></i> Cette discussion est clôturée.</span>
-                {% if not chat_staff %}<button type="button" class="ch-btn" data-action="click->chat#reloadPage"><i class="fa-solid fa-plus"></i> Nouvelle discussion</button>{% endif %}
+                <span><i class="fa-solid fa-circle-check"></i> {{ 'Cette discussion est clôturée.'|trans }}</span>
+                {% if not chat_staff %}<button type="button" class="ch-btn" data-action="click->chat#reloadPage"><i class="fa-solid fa-plus"></i> {{ 'Nouvelle discussion'|trans }}</button>{% endif %}
             </div>
 
             <form class="ch-composer" data-chat-target="composer" data-action="submit->chat#submit">
                 <div class="ch-attach">
-                    <button type="button" class="ch-icon-btn" data-action="click->chat#attach" aria-label="Joindre un document" title="Joindre un document (disponible 14 jours)"><i class="fa-solid fa-paperclip"></i></button>
+                    <button type="button" class="ch-icon-btn" data-action="click->chat#attach" aria-label="{{ 'Joindre un document'|trans }}" title="{{ 'Joindre un document (disponible 14 jours)'|trans }}"><i class="fa-solid fa-paperclip"></i></button>
                     {% if chat_staff %}
                         <div class="ch-attach-menu" data-chat-target="attachMenu" hidden>
-                            <button type="button" data-action="click->chat#pickDevice"><i class="fa-solid fa-arrow-up-from-bracket"></i> Depuis mon appareil</button>
-                            <button type="button" data-action="click->chat#openDocs"><i class="fa-regular fa-folder-open"></i> Depuis mes documents</button>
+                            <button type="button" data-action="click->chat#pickDevice"><i class="fa-solid fa-arrow-up-from-bracket"></i> {{ 'Depuis mon appareil'|trans }}</button>
+                            <button type="button" data-action="click->chat#openDocs"><i class="fa-regular fa-folder-open"></i> {{ 'Depuis mes documents'|trans }}</button>
                         </div>
                     {% endif %}
                     <input type="file" hidden multiple data-chat-target="filePicker" data-action="change->chat#filesPicked">
                 </div>
-                <textarea rows="1" maxlength="2000" placeholder="Écrire un message…" data-chat-target="input" data-action="keydown->chat#composerKey input->chat#autosize" aria-label="Votre message"></textarea>
-                <button type="submit" class="ch-send" data-chat-target="send" aria-label="Envoyer" disabled><i class="fa-solid fa-paper-plane"></i></button>
+                <textarea rows="1" maxlength="2000" placeholder="{{ 'Écrire un message…'|trans }}" data-chat-target="input" data-action="keydown->chat#composerKey input->chat#autosize" aria-label="{{ 'Votre message'|trans }}"></textarea>
+                <button type="submit" class="ch-send" data-chat-target="send" aria-label="{{ 'Envoyer'|trans }}" disabled><i class="fa-solid fa-paper-plane"></i></button>
             </form>
         </div>
     </section>
@@ -76,8 +76,8 @@
         <header>
             <strong data-chat-target="previewName"></strong>
             <div>
-                <a class="ch-icon-btn" data-chat-target="previewDownload" href="#" title="Télécharger" aria-label="Télécharger"><i class="fa-solid fa-download"></i></a>
-                <button type="button" class="ch-icon-btn" data-action="click->chat#closePreview" title="Fermer" aria-label="Fermer"><i class="fa-solid fa-xmark"></i></button>
+                <a class="ch-icon-btn" data-chat-target="previewDownload" href="#" title="{{ 'Télécharger'|trans }}" aria-label="{{ 'Télécharger'|trans }}"><i class="fa-solid fa-download"></i></a>
+                <button type="button" class="ch-icon-btn" data-action="click->chat#closePreview" title="{{ 'Fermer'|trans }}" aria-label="{{ 'Fermer'|trans }}"><i class="fa-solid fa-xmark"></i></button>
             </div>
         </header>
         <div class="ch-preview-body" data-chat-target="previewBody"></div>
@@ -86,12 +86,12 @@
     {% if chat_staff %}
     <dialog class="admin-modal ch-modal" data-chat-target="docDialog" data-action="click->chat#docsBackdrop">
         <div class="admin-modal-body">
-            <h2 class="admin-modal-title">Partager un de mes documents</h2>
-            <p class="admin-modal-text">Seuls les documents de votre espace personnel sont proposés. Le partage prend fin au bout de 14 jours ; le fichier d'origine n'est jamais supprimé.</p>
-            <input type="search" class="admin-modal-input" placeholder="Rechercher un document…" data-chat-target="docSearch" data-action="input->chat#renderDocs" autocomplete="off">
+            <h2 class="admin-modal-title">{{ 'Partager un de mes documents'|trans }}</h2>
+            <p class="admin-modal-text">{{ 'Seuls les documents de votre espace personnel sont proposés. Le partage prend fin au bout de 14 jours ; le fichier d\'origine n\'est jamais supprimé.'|trans }}</p>
+            <input type="search" class="admin-modal-input" placeholder="{{ 'Rechercher un document…'|trans }}" data-chat-target="docSearch" data-action="input->chat#renderDocs" autocomplete="off">
             <div class="ch-docpicks" data-chat-target="docList"></div>
             <div class="admin-modal-actions">
-                <button type="button" class="admin-btn admin-btn-ghost" data-action="click->chat#closeDocs">Fermer</button>
+                <button type="button" class="admin-btn admin-btn-ghost" data-action="click->chat#closeDocs">{{ 'Fermer'|trans }}</button>
             </div>
         </div>
     </dialog>
@@ -99,26 +99,26 @@
 
     <dialog class="admin-modal ch-modal" data-chat-target="newDialog" data-action="click->chat#dialogBackdrop">
         <form class="admin-modal-body" data-action="submit->chat#createConversation" novalidate>
-            <h2 class="admin-modal-title">Nouvelle discussion</h2>
+            <h2 class="admin-modal-title">{{ 'Nouvelle discussion'|trans }}</h2>
             <p class="admin-modal-text" data-chat-target="newHelp"></p>
 
             <label class="admin-modal-field">
-                <span class="admin-modal-label" data-chat-target="newLabel">Destinataire</span>
-                <select data-chat-target="newSelect" {{ chat_staff ? 'multiple' : '' }} data-placeholder="Choisir un destinataire…"></select>
+                <span class="admin-modal-label" data-chat-target="newLabel">{{ 'Destinataire'|trans }}</span>
+                <select data-chat-target="newSelect" {{ chat_staff ? 'multiple' : '' }} data-placeholder="{{ 'Choisir un destinataire…'|trans }}"></select>
             </label>
             <label class="admin-modal-field" data-chat-target="subjectField" hidden>
-                <span class="admin-modal-label">Titre du groupe (facultatif)</span>
-                <input type="text" class="admin-modal-input" maxlength="120" data-chat-target="newSubject" placeholder="Ex. Encadrants U13">
+                <span class="admin-modal-label">{{ 'Titre du groupe (facultatif)'|trans }}</span>
+                <input type="text" class="admin-modal-input" maxlength="120" data-chat-target="newSubject" placeholder="{{ 'Ex. Encadrants U13'|trans }}">
             </label>
             <label class="admin-modal-field">
-                <span class="admin-modal-label">Premier message (facultatif)</span>
-                <textarea class="admin-modal-input" rows="3" maxlength="2000" data-chat-target="newMessage" placeholder="Bonjour…"></textarea>
+                <span class="admin-modal-label">{{ 'Premier message (facultatif)'|trans }}</span>
+                <textarea class="admin-modal-input" rows="3" maxlength="2000" data-chat-target="newMessage" placeholder="{{ 'Bonjour…'|trans }}"></textarea>
             </label>
             <p class="ch-form-error" data-chat-target="newError" hidden></p>
 
             <div class="admin-modal-actions">
-                <button type="button" class="admin-btn admin-btn-ghost" data-action="click->chat#closeNew">Annuler</button>
-                <button type="submit" class="admin-btn admin-btn-primary" data-chat-target="newSubmit">Ouvrir la discussion</button>
+                <button type="button" class="admin-btn admin-btn-ghost" data-action="click->chat#closeNew">{{ 'Annuler'|trans }}</button>
+                <button type="submit" class="admin-btn admin-btn-primary" data-chat-target="newSubmit">{{ 'Ouvrir la discussion'|trans }}</button>
             </div>
         </form>
     </dialog>

@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\User;
 use App\Form\ChangePasswordFormType;
 use App\Form\ResetPasswordRequestFormType;
+use App\Service\Locale\MailLocale;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -28,6 +29,7 @@ class ResetPasswordController extends AbstractController
     public function __construct(
         private ResetPasswordHelperInterface $resetPasswordHelper,
         private EntityManagerInterface $entityManager,
+        private MailLocale $mailLocale,
         private string $mailerFromAddress,
         private string $mailerFromName,
     ) {
@@ -165,17 +167,18 @@ class ResetPasswordController extends AbstractController
             return $this->redirectToRoute('app_check_email');
         }
 
-        $email = (new TemplatedEmail())
-            ->from(new Address($this->mailerFromAddress, $this->mailerFromName))
-            ->to((string) $user->getEmail())
-            ->subject('Réinitialisation de votre mot de passe — ES Coutances')
-            ->htmlTemplate('reset_password/email.html.twig')
-            ->context([
-                'resetToken' => $resetToken,
-            ])
-        ;
-
-        $mailer->send($email);
+        $this->mailLocale->runFor($user, function () use ($user, $resetToken, $mailer, $translator): void {
+            $mailer->send(
+                (new TemplatedEmail())
+                    ->from(new Address($this->mailerFromAddress, $this->mailerFromName))
+                    ->to((string) $user->getEmail())
+                    ->subject($translator->trans('Réinitialisation de votre mot de passe — ES Coutances'))
+                    ->htmlTemplate('reset_password/email.html.twig')
+                    ->context([
+                        'resetToken' => $resetToken,
+                    ]),
+            );
+        });
 
         // Store the token object in session for retrieval in check-email route.
         $this->setTokenObjectInSession($resetToken);
