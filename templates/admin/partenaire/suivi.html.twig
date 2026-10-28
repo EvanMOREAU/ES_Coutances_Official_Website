@@ -24,11 +24,11 @@
 
         {# Étape 1 : règlements #}
         <section data-partenaire-suivi-target="step">
-            <p class="text-sm text-admin-text-muted mb-3">Cochez chaque règlement à sa réception et indiquez la date d'encaissement. Un règlement encaissé est définitif.</p>
+            <p class="text-sm text-admin-text-muted mb-3">{{ 'Cochez chaque règlement à sa réception et indiquez la date d\'encaissement. Un règlement encaissé est définitif.'|trans }}</p>
             {% for contrat in contrats %}
                 <h2 class="font-semibold text-sm mt-4 mb-2">{{ contrat.titre }}</h2>
                 {% for r in contrat.reglements %}
-                    <div class="sv-card {{ r.recu ? 'is-done' }} {{ r.locked ? 'is-locked' }}" {% if r.locked %}inert title="Règlement encaissé : définitif"{% endif %} data-partenaire-suivi-target="reglement" data-amount="{{ r.montantCentimes }}">
+                    <div class="sv-card {{ r.recu ? 'is-done' }} {{ r.locked ? 'is-locked' }}" {% if r.locked %}inert title="{{ 'Règlement encaissé : définitif'|trans }}"{% endif %} data-partenaire-suivi-target="reglement" data-amount="{{ r.montantCentimes }}">
                         <label class="sv-toggle">
                             <input type="checkbox" name="reglements[{{ r.id }}][recu]" value="1" {{ r.recu ? 'checked' }} data-action="change->partenaire-suivi#toggle">
                             <span class="sv-switch"></span>
@@ -36,25 +36,25 @@
                                 <small>{{ r.dateEcheance ? 'À encaisser le ' ~ r.dateEcheance|date('d/m/Y') : 'Sans date d\'échéance' }}</small></span>
                         </label>
                         <div class="sv-fields">
-                            <label>Encaissé le<input type="date" name="reglements[{{ r.id }}][dateRemise]" value="{{ r.dateRemise ? r.dateRemise|date('Y-m-d') }}"></label>
-                            <label>Référence<input type="text" name="reglements[{{ r.id }}][reference]" maxlength="100" value="{{ r.reference }}" placeholder="N° de chèque, de virement…"></label>
+                            <label>{{ 'Encaissé le'|trans }}<input type="date" name="reglements[{{ r.id }}][dateRemise]" value="{{ r.dateRemise ? r.dateRemise|date('Y-m-d') }}"></label>
+                            <label>{{ 'Référence'|trans }}<input type="text" name="reglements[{{ r.id }}][reference]" maxlength="100" value="{{ r.reference }}" placeholder="{{ 'N° de chèque, de virement…'|trans }}"></label>
                         </div>
                     </div>
                 {% else %}
-                    <p class="sv-empty">Aucun règlement prévu pour ce contrat.</p>
+                    <p class="sv-empty">{{ 'Aucun règlement prévu pour ce contrat.'|trans }}</p>
                 {% endfor %}
             {% else %}
-                <p class="sv-empty">Ce partenaire n'a pas encore de contrat. <a href="{{ path('admin_partenaire_contrat_new', {partenaire: partenaire.id}) }}" target="_top" class="underline">Créer un contrat</a>.</p>
+                <p class="sv-empty">{{ 'Ce partenaire n\'a pas encore de contrat.'|trans }} <a href="{{ path('admin_partenaire_contrat_new', {partenaire: partenaire.id}) }}" target="_top" class="underline">{{ 'Créer un contrat'|trans }}</a>.</p>
             {% endfor %}
         </section>
 
         {# Étape 2 : tâches #}
         <section data-partenaire-suivi-target="step" hidden>
-            <p class="text-sm text-admin-text-muted mb-3">Cochez chaque tâche une fois réalisée. Une tâche faite est définitive.</p>
+            <p class="text-sm text-admin-text-muted mb-3">{{ 'Cochez chaque tâche une fois réalisée. Une tâche faite est définitive.'|trans }}</p>
             {% for contrat in contrats %}
                 <h2 class="font-semibold text-sm mt-4 mb-2">{{ contrat.titre }}</h2>
                 {% for t in contrat.taches %}
-                    <div class="sv-card {{ t.fait ? 'is-done' }} {{ t.locked ? 'is-locked' }}" {% if t.locked %}inert title="Tâche faite : définitive"{% endif %} data-partenaire-suivi-target="tache">
+                    <div class="sv-card {{ t.fait ? 'is-done' }} {{ t.locked ? 'is-locked' }}" {% if t.locked %}inert title="{{ 'Tâche faite : définitive'|trans }}"{% endif %} data-partenaire-suivi-target="tache">
                         <label class="sv-toggle">
                             <input type="checkbox" name="taches[{{ t.id }}][fait]" value="1" {{ t.fait ? 'checked' }} data-action="change->partenaire-suivi#toggle">
                             <span class="sv-switch"></span>
@@ -63,27 +63,27 @@
                         </label>
                     </div>
                 {% else %}
-                    <p class="sv-empty">Aucune tâche pour ce contrat.</p>
+                    <p class="sv-empty">{{ 'Aucune tâche pour ce contrat.'|trans }}</p>
                 {% endfor %}
             {% else %}
-                <p class="sv-empty">Aucun contrat, donc aucune tâche.</p>
+                <p class="sv-empty">{{ 'Aucun contrat, donc aucune tâche.'|trans }}</p>
             {% endfor %}
         </section>
 
         {# Étape 3 : récapitulatif #}
         <section data-partenaire-suivi-target="step" hidden>
             <div class="ad-tiles">
-                <div class="ad-tile"><span>Montant des contrats</span><strong>{{ du|money }}</strong></div>
-                <div class="ad-tile"><span>Règlements encaissés</span><strong data-partenaire-suivi-target="sumReglements">—</strong></div>
-                <div class="ad-tile"><span>Reste à encaisser</span><strong data-partenaire-suivi-target="sumReste">—</strong></div>
-                <div class="ad-tile"><span>Tâches restantes</span><strong data-partenaire-suivi-target="sumTaches">—</strong></div>
+                <div class="ad-tile"><span>{{ 'Montant des contrats'|trans }}</span><strong>{{ du|money }}</strong></div>
+                <div class="ad-tile"><span>{{ 'Règlements encaissés'|trans }}</span><strong data-partenaire-suivi-target="sumReglements">—</strong></div>
+                <div class="ad-tile"><span>{{ 'Reste à encaisser'|trans }}</span><strong data-partenaire-suivi-target="sumReste">—</strong></div>
+                <div class="ad-tile"><span>{{ 'Tâches restantes'|trans }}</span><strong data-partenaire-suivi-target="sumTaches">—</strong></div>
             </div>
         </section>
 
         <div class="sv-actions">
-            <button type="button" class="admin-btn admin-btn-ghost" data-partenaire-suivi-target="back" data-action="partenaire-suivi#back">Précédent</button>
-            <button type="button" class="admin-btn admin-btn-primary" data-partenaire-suivi-target="next" data-action="partenaire-suivi#next">Suivant</button>
-            <button type="submit" class="admin-btn admin-btn-primary" data-partenaire-suivi-target="save" hidden>Enregistrer le suivi</button>
+            <button type="button" class="admin-btn admin-btn-ghost" data-partenaire-suivi-target="back" data-action="partenaire-suivi#back">{{ 'Précédent'|trans }}</button>
+            <button type="button" class="admin-btn admin-btn-primary" data-partenaire-suivi-target="next" data-action="partenaire-suivi#next">{{ 'Suivant'|trans }}</button>
+            <button type="submit" class="admin-btn admin-btn-primary" data-partenaire-suivi-target="save" hidden>{{ 'Enregistrer le suivi'|trans }}</button>
         </div>
     </form>
 {% endblock %}

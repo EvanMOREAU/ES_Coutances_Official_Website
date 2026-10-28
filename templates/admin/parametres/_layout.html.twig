@@ -1,17 +1,17 @@
 {% extends 'admin/_layout.html.twig' %}
 {% if form is defined %}{% form_theme form 'admin/_form_theme.html.twig' %}{% endif %}
 
-{% block title %}Paramètres{% endblock %}
+{% block title %}{{ 'settings.title'|trans }}{% endblock %}
 
 {% block body %}
-    <h1 class="u-66972700 text-2xl font-black">Paramètres</h1>
-    <p class="text-sm text-admin-text-muted mb-6">Gérez votre compte et personnalisez l'application.</p>
+    <h1 class="u-66972700 text-2xl font-black">{{ 'settings.title'|trans }}</h1>
+    <p class="text-sm text-admin-text-muted mb-6">{{ 'settings.lead_admin'|trans }}</p>
 
     {% set tabs = [
-        { id: 'profil', label: 'Profil', desc: 'Informations personnelles', icon: 'fa-user', route: 'admin_parametres_profil' },
-        { id: 'securite', label: 'Sécurité', desc: 'Authentification à deux facteurs', icon: 'fa-shield-halved', route: 'admin_parametres_securite' },
-        { id: 'preferences', label: 'Notifications', desc: 'Cloche et e-mails', icon: 'fa-bell', route: 'admin_parametres_preferences' },
-        { id: 'apparence', label: 'Apparence', desc: 'Thème et affichage', icon: 'fa-palette', route: 'admin_parametres_apparence' },
+        { id: 'profil', label: 'settings.tab.profile'|trans, desc: 'settings.tab.profile_desc'|trans, icon: 'fa-user', route: 'admin_parametres_profil' },
+        { id: 'securite', label: 'settings.tab.security'|trans, desc: 'settings.tab.security_desc_admin'|trans, icon: 'fa-shield-halved', route: 'admin_parametres_securite' },
+        { id: 'preferences', label: 'settings.tab.notifications'|trans, desc: 'settings.tab.notifications_desc_admin'|trans, icon: 'fa-bell', route: 'admin_parametres_preferences' },
+        { id: 'apparence', label: 'settings.tab.appearance'|trans, desc: 'settings.tab.appearance_desc'|trans, icon: 'fa-palette', route: 'admin_parametres_apparence' },
     ] %}
 
     <div class="grid gap-6 lg:grid-cols-[15rem_minmax(0,1fr)] items-start">

@@ -1,6 +1,6 @@
 import { Controller } from '@hotwired/stimulus';
 import { KIND_ICONS } from '../lib/file_kinds.js';
-
+import { dayKey, formatDay, formatLastSeen, formatListTime, formatSize, formatTime } from '../lib/chat_format.js';
 
 const POLL_VISIBLE_MS = 2500;
 const POLL_HIDDEN_MS = 12000;
@@ -91,8 +91,15 @@ export default class extends Controller {
         this.polling = true;
         const requestedActive = this.activeId;
         try {
-            const params = new URLSearchParams({ active: String(requestedActive), after: String(this.lastId) });
+            const params = new URLSearchParams({ active: String(requestedActive), after: String(this.lastId), v: this.syncVersion ?? '' });
             const data = await this.api(`sync?${params}`);
+            if (data.unchanged) {
+                // Rien de nouveau côté serveur : on garde l'affichage tel quel.
+                this.failures = 0;
+
+                return;
+            }
+            this.syncVersion = data.v;
             const fingerprint = JSON.stringify([data.unread, data.conversations, data.active?.messages?.length ?? 0]);
             if (fingerprint !== this.fingerprint) {
                 this.fingerprint = fingerprint;
@@ -211,7 +218,7 @@ export default class extends Controller {
         const title = document.createElement('strong');
         title.textContent = conversation.title;
         const time = document.createElement('time');
-        time.textContent = this.formatListTime(conversation.previewAt);
+        time.textContent = formatListTime(conversation.previewAt);
         top.append(title, time);
         const bottom = document.createElement('span');
         bottom.className = 'ch-item-bottom';
@@ -384,7 +391,7 @@ export default class extends Controller {
             this.headStatusTarget.textContent = 'En ligne';
             this.headStatusTarget.dataset.state = 'online';
         } else {
-            this.headStatusTarget.textContent = conversation.lastSeen ? `Vu ${this.formatLastSeen(conversation.lastSeen)}` : 'Hors ligne';
+            this.headStatusTarget.textContent = conversation.lastSeen ? `Vu ${formatLastSeen(conversation.lastSeen)}` : 'Hors ligne';
             this.headStatusTarget.dataset.state = 'offline';
         }
     }
@@ -519,7 +526,7 @@ export default class extends Controller {
 
     /** Ajoute « Aujourd'hui », « Hier »… quand on passe à un nouveau jour (les lignes et séparateurs portent data-day). */
     insertDaySeparator(message) {
-        const day = this.dayKey(message.at);
+        const day = dayKey(message.at);
         if (this.messagesTarget.lastElementChild?.dataset.day === day) {
             return;
         }
@@ -527,7 +534,7 @@ export default class extends Controller {
         separator.className = 'ch-day';
         separator.dataset.day = day;
         const label = document.createElement('span');
-        label.textContent = this.formatDay(message.at);
+        label.textContent = formatDay(message.at);
         separator.appendChild(label);
         this.messagesTarget.appendChild(separator);
     }
@@ -537,7 +544,7 @@ export default class extends Controller {
         const row = document.createElement('div');
         row.className = `ch-row ${message.mine ? 'is-mine' : 'is-theirs'} ${conversation?.support && message.staff ? 'is-support' : ''}`;
         row.dataset.id = String(message.id);
-        row.dataset.day = this.dayKey(message.at);
+        row.dataset.day = dayKey(message.at);
         row.dataset.at = message.at;
 
         const bubble = document.createElement('div');
@@ -561,7 +568,7 @@ export default class extends Controller {
         const meta = document.createElement('span');
         meta.className = 'ch-meta';
         const time = document.createElement('time');
-        time.textContent = this.formatTime(message.at);
+        time.textContent = formatTime(message.at);
         meta.appendChild(time);
         if (message.mine) {
             const tick = document.createElement('i');
@@ -592,7 +599,7 @@ export default class extends Controller {
         const expires = new Date(attachment.expiresAt);
         if (attachment.available) {
             const days = Math.max(0, Math.ceil((expires - Date.now()) / 86400000));
-            info.textContent = `${this.formatSize(attachment.size)} · disponible jusqu'au ${expires.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })} (${days} j)`;
+            info.textContent = `${formatSize(attachment.size)} · disponible jusqu'au ${expires.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })} (${days} j)`;
         } else {
             const gone = new Date(attachment.purgedAt ?? attachment.expiresAt);
             info.textContent = attachment.purgedAt || expires <= new Date()
@@ -665,17 +672,6 @@ export default class extends Controller {
         }
     }
 
-    formatSize(bytes) {
-        if (bytes < 1024) {
-            return `${bytes} o`;
-        }
-        if (bytes < 1048576) {
-            return `${Math.round(bytes / 1024)} Ko`;
-        }
-
-        return `${(bytes / 1048576).toFixed(1).replace('.', ',')} Mo`;
-    }
-
     updateReadTicks() {
         this.messagesTarget.querySelectorAll('.ch-row.is-mine:not(.is-pending)').forEach((row) => {
             const read = Number(row.dataset.id) <= this.readUpTo;
@@ -731,12 +727,12 @@ export default class extends Controller {
             const fragment = document.createDocumentFragment();
             let previous = null;
             data.messages.forEach((message) => {
-                if (previous?.dataset.day !== this.dayKey(message.at)) {
+                if (previous?.dataset.day !== dayKey(message.at)) {
                     const separator = document.createElement('div');
                     separator.className = 'ch-day';
-                    separator.dataset.day = this.dayKey(message.at);
+                    separator.dataset.day = dayKey(message.at);
                     separator.innerHTML = '<span></span>';
-                    separator.firstChild.textContent = this.formatDay(message.at);
+                    separator.firstChild.textContent = formatDay(message.at);
                     fragment.appendChild(separator);
                 }
                 const row = this.messageElement(message);
@@ -924,7 +920,7 @@ export default class extends Controller {
             const name = document.createElement('strong');
             name.textContent = item.name;
             const size = document.createElement('small');
-            size.textContent = item.size ? this.formatSize(item.size) : '';
+            size.textContent = item.size ? formatSize(item.size) : '';
             const remove = document.createElement('button');
             remove.type = 'button';
             remove.setAttribute('aria-label', 'Retirer');
@@ -1022,7 +1018,7 @@ export default class extends Controller {
             const icon = { pdf: 'fa-file-pdf', doc: 'fa-file-word', docx: 'fa-file-word', xls: 'fa-file-excel', xlsx: 'fa-file-excel', png: 'fa-file-image', jpg: 'fa-file-image', jpeg: 'fa-file-image' }[ext] ?? 'fa-file';
             item.innerHTML = `<i class="fa-solid ${icon}"></i><span><strong></strong><small></small></span>`;
             item.querySelector('strong').textContent = doc.name;
-            item.querySelector('small').textContent = `${this.formatSize(doc.size)} · ${new Date(doc.mtime * 1000).toLocaleDateString('fr-FR')}`;
+            item.querySelector('small').textContent = `${formatSize(doc.size)} · ${new Date(doc.mtime * 1000).toLocaleDateString('fr-FR')}`;
             item.addEventListener('click', () => {
                 this.docDialogTarget.close();
                 this.stageItems([{ path: doc.path, name: doc.name, size: doc.size }]);
@@ -1132,69 +1128,5 @@ export default class extends Controller {
         } finally {
             this.newSubmitTarget.disabled = false;
         }
-    }
-
-    // -- Formats -----------------------------------------------------------------
-
-    dayKey(iso) {
-        const d = new Date(iso);
-
-        return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
-    }
-
-    daysAgo(iso) {
-        const start = (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
-
-        return Math.round((start(new Date()) - start(new Date(iso))) / 86400000);
-    }
-
-    formatTime(iso) {
-        return new Date(iso).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
-    }
-
-    formatDay(iso) {
-        const days = this.daysAgo(iso);
-        if (days === 0) {
-            return "Aujourd'hui";
-        }
-        if (days === 1) {
-            return 'Hier';
-        }
-
-        return new Date(iso).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
-    }
-
-    formatListTime(iso) {
-        const days = this.daysAgo(iso);
-        if (days === 0) {
-            return this.formatTime(iso);
-        }
-        if (days === 1) {
-            return 'Hier';
-        }
-        if (days < 7) {
-            return new Date(iso).toLocaleDateString('fr-FR', { weekday: 'short' });
-        }
-
-        return new Date(iso).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
-    }
-
-    formatLastSeen(iso) {
-        const minutes = Math.round((Date.now() - new Date(iso).getTime()) / 60000);
-        if (minutes < 1) {
-            return "à l'instant";
-        }
-        if (minutes < 60) {
-            return `il y a ${minutes} min`;
-        }
-        const days = this.daysAgo(iso);
-        if (days === 0) {
-            return `à ${this.formatTime(iso)}`;
-        }
-        if (days === 1) {
-            return `hier à ${this.formatTime(iso)}`;
-        }
-
-        return `le ${new Date(iso).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}`;
     }
 }

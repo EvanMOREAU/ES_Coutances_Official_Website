@@ -188,11 +188,11 @@
     <div class="breadcrumb">
       <a href="{{ path('app_home') }}">Accueil</a>
       <i class="fa-solid fa-chevron-right"></i>
-      <span>Partenaires</span>
+      <span>{{ 'Partenaires'|trans }}</span>
       <i class="fa-solid fa-chevron-right"></i>
-      <span>Nos sponsors</span>
+      <span>{{ 'Nos sponsors'|trans }}</span>
     </div>
-    <h1>Nos<br><span>sponsors</span></h1>
+    <h1>{{ 'Nos'|trans }}<br><span>{{ 'sponsors'|trans }}</span></h1>
   </div>
 </section>
 
@@ -200,8 +200,7 @@
   <div class="container">
 
     <p class="sponsors-intro">
-      L'ES Coutances remercie chaleureusement tous ses partenaires pour leur soutien précieux.
-      Grâce à eux, le club peut continuer à se développer et à former les joueurs de demain.
+      {{ 'L\'ES Coutances remercie chaleureusement tous ses partenaires pour leur soutien précieux. Grâce à eux, le club peut continuer à se développer et à former les joueurs de demain.'|trans }}
     </p>
 
     {% set labels = {
@@ -265,16 +264,16 @@
     {% else %}
       <div class="sponsors-empty">
         <i class="fa-solid fa-handshake"></i>
-        Nos partenaires seront bientôt affichés ici.
+        {{ 'Nos partenaires seront bientôt affichés ici.'|trans }}
       </div>
     {% endif %}
 
     {# CTA #}
     <div class="sponsors-cta">
-      <h2>Rejoignez nos <span>partenaires</span></h2>
-      <p>Vous souhaitez soutenir l'ES Coutances et bénéficier d'une visibilité locale et régionale ?</p>
+      <h2>{{ 'Rejoignez nos'|trans }} <span>{{ 'partenaires'|trans }}</span></h2>
+      <p>{{ 'Vous souhaitez soutenir l\'ES Coutances et bénéficier d\'une visibilité locale et régionale ?'|trans }}</p>
       <a href="{{ path('app_devenir_sponsors') }}" class="btn btn-primary">
-        <i class="fa-solid fa-handshake"></i> Devenir partenaire
+        <i class="fa-solid fa-handshake"></i> {{ 'Devenir partenaire'|trans }}
       </a>
     </div>
 

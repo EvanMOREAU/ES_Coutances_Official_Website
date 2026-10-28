@@ -4,7 +4,7 @@
 
 {% block body %}
     <h1 class="u-66972700 text-xl font-black mb-1">Gestion des stocks — {{ article.nom }}</h1>
-    <p class="text-sm text-admin-text-muted mb-5">Indiquez la quantité reçue pour chaque taille : elle s'ajoute au stock déjà en place.</p>
+    <p class="text-sm text-admin-text-muted mb-5">{{ 'Indiquez la quantité reçue pour chaque taille : elle s\'ajoute au stock déjà en place.'|trans }}</p>
 
     <form method="post" action="{{ path('admin_article_stock', {id: article.id}) }}">
         <input type="hidden" name="_token" value="{{ csrf_token('stock-article-' ~ article.id) }}">
@@ -17,16 +17,16 @@
                         <p class="text-xs text-admin-text-muted">Stock actuel : {{ variante.stock }}</p>
                     </div>
                     <label class="flex items-center gap-2 text-sm text-admin-text-muted">
-                        Ajouter <input type="number" name="quantite[{{ variante.id }}]" value="0" min="0" step="1">
+                        {{ 'Ajouter'|trans }} <input type="number" name="quantite[{{ variante.id }}]" value="0" min="0" step="1">
                     </label>
                 </div>
             {% else %}
-                <p class="text-sm text-admin-text-muted">Cet article n'a aucune taille.</p>
+                <p class="text-sm text-admin-text-muted">{{ 'Cet article n\'a aucune taille.'|trans }}</p>
             {% endfor %}
         </div>
 
         <div class="flex items-center gap-3 mt-6">
-            <button type="submit" class="rounded-lg admin-gradient px-5 py-2 text-sm font-semibold text-white">Ajouter au stock</button>
+            <button type="submit" class="rounded-lg admin-gradient px-5 py-2 text-sm font-semibold text-white">{{ 'Ajouter au stock'|trans }}</button>
         </div>
     </form>
 {% endblock %}

@@ -4,8 +4,8 @@
 
 {% block body %}
     <div class="flex items-center justify-between mb-6">
-        <h1 class="u-66972700 text-2xl font-black">Cartes "Nous rejoindre"</h1>
-        {% if can_url(path('admin_rejoindre_card_new')) %}<a href="{{ path('admin_rejoindre_card_new') }}" class="rounded-lg admin-gradient px-4 py-2 text-sm font-semibold text-white">+ Nouvelle carte</a>{% endif %}
+        <h1 class="u-66972700 text-2xl font-black">{{ 'Cartes "Nous rejoindre"'|trans }}</h1>
+        {% if can_url(path('admin_rejoindre_card_new')) %}<a href="{{ path('admin_rejoindre_card_new') }}" class="rounded-lg admin-gradient px-4 py-2 text-sm font-semibold text-white">{{ '+ Nouvelle carte'|trans }}</a>{% endif %}
     </div>
 
     {% embed 'admin/_components/data_table.html.twig' with {

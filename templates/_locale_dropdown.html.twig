@@ -1,0 +1,36 @@
+{# Sélecteur de langue de la barre de navigation : menu déroulant drapeau + nom. Variante « desktop » ou « mobile ». Liens simples : fonctionne sans JavaScript. #}
+{% set locales = app_locales() %}
+{% if locales|length > 1 %}
+    {% set current = locales[app.request.locale] ?? locales|first %}
+    {% if variant == 'mobile' %}
+    <div class="mob-section mob-lang">
+      <div class="mob-section-head" role="button" tabindex="0" aria-label="{{ 'lang.label'|trans }}">
+        <span class="lang-current"><img src="{{ asset('images/flags/' ~ current.flag) }}" alt="" width="22" height="15" class="lang-flag"> <span>{{ current.name }}</span></span>
+        <i class="fa-solid fa-chevron-down"></i>
+      </div>
+      <div class="mob-links">
+        {% for code, lang in locales %}
+        <a href="{{ path('app_locale_switch', {locale: code}) }}" lang="{{ code }}" hreflang="{{ code }}"{% if app.request.locale == code %} aria-current="true" class="is-active"{% endif %}>
+          <img src="{{ asset('images/flags/' ~ lang.flag) }}" alt="" width="22" height="15" class="lang-flag"> {{ lang.name }}
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+    {% else %}
+    <div class="nav-item nav-lang">
+      <button type="button" aria-haspopup="true" aria-label="{{ 'lang.label'|trans }}">
+        <img src="{{ asset('images/flags/' ~ current.flag) }}" alt="" width="22" height="15" class="lang-flag">
+        <span>{{ current.name }}</span> <i class="fa-solid fa-chevron-down"></i>
+      </button>
+      <div class="dropdown dd-lang">
+        <div class="dd-col">
+          {% for code, lang in locales %}
+          <a href="{{ path('app_locale_switch', {locale: code}) }}" lang="{{ code }}" hreflang="{{ code }}"{% if app.request.locale == code %} aria-current="true" class="is-active"{% endif %}>
+            <img src="{{ asset('images/flags/' ~ lang.flag) }}" alt="" width="22" height="15" class="lang-flag"> {{ lang.name }}
+          </a>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+    {% endif %}
+{% endif %}

@@ -19,13 +19,13 @@
     {% if can_show or can_edit or can_delete or allowed_actions is not empty %}
     <div data-controller="menu" class="inline-block">
         <button type="button" class="dt-row-button" data-menu-target="button" data-action="click->menu#toggle"
-                aria-label="Actions" aria-haspopup="true" aria-expanded="false"><i class="fa-solid fa-ellipsis"></i></button>
+                aria-label="{{ 'Actions'|trans }}" aria-haspopup="true" aria-expanded="false"><i class="fa-solid fa-ellipsis"></i></button>
         <div data-menu-target="panel" class="admin-menu-panel hidden">
             {% if can_show %}
-                <a href="{{ show_url }}" class="admin-menu-item"><i class="fa-regular fa-eye"></i> Voir</a>
+                <a href="{{ show_url }}" class="admin-menu-item"><i class="fa-regular fa-eye"></i> {{ 'Voir'|trans }}</a>
             {% endif %}
             {% if can_edit %}
-                <a href="{{ edit_url }}" class="admin-menu-item"><i class="fa-solid fa-pen"></i> Modifier</a>
+                <a href="{{ edit_url }}" class="admin-menu-item"><i class="fa-solid fa-pen"></i> {{ 'Modifier'|trans }}</a>
             {% endif %}
             {% for action in allowed_actions %}
                 {% if action.modal|default(false) %}
@@ -53,14 +53,14 @@
                             data-famille-delete-delete-token-value="{{ delete_token }}"
                             data-famille-delete-licencies-value="{{ famille_delete.licencies|json_encode|e('html_attr') }}"
                             data-action="click->famille-delete#open click->menu#close">
-                        <i class="fa-solid fa-trash"></i> Supprimer
+                        <i class="fa-solid fa-trash"></i> {{ 'Supprimer'|trans }}
                     </button>
                 {% else %}
                     <form method="post" action="{{ delete_url }}" data-action="submit->menu#close"
                           data-confirm="{{ delete_message|default('Cette action est irréversible.') }}"
                           data-confirm-title="{{ delete_title|default('Confirmer la suppression') }}">
                         <input type="hidden" name="_token" value="{{ delete_token }}">
-                        <button type="submit" class="admin-menu-item is-danger"><i class="fa-solid fa-trash"></i> Supprimer</button>
+                        <button type="submit" class="admin-menu-item is-danger"><i class="fa-solid fa-trash"></i> {{ 'Supprimer'|trans }}</button>
                     </form>
                 {% endif %}
             {% endif %}

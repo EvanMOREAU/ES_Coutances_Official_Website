@@ -4,19 +4,28 @@
 
 {% block body %}
     <div class="flex flex-wrap items-center justify-between gap-3 mb-2">
-        <h1 class="u-66972700 text-2xl font-black">Paiements des licences</h1>
+        <h1 class="u-66972700 text-2xl font-black">{{ 'Paiements des licences'|trans }}</h1>
         <div class="flex flex-wrap items-center gap-2">
-            {% if can_url(path('admin_adhesion_export')) %}<a href="{{ path('admin_adhesion_export') }}" class="admin-btn admin-btn-ghost" data-turbo="false"><i class="fa-solid fa-file-csv"></i> Export comptable (CSV)</a>{% endif %}
-            {% if can_url(path('admin_adhesion_new')) %}<a href="{{ path('admin_adhesion_new') }}" class="rounded-lg admin-gradient px-4 py-2 text-sm font-semibold text-white">+ Nouvelle licence</a>{% endif %}
+            {% if can_url(path('admin_adhesion_export')) %}<a href="{{ path('admin_adhesion_export') }}" class="admin-btn admin-btn-ghost" data-turbo="false"><i class="fa-solid fa-file-csv"></i> {{ 'Export comptable (CSV)'|trans }}</a>{% endif %}
+            {% if can_url(path('admin_adhesion_new')) %}<a href="{{ path('admin_adhesion_new') }}" class="rounded-lg admin-gradient px-4 py-2 text-sm font-semibold text-white">{{ '+ Nouvelle licence'|trans }}</a>{% endif %}
         </div>
     </div>
-    <p class="text-sm text-admin-text-muted mb-5">Suivi des règlements (espèces, carte, chèques) et des aides (Pass'Sport, Spot 50…) pour chaque licence, saison après saison.</p>
+    <p class="text-sm text-admin-text-muted mb-5">{{ 'Suivi des règlements (espèces, carte, chèques) et des aides (Pass\'Sport, Spot 50…) pour chaque licence, saison après saison.'|trans }}</p>
+
+    <form method="get" class="mb-4 flex items-center gap-2 text-sm">
+        <label for="filtre-saison" class="text-admin-text-muted">{{ 'Saison'|trans }}</label>
+        <select id="filtre-saison" name="saison" class="admin-input" data-auto-submit>
+            {% for s in saisons %}<option value="{{ s.id }}"{{ saison and saison.id == s.id ? ' selected' }}>{{ s }}{{ s.active ? ' (en cours)' }}</option>{% endfor %}
+            <option value="toutes"{{ saison is null ? ' selected' }}>{{ 'Toutes les saisons'|trans }}</option>
+        </select>
+        <noscript><button type="submit" class="admin-btn admin-btn-ghost admin-btn-sm">{{ 'Filtrer'|trans }}</button></noscript>
+    </form>
 
     <div class="ad-tiles">
-        <div class="ad-tile"><span>À encaisser au total</span><strong>{{ totalDu|money }}</strong></div>
-        <div class="ad-tile"><span>Déjà encaissé</span><strong>{{ totalRecu|money }}</strong></div>
-        <div class="ad-tile"><span>Reste à encaisser</span><strong>{{ (totalDu - totalRecu)|money }}</strong></div>
-        <div class="ad-tile"><span>Dont aides attendues</span><strong>{{ totalAides|money }}</strong></div>
+        <div class="ad-tile"><span>{{ 'À encaisser au total'|trans }}</span><strong>{{ totalDu|money }}</strong></div>
+        <div class="ad-tile"><span>{{ 'Déjà encaissé'|trans }}</span><strong>{{ totalRecu|money }}</strong></div>
+        <div class="ad-tile"><span>{{ 'Reste à encaisser'|trans }}</span><strong>{{ (totalDu - totalRecu)|money }}</strong></div>
+        <div class="ad-tile"><span>{{ 'Dont aides attendues'|trans }}</span><strong>{{ totalAides|money }}</strong></div>
     </div>
 
     {% embed 'admin/_components/data_table.html.twig' with {
@@ -41,7 +50,7 @@
         {% block rows %}
             {% for a in adhesions %}
                 <tr data-data-table-target="row" data-id="{{ a.id }}" data-status="{{ a.statutPaiement }}" data-href="{{ path('admin_adhesion_edit', {id: a.id}) }}">
-                    <td data-col="licencie" data-sort="{{ a.licencieAffichage|lower }}" class="font-medium">{{ a.licencieAffichage }}{% if not a.licencie %} <span class="badge badge-draft" title="Pas encore rattaché à une fiche licencié">libellé</span>{% endif %}</td>
+                    <td data-col="licencie" data-sort="{{ a.licencieAffichage|lower }}" class="font-medium">{{ a.licencieAffichage }}{% if not a.licencie %} <span class="badge badge-draft" title="{{ 'Pas encore rattaché à une fiche licencié'|trans }}">libellé</span>{% endif %}</td>
                     <td data-col="famille" class="dt-muted">{{ a.licencie ? a.licencie.famille : '—' }}</td>
                     <td data-col="saison" class="dt-muted">{{ a.saison }}</td>
                     <td data-col="du" data-sort="{{ a.montantDuCentimes }}">{{ a.montantDuCentimes|money }}</td>

@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Doctrine\SingletonCacheInvalidator;
 use App\Entity\BoutiqueSettings;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -21,6 +22,7 @@ class BoutiqueSettingsRepository extends ServiceEntityRepository
             ->orderBy('b.id', SortDirection::Ascending)
             ->setMaxResults(1)
             ->getQuery()
+            ->enableResultCache(SingletonCacheInvalidator::CACHE_TTL, SingletonCacheInvalidator::cacheKey(BoutiqueSettings::class))
             ->getOneOrNullResult();
     }
 }

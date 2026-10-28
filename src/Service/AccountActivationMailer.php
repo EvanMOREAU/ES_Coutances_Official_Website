@@ -3,9 +3,11 @@
 namespace App\Service;
 
 use App\Entity\User;
+use App\Service\Locale\MailLocale;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Address;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use SymfonyCasts\Bundle\ResetPassword\ResetPasswordHelperInterface;
 
 /**
@@ -19,6 +21,8 @@ class AccountActivationMailer
     public function __construct(
         private readonly ResetPasswordHelperInterface $resetPasswordHelper,
         private readonly MailerInterface $mailer,
+        private readonly MailLocale $mailLocale,
+        private readonly TranslatorInterface $translator,
         private readonly string $mailerFromAddress,
         private readonly string $mailerFromName,
     ) {
@@ -28,17 +32,18 @@ class AccountActivationMailer
     {
         $resetToken = $this->resetPasswordHelper->generateResetToken($user);
 
-        $email = (new TemplatedEmail())
-            ->from(new Address($this->mailerFromAddress, $this->mailerFromName))
-            ->to((string) $user->getEmail())
-            ->subject('Créez votre mot de passe — ES Coutances')
-            ->htmlTemplate('reset_password/activation_email.html.twig')
-            ->context([
-                'resetToken' => $resetToken,
-                'user'       => $user,
-            ])
-        ;
-
-        $this->mailer->send($email);
+        $this->mailLocale->runFor($user, function () use ($user, $resetToken): void {
+            $this->mailer->send(
+                (new TemplatedEmail())
+                    ->from(new Address($this->mailerFromAddress, $this->mailerFromName))
+                    ->to((string) $user->getEmail())
+                    ->subject($this->translator->trans('Créez votre mot de passe — ES Coutances'))
+                    ->htmlTemplate('reset_password/activation_email.html.twig')
+                    ->context([
+                        'resetToken' => $resetToken,
+                        'user'       => $user,
+                    ]),
+            );
+        });
     }
 }

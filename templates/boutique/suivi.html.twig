@@ -1,8 +1,8 @@
 {% extends 'boutique/_layout.html.twig' %}
 
 {% block boutique_title %}Commande {{ commande.reference }}{% endblock %}
-{% block breadcrumb %}<a href="{{ path('boutique_index') }}">Boutique</a> <i class="fa-solid fa-chevron-right"></i> <span>Commande {{ commande.reference }}</span>{% endblock %}
-{% block hero_title %}Ma <span>commande</span>{% endblock %}
+{% block breadcrumb %}<a href="{{ path('boutique_index') }}">{{ 'Boutique'|trans }}</a> <i class="fa-solid fa-chevron-right"></i> <span>Commande {{ commande.reference }}</span>{% endblock %}
+{% block hero_title %}Ma <span>{{ 'commande'|trans }}</span>{% endblock %}
 {% block hero_lead %}<p class="lead">Référence {{ commande.reference }} · passée le {{ commande.createdAt|date('d/m/Y à H:i') }}</p>{% endblock %}
 
 {% block boutique_styles %}
@@ -33,63 +33,63 @@
   {% set statut = commande.statut %}
 
   {% if statut == 'annulee' %}
-    <div class="callout cancelled"><i class="fa-solid fa-circle-xmark"></i><div><strong>Commande annulée</strong>Cette commande a été annulée. Pour toute question, contactez le club.</div></div>
+    <div class="callout cancelled"><i class="fa-solid fa-circle-xmark"></i><div><strong>{{ 'Commande annulée'|trans }}</strong>{{ 'Cette commande a été annulée. Pour toute question, contactez le club.'|trans }}</div></div>
   {% elseif statut == 'retiree' %}
-    <div class="callout done"><i class="fa-solid fa-circle-check"></i><div><strong>Commande retirée</strong>Merci pour votre achat, et à bientôt au stade !</div></div>
+    <div class="callout done"><i class="fa-solid fa-circle-check"></i><div><strong>{{ 'Commande retirée'|trans }}</strong>{{ 'Merci pour votre achat, et à bientôt au stade !'|trans }}</div></div>
   {% elseif statut == 'prete' %}
-    <div class="callout ready"><i class="fa-solid fa-box-open"></i><div><strong>Votre commande est prête !</strong>Vous pouvez venir la retirer au club en indiquant la référence <strong class="u-5677b988">{{ commande.reference }}</strong>.{% if not commande.payee %} Règlement à prévoir : {{ commande.totalCentimes|money }} ({{ commande.modePaiementLabel|lower }}).{% endif %}</div></div>
+    <div class="callout ready"><i class="fa-solid fa-box-open"></i><div><strong>{{ 'Votre commande est prête !'|trans }}</strong>{{ 'Vous pouvez venir la retirer au club en indiquant la référence'|trans }} <strong class="u-5677b988">{{ commande.reference }}</strong>.{% if not commande.payee %} Règlement à prévoir : {{ commande.totalCentimes|money }} ({{ commande.modePaiementLabel|lower }}).{% endif %}</div></div>
   {% elseif not commande.payee and commande.modePaiement == 'carte' %}
     <div class="callout due">
       <i class="fa-solid fa-credit-card"></i>
       <div>
-        <strong>Paiement par carte en attente</strong>
-        Votre commande est réservée, mais son règlement n'est pas finalisé.
+        <strong>{{ 'Paiement par carte en attente'|trans }}</strong>
+        {{ 'Votre commande est réservée, mais son règlement n\'est pas finalisé.'|trans }}
         <p class="u-002535c2"><a class="btn btn-primary" href="{{ path('boutique_paiement', {reference: commande.reference, token: commande.token}) }}">Payer {{ commande.totalCentimes|money }}</a></p>
       </div>
     </div>
   {% elseif not commande.payee %}
-    <div class="callout due"><i class="fa-solid fa-hourglass-half"></i><div><strong>Règlement à effectuer au club</strong>Merci de prévoir <strong class="u-5677b988">{{ commande.totalCentimes|money }}</strong> en {{ commande.modePaiement == 'cheque' ? 'chèque (à l\'ordre de l\'ES Coutances)' : 'espèces' }} lors du retrait. Nous vous prévenons par e-mail dès que votre commande est prête.</div></div>
+    <div class="callout due"><i class="fa-solid fa-hourglass-half"></i><div><strong>{{ 'Règlement à effectuer au club'|trans }}</strong>{{ 'Merci de prévoir'|trans }} <strong class="u-5677b988">{{ commande.totalCentimes|money }}</strong> en {{ commande.modePaiement == 'cheque' ? 'chèque (à l\'ordre de l\'ES Coutances)' : 'espèces' }} lors du retrait. Nous vous prévenons par e-mail dès que votre commande est prête.</div></div>
   {% else %}
-    <div class="callout done"><i class="fa-solid fa-circle-check"></i><div><strong>Commande enregistrée et payée</strong>Nous vous prévenons par e-mail dès qu'elle est prête à être retirée au club.</div></div>
+    <div class="callout done"><i class="fa-solid fa-circle-check"></i><div><strong>{{ 'Commande enregistrée et payée'|trans }}</strong>{{ 'Nous vous prévenons par e-mail dès qu\'elle est prête à être retirée au club.'|trans }}</div></div>
   {% endif %}
 
   {% if statut != 'annulee' %}
     <div class="u-37d30b7f box">
       <ol class="track">
-        <li class="is-done"><span class="dot"><i class="fa-solid fa-check"></i></span>Commande reçue<small>{{ commande.createdAt|date('d/m à H:i') }}</small></li>
+        <li class="is-done"><span class="dot"><i class="fa-solid fa-check"></i></span>{{ 'Commande reçue'|trans }}<small>{{ commande.createdAt|date('d/m à H:i') }}</small></li>
         <li class="{{ statut == 'nouvelle' ? 'is-current' : 'is-done' }}"><span class="dot"><i class="fa-solid {{ statut == 'nouvelle' ? 'fa-box-open' : 'fa-check' }}"></i></span>{{ statut == 'nouvelle' ? 'En préparation' : 'Prête' }}</li>
-        <li class="{{ statut == 'retiree' ? 'is-done' : (statut == 'prete' ? 'is-current' : '') }}"><span class="dot"><i class="fa-solid {{ statut == 'retiree' ? 'fa-check' : 'fa-store' }}"></i></span>Retirée au club</li>
+        <li class="{{ statut == 'retiree' ? 'is-done' : (statut == 'prete' ? 'is-current' : '') }}"><span class="dot"><i class="fa-solid {{ statut == 'retiree' ? 'fa-check' : 'fa-store' }}"></i></span>{{ 'Retirée au club'|trans }}</li>
       </ol>
     </div>
   {% endif %}
 
   <div class="shop-cols">
     <div class="box">
-      <h2>Détail</h2>
+      <h2>{{ 'Détail'|trans }}</h2>
       {% for ligne in commande.lignes %}
         <div class="order-line"><span>{{ ligne.quantite }} × {{ ligne.libelle }}</span><span>{{ ligne.totalCentimes|money }}</span></div>
       {% endfor %}
       {% if commande.reductionCentimes > 0 %}
-        <div class="order-line"><span>Sous-total</span><span>{{ commande.sousTotalCentimes|money }}</span></div>
+        <div class="order-line"><span>{{ 'Sous-total'|trans }}</span><span>{{ commande.sousTotalCentimes|money }}</span></div>
         <div class="order-line"><span>Réduction{% if commande.codePromoCode %} (code {{ commande.codePromoCode }}){% endif %}</span><span>− {{ commande.reductionCentimes|money }}</span></div>
       {% endif %}
-      <div class="sum-row total"><span>Total</span><span class="price">{{ commande.totalCentimes|money }}</span></div>
+      <div class="sum-row total"><span>{{ 'Total'|trans }}</span><span class="price">{{ commande.totalCentimes|money }}</span></div>
     </div>
 
     <aside class="box">
-      <h2>Informations</h2>
-      <div class="sum-row"><span>Statut</span><span class="tag {{ {nouvelle: 'tag-wait', prete: 'tag-blue', retiree: 'tag-ok', annulee: 'tag-ko'}[statut] }}">{{ commande.statutLabel }}</span></div>
-      <div class="sum-row"><span>Règlement</span><span class="tag {{ commande.payee ? 'tag-ok' : 'tag-wait' }}">{{ commande.payee ? 'Payée' : 'En attente' }}</span></div>
+      <h2>{{ 'Informations'|trans }}</h2>
+      <div class="sum-row"><span>{{ 'Statut'|trans }}</span><span class="tag {{ {nouvelle: 'tag-wait', prete: 'tag-blue', retiree: 'tag-ok', annulee: 'tag-ko'}[statut] }}">{{ commande.statutLabel }}</span></div>
+      <div class="sum-row"><span>{{ 'Règlement'|trans }}</span><span class="tag {{ commande.payee ? 'tag-ok' : 'tag-wait' }}">{{ commande.payee ? 'Payée' : 'En attente' }}</span></div>
       {% if commande.numeroFacture %}<p class="u-002535c2"><a href="{{ path('boutique_commande_facture', {reference: commande.reference, token: commande.token}) }}"><i class="fa-solid fa-file-invoice"></i> Facture {{ commande.numeroFacture }}</a></p>{% endif %}
-      <div class="sum-row"><span>Mode</span><span>{{ commande.modePaiementLabel }}</span></div>
-      <div class="sum-row"><span>Client</span><span>{{ commande.nomComplet }}</span></div>
-      <div class="sum-row"><span>E-mail</span><span class="u-3dbd5a5f">{{ commande.email }}</span></div>
+      <div class="sum-row"><span>{{ 'Mode'|trans }}</span><span>{{ commande.modePaiementLabel }}</span></div>
+      <div class="sum-row"><span>{{ 'Client'|trans }}</span><span>{{ commande.nomComplet }}</span></div>
+      <div class="sum-row"><span>{{ 'E-mail'|trans }}</span><span class="u-3dbd5a5f">{{ commande.email }}</span></div>
       {% if commande.livraisonDemandee %}
         <p class="u-553a645f note"><i class="fa-solid fa-truck"></i> Livraison à : {{ commande.livraisonAdresse }}{% if commande.livraisonComplement %}, {{ commande.livraisonComplement }}{% endif %}, {{ commande.livraisonCodePostal }} {{ commande.livraisonVille }}.</p>
       {% else %}
-        <p class="u-553a645f note"><i class="fa-solid fa-store"></i> Retrait au club, sans livraison.</p>
+        <p class="u-553a645f note"><i class="fa-solid fa-store"></i> {{ 'Retrait au club, sans livraison.'|trans }}</p>
       {% endif %}
-      <p class="u-4a909ea7"><a class="btn btn-outline btn-block" href="{{ path('boutique_index') }}">Retour à la boutique</a></p>
+      <p class="u-4a909ea7"><a class="btn btn-outline btn-block" href="{{ path('boutique_index') }}">{{ 'Retour à la boutique'|trans }}</a></p>
     </aside>
   </div>
 {% endblock %}

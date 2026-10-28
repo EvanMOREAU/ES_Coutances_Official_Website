@@ -8,11 +8,11 @@
         <div class="ad-cell">{{ form_label(row.mode) }}{{ form_widget(row.mode) }}{{ form_errors(row.mode) }}</div>
         <div class="ad-cell">{{ form_label(row.montantCentimes) }}{{ form_widget(row.montantCentimes) }}{{ form_errors(row.montantCentimes) }}</div>
         <div class="ad-cell">{{ form_label(row.dateEcheance) }}{{ form_widget(row.dateEcheance) }}</div>
-        <div class="ad-cell ad-check"><label class="sv-toggle">{{ form_widget(row.recu) }}<span class="sv-switch"></span><span>Encaissé</span></label></div>
+        <div class="ad-cell ad-check"><label class="sv-toggle">{{ form_widget(row.recu) }}<span class="sv-switch"></span><span>{{ 'Encaissé'|trans }}</span></label></div>
         <div class="ad-cell">{{ form_label(row.dateRemise) }}{{ form_widget(row.dateRemise) }}</div>
         <div class="ad-cell">{{ form_label(row.reference) }}{{ form_widget(row.reference) }}</div>
         {{ form_widget(row.ordre) }}
-        <button type="button" class="var-remove" data-action="partenaire-wizard#remove" title="Retirer" aria-label="Retirer ce règlement"><i class="fa-solid fa-xmark"></i></button>
+        <button type="button" class="var-remove" data-action="partenaire-wizard#remove" title="{{ 'Retirer'|trans }}" aria-label="{{ 'Retirer ce règlement'|trans }}"><i class="fa-solid fa-xmark"></i></button>
     </div>
 {% endmacro %}
 
@@ -20,15 +20,15 @@
     <div class="ad-row" data-partenaire-wizard-target="tache">
         <div class="ad-cell ad-wide">{{ form_label(row.titre) }}{{ form_widget(row.titre) }}{{ form_errors(row.titre) }}</div>
         <div class="ad-cell">{{ form_label(row.echeance) }}{{ form_widget(row.echeance) }}</div>
-        <div class="ad-cell ad-check"><label class="sv-toggle">{{ form_widget(row.fait) }}<span class="sv-switch"></span><span>Faite</span></label></div>
+        <div class="ad-cell ad-check"><label class="sv-toggle">{{ form_widget(row.fait) }}<span class="sv-switch"></span><span>{{ 'Faite'|trans }}</span></label></div>
         {{ form_widget(row.ordre) }}
-        <button type="button" class="var-remove" data-action="partenaire-wizard#remove" title="Retirer" aria-label="Retirer cette tâche"><i class="fa-solid fa-xmark"></i></button>
+        <button type="button" class="var-remove" data-action="partenaire-wizard#remove" title="{{ 'Retirer'|trans }}" aria-label="{{ 'Retirer cette tâche'|trans }}"><i class="fa-solid fa-xmark"></i></button>
     </div>
 {% endmacro %}
 
 {% block body %}
-    <h1 class="u-66972700 text-2xl font-black mb-1">Nouveau partenaire</h1>
-    <p class="text-sm text-admin-text-muted mb-6">Créez le partenaire et son premier contrat en une fois : informations, contrat, règlements, tâches et notes.</p>
+    <h1 class="u-66972700 text-2xl font-black mb-1">{{ 'Nouveau partenaire'|trans }}</h1>
+    <p class="text-sm text-admin-text-muted mb-6">{{ 'Créez le partenaire et son premier contrat en une fois : informations, contrat, règlements, tâches et notes.'|trans }}</p>
 
     {% set next_reglement = 0 %}{% for key, row in form.contrat.reglements %}{% set next_reglement = max(next_reglement, key + 1) %}{% endfor %}
     {% set next_tache = 0 %}{% for key, row in form.contrat.taches %}{% set next_tache = max(next_tache, key + 1) %}{% endfor %}
@@ -55,7 +55,7 @@
 
                 {# Étape 1 : Partenaire #}
                 <div data-partenaire-wizard-target="step">
-                    <h2 class="font-bold mb-4">Informations du partenaire</h2>
+                    <h2 class="font-bold mb-4">{{ 'Informations du partenaire'|trans }}</h2>
                     {{ form_row(form.nom) }}
                     {{ form_row(form.url) }}
                     {{ form_row(form.logoFile) }}
@@ -65,8 +65,8 @@
 
                 {# Étape 2 : Contrat #}
                 <div data-partenaire-wizard-target="step" class="hidden">
-                    <h2 class="font-bold mb-1">Contrat</h2>
-                    <p class="text-sm text-admin-text-muted mb-4">Le premier contrat de ce partenaire.</p>
+                    <h2 class="font-bold mb-1">{{ 'Contrat'|trans }}</h2>
+                    <p class="text-sm text-admin-text-muted mb-4">{{ 'Le premier contrat de ce partenaire.'|trans }}</p>
                     {{ form_row(form.contrat.titre) }}
                     <div class="grid sm:grid-cols-2 gap-4">
                         {{ form_row(form.contrat.dateDebut) }}
@@ -79,52 +79,52 @@
                 {# Étape 3 : Règlements #}
                 <div data-partenaire-wizard-target="step" class="hidden">
                     <div class="flex flex-wrap items-center justify-between gap-3 mb-1">
-                        <h2 class="font-bold">Règlements</h2>
+                        <h2 class="font-bold">{{ 'Règlements'|trans }}</h2>
                         <div class="ad-split">
-                            <span>Échelonner le montant en</span>
-                            <button type="button" class="admin-btn admin-btn-ghost admin-btn-sm" data-action="partenaire-wizard#split" data-partenaire-wizard-parts-param="1">1 fois</button>
-                            <button type="button" class="admin-btn admin-btn-ghost admin-btn-sm" data-action="partenaire-wizard#split" data-partenaire-wizard-parts-param="2">2 fois</button>
-                            <button type="button" class="admin-btn admin-btn-ghost admin-btn-sm" data-action="partenaire-wizard#split" data-partenaire-wizard-parts-param="3">3 fois</button>
+                            <span>{{ 'Échelonner le montant en'|trans }}</span>
+                            <button type="button" class="admin-btn admin-btn-ghost admin-btn-sm" data-action="partenaire-wizard#split" data-partenaire-wizard-parts-param="1">{{ '1 fois'|trans }}</button>
+                            <button type="button" class="admin-btn admin-btn-ghost admin-btn-sm" data-action="partenaire-wizard#split" data-partenaire-wizard-parts-param="2">{{ '2 fois'|trans }}</button>
+                            <button type="button" class="admin-btn admin-btn-ghost admin-btn-sm" data-action="partenaire-wizard#split" data-partenaire-wizard-parts-param="3">{{ '3 fois'|trans }}</button>
                         </div>
                     </div>
-                    <p class="text-xs text-admin-text-muted mb-3">Optionnel : une ligne par échéance. Choisissez un échelonnement et les montants et dates sont calculés d'après le montant du contrat (modifiables ensuite).</p>
+                    <p class="text-xs text-admin-text-muted mb-3">{{ 'Optionnel : une ligne par échéance. Choisissez un échelonnement et les montants et dates sont calculés d\'après le montant du contrat (modifiables ensuite).'|trans }}</p>
                     <p class="ad-resume flex flex-wrap gap-4 text-sm mb-4" data-partenaire-wizard-target="resteResume"></p>
                     <div data-partenaire-wizard-target="reglements">
                         {% for row in form.contrat.reglements %}{{ _self.reglement_row(row) }}{% endfor %}
                     </div>
-                    <p class="ad-empty" data-partenaire-wizard-target="reglementsEmpty" {{ form.contrat.reglements|length > 0 ? 'hidden' }}>Aucun règlement enregistré.</p>
-                    <button type="button" class="admin-btn admin-btn-ghost admin-btn-sm mt-3" data-action="partenaire-wizard#addReglement"><i class="fa-solid fa-plus"></i> Ajouter un règlement</button>
+                    <p class="ad-empty" data-partenaire-wizard-target="reglementsEmpty" {{ form.contrat.reglements|length > 0 ? 'hidden' }}>{{ 'Aucun règlement enregistré.'|trans }}</p>
+                    <button type="button" class="admin-btn admin-btn-ghost admin-btn-sm mt-3" data-action="partenaire-wizard#addReglement"><i class="fa-solid fa-plus"></i> {{ 'Ajouter un règlement'|trans }}</button>
                 </div>
 
                 {# Étape 4 : Tâches #}
                 <div data-partenaire-wizard-target="step" class="hidden">
-                    <h2 class="font-bold mb-1">Tâches à réaliser</h2>
-                    <p class="text-sm text-admin-text-muted mb-4">Optionnel : ex. envoyer le flocage, poser le panneau publicitaire…</p>
+                    <h2 class="font-bold mb-1">{{ 'Tâches à réaliser'|trans }}</h2>
+                    <p class="text-sm text-admin-text-muted mb-4">{{ 'Optionnel : ex. envoyer le flocage, poser le panneau publicitaire…'|trans }}</p>
                     <div data-partenaire-wizard-target="taches">
                         {% for row in form.contrat.taches %}{{ _self.tache_row(row) }}{% endfor %}
                     </div>
-                    <p class="ad-empty" data-partenaire-wizard-target="tachesEmpty" {{ form.contrat.taches|length > 0 ? 'hidden' }}>Aucune tâche enregistrée.</p>
-                    <button type="button" class="admin-btn admin-btn-ghost admin-btn-sm mt-3" data-action="partenaire-wizard#addTache"><i class="fa-solid fa-plus"></i> Ajouter une tâche</button>
+                    <p class="ad-empty" data-partenaire-wizard-target="tachesEmpty" {{ form.contrat.taches|length > 0 ? 'hidden' }}>{{ 'Aucune tâche enregistrée.'|trans }}</p>
+                    <button type="button" class="admin-btn admin-btn-ghost admin-btn-sm mt-3" data-action="partenaire-wizard#addTache"><i class="fa-solid fa-plus"></i> {{ 'Ajouter une tâche'|trans }}</button>
                 </div>
 
                 {# Étape 5 : Notes #}
                 <div data-partenaire-wizard-target="step" class="hidden">
-                    <h2 class="font-bold mb-4">Notes</h2>
+                    <h2 class="font-bold mb-4">{{ 'Notes'|trans }}</h2>
                     {{ form_row(form.contrat.notes) }}
                 </div>
 
                 <div class="flex items-center justify-between mt-6 pt-4 border-t border-admin-border">
                     <button type="button" data-partenaire-wizard-target="backButton" data-action="click->partenaire-wizard#back" class="invisible text-sm text-admin-text-muted hover:text-admin-text">
-                        <i class="fa-solid fa-arrow-left mr-1"></i> Précédent
+                        <i class="fa-solid fa-arrow-left mr-1"></i> {{ 'Précédent'|trans }}
                     </button>
                     <div class="flex items-center gap-3">
-                        <a href="{{ path('admin_partenaire_index') }}" class="text-sm text-admin-text-muted hover:text-admin-text">Annuler</a>
+                        <a href="{{ path('admin_partenaire_index') }}" class="text-sm text-admin-text-muted hover:text-admin-text">{{ 'Annuler'|trans }}</a>
                         <button type="button" data-partenaire-wizard-target="nextButton" data-action="click->partenaire-wizard#next"
                                 class="rounded-lg admin-gradient px-5 py-2 text-sm font-semibold text-white">
-                            Suivant <i class="fa-solid fa-arrow-right ml-1"></i>
+                            {{ 'Suivant'|trans }} <i class="fa-solid fa-arrow-right ml-1"></i>
                         </button>
                         <button type="submit" data-partenaire-wizard-target="submitButton" class="hidden rounded-lg admin-gradient px-5 py-2 text-sm font-semibold text-white">
-                            Créer le partenaire
+                            {{ 'Créer le partenaire'|trans }}
                         </button>
                     </div>
                 </div>

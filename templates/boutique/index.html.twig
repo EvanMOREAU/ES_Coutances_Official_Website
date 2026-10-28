@@ -2,7 +2,7 @@
 
 {% block boutique_title %}Boutique{% endblock %}
 
-{% block hero_lead %}<p class="lead">Les articles officiels de l'ES Coutances. Commandez en ligne et retirez votre commande au club — aucune livraison.</p>{% endblock %}
+{% block hero_lead %}<p class="lead">{{ 'Les articles officiels de l\'ES Coutances. Commandez en ligne et retirez votre commande au club — aucune livraison.'|trans }}</p>{% endblock %}
 
 {% block boutique_styles %}
 <style nonce="{{ csp_nonce() }}">
@@ -35,9 +35,9 @@
 {% block shop_body %}
   {% if categories is not empty %}
     <div class="shop-filters">
-      <a href="{{ path('boutique_index') }}" class="shop-filter {{ categorieSlug is null ? 'is-active' }}">Tout</a>
+      <a href="{{ path('boutique_index') }}" class="shop-filter {{ categorieSlug is null ? 'is-active' }}">{{ 'Tout'|trans }}</a>
       {% for categorie in categories %}
-        <a href="{{ path('boutique_index', {categorie: categorie.slug}) }}" class="shop-filter {{ categorieSlug == categorie.slug ? 'is-active' }}">{{ categorie.nom }}</a>
+        <a href="{{ path('boutique_index', {categorie: categorie.slug}) }}" class="shop-filter {{ categorieSlug == categorie.slug ? 'is-active' }}">{{ categorie.nom|auto_trans }}</a>
       {% endfor %}
     </div>
   {% endif %}
@@ -45,7 +45,7 @@
   {% if articles is empty %}
     <div class="shop-empty">
       <i class="fa-solid fa-shirt"></i>
-      <h2>La boutique arrive bientôt</h2>
+      <h2>{{ 'La boutique arrive bientôt'|trans }}</h2>
       <p>{{ categorieSlug ? "Aucun article dans cette catégorie pour le moment." : "Aucun article n'est disponible pour le moment. Revenez vite !" }}</p>
     </div>
   {% else %}
@@ -54,21 +54,21 @@
         <a href="{{ path('boutique_article', {slug: article.slug}) }}" class="product {{ not article.disponible ? 'is-out' }}">
           <div class="product-img">
             {% if article.imageName %}
-              <img src="{{ ('uploads/articles/' ~ article.imageName)|thumb('carte') }}" alt="{{ article.nom }}" loading="lazy">
+              <img src="{{ ('uploads/articles/' ~ article.imageName)|thumb('carte') }}" alt="{{ article.nom|auto_trans }}" loading="lazy">
             {% else %}
               <span class="placeholder"><i class="fa-solid fa-shirt"></i></span>
             {% endif %}
-            {% if not article.disponible %}<span class="tag tag-grey">Épuisé</span>{% endif %}
+            {% if not article.disponible %}<span class="tag tag-grey">{{ 'Épuisé'|trans }}</span>{% endif %}
           </div>
           <div class="product-body">
             {% if article.categorie %}<span class="product-category">{{ article.categorie.nom }}</span>{% endif %}
-            <h2 class="product-name">{{ article.nom }}</h2>
+            <h2 class="product-name">{{ article.nom|auto_trans }}</h2>
             {% if not article.sansDeclinaison %}
               <p class="product-sizes">{{ article.variantes|map(v => v.libelle)|join(' · ') }}</p>
             {% endif %}
             <div class="product-foot">
               <span class="price">{{ article.prixCentimes|money }}</span>
-              <span class="u-32bf8014 btn btn-outline">Voir</span>
+              <span class="u-32bf8014 btn btn-outline">{{ 'Voir'|trans }}</span>
             </div>
           </div>
         </a>

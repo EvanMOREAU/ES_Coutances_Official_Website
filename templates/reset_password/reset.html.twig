@@ -1,13 +1,13 @@
 {% block body %}
 <!DOCTYPE html>
-<html lang="fr" class="h-full">
+<html lang="{{ app.request ? app.request.locale : 'fr' }}" class="h-full">
 <head>
     <meta charset="UTF-8">
     <meta name="csp-nonce" content="{{ csp_nonce() }}">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" type="image/png" href="{{ asset('images/favicon.png') }}">
     <link rel="stylesheet" href="{{ asset('styles/inline-utilities.css') }}">
-    <title>Nouveau mot de passe — ES Coutances</title>
+    <title>{{ 'Nouveau mot de passe — ES Coutances'|trans }}</title>
     <link rel="stylesheet" href="{{ asset('fonts/fonts.css') }}">
     <link rel="stylesheet" href="{{ asset('styles/admin.css') }}">
     <style nonce="{{ csp_nonce() }}">body { font-family: 'Inter', sans-serif; }</style>
@@ -17,8 +17,8 @@
         <div class="admin-hero relative overflow-hidden rounded-2xl p-8 mb-6 text-center">
             <div class="admin-hero-glow"></div>
             <div class="relative">
-                <img src="{{ asset('images/logo_hd_trans3_gt.png') }}" alt="ES Coutances" class="h-14 mx-auto mb-3">
-                <h1 class="u-66972700 text-xl font-black text-white uppercase tracking-wide">Nouveau mot de passe</h1>
+                <img src="{{ asset('images/logo_hd_trans3_gt.png') }}" alt="{{ 'ES Coutances'|trans }}" class="h-14 mx-auto mb-3">
+                <h1 class="u-66972700 text-xl font-black text-white uppercase tracking-wide">{{ 'Nouveau mot de passe'|trans }}</h1>
             </div>
         </div>
 
@@ -30,16 +30,16 @@
             {% set field_class = 'w-full rounded-lg border border-admin-border bg-admin-bg px-3 py-2 text-sm text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-primary-to mb-1.5' %}
 
             {{ form_start(resetForm) }}
-                <label for="{{ resetForm.plainPassword.first.vars.id }}" class="block text-xs font-semibold uppercase tracking-wide text-admin-text-muted mb-1.5">Nouveau mot de passe</label>
+                <label for="{{ resetForm.plainPassword.first.vars.id }}" class="block text-xs font-semibold uppercase tracking-wide text-admin-text-muted mb-1.5">{{ 'Nouveau mot de passe'|trans }}</label>
                 {{ form_widget(resetForm.plainPassword.first, { attr: { autofocus: true, class: field_class } }) }}
-                <p class="text-xs text-admin-text-muted mb-4">12 caractères minimum.</p>
+                <p class="text-xs text-admin-text-muted mb-4">{{ '12 caractères minimum.'|trans }}</p>
 
-                <label for="{{ resetForm.plainPassword.second.vars.id }}" class="block text-xs font-semibold uppercase tracking-wide text-admin-text-muted mb-1.5">Confirmer le mot de passe</label>
+                <label for="{{ resetForm.plainPassword.second.vars.id }}" class="block text-xs font-semibold uppercase tracking-wide text-admin-text-muted mb-1.5">{{ 'Confirmer le mot de passe'|trans }}</label>
                 {{ form_widget(resetForm.plainPassword.second, { attr: { class: field_class } }) }}
 
                 <div class="text-xs text-admin-danger mt-1 mb-4">{{ form_errors(resetForm.plainPassword) }}</div>
 
-                <button type="submit" class="w-full rounded-lg admin-gradient px-5 py-2.5 text-sm font-semibold text-white mt-2">Réinitialiser le mot de passe</button>
+                <button type="submit" class="w-full rounded-lg admin-gradient px-5 py-2.5 text-sm font-semibold text-white mt-2">{{ 'Réinitialiser le mot de passe'|trans }}</button>
             {{ form_end(resetForm) }}
         </div>
     </div>

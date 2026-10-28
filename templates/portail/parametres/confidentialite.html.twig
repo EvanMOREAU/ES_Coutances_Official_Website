@@ -2,32 +2,32 @@
 
 {% block tab_content %}
     <section class="card">
-        <h2 class="mc-h2">Mes données</h2>
-        <p class="mc-lead">Conformément au RGPD, vous pouvez obtenir à tout moment une copie des données que le club détient sur vous : profil, famille et licenciés, licences et règlements, commandes, messages et documents.</p>
+        <h2 class="mc-h2">{{ 'settings.privacy.my_data'|trans }}</h2>
+        <p class="mc-lead">{{ 'settings.privacy.my_data_lead'|trans }}</p>
         <div class="u-23f7ee4a">
-            <a class="mc-btn is-primary" href="{{ path('portail_parametres_export', {format: 'html'}) }}"><i class="fa-solid fa-file-arrow-down"></i> Télécharger le récapitulatif</a>
-            <a class="mc-btn" href="{{ path('portail_parametres_export', {format: 'json'}) }}"><i class="fa-solid fa-code"></i> Version JSON (exploitable)</a>
+            <a class="mc-btn is-primary" href="{{ path('portail_parametres_export', {format: 'html'}) }}"><i class="fa-solid fa-file-arrow-down"></i> {{ 'settings.privacy.download_html'|trans }}</a>
+            <a class="mc-btn" href="{{ path('portail_parametres_export', {format: 'json'}) }}"><i class="fa-solid fa-code"></i> {{ 'settings.privacy.download_json'|trans }}</a>
         </div>
-        <p class="u-195e77a5 mc-lead">Le récapitulatif (HTML) s'ouvre dans votre navigateur et peut être enregistré en PDF avec « Imprimer ».</p>
+        <p class="u-195e77a5 mc-lead">{{ 'settings.privacy.html_hint'|trans }}</p>
     </section>
 
     <section class="card mc-danger-zone">
-        <h2 class="u-d177836b mc-h2">Supprimer mon compte</h2>
+        <h2 class="u-d177836b mc-h2">{{ 'settings.privacy.delete_title'|trans }}</h2>
         {% if can_anonymize %}
-            <p class="mc-lead">Cette action est <strong>définitive</strong>. Elle efface vos informations personnelles : profil, coordonnées, famille et licenciés rattachés, messages, documents, clés d'accès et préférences.</p>
+            <p class="mc-lead">{{ 'settings.privacy.delete_lead'|trans|raw }}</p>
             <ul class="mc-ul">
-                <li>Vous ne pourrez plus vous connecter avec ce compte.</li>
-                <li>Les <strong>factures</strong> (licences, règlements, commandes de la boutique) sont conservées par le club pour sa comptabilité, mais elles <strong>ne sont plus reliées à votre identité</strong>.</li>
-                <li>Pensez à télécharger vos données avant de continuer.</li>
+                <li>{{ 'settings.privacy.delete_1'|trans }}</li>
+                <li>{{ 'settings.privacy.delete_2'|trans|raw }}</li>
+                <li>{{ 'settings.privacy.delete_3'|trans }}</li>
             </ul>
             <form method="post" action="{{ path('portail_parametres_supprimer') }}" novalidate>
-                <div class="mc-field"><label for="del-pw">Votre mot de passe</label><input type="password" id="del-pw" name="password" autocomplete="current-password" required></div>
-                <div class="mc-field"><label for="del-conf">Tapez SUPPRIMER pour confirmer</label><input type="text" id="del-conf" name="confirmation" autocomplete="off" required></div>
+                <div class="mc-field"><label for="del-pw">{{ 'settings.privacy.your_password'|trans }}</label><input type="password" id="del-pw" name="password" autocomplete="current-password" required></div>
+                <div class="mc-field"><label for="del-conf">{{ 'settings.privacy.type_delete'|trans }}</label><input type="text" id="del-conf" name="confirmation" autocomplete="off" required></div>
                 <input type="hidden" name="_csrf_token" value="{{ csrf_token('account_delete') }}">
-                <div class="mc-actions"><button type="submit" class="mc-btn is-danger-solid"><i class="fa-solid fa-trash"></i> Supprimer définitivement mon compte</button></div>
+                <div class="mc-actions"><button type="submit" class="mc-btn is-danger-solid"><i class="fa-solid fa-trash"></i> {{ 'settings.privacy.delete_button'|trans }}</button></div>
             </form>
         {% else %}
-            <p class="mc-lead">Ce compte appartient à l'équipe du club : il ne peut pas être supprimé depuis cet espace. Contactez un administrateur.</p>
+            <p class="mc-lead">{{ 'settings.privacy.staff_account'|trans }}</p>
         {% endif %}
     </section>
 {% endblock %}

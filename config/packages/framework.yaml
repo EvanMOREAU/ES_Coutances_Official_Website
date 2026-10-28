@@ -9,9 +9,58 @@ framework:
     #esi: true
     #fragments: true
 
+    # Contenu riche saisi dans l'éditeur Trix (pages du club) : liste blanche stricte, appliquée à l'affichage
+    # par le filtre Twig |safe_html (voir App\Twig\AppRuntime).
+    html_sanitizer:
+        sanitizers:
+            rich_content:
+                allow_safe_elements: false
+                allow_elements:
+                    div: ['class']
+                    p: []
+                    br: []
+                    strong: []
+                    b: []
+                    em: []
+                    i: []
+                    del: []
+                    s: []
+                    u: []
+                    h1: []
+                    h2: []
+                    h3: []
+                    h4: []
+                    blockquote: []
+                    pre: []
+                    code: []
+                    ul: []
+                    ol: []
+                    li: []
+                    hr: []
+                    a: ['href', 'title']
+                    figure: ['class']
+                    figcaption: ['class']
+                    img: ['src', 'alt', 'width', 'height']
+                    table: []
+                    thead: []
+                    tbody: []
+                    tr: []
+                    th: []
+                    td: []
+                allow_relative_links: true
+                allow_relative_medias: true
+                allowed_link_schemes: ['http', 'https', 'mailto', 'tel']
+                allowed_media_schemes: ['https']
+                force_https_urls: false
+                max_input_length: 200000
     # Limitation des envois sur les formulaires publics (voir App\EventListener\PublicFormThrottleListener).
     # Fenêtre glissante par adresse IP : au-delà, la requête reçoit un 429.
     rate_limiter:
+        # Ressaisie du mot de passe avant une action sensible (par compte).
+        reauth:
+            policy: sliding_window
+            limit: 5
+            interval: '15 minutes'
         public_contact:
             policy: sliding_window
             limit: 5

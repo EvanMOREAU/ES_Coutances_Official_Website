@@ -1,8 +1,12 @@
 {% extends 'admin/_layout.html.twig' %}
+{% import _self as ui %}
 
-{% block title %}Tableau de bord{% endblock %}
+{% block title %}{{ 'admin.nav.dashboard'|trans }}{% endblock %}
 
 {% block body %}
+    {% set sections = available|map(w => w.section)|reduce((carry, name) => carry|merge({(name): true}), {}) %}
+    {% set paiements = data.paiements ?? null %}
+
     <div data-controller="dashboard"
          data-dashboard-hidden-value="{{ hidden|json_encode|e('html_attr') }}"
          data-dashboard-prefs-url-value="{{ path('admin_table_preferences', {key: 'dashboard'}) }}"
@@ -14,50 +18,60 @@
             <div class="flex items-start justify-between gap-4">
                 <div>
                     <h1 class="u-66972700 text-3xl font-black text-white">
-                        Bonjour, {{ app.user ? app.user.nomComplet : '' }}
+                        {{ 'dashboard.hello'|trans({'%name%': app.user ? app.user.nomComplet : ''}) }}
                     </h1>
-                    <p class="text-white/75 mt-1">Voici un aperçu de l'activité du club.</p>
+                    <p class="text-white/75 mt-1">{{ 'dashboard.lead'|trans }}</p>
                 </div>
                 <div data-controller="menu" class="relative shrink-0">
                     <button type="button" class="admin-btn admin-btn-ghost admin-btn-sm" data-menu-target="button" data-action="click->menu#toggle" aria-haspopup="true" aria-expanded="false">
-                        <i class="fa-solid fa-sliders"></i> Personnaliser
+                        <i class="fa-solid fa-sliders"></i> {{ 'dashboard.customize'|trans }}
                     </button>
                     <div data-menu-target="panel" class="admin-menu-panel hidden">
-                        <p class="admin-menu-title">Modules affichés</p>
+                        <p class="admin-menu-title">{{ 'dashboard.shown_modules'|trans }}</p>
                         {% for key, widget in available %}
                             <label class="admin-menu-item admin-menu-check">
                                 <input type="checkbox" {{ key in hidden ? '' : 'checked' }} data-widget="{{ key }}"
                                        data-action="change->dashboard#toggle">
-                                <span>{{ widget.label }}</span>
+                                <span>{{ widget.label|trans }}</span>
                             </label>
                         {% endfor %}
                     </div>
                 </div>
             </div>
 
-            <div class="grid grid-cols-2 lg:grid-cols-5 gap-4 mt-7">
+            <div class="kpi-grid mt-7">
                 {% for stat in stats %}
-                    <div class="rounded-xl bg-white/10 border border-white/10 backdrop-blur-sm p-4">
-                        <div class="flex items-center gap-2 text-white/70 text-xs uppercase tracking-wide">
-                            <i class="fa-solid fa-{{ stat.icon }}"></i>
-                            <span>{{ stat.label }}</span>
-                        </div>
-                        <p class="u-66972700 text-2xl font-black text-white mt-2">{{ stat.value }}</p>
+                    <a href="{{ path(stat.route) }}" class="kpi-tile">
+                        <span class="kpi-label"><i class="fa-solid fa-{{ stat.icon }}"></i> {{ ('dashboard.kpi.' ~ stat.key)|trans }}</span>
+                        <span class="kpi-value u-66972700">{{ stat.value }}</span>
                         {% if stat.trend %}
-                            <p class="flex items-center gap-1 text-xs mt-1 {{ stat.trend.positive ? 'text-emerald-300' : 'text-red-300' }}">
+                            <span class="kpi-sub block {{ stat.trend.positive ? 'kpi-up' : 'kpi-down' }}">
                                 <i class="fa-solid {{ stat.trend.positive ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down' }}"></i>
-                                <span class="font-semibold">{{ stat.trend.value }}</span>
-                                <span class="text-white/60">{{ stat.trend.label }}</span>
-                            </p>
+                                <strong>{{ stat.trend.value }}</strong> <span class="text-white/60">{{ 'dashboard.kpi.vs'|trans({'%season%': stat.trend.previous}) }}</span>
+                            </span>
                         {% endif %}
-                    </div>
+                    </a>
                 {% endfor %}
+                {% if paiements and paiements.saison %}
+                    <a href="{{ path('admin_adhesion_index') }}" class="kpi-tile">
+                        <span class="kpi-label"><i class="fa-solid fa-file-invoice-dollar"></i> {{ 'dashboard.kpi.to_collect'|trans }}</span>
+                        <span class="kpi-value u-66972700">{{ paiements.remaining|money }}</span>
+                        <span class="kpi-sub block">{{ 'dashboard.kpi.of_due'|trans({'%due%': paiements.due|money, '%season%': paiements.saison}) }}</span>
+                    </a>
+                {% endif %}
+                {% if data.boutique is defined %}
+                    <a href="{{ path('admin_commande_index') }}" class="kpi-tile">
+                        <span class="kpi-label"><i class="fa-solid fa-bag-shopping"></i> {{ 'dashboard.kpi.shop_month'|trans }}</span>
+                        <span class="kpi-value u-66972700">{{ data.boutique.monthRevenue|money }}</span>
+                        <span class="kpi-sub block">{{ 'dashboard.kpi.orders_to_prepare'|trans({'%count%': commandes_a_preparer()}) }}</span>
+                    </a>
+                {% endif %}
             </div>
         </div>
     </div>
 
     {# Conseils de configuration : invitation (jamais obligatoire) à compléter le site #}
-    {% if 'advice' in available|keys %}
+    {% if available.advice is defined %}
         {% set advice_vitrine = advice_items('vitrine') %}
         {% set advice_licencies = advice_items('licencies') %}
         <div data-dashboard-target="widget" data-widget="advice" {{ 'advice' in hidden ? 'hidden' }}>
@@ -66,8 +80,8 @@
                     <div class="flex items-center gap-3 mb-3">
                         <span class="vt-advice-icon"><i class="fa-solid fa-lightbulb"></i></span>
                         <div>
-                            <h2 class="font-bold">À compléter</h2>
-                            <p class="text-xs text-admin-text-muted">Quelques suggestions pour que le site soit complet — rien d'obligatoire.</p>
+                            <h2 class="font-bold">{{ 'dashboard.advice.title'|trans }}</h2>
+                            <p class="text-xs text-admin-text-muted">{{ 'dashboard.advice.lead'|trans }}</p>
                         </div>
                     </div>
                     <ul class="u-57ce1f1b vt-advice-list">
@@ -91,220 +105,418 @@
         </div>
     {% endif %}
 
-    {# Graphiques d'évolution #}
-    <div class="grid lg:grid-cols-2 gap-6 mb-6">
-        {% if 'partenaires_evolution' in available|keys %}
-            {% set evolution_first = partenaires_evolution|first %}
-            {% set evolution_last = partenaires_evolution|last %}
-            <div class="admin-card rounded-2xl p-6" data-dashboard-target="widget" data-widget="partenaires_evolution" {{ 'partenaires_evolution' in hidden ? 'hidden' }}>
-                <div class="flex flex-wrap items-start justify-between gap-3 mb-4">
-                    <div>
-                        <h2 class="font-bold">Évolution des partenaires</h2>
-                        <p class="text-sm text-admin-text-muted">Partenaires actifs à la fin de chaque mois, sur les 12 derniers mois.</p>
+    {# ------------------------------------------------------------ Licenciés et familles #}
+    {% if sections.members is defined %}
+        <h2 class="dash-section">{{ 'dashboard.section.members'|trans }}</h2>
+        <div class="grid lg:grid-cols-2 gap-6">
+            {% if available.licencies_evolution is defined %}
+                {% set first = licencies_evolution|first %}
+                {% set last = licencies_evolution|last %}
+                <div class="admin-card rounded-2xl p-6" data-dashboard-target="widget" data-widget="licencies_evolution" {{ 'licencies_evolution' in hidden ? 'hidden' }}>
+                    <div class="flex flex-wrap items-start justify-between gap-3 mb-4">
+                        <div>
+                            <h2 class="font-bold">{{ 'dashboard.widget.members_evolution'|trans }}</h2>
+                            <p class="text-sm text-admin-text-muted">{{ 'dashboard.members_evolution.lead'|trans }}</p>
+                        </div>
+                        {% if last %}
+                            <div class="ml-auto text-right">
+                                <p class="u-66972700 text-2xl font-black">{{ last.total }}</p>
+                                {% set gain = last.total - (first.total - first.new) %}
+                                <p class="text-xs text-admin-text-muted">{{ 'dashboard.over_12_months'|trans({'%gain%': gain > 0 ? '+' ~ gain : gain}) }}</p>
+                            </div>
+                        {% endif %}
                     </div>
-                    <div class="ml-auto text-right">
-                        <p class="u-66972700 text-2xl font-black">{{ evolution_last.total }}</p>
-                        {% set gain = evolution_last.total - (evolution_first.total - evolution_first.new) %}
-                        <p class="text-xs text-admin-text-muted">{{ gain > 0 ? '+' ~ gain : gain }} sur 12 mois</p>
+                    {{ ui.line('dashboard.widget.members_evolution'|trans, licencies_evolution, 'dashboard.unit.member') }}
+                </div>
+            {% endif %}
+
+            {% if available.licencies_genre is defined and data.licencies_genre is defined %}
+                {% set g = data.licencies_genre %}
+                {{ ui.chart('licencies_genre', hidden, 'dashboard.widget.members_gender'|trans, 'dashboard.members_gender.lead'|trans,
+                    'donut', ['dashboard.gender.female'|trans, 'dashboard.gender.male'|trans, 'dashboard.gender.unknown'|trans],
+                    [{name: '', values: [g.female, g.male, g.unknown]}], {center: 'dashboard.unit.member_plural'|trans}) }}
+            {% endif %}
+
+            {% if available.effectifs_categories is defined and data.effectifs is defined %}
+                {% set eff = data.effectifs %}
+                {{ ui.chart('effectifs_categories', hidden, 'dashboard.widget.members_categories'|trans,
+                    eff.saison ? 'dashboard.members_categories.lead'|trans({'%season%': eff.saison}) : 'dashboard.no_season'|trans,
+                    'bar', eff.categories|map(c => c.categorie),
+                    [{name: eff.saison ?: '', values: eff.categories|map(c => c.actuel)}, {name: 'dashboard.previous_season'|trans, values: eff.categories|map(c => c.precedent)}],
+                    {wide: true, stats: [
+                        {value: eff.total, label: 'dashboard.members_categories.total'|trans},
+                        {value: eff.tauxReinscription is not null ? eff.tauxReinscription ~ ' %' : '—', label: 'dashboard.members_categories.retention'|trans},
+                        {value: '+' ~ eff.nouveaux, label: 'dashboard.members_categories.new'|trans},
+                        {value: eff.partants > 0 ? '−' ~ eff.partants : '0', label: 'dashboard.members_categories.left'|trans},
+                    ]}) }}
+            {% endif %}
+
+            {% if available.licencies_saisons is defined and data.licencies_saisons is defined %}
+                {{ ui.chart('licencies_saisons', hidden, 'dashboard.widget.members_seasons'|trans, 'dashboard.members_seasons.lead'|trans,
+                    'bar', data.licencies_saisons|map(r => r.label), [{name: 'dashboard.unit.member_plural'|trans, values: data.licencies_saisons|map(r => r.value)}]) }}
+            {% endif %}
+
+            {% if available.licencies_equipes is defined and data.licencies_equipes is defined %}
+                {{ ui.chart('licencies_equipes', hidden, 'dashboard.widget.members_teams'|trans, 'dashboard.members_teams.lead'|trans,
+                    'hbar', data.licencies_equipes|map(r => r.label), [{name: 'dashboard.unit.member_plural'|trans, values: data.licencies_equipes|map(r => r.value)}]) }}
+            {% endif %}
+
+            {% if available.familles_evolution is defined and data.familles_evolution is defined %}
+                {{ ui.chart('familles_evolution', hidden, 'dashboard.widget.families_evolution'|trans, 'dashboard.families_evolution.lead'|trans,
+                    'bar', data.familles_evolution|map(p => p.month|date_fr('MMM')), [{name: 'dashboard.unit.family_plural'|trans, values: data.familles_evolution|map(p => p.value)}]) }}
+            {% endif %}
+
+            {% if available.familles_tailles is defined and data.familles_tailles is defined %}
+                {% set t = data.familles_tailles %}
+                {{ ui.chart('familles_tailles', hidden, 'dashboard.widget.families_sizes'|trans, 'dashboard.families_sizes.lead'|trans,
+                    'donut', ['dashboard.families_sizes.none'|trans, 'dashboard.families_sizes.one'|trans, 'dashboard.families_sizes.two'|trans, 'dashboard.families_sizes.three'|trans],
+                    [{name: '', values: [t.empty, t.one, t.two, t.three]}], {center: 'dashboard.unit.family_plural'|trans}) }}
+            {% endif %}
+        </div>
+    {% endif %}
+
+    {# ------------------------------------------------------------ Licences et paiements #}
+    {% if sections.payments is defined and paiements %}
+        <h2 class="dash-section">{{ 'dashboard.section.payments'|trans }}</h2>
+        <div class="grid lg:grid-cols-2 gap-6">
+            {% if available.paiements_encaisse is defined %}
+                {{ ui.chart('paiements_encaisse', hidden, 'dashboard.widget.payments_collected'|trans,
+                    paiements.saison ? 'dashboard.payments_collected.lead'|trans({'%season%': paiements.saison}) : 'dashboard.no_season'|trans,
+                    'donut', ['dashboard.payments.received'|trans, 'dashboard.payments.aids'|trans, 'dashboard.payments.family_left'|trans],
+                    [{name: '', values: [paiements.received, paiements.aids, max(0, paiements.remaining - paiements.aids)]}],
+                    {format: 'money', center: 'dashboard.payments.due_caption'|trans,
+                     stats: [{value: paiements.due|money, label: 'dashboard.payments.due_label'|trans}, {value: paiements.received|money, label: 'dashboard.payments.received'|trans}, {value: paiements.remaining|money, label: 'dashboard.payments.remaining'|trans}]}) }}
+            {% endif %}
+
+            {% if available.paiements_statuts is defined %}
+                {% set st = paiements.statuses %}
+                {{ ui.chart('paiements_statuts', hidden, 'dashboard.widget.payments_status'|trans,
+                    paiements.saison ? 'dashboard.payments_status.lead'|trans({'%count%': paiements.count, '%season%': paiements.saison}) : 'dashboard.no_season'|trans,
+                    'donut', ['dashboard.payment_status.paye'|trans, 'dashboard.payment_status.attente_aides'|trans, 'dashboard.payment_status.partiel'|trans, 'dashboard.payment_status.impaye'|trans],
+                    [{name: '', values: [st.paye ?? 0, st.attente_aides ?? 0, st.partiel ?? 0, st.impaye ?? 0]}], {center: 'dashboard.payments_status.center'|trans}) }}
+            {% endif %}
+
+            {% if available.reglements_mois is defined and data.reglements_mois is defined %}
+                {{ ui.chart('reglements_mois', hidden, 'dashboard.widget.payments_monthly'|trans, 'dashboard.payments_monthly.lead'|trans,
+                    'bar', data.reglements_mois|map(p => p.month|date_fr('MMM')), [{name: 'dashboard.payments.collected'|trans, values: data.reglements_mois|map(p => p.value)}], {format: 'money'}) }}
+            {% endif %}
+
+            {% if available.reglements_modes is defined and data.reglements_modes is defined %}
+                {% set modes = data.reglements_modes %}
+                {{ ui.chart('reglements_modes', hidden, 'dashboard.widget.payments_methods'|trans, 'dashboard.payments_methods.lead'|trans,
+                    'donut', ['dashboard.mode.cheque'|trans, 'dashboard.mode.especes'|trans, 'dashboard.mode.carte'|trans],
+                    [{name: '', values: [modes.cheque ?? 0, modes.especes ?? 0, modes.carte ?? 0]}], {format: 'money'}) }}
+            {% endif %}
+        </div>
+    {% endif %}
+
+    {# ------------------------------------------------------------ Boutique #}
+    {% if sections.shop is defined %}
+        <h2 class="dash-section">{{ 'dashboard.section.shop'|trans }}</h2>
+        <div class="grid lg:grid-cols-2 gap-6">
+            {% if available.boutique_ventes is defined %}
+                {% set vente_last = boutique_ventes|last %}
+                <div class="admin-card rounded-2xl p-6" data-dashboard-target="widget" data-widget="boutique_ventes" {{ 'boutique_ventes' in hidden ? 'hidden' }}>
+                    <div class="flex flex-wrap items-start justify-between gap-3 mb-4">
+                        <div>
+                            <h2 class="font-bold">{{ 'dashboard.widget.shop_sales'|trans }}</h2>
+                            <p class="text-sm text-admin-text-muted">{{ 'dashboard.shop_sales.lead'|trans }}</p>
+                        </div>
+                        <div class="ml-auto text-right">
+                            <p class="u-66972700 text-2xl font-black">{{ (vente_last.total ?? 0)|number_format(0, ',', ' ') }}&nbsp;€</p>
+                            <p class="text-xs text-admin-text-muted">{{ 'dashboard.shop_sales.this_month'|trans({'%amount%': (vente_last.new ?? 0)|number_format(0, ',', ' ')}) }}</p>
+                        </div>
                     </div>
+                    {{ ui.line('dashboard.widget.shop_sales'|trans, boutique_ventes, '€', '€') }}
                 </div>
+            {% endif %}
 
-                <div class="chart"
-                     data-controller="line-chart"
-                     data-line-chart-unit-value="partenaire"
-                     data-line-chart-points-value="{{ partenaires_evolution|map(p => {month: p.month|date('Y-m'), total: p.total, new: p.new})|json_encode|e('html_attr') }}">
-                    <div data-line-chart-target="plot"></div>
-                    <div class="chart-tooltip" data-line-chart-target="tooltip" hidden></div>
+            {% if available.boutique_commandes is defined and data.boutique_commandes is defined %}
+                {% set shop = data.boutique %}
+                {{ ui.chart('boutique_commandes', hidden, 'dashboard.widget.shop_orders'|trans, 'dashboard.shop_orders.lead'|trans,
+                    'bar', data.boutique_commandes|map(p => p.month|date_fr('MMM')), [{name: 'dashboard.unit.order_plural'|trans, values: data.boutique_commandes|map(p => p.value)}],
+                    {stats: [{value: shop.paid, label: 'dashboard.shop.paid'|trans}, {value: shop.average|money, label: 'dashboard.shop.average'|trans}, {value: shop.pending, label: 'dashboard.shop.pending'|trans}]}) }}
+            {% endif %}
+
+            {% if available.boutique_statuts is defined and data.boutique_statuts is defined %}
+                {% set cs = data.boutique_statuts %}
+                {{ ui.chart('boutique_statuts', hidden, 'dashboard.widget.shop_status'|trans, 'dashboard.shop_status.lead'|trans,
+                    'donut', ['dashboard.order_status.nouvelle'|trans, 'dashboard.order_status.prete'|trans, 'dashboard.order_status.retiree'|trans, 'dashboard.order_status.annulee'|trans],
+                    [{name: '', values: [cs.nouvelle ?? 0, cs.prete ?? 0, cs.retiree ?? 0, cs.annulee ?? 0]}], {center: 'dashboard.unit.order_plural'|trans}) }}
+            {% endif %}
+
+            {% if available.boutique_top is defined and data.boutique_top is defined %}
+                {{ ui.chart('boutique_top', hidden, 'dashboard.widget.shop_top'|trans, 'dashboard.shop_top.lead'|trans,
+                    'hbar', data.boutique_top|map(r => r.label), [{name: 'dashboard.unit.sold'|trans, values: data.boutique_top|map(r => r.value)}]) }}
+            {% endif %}
+        </div>
+    {% endif %}
+
+    {# ------------------------------------------------------------ Partenaires #}
+    {% if sections.partners is defined %}
+        <h2 class="dash-section">{{ 'dashboard.section.partners'|trans }}</h2>
+        <div class="grid lg:grid-cols-2 gap-6">
+            {% if available.partenaires_evolution is defined %}
+                {% set p_first = partenaires_evolution|first %}
+                {% set p_last = partenaires_evolution|last %}
+                <div class="admin-card rounded-2xl p-6" data-dashboard-target="widget" data-widget="partenaires_evolution" {{ 'partenaires_evolution' in hidden ? 'hidden' }}>
+                    <div class="flex flex-wrap items-start justify-between gap-3 mb-4">
+                        <div>
+                            <h2 class="font-bold">{{ 'dashboard.widget.partners_evolution'|trans }}</h2>
+                            <p class="text-sm text-admin-text-muted">{{ 'dashboard.partners_evolution.lead'|trans }}</p>
+                        </div>
+                        {% if p_last %}
+                            <div class="ml-auto text-right">
+                                <p class="u-66972700 text-2xl font-black">{{ p_last.total }}</p>
+                                {% set gain = p_last.total - (p_first.total - p_first.new) %}
+                                <p class="text-xs text-admin-text-muted">{{ 'dashboard.over_12_months'|trans({'%gain%': gain > 0 ? '+' ~ gain : gain}) }}</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                    {{ ui.line('dashboard.widget.partners_evolution'|trans, partenaires_evolution, 'dashboard.unit.partner') }}
                 </div>
+            {% endif %}
 
-                <table class="sr-only">
-                    <caption>Nombre de partenaires actifs par mois</caption>
-                    <thead><tr><th>Mois</th><th>Partenaires actifs</th><th>Ajouts du mois</th></tr></thead>
-                    <tbody>
-                        {% for point in partenaires_evolution %}
-                            <tr><td>{{ point.month|date('m/Y') }}</td><td>{{ point.total }}</td><td>{{ point.new }}</td></tr>
+            {% if available.partenaires_categories is defined and data.partenaires_categories is defined %}
+                {{ ui.chart('partenaires_categories', hidden, 'dashboard.widget.partners_categories'|trans, 'dashboard.partners_categories.lead'|trans,
+                    'donut', data.partenaires_categories|map(r => r.label ?: 'dashboard.partners_categories.none'|trans),
+                    [{name: '', values: data.partenaires_categories|map(r => r.value)}], {center: 'dashboard.unit.partner_plural'|trans}) }}
+            {% endif %}
+
+            {% if available.contrats_encaissement is defined and data.contrats is defined %}
+                {% set ct = data.contrats %}
+                {{ ui.chart('contrats_encaissement', hidden, 'dashboard.widget.contracts_collected'|trans, 'dashboard.contracts_collected.lead'|trans,
+                    'donut', ['dashboard.contracts.received'|trans, 'dashboard.contracts.remaining'|trans], [{name: '', values: [ct.received, ct.remaining]}],
+                    {format: 'money', center: 'dashboard.contracts.caption'|trans,
+                     stats: [{value: ct.total|money, label: 'dashboard.contracts.total'|trans}, {value: ct.active, label: 'dashboard.contracts.active'|trans}]}) }}
+            {% endif %}
+
+            {% if available.contrats_taches is defined and data.taches is defined %}
+                <div class="admin-card rounded-2xl p-6" data-dashboard-target="widget" data-widget="contrats_taches" {{ 'contrats_taches' in hidden ? 'hidden' }}>
+                    <div class="flex items-center justify-between mb-2">
+                        <h2 class="font-bold">{{ 'dashboard.widget.contracts_tasks'|trans }}</h2>
+                        <a href="{{ path('admin_partenaire_index') }}" class="text-xs text-admin-text-muted hover:text-admin-text">{{ 'dashboard.see_all'|trans }} &rarr;</a>
+                    </div>
+                    <div class="dash-stat">
+                        <div><p class="dash-stat-value">{{ data.taches.late }}</p><p class="dash-stat-label">{{ 'dashboard.tasks.late'|trans }}</p></div>
+                        <div><p class="dash-stat-value">{{ data.taches.soon }}</p><p class="dash-stat-label">{{ 'dashboard.tasks.soon'|trans }}</p></div>
+                    </div>
+                    <div class="recent-list">
+                        {% for tache in data.taches.next %}
+                            <a href="{{ tache.contrat ? path('admin_partenaire_contrat_show', {id: tache.contrat.id}) : '#' }}" class="recent-item">
+                                <span class="recent-title">{{ tache.titre }}</span>
+                                <span class="recent-meta">{{ tache.contrat.partenaire.nom ?? '' }}{{ tache.echeance ? ' · ' ~ tache.echeance|date_fr('d MMM') }}</span>
+                            </a>
+                        {% else %}
+                            <p class="text-sm text-admin-text-muted py-2">{{ 'dashboard.tasks.none'|trans }}</p>
                         {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        {% endif %}
-
-        {% if 'licencies_evolution' in available|keys %}
-            {% set lic_first = licencies_evolution|first %}
-            {% set lic_last = licencies_evolution|last %}
-            <div class="admin-card rounded-2xl p-6" data-dashboard-target="widget" data-widget="licencies_evolution" {{ 'licencies_evolution' in hidden ? 'hidden' }}>
-                <div class="flex flex-wrap items-start justify-between gap-3 mb-4">
-                    <div>
-                        <h2 class="font-bold">Évolution des licenciés</h2>
-                        <p class="text-sm text-admin-text-muted">Licenciés actifs à la fin de chaque mois, sur les 12 derniers mois.</p>
-                    </div>
-                    <div class="ml-auto text-right">
-                        <p class="u-66972700 text-2xl font-black">{{ lic_last.total }}</p>
-                        {% set gain = lic_last.total - (lic_first.total - lic_first.new) %}
-                        <p class="text-xs text-admin-text-muted">{{ gain > 0 ? '+' ~ gain : gain }} sur 12 mois</p>
                     </div>
                 </div>
+            {% endif %}
+        </div>
+    {% endif %}
 
-                <div class="chart"
-                     data-controller="line-chart"
-                     data-line-chart-unit-value="licencié"
-                     data-line-chart-points-value="{{ licencies_evolution|map(p => {month: p.month|date('Y-m'), total: p.total, new: p.new})|json_encode|e('html_attr') }}">
-                    <div data-line-chart-target="plot"></div>
-                    <div class="chart-tooltip" data-line-chart-target="tooltip" hidden></div>
-                </div>
-
-                <table class="sr-only">
-                    <caption>Nombre de licenciés actifs par mois</caption>
-                    <thead><tr><th>Mois</th><th>Licenciés actifs</th><th>Ajouts du mois</th></tr></thead>
-                    <tbody>
-                        {% for point in licencies_evolution %}
-                            <tr><td>{{ point.month|date('m/Y') }}</td><td>{{ point.total }}</td><td>{{ point.new }}</td></tr>
+    {# ------------------------------------------------------------ Planning #}
+    {% if sections.planning is defined %}
+        <h2 class="dash-section">{{ 'dashboard.section.planning'|trans }}</h2>
+        <div class="grid lg:grid-cols-2 gap-6">
+            {% if available.planning_prochains is defined and data.prochains is defined %}
+                <div class="admin-card rounded-2xl p-6" data-dashboard-target="widget" data-widget="planning_prochains" {{ 'planning_prochains' in hidden ? 'hidden' }}>
+                    <div class="flex items-center justify-between mb-2">
+                        <h2 class="font-bold">{{ 'dashboard.widget.planning_next'|trans }}</h2>
+                        <a href="{{ path('admin_planning_index') }}" class="text-xs text-admin-text-muted hover:text-admin-text">{{ 'dashboard.see_all'|trans }} &rarr;</a>
+                    </div>
+                    <div class="recent-list">
+                        {% for event in data.prochains %}
+                            <a href="{{ path('admin_planning_index') }}" class="recent-item">
+                                <span class="recent-title">{{ event.titre }}</span>
+                                <span class="recent-meta">{{ event.date|date_fr('EEE d MMM') }}{{ event.heureDebut ? ' · ' ~ event.heureDebut|date('H:i') }}{{ event.lieu ? ' · ' ~ event.lieu }}</span>
+                            </a>
+                        {% else %}
+                            <p class="text-sm text-admin-text-muted py-2">{{ 'dashboard.planning.none'|trans }}</p>
                         {% endfor %}
-                    </tbody>
-                </table>
+                    </div>
+                </div>
+            {% endif %}
+
+            {% if available.planning_types is defined and data.types_evenements is defined %}
+                {% set te = data.types_evenements %}
+                {{ ui.chart('planning_types', hidden, 'dashboard.widget.planning_types'|trans, 'dashboard.planning_types.lead'|trans({'%month%': date()|date_fr('LLLL')}),
+                    'donut', ['dashboard.planning_kind.training'|trans, 'dashboard.planning_kind.match'|trans, 'dashboard.planning_kind.event'|trans],
+                    [{name: '', values: [te.training, te.match, te.event]}], {center: 'dashboard.planning.center'|trans}) }}
+            {% endif %}
+        </div>
+    {% endif %}
+
+    {# ------------------------------------------------------------ Accès rapides #}
+    {% if available.quick_links is defined %}
+        <h2 class="dash-section">{{ 'dashboard.section.overview'|trans }}</h2>
+        <div class="admin-card rounded-2xl p-6 mb-6" data-dashboard-target="widget" data-widget="quick_links" {{ 'quick_links' in hidden ? 'hidden' }}>
+            <h2 class="font-bold mb-1">{{ 'dashboard.widget.quick_links'|trans }}</h2>
+            <p class="text-sm text-admin-text-muted mb-4">{{ 'dashboard.quick_links.lead'|trans }}</p>
+            <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 text-sm">
+                {% for link in [
+                    {route: 'admin_famille_new', icon: 'fa-house-user', label: 'dashboard.quick_links.family'},
+                    {route: 'admin_licencie_new', icon: 'fa-id-card', label: 'dashboard.quick_links.member'},
+                    {route: 'admin_saison_new', icon: 'fa-calendar-days', label: 'dashboard.quick_links.season'},
+                    {route: 'admin_user_new', icon: 'fa-user-plus', label: 'dashboard.quick_links.user'},
+                ] %}
+                    <a href="{{ path(link.route) }}" class="admin-surface-hover flex items-center gap-3 rounded-xl border border-admin-border px-4 py-3">
+                        <span class="flex h-9 w-9 items-center justify-center rounded-lg admin-gradient text-white"><i class="fa-solid {{ link.icon }}"></i></span>
+                        {{ link.label|trans }}
+                    </a>
+                {% endfor %}
             </div>
-        {% endif %}
+        </div>
+    {% endif %}
 
-        {% if 'boutique_ventes' in available|keys %}
-            {% set vente_last = boutique_ventes|last %}
-            {% set vente_mois = vente_last.new ?? 0 %}
-            <div class="admin-card rounded-2xl p-6" data-dashboard-target="widget" data-widget="boutique_ventes" {{ 'boutique_ventes' in hidden ? 'hidden' }}>
-                <div class="flex flex-wrap items-start justify-between gap-3 mb-4">
-                    <div>
-                        <h2 class="font-bold">Ventes de la boutique</h2>
-                        <p class="text-sm text-admin-text-muted">Chiffre d'affaires cumulé des commandes payées, sur les 12 derniers mois.</p>
+    {# ------------------------------------------------------------ Derniers enregistrements créés #}
+    {% if sections.latest is defined %}
+        <h2 class="dash-section">{{ 'dashboard.section.latest'|trans }}</h2>
+        <div class="grid md:grid-cols-2 gap-6">
+            {% if available.dernieres_familles is defined %}
+                <div class="admin-card rounded-2xl p-6" data-dashboard-target="widget" data-widget="dernieres_familles" {{ 'dernieres_familles' in hidden ? 'hidden' }}>
+                    <div class="flex items-center justify-between mb-2">
+                        <h2 class="font-bold">{{ 'dashboard.widget.latest_families'|trans }}</h2>
+                        <a href="{{ path('admin_famille_index') }}" class="text-xs text-admin-text-muted hover:text-admin-text">{{ 'dashboard.see_all'|trans }} &rarr;</a>
                     </div>
-                    <div class="ml-auto text-right">
-                        <p class="u-66972700 text-2xl font-black">{{ (vente_last.total ?? 0)|number_format(0, ',', ' ') }}&nbsp;€</p>
-                        <p class="text-xs text-admin-text-muted">{{ vente_mois|number_format(0, ',', ' ') }}&nbsp;€ ce mois-ci</p>
-                    </div>
-                </div>
-
-                <div class="chart"
-                     data-controller="line-chart"
-                     data-line-chart-unit-value="€"
-                     data-line-chart-unit-plural-value="€"
-                     data-line-chart-points-value="{{ boutique_ventes|map(p => {month: p.month|date('Y-m'), total: p.total, new: p.new})|json_encode|e('html_attr') }}">
-                    <div data-line-chart-target="plot"></div>
-                    <div class="chart-tooltip" data-line-chart-target="tooltip" hidden></div>
-                </div>
-
-                <table class="sr-only">
-                    <caption>Chiffre d'affaires cumulé par mois</caption>
-                    <thead><tr><th>Mois</th><th>Cumulé</th><th>Ce mois-ci</th></tr></thead>
-                    <tbody>
-                        {% for point in boutique_ventes %}
-                            <tr><td>{{ point.month|date('m/Y') }}</td><td>{{ point.total }}</td><td>{{ point.new }}</td></tr>
+                    <div class="recent-list">
+                        {% for famille in dernieres_familles %}
+                            <a href="{{ path('admin_famille_show', {id: famille.id}) }}" class="recent-item">
+                                <span class="recent-title">{{ famille.nomAffiche }}</span>
+                                <span class="recent-meta">{{ 'dashboard.members_count'|trans({'%count%': famille.licencies|length}) }}{{ famille.createdAt ? ' · ' ~ famille.createdAt|date_fr('dd/MM/y') }}</span>
+                            </a>
+                        {% else %}
+                            <p class="text-sm text-admin-text-muted py-2">{{ 'dashboard.empty.families'|trans }}</p>
                         {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
 
-        {% if 'quick_links' in available|keys %}
-            <div class="admin-card rounded-2xl p-6" data-dashboard-target="widget" data-widget="quick_links" {{ 'quick_links' in hidden ? 'hidden' }}>
-                <h2 class="font-bold mb-1">Accès rapides</h2>
-                <p class="text-sm text-admin-text-muted mb-4">Créer un nouvel enregistrement en un clic.</p>
-                <div class="grid gap-3 text-sm">
-                    <a href="{{ path('admin_famille_new') }}" class="admin-surface-hover flex items-center gap-3 rounded-xl border border-admin-border px-4 py-3">
-                        <span class="flex h-9 w-9 items-center justify-center rounded-lg admin-gradient text-white"><i class="fa-solid fa-house-user"></i></span>
-                        Nouvelle famille
-                    </a>
-                    <a href="{{ path('admin_licencie_new') }}" class="admin-surface-hover flex items-center gap-3 rounded-xl border border-admin-border px-4 py-3">
-                        <span class="flex h-9 w-9 items-center justify-center rounded-lg admin-gradient text-white"><i class="fa-solid fa-id-card"></i></span>
-                        Nouveau licencié
-                    </a>
-                    <a href="{{ path('admin_saison_new') }}" class="admin-surface-hover flex items-center gap-3 rounded-xl border border-admin-border px-4 py-3">
-                        <span class="flex h-9 w-9 items-center justify-center rounded-lg admin-gradient text-white"><i class="fa-solid fa-calendar-days"></i></span>
-                        Nouvelle saison
-                    </a>
-                    <a href="{{ path('admin_user_new') }}" class="admin-surface-hover flex items-center gap-3 rounded-xl border border-admin-border px-4 py-3">
-                        <span class="flex h-9 w-9 items-center justify-center rounded-lg admin-gradient text-white"><i class="fa-solid fa-user-plus"></i></span>
-                        Nouvel utilisateur
-                    </a>
+            {% if available.derniers_licencies is defined %}
+                <div class="admin-card rounded-2xl p-6" data-dashboard-target="widget" data-widget="derniers_licencies" {{ 'derniers_licencies' in hidden ? 'hidden' }}>
+                    <div class="flex items-center justify-between mb-2">
+                        <h2 class="font-bold">{{ 'dashboard.widget.latest_members'|trans }}</h2>
+                        <a href="{{ path('admin_licencie_index') }}" class="text-xs text-admin-text-muted hover:text-admin-text">{{ 'dashboard.see_all'|trans }} &rarr;</a>
+                    </div>
+                    <div class="recent-list">
+                        {% for licencie in derniers_licencies %}
+                            <a href="{{ path('admin_licencie_edit', {id: licencie.id}) }}" class="recent-item">
+                                <span class="recent-title">{{ licencie.prenom }} {{ licencie.nom }}</span>
+                                <span class="recent-meta">{{ licencie.categorie }} · {{ licencie.saison }}{{ licencie.createdAt ? ' · ' ~ licencie.createdAt|date_fr('dd/MM/y') }}</span>
+                            </a>
+                        {% else %}
+                            <p class="text-sm text-admin-text-muted py-2">{{ 'dashboard.empty.members'|trans }}</p>
+                        {% endfor %}
+                    </div>
                 </div>
-            </div>
-        {% endif %}
-    </div>
+            {% endif %}
 
-    {# Derniers enregistrements créés #}
-    <div class="grid md:grid-cols-2 gap-6">
-        {% if 'dernieres_familles' in available|keys %}
-            <div class="admin-card rounded-2xl p-6" data-dashboard-target="widget" data-widget="dernieres_familles" {{ 'dernieres_familles' in hidden ? 'hidden' }}>
-                <div class="flex items-center justify-between mb-2">
-                    <h2 class="font-bold">Dernières familles</h2>
-                    <a href="{{ path('admin_famille_index') }}" class="text-xs text-admin-text-muted hover:text-admin-text">Tout voir &rarr;</a>
+            {% if available.dernieres_equipes is defined %}
+                <div class="admin-card rounded-2xl p-6" data-dashboard-target="widget" data-widget="dernieres_equipes" {{ 'dernieres_equipes' in hidden ? 'hidden' }}>
+                    <div class="flex items-center justify-between mb-2">
+                        <h2 class="font-bold">{{ 'dashboard.widget.latest_teams'|trans }}</h2>
+                        <a href="{{ path('admin_equipe_index') }}" class="text-xs text-admin-text-muted hover:text-admin-text">{{ 'dashboard.see_all'|trans }} &rarr;</a>
+                    </div>
+                    <div class="recent-list">
+                        {% for equipe in dernieres_equipes %}
+                            <a href="{{ path('admin_equipe_edit', {id: equipe.id}) }}" class="recent-item">
+                                <span class="recent-title">{{ equipe.nom }}</span>
+                                <span class="recent-meta">{{ equipe.categorie }} · {{ equipe.statutLabel|lower }}{{ equipe.createdAt ? ' · ' ~ equipe.createdAt|date_fr('dd/MM/y') }}</span>
+                            </a>
+                        {% else %}
+                            <p class="text-sm text-admin-text-muted py-2">{{ 'dashboard.empty.teams'|trans }}</p>
+                        {% endfor %}
+                    </div>
                 </div>
-                <div class="recent-list">
-                    {% for famille in dernieres_familles %}
-                        <a href="{{ path('admin_famille_show', {id: famille.id}) }}" class="recent-item">
-                            <span class="recent-title">{{ famille.nomAffiche }}</span>
-                            <span class="recent-meta">{{ famille.licencies|length }} licencié{{ famille.licencies|length > 1 ? 's' }}{{ famille.createdAt ? ' · ' ~ famille.createdAt|date('d/m/Y') }}</span>
-                        </a>
-                    {% else %}
-                        <p class="text-sm text-admin-text-muted py-2">Aucune famille pour le moment.</p>
-                    {% endfor %}
-                </div>
-            </div>
-        {% endif %}
+            {% endif %}
 
-        {% if 'derniers_licencies' in available|keys %}
-            <div class="admin-card rounded-2xl p-6" data-dashboard-target="widget" data-widget="derniers_licencies" {{ 'derniers_licencies' in hidden ? 'hidden' }}>
-                <div class="flex items-center justify-between mb-2">
-                    <h2 class="font-bold">Derniers licenciés</h2>
-                    <a href="{{ path('admin_licencie_index') }}" class="text-xs text-admin-text-muted hover:text-admin-text">Tout voir &rarr;</a>
+            {% if available.dernieres_saisons is defined %}
+                <div class="admin-card rounded-2xl p-6" data-dashboard-target="widget" data-widget="dernieres_saisons" {{ 'dernieres_saisons' in hidden ? 'hidden' }}>
+                    <div class="flex items-center justify-between mb-2">
+                        <h2 class="font-bold">{{ 'dashboard.widget.latest_seasons'|trans }}</h2>
+                        <a href="{{ path('admin_saison_index') }}" class="text-xs text-admin-text-muted hover:text-admin-text">{{ 'dashboard.see_all'|trans }} &rarr;</a>
+                    </div>
+                    <div class="recent-list">
+                        {% for saison in dernieres_saisons %}
+                            <a href="{{ path('admin_saison_edit', {id: saison.id}) }}" class="recent-item">
+                                <span class="recent-title">{{ saison.libelle }}{% if saison.active %} <span class="badge badge-active ml-1">{{ 'dashboard.current'|trans }}</span>{% endif %}</span>
+                                <span class="recent-meta">{{ saison.dateDebut|date_fr('dd/MM/y') }} → {{ saison.dateFin|date_fr('dd/MM/y') }}</span>
+                            </a>
+                        {% else %}
+                            <p class="text-sm text-admin-text-muted py-2">{{ 'dashboard.empty.seasons'|trans }}</p>
+                        {% endfor %}
+                    </div>
                 </div>
-                <div class="recent-list">
-                    {% for licencie in derniers_licencies %}
-                        <a href="{{ path('admin_licencie_edit', {id: licencie.id}) }}" class="recent-item">
-                            <span class="recent-title">{{ licencie.prenom }} {{ licencie.nom }}</span>
-                            <span class="recent-meta">{{ licencie.categorie }} · {{ licencie.saison }}{{ licencie.createdAt ? ' · ' ~ licencie.createdAt|date('d/m/Y') }}</span>
-                        </a>
-                    {% else %}
-                        <p class="text-sm text-admin-text-muted py-2">Aucun licencié pour le moment.</p>
-                    {% endfor %}
-                </div>
-            </div>
-        {% endif %}
-
-        {% if 'dernieres_equipes' in available|keys %}
-            <div class="admin-card rounded-2xl p-6" data-dashboard-target="widget" data-widget="dernieres_equipes" {{ 'dernieres_equipes' in hidden ? 'hidden' }}>
-                <div class="flex items-center justify-between mb-2">
-                    <h2 class="font-bold">Dernières équipes</h2>
-                    <a href="{{ path('admin_equipe_index') }}" class="text-xs text-admin-text-muted hover:text-admin-text">Tout voir &rarr;</a>
-                </div>
-                <div class="recent-list">
-                    {% for equipe in dernieres_equipes %}
-                        <a href="{{ path('admin_equipe_edit', {id: equipe.id}) }}" class="recent-item">
-                            <span class="recent-title">{{ equipe.nom }}</span>
-                            <span class="recent-meta">{{ equipe.categorie }} · {{ equipe.statutLabel|lower }}{{ equipe.createdAt ? ' · ' ~ equipe.createdAt|date('d/m/Y') }}</span>
-                        </a>
-                    {% else %}
-                        <p class="text-sm text-admin-text-muted py-2">Aucune équipe pour le moment.</p>
-                    {% endfor %}
-                </div>
-            </div>
-        {% endif %}
-
-        {% if 'dernieres_saisons' in available|keys %}
-            <div class="admin-card rounded-2xl p-6" data-dashboard-target="widget" data-widget="dernieres_saisons" {{ 'dernieres_saisons' in hidden ? 'hidden' }}>
-                <div class="flex items-center justify-between mb-2">
-                    <h2 class="font-bold">Dernières saisons</h2>
-                    <a href="{{ path('admin_saison_index') }}" class="text-xs text-admin-text-muted hover:text-admin-text">Tout voir &rarr;</a>
-                </div>
-                <div class="recent-list">
-                    {% for saison in dernieres_saisons %}
-                        <a href="{{ path('admin_saison_edit', {id: saison.id}) }}" class="recent-item">
-                            <span class="recent-title">{{ saison.libelle }}{% if saison.active %} <span class="badge badge-active ml-1">En cours</span>{% endif %}</span>
-                            <span class="recent-meta">{{ saison.dateDebut|date('d/m/Y') }} → {{ saison.dateFin|date('d/m/Y') }}</span>
-                        </a>
-                    {% else %}
-                        <p class="text-sm text-admin-text-muted py-2">Aucune saison pour le moment.</p>
-                    {% endfor %}
-                </div>
-            </div>
-        {% endif %}
-    </div>
+            {% endif %}
+        </div>
+    {% endif %}
 
     </div>
 {% endblock %}
+
+{# Courbe d'évolution mensuelle (controller line-chart) avec tableau équivalent pour les lecteurs d'écran. #}
+{% macro line(title, points, unit, plural = '') %}
+    {% set unit_label = unit starts with 'dashboard.' ? unit|trans : unit %}
+    <div class="chart"
+         data-controller="line-chart"
+         data-line-chart-unit-value="{{ unit_label }}"
+         {% if unit starts with 'dashboard.' %}data-line-chart-unit-plural-value="{{ (unit ~ '_plural')|trans }}"{% elseif plural %}data-line-chart-unit-plural-value="{{ plural }}"{% endif %}
+         data-line-chart-this-month-value="{{ 'dashboard.chart.this_month'|trans }}"
+         data-line-chart-none-value="{{ 'dashboard.chart.none_this_month'|trans }}"
+         data-line-chart-points-value="{{ points|map(p => {month: p.month|date('Y-m'), total: p.total, new: p.new})|json_encode|e('html_attr') }}">
+        <div data-line-chart-target="plot"></div>
+        <div class="chart-tooltip" data-line-chart-target="tooltip" hidden></div>
+    </div>
+    <table class="sr-only">
+        <caption>{{ title }}</caption>
+        <thead><tr><th>{{ 'dashboard.chart.month'|trans }}</th><th>{{ 'dashboard.chart.total'|trans }}</th><th>{{ 'dashboard.chart.added'|trans }}</th></tr></thead>
+        <tbody>
+            {% for point in points %}
+                <tr><td>{{ point.month|date_fr('MMMM y') }}</td><td>{{ point.total }}</td><td>{{ point.new }}</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endmacro %}
+
+{# Carte de graphique générique (controller chart) : bar | hbar | donut. series = [{name, values}]. #}
+{% macro chart(key, hidden, title, subtitle, type, labels, series, opts = {}) %}
+    {% set o = {format: 'number', height: 220, center: '', stats: [], wide: false}|merge(opts) %}
+    {% set wide = o.wide|default(false) %}
+    <div class="admin-card rounded-2xl p-6 {{ wide ? 'lg:col-span-2' }}" data-dashboard-target="widget" data-widget="{{ key }}" {{ key in hidden ? 'hidden' }}>
+        <div class="mb-4">
+            <h2 class="font-bold">{{ title }}</h2>
+            <p class="text-sm text-admin-text-muted">{{ subtitle }}</p>
+        </div>
+        {% if o.stats|length > 0 %}
+            <div class="dash-stat">
+                {% for stat in o.stats %}
+                    <div><p class="dash-stat-value">{{ stat.value }}</p><p class="dash-stat-label">{{ stat.label }}</p></div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        <div class="chart {{ type == 'donut' ? 'chart-donut' : (series|length > 1 ? 'chart-bars-legend') }}"
+             data-controller="chart"
+             data-chart-type-value="{{ type }}"
+             data-chart-format-value="{{ o.format }}"
+             data-chart-height-value="{{ o.height }}"
+             data-chart-center-label-value="{{ o.center }}"
+             data-chart-empty-value="{{ 'dashboard.no_data'|trans }}"
+             data-chart-labels-value="{{ labels|json_encode|e('html_attr') }}"
+             data-chart-series-value="{{ series|json_encode|e('html_attr') }}">
+            <div data-chart-target="plot"></div>
+            <div data-chart-target="legend"></div>
+            <div class="chart-tooltip" data-chart-target="tooltip" hidden></div>
+        </div>
+        <table class="sr-only">
+            <caption>{{ title }}</caption>
+            <thead><tr><th></th>{% for s in series %}<th>{{ s.name }}</th>{% endfor %}</tr></thead>
+            <tbody>
+                {% for label in labels %}
+                    {% set i = loop.index0 %}
+                    <tr><th>{{ label }}</th>{% for s in series %}<td>{{ s.values[i] ?? 0 }}</td>{% endfor %}</tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endmacro %}

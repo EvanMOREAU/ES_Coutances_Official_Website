@@ -1,12 +1,12 @@
 {% if (checkPathRoute ?? '') starts with 'portail' %}{% include 'security/2fa_portail.html.twig' %}{% else %}<!DOCTYPE html>
-<html lang="fr" class="h-full">
+<html lang="{{ app.request ? app.request.locale : 'fr' }}" class="h-full">
 <head>
     <meta charset="UTF-8">
     <meta name="csp-nonce" content="{{ csp_nonce() }}">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" type="image/png" href="{{ asset('images/favicon.png') }}">
     <link rel="stylesheet" href="{{ asset('styles/inline-utilities.css') }}">
-    <title>Vérification en deux étapes — ES Coutances Admin</title>
+    <title>{{ 'Vérification en deux étapes — ES Coutances Admin'|trans }}</title>
     <link rel="stylesheet" href="{{ asset('fonts/fonts.css') }}">
     <link rel="stylesheet" href="{{ asset('vendor/fontawesome/all.min.css') }}">
     <link rel="stylesheet" href="{{ asset('styles/admin.css') }}">
@@ -19,13 +19,13 @@
             <div class="admin-hero-glow"></div>
             <div class="relative">
                 <i class="fa-solid fa-shield-halved text-3xl text-white mb-3"></i>
-                <h1 class="u-66972700 text-xl font-black text-white uppercase tracking-wide">Vérification en deux étapes</h1>
+                <h1 class="u-66972700 text-xl font-black text-white uppercase tracking-wide">{{ 'Vérification en deux étapes'|trans }}</h1>
             </div>
         </div>
 
         <div class="admin-card rounded-2xl p-8 text-center">
             {% for message in app.flashes('success') %}
-                <div class="mb-4 rounded-lg border border-admin-success/30 bg-admin-success/10 text-admin-success px-4 py-3 text-sm">{{ message }}</div>
+                <div class="mb-4 rounded-lg border border-admin-success/30 bg-admin-success/10 text-admin-success px-4 py-3 text-sm">{{ message|trans }}</div>
             {% endfor %}
             {% if authenticationError %}
                 <div class="mb-4 rounded-lg border border-admin-danger/30 bg-admin-danger/10 text-admin-danger px-4 py-3 text-sm text-left">
@@ -36,11 +36,11 @@
             <p class="text-xs font-semibold uppercase tracking-widest text-admin-text-muted mb-1">Verification Code</p>
             <p class="text-sm text-admin-text-muted mb-6">
                 {% if twoFactorProvider == 'totp' %}
-                    Saisissez le code affiché dans votre application d'authentification.
+                    {{ 'Saisissez le code affiché dans votre application d\'authentification.'|trans }}
                 {% elseif twoFactorProvider == 'email' %}
-                    Saisissez le code que nous venons de vous envoyer par e-mail.
+                    {{ 'Saisissez le code que nous venons de vous envoyer par e-mail.'|trans }}
                 {% else %}
-                    Saisissez votre code de vérification.
+                    {{ 'Saisissez votre code de vérification.'|trans }}
                 {% endif %}
             </p>
 
@@ -56,7 +56,7 @@
                 </div>
 
                 <div data-otp-input-target="backup" class="hidden mb-6">
-                    <input type="text" autocomplete="off" placeholder="Code de secours"
+                    <input type="text" autocomplete="off" placeholder="{{ 'Code de secours'|trans }}"
                            data-action="input->otp-input#backupInput"
                            class="w-full rounded-lg border border-admin-border bg-admin-bg px-3 py-2 text-center text-sm tracking-widest text-admin-text focus:outline-none focus:ring-2 focus:ring-admin-primary-to">
                 </div>
@@ -67,19 +67,19 @@
                 {% endif %}
                 {% if displayTrustedOption %}
                     <label class="flex items-center gap-2 justify-center text-sm text-admin-text-muted mb-5">
-                        <input type="checkbox" name="{{ trustedParameterName }}"> Faire confiance à cet appareil
+                        <input type="checkbox" name="{{ trustedParameterName }}"> {{ 'Faire confiance à cet appareil'|trans }}
                     </label>
                 {% endif %}
 
                 <button type="submit" class="w-full rounded-lg admin-gradient px-5 py-2.5 text-sm font-semibold text-white">
-                    Vérifier
+                    {{ 'Vérifier'|trans }}
                 </button>
             </form>
 
             {% if twoFactorProvider == 'email' %}
                 <form method="post" action="{{ path('2fa_resend_email') }}" class="mt-2">
                     <input type="hidden" name="_csrf_token" value="{{ csrf_token('2fa_resend_email') }}">
-                    <button type="submit" class="text-xs text-admin-text-muted hover:text-white underline">Renvoyer le code</button>
+                    <button type="submit" class="text-xs text-admin-text-muted hover:text-white underline">{{ 'Renvoyer le code'|trans }}</button>
                 </form>
             {% endif %}
 
@@ -88,15 +88,15 @@
                     {% for provider in availableTwoFactorProviders %}
                         {% if provider != twoFactorProvider %}
                             <a href="{{ path('2fa_login', {preferProvider: provider}) }}" class="hover:text-white">
-                                {% if provider == 'totp' %}Utiliser l'application{% elseif provider == 'email' %}Recevoir un code par e-mail{% else %}{{ provider }}{% endif %}
+                                {% if provider == 'totp' %}{{ 'Utiliser l\'application'|trans }}{% elseif provider == 'email' %}{{ 'Recevoir un code par e-mail'|trans }}{% else %}{{ provider }}{% endif %}
                             </a>
                         {% endif %}
                     {% endfor %}
                 </div>
             {% endif %}
 
-            <a href="#" data-action="otp-input#toggleBackup" class="block text-center mt-5 text-xs text-admin-text-muted hover:text-white">Utiliser un code de secours</a>
-            <a href="{{ logoutPath }}" class="block text-center mt-3 text-sm text-admin-text-muted hover:text-white">Annuler et se déconnecter</a>
+            <a href="#" data-action="otp-input#toggleBackup" class="block text-center mt-5 text-xs text-admin-text-muted hover:text-white">{{ 'Utiliser un code de secours'|trans }}</a>
+            <a href="{{ logoutPath }}" class="block text-center mt-3 text-sm text-admin-text-muted hover:text-white">{{ 'Annuler et se déconnecter'|trans }}</a>
         </div>
     </div>
 </body>

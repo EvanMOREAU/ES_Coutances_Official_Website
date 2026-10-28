@@ -4,16 +4,22 @@
     {% set has_bell = false %}
     {% for key, section in sections %}{% if 'bell' in section.channels %}{% set has_bell = true %}{% endif %}{% endfor %}
 
-    <form method="post" action="{{ path('admin_parametres_preferences') }}">
-        <h2 class="text-lg font-bold">Notifications</h2>
-        <p class="text-sm text-admin-text-muted mb-4">Choisissez ce dont vous voulez être averti, dans la clochette de l'administration et par e-mail. Tout est activé par défaut ; seules les rubriques auxquelles vos autorisations donnent accès sont proposées.</p>
+    <form method="post" action="{{ path('admin_parametres_preferences') }}" data-controller="notif-prefs">
+        <h2 class="text-lg font-bold">{{ 'notif.page.title'|trans }}</h2>
+        <p class="text-sm text-admin-text-muted mb-4">{{ 'notif.page.lead_admin'|trans }}</p>
 
         {% if sections is empty %}
-            <p class="text-sm text-admin-text-muted py-6 text-center">Aucune notification à régler pour ce compte.</p>
+            <p class="text-sm text-admin-text-muted py-6 text-center">{{ 'notif.page.empty'|trans }}</p>
         {% else %}
-            <div class="flex justify-end gap-3 text-[11px] font-semibold uppercase tracking-wide text-admin-text-muted">
-                {% if has_bell %}<span class="w-14 text-center">Cloche</span>{% endif %}
-                <span class="w-14 text-center">E-mail</span>
+            <div class="flex items-center justify-between gap-3 mb-1">
+                <span class="flex gap-2">
+                    <button type="button" class="admin-btn admin-btn-ghost admin-btn-sm" data-action="notif-prefs#enableAll"><i class="fa-solid fa-toggle-on"></i> {{ 'notif.page.all_on'|trans }}</button>
+                    <button type="button" class="admin-btn admin-btn-ghost admin-btn-sm" data-action="notif-prefs#disableAll"><i class="fa-solid fa-toggle-off"></i> {{ 'notif.page.all_off'|trans }}</button>
+                </span>
+                <span class="flex gap-3 text-[11px] font-semibold uppercase tracking-wide text-admin-text-muted">
+                    {% if has_bell %}<span class="w-14 text-center">{{ 'notif.page.bell'|trans }}</span>{% endif %}
+                    <span class="w-14 text-center">{{ 'notif.page.email'|trans }}</span>
+                </span>
             </div>
             <div class="divide-y divide-admin-border">
                 {% for key, section in sections %}
@@ -26,13 +32,13 @@
                             {% if has_bell %}
                                 <span class="w-14 flex justify-center">
                                     {% if 'bell' in section.channels %}
-                                        <input type="checkbox" class="admin-switch" name="prefs[bell][{{ key }}]" value="1" {{ prefs.wants(app.user, key, 'bell') ? 'checked' }} aria-label="{{ section.label }} — cloche">
+                                        <input type="checkbox" class="admin-switch" name="prefs[bell][{{ key }}]" value="1" data-notif-prefs-target="switch" {{ prefs.wants(app.user, key, 'bell') ? 'checked' }} aria-label="{{ 'notif.page.bell_aria'|trans({'%label%': section.label}) }}">
                                     {% else %}<span class="text-admin-text-muted">—</span>{% endif %}
                                 </span>
                             {% endif %}
                             <span class="w-14 flex justify-center">
                                 {% if 'email' in section.channels %}
-                                    <input type="checkbox" class="admin-switch" name="prefs[email][{{ key }}]" value="1" {{ prefs.wants(app.user, key, 'email') ? 'checked' }} aria-label="{{ section.label }} — e-mail">
+                                    <input type="checkbox" class="admin-switch" name="prefs[email][{{ key }}]" value="1" data-notif-prefs-target="switch" {{ prefs.wants(app.user, key, 'email') ? 'checked' }} aria-label="{{ 'notif.page.email_aria'|trans({'%label%': section.label}) }}">
                                 {% else %}<span class="text-admin-text-muted">—</span>{% endif %}
                             </span>
                         </span>
@@ -43,8 +49,14 @@
         {% endif %}
 
         <div class="flex items-center justify-between mt-4">
-            <p class="text-xs text-admin-text-muted">Les e-mails de sécurité (code de connexion, mot de passe) sont toujours envoyés.</p>
-            {% if sections is not empty %}<button type="submit" class="rounded-lg admin-gradient px-5 py-2 text-sm font-semibold text-white shrink-0 ml-4">Enregistrer</button>{% endif %}
+            <p class="text-xs text-admin-text-muted">{{ 'notif.page.always_admin'|trans }}</p>
+            {% if sections is not empty %}<button type="submit" class="rounded-lg admin-gradient px-5 py-2 text-sm font-semibold text-white shrink-0 ml-4">{{ 'settings.save'|trans }}</button>{% endif %}
         </div>
+    </form>
+
+    <form method="post" action="{{ path('admin_parametres_preferences_test') }}" class="mt-8 pt-6 border-t border-admin-border flex items-center justify-between gap-4">
+        <p class="text-xs text-admin-text-muted">{{ 'notif.page.test_help'|trans({'%email%': app.user.email}) }}</p>
+        <input type="hidden" name="_csrf_token" value="{{ csrf_token('account_notification_test') }}">
+        <button type="submit" class="admin-btn admin-btn-ghost admin-btn-sm shrink-0"><i class="fa-regular fa-paper-plane"></i> {{ 'notif.page.test'|trans }}</button>
     </form>
 {% endblock %}

@@ -23,7 +23,7 @@ final class RoutePermissions
         'admin_parametres_securite_email_activer', 'admin_parametres_securite_email_desactiver',
         'admin_parametres_securite_backup_codes_generer',
         'admin_parametres_securite_webauthn_options', 'admin_parametres_securite_webauthn_enregistrer',
-        'admin_parametres_securite_webauthn_supprimer',
+        'admin_parametres_securite_webauthn_supprimer', 'admin_parametres_preferences_test',
     ];
 
     /** Routes déjà réservées aux développeurs par leur contrôleur. */
@@ -61,7 +61,7 @@ final class RoutePermissions
         'admin_partenaire_hub' => 'partenaire.voir',
         'admin_import_hub'    => 'import.voir',
         'admin_acces_hub'     => 'utilisateur.voir,autorisation.voir',
-        'admin_configuration_hub' => 'mail.voir,helloasso.voir,categorie.voir,categorie_partenaire.voir',
+        'admin_configuration_hub' => 'mail.voir,helloasso.voir,langues.voir,categorie.voir,categorie_partenaire.voir',
         'admin_content_image_upload' => 'page_contenu.modifier,page_contenu.creer,article.modifier,article.creer,offre_emploi.modifier,offre_emploi.creer,membre.modifier,membre.creer,rejoindre_card.modifier,rejoindre_card.creer',
     ];
 
@@ -108,6 +108,7 @@ final class RoutePermissions
         'admin_deploy_status'          => 'deploiement.voir',
         'admin_deploy_pending'         => 'deploiement.voir',
         'admin_deploy_start'           => 'deploiement.lancer',
+        'admin_deploy_reauth'          => 'deploiement.lancer',
         'admin_deploy_backup_purge'    => 'deploiement.lancer',
         'admin_journal_index'          => 'journal.voir',
         'admin_journal_show'           => 'journal.voir',
@@ -154,6 +155,9 @@ final class RoutePermissions
         }
         if ('admin_mail_settings' === $route) {
             return 'GET' === $method || 'HEAD' === $method ? 'mail.voir' : 'mail.modifier';
+        }
+        if ('admin_langues_settings' === $route) {
+            return 'GET' === $method || 'HEAD' === $method ? 'langues.voir' : 'langues.modifier';
         }
         if ('admin_helloasso_settings' === $route) {
             return 'GET' === $method || 'HEAD' === $method ? 'helloasso.voir' : 'helloasso.modifier';

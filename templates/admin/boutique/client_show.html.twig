@@ -3,24 +3,24 @@
 {% block title %}{{ client.nomComplet }}{% endblock %}
 
 {% block body %}
-    <a href="{{ path('admin_client_boutique_index') }}" class="text-sm text-admin-text-muted hover:text-admin-text"><i class="fa-solid fa-arrow-left"></i> Clients de la boutique</a>
+    <a href="{{ path('admin_client_boutique_index') }}" class="text-sm text-admin-text-muted hover:text-admin-text"><i class="fa-solid fa-arrow-left"></i> {{ 'Clients de la boutique'|trans }}</a>
     <div class="mt-3 mb-5">
         <h1 class="u-66972700 text-2xl font-black">{{ client.nomComplet }}</h1>
         <p class="text-sm text-admin-text-muted">{{ client.email }} · dernière connexion : {{ client.lastLoginAt ? client.lastLoginAt|date('d/m/Y') : 'jamais' }}</p>
     </div>
 
     <div class="ad-tiles">
-        <div class="ad-tile"><span>Commandes</span><strong>{{ commandes|length }}</strong></div>
-        <div class="ad-tile"><span>Total payé</span><strong>{{ totalPaye|money }}</strong></div>
-        <div class="ad-tile"><span>Factures</span><strong>{{ factures|length }}</strong></div>
-        <div class="ad-tile"><span>Discussions support</span><strong>{{ discussions|length }}</strong></div>
+        <div class="ad-tile"><span>{{ 'Commandes'|trans }}</span><strong>{{ commandes|length }}</strong></div>
+        <div class="ad-tile"><span>{{ 'Total payé'|trans }}</span><strong>{{ totalPaye|money }}</strong></div>
+        <div class="ad-tile"><span>{{ 'Factures'|trans }}</span><strong>{{ factures|length }}</strong></div>
+        <div class="ad-tile"><span>{{ 'Discussions support'|trans }}</span><strong>{{ discussions|length }}</strong></div>
     </div>
 
     <div class="grid gap-6 lg:grid-cols-2 items-start">
         <section class="admin-card rounded-2xl p-6">
-            <h2 class="font-semibold mb-4">Commandes</h2>
+            <h2 class="font-semibold mb-4">{{ 'Commandes'|trans }}</h2>
             {% if commandes is empty %}
-                <p class="text-sm text-admin-text-muted">Aucune commande.</p>
+                <p class="text-sm text-admin-text-muted">{{ 'Aucune commande.'|trans }}</p>
             {% else %}
                 <ul class="divide-y divide-admin-border text-sm">
                     {% for c in commandes %}
@@ -40,9 +40,9 @@
         </section>
 
         <section class="admin-card rounded-2xl p-6">
-            <h2 class="font-semibold mb-4">Factures</h2>
+            <h2 class="font-semibold mb-4">{{ 'Factures'|trans }}</h2>
             {% if factures is empty %}
-                <p class="text-sm text-admin-text-muted">Aucune facture.</p>
+                <p class="text-sm text-admin-text-muted">{{ 'Aucune facture.'|trans }}</p>
             {% else %}
                 <ul class="divide-y divide-admin-border text-sm">
                     {% for c in factures %}
@@ -59,10 +59,10 @@
     </div>
 
     <section class="admin-card rounded-2xl p-6 mt-6">
-        <h2 class="font-semibold mb-1">Historique du support</h2>
-        <p class="text-sm text-admin-text-muted mb-4">Chaque discussion clôturée est conservée sous son titre ; une nouvelle demande du client ouvre un nouveau fil.</p>
+        <h2 class="font-semibold mb-1">{{ 'Historique du support'|trans }}</h2>
+        <p class="text-sm text-admin-text-muted mb-4">{{ 'Chaque discussion clôturée est conservée sous son titre ; une nouvelle demande du client ouvre un nouveau fil.'|trans }}</p>
         {% if discussions is empty %}
-            <p class="text-sm text-admin-text-muted">Ce client n'a jamais contacté le support.</p>
+            <p class="text-sm text-admin-text-muted">{{ 'Ce client n\'a jamais contacté le support.'|trans }}</p>
         {% else %}
             <div class="cl-threads">
                 {% for d in discussions %}
@@ -80,10 +80,10 @@
                         <div class="cl-thread is-open">
                             <span class="cl-thread-ico"><i class="fa-solid fa-comment-dots"></i></span>
                             <span class="cl-thread-text">
-                                <strong>Discussion en cours</strong>
+                                <strong>{{ 'Discussion en cours'|trans }}</strong>
                                 <small>{{ conv.createdAt|date('d/m/Y') }} · {{ d.count }} message{{ d.count > 1 ? 's' }}</small>
                             </span>
-                            {% if can_url(path('admin_chat_index')) %}<a href="{{ path('admin_chat_index', {c: conv.id}) }}" class="admin-btn admin-btn-ghost admin-btn-sm">Ouvrir dans la messagerie</a>{% endif %}
+                            {% if can_url(path('admin_chat_index')) %}<a href="{{ path('admin_chat_index', {c: conv.id}) }}" class="admin-btn admin-btn-ghost admin-btn-sm">{{ 'Ouvrir dans la messagerie'|trans }}</a>{% endif %}
                         </div>
                     {% endif %}
                 {% endfor %}

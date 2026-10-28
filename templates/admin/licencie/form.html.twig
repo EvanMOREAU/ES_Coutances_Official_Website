@@ -24,7 +24,7 @@
             {{ form_row(form.saison) }}
 
             <div class="rounded-xl border border-admin-border p-4 mb-5">
-                <p class="text-xs font-semibold uppercase tracking-wide text-admin-text-muted mb-2">Catégorie calculée</p>
+                <p class="text-xs font-semibold uppercase tracking-wide text-admin-text-muted mb-2">{{ 'Catégorie calculée'|trans }}</p>
                 <div data-category-preview-target="output" class="mb-4"></div>
                 {{ form_row(form.decalageCategorie) }}
                 {{ form_row(form.equipes) }}
@@ -36,8 +36,8 @@
 
 
             <div class="flex items-center gap-3 mt-6">
-                <button type="submit" class="rounded-lg admin-gradient px-5 py-2 text-sm font-semibold text-white">Enregistrer</button>
-                <a href="{{ path('admin_licencie_index') }}" class="text-sm text-admin-text-muted hover:text-admin-text">Annuler</a>
+                <button type="submit" class="rounded-lg admin-gradient px-5 py-2 text-sm font-semibold text-white">{{ 'Enregistrer'|trans }}</button>
+                <a href="{{ path('admin_licencie_index') }}" class="text-sm text-admin-text-muted hover:text-admin-text">{{ 'Annuler'|trans }}</a>
             </div>
         {{ form_end(form) }}
     </div>

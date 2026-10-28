@@ -4,8 +4,8 @@
 
 {% block body %}
     <div class="mb-6">
-        <h1 class="u-66972700 text-2xl font-black">Import</h1>
-        <p class="text-sm text-admin-text-muted">Importez des données depuis les outils extérieurs au site. Cliquez sur une carte pour ouvrir l'outil.</p>
+        <h1 class="u-66972700 text-2xl font-black">{{ 'Import'|trans }}</h1>
+        <p class="text-sm text-admin-text-muted">{{ 'Importez des données depuis les outils extérieurs au site. Cliquez sur une carte pour ouvrir l\'outil.'|trans }}</p>
     </div>
 
     {{ include('admin/_hub.html.twig', {groups: {'Imports': 'Sources d\'import'}, advice: [], hide_advice: true}) }}

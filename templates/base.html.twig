@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="{{ app.request.locale }}" dir="{{ locale_dir(app.request.locale) }}">
 <head>
   <meta charset="utf-8">
     <meta name="csp-nonce" content="{{ csp_nonce() }}">
@@ -9,7 +9,7 @@
   <link rel="canonical" href="{% block canonical %}{{ app.request.schemeAndHttpHost ~ app.request.pathInfo }}{% endblock %}">
   <meta property="og:site_name" content="ES Coutances">
   <meta property="og:type" content="{% block og_type %}website{% endblock %}">
-  <meta property="og:locale" content="fr_FR">
+  <meta property="og:locale" content="{{ app_locales()[app.request.locale].icu ?? 'fr_FR' }}">
   <meta property="og:title" content="{{ block('title') }}">
   <meta property="og:description" content="{{ block('meta_description') }}">
   <meta property="og:url" content="{{ block('canonical') }}">
@@ -28,47 +28,47 @@
   <link rel="stylesheet" href="{{ asset('styles/site.css') }}">
 </head>
 <body>
-<a class="skip-link" href="#contenu">Aller au contenu</a>
+<a class="skip-link" href="#contenu">{{ 'nav.skip_to_content'|trans }}</a>
 
 {# ============================================================
    HEADER
    ============================================================ #}
 <header class="site-header">
   <div class="header-top">
-    <a href="{{ path('app_home') }}" class="logo-wrap" aria-label="Accueil ES Coutances">
+    <a href="{{ path('app_home') }}" class="logo-wrap" aria-label="{{ 'nav.home_aria'|trans }}">
       <img
         src="{{ asset('images/logo_hd_trans3_gt.png') }}"
-        alt="Logo ES Coutances"
+        alt="{{ 'nav.logo_alt'|trans }}"
         class="logo-img"
       >
       <div class="logo-text">
-        <div class="logo-name">Entente Sportive Coutançaise</div>
-        <div class="logo-sub">Depuis 1961</div>
+        <div class="logo-name">{{ 'brand.name'|trans }}</div>
+        <div class="logo-sub">{{ 'brand.since'|trans }}</div>
       </div>
     </a>
 
-    <div class="header-tagline" aria-hidden="true">Esprit Entente</div>
+    <div class="header-tagline" aria-hidden="true">{{ 'brand.tagline'|trans }}</div>
 
-    <button class="nav-toggle" id="navToggle" aria-label="Ouvrir le menu" aria-expanded="false">
+    <button class="nav-toggle" id="navToggle" aria-label="{{ 'nav.open_menu'|trans }}" aria-expanded="false">
       <span></span><span></span><span></span>
     </button>
   </div>
 
   {# Desktop nav #}
-  <nav class="nav-bar" aria-label="Navigation principale">
+  <nav class="nav-bar" aria-label="{{ 'nav.main_aria'|trans }}">
 
     <div class="nav-item">
-      <a href="{{ path('app_home') }}">Accueil</a>
+      <a href="{{ path('app_home') }}">{{ 'nav.home'|trans }}</a>
     </div>
 
     <div class="nav-item">
-      <a href="#">Club <i class="fa-solid fa-chevron-down"></i></a>
+      <a href="#">{{ 'nav.club'|trans }} <i class="fa-solid fa-chevron-down"></i></a>
       <div class="dropdown">
         <div class="dd-col">
-          <h4>Le club</h4>
-          <a href="{{ path('app_histoire') }}">Histoire</a>
-          <a href="{{ path('app_encadrement') }}">Encadrement</a>
-          <a href="{{ path('app_infrastructure') }}">Infrastructure</a>
+          <h4>{{ 'nav.the_club'|trans }}</h4>
+          <a href="{{ path('app_histoire') }}">{{ 'nav.history'|trans }}</a>
+          <a href="{{ path('app_encadrement') }}">{{ 'nav.staff'|trans }}</a>
+          <a href="{{ path('app_infrastructure') }}">{{ 'nav.facilities'|trans }}</a>
         </div>
       </div>
     </div>
@@ -90,55 +90,57 @@
     {% set match_live = match_live() %}
     <div class="nav-item">
       <a href="{{ match_live and match_live.url ? match_live.url : '#' }}"{{ match_live and match_live.url ? ' target="_blank" rel="noopener"' : '' }}>
-        Match en Live
+        {{ 'nav.live_match'|trans }}
         {% if match_live and match_live.enDirect %}
           <span class="on-air">
             <span class="on-air-dot"></span>
-            En cours
+            {{ 'nav.live_in_progress'|trans }}
           </span>
         {% endif %}
       </a>
     </div>
 
     <div class="nav-item">
-      <a href="{{ path('boutique_index') }}">Boutique</a>
+      <a href="{{ path('boutique_index') }}">{{ 'nav.shop'|trans }}</a>
     </div>
 
     <div class="nav-item">
-      <a href="{{ path('app_contact') }}">Contact</a>
+      <a href="{{ path('app_contact') }}">{{ 'nav.contact'|trans }}</a>
     </div>
 
     {% if app.user %}
     <div class="nav-item">
-      <a href="{{ path('portail_index') }}"><i class="u-1cf38f3d fa-solid fa-user"></i> Mon compte{% if not is_granted('ROLE_EDITOR') %}{% set unread = chat_unread() %} <span class="cart-badge" data-chat-badge {{ unread == 0 ? 'hidden' }}>{{ unread }}</span>{% endif %}</a>
+      <a href="{{ path('portail_index') }}"><i class="u-1cf38f3d fa-solid fa-user"></i> {{ 'nav.account'|trans }}{% if not is_granted('ROLE_EDITOR') %}{% set unread = chat_unread() %} <span class="cart-badge" data-chat-badge {{ unread == 0 ? 'hidden' }}>{{ unread }}</span>{% endif %}</a>
     </div>
     <div class="nav-item">
-      <a href="{{ path('portail_logout') }}"><i class="u-1cf38f3d fa-solid fa-right-from-bracket"></i> Déconnexion</a>
+      <a href="{{ path('portail_logout') }}"><i class="u-1cf38f3d fa-solid fa-right-from-bracket"></i> {{ 'nav.logout'|trans }}</a>
     </div>
     {% else %}
     <div class="nav-item">
-      <a href="{{ path('portail_login') }}"><i class="u-1cf38f3d fa-solid fa-right-to-bracket"></i> Se connecter</a>
+      <a href="{{ path('portail_login') }}"><i class="u-1cf38f3d fa-solid fa-right-to-bracket"></i> {{ 'nav.login'|trans }}</a>
     </div>
     {% endif %}
 
     {% set panier_n = panier_count() %}
     {% if panier_n > 0 %}
     <div class="nav-item">
-      <a href="{{ path('boutique_panier') }}" aria-label="Mon panier ({{ panier_n }} article{{ panier_n > 1 ? 's' }})"><i class="u-a1f5fb4b fa-solid fa-bag-shopping"></i> <span class="cart-badge">{{ panier_n }}</span></a>
+      <a href="{{ path('boutique_panier') }}" aria-label="{{ 'nav.cart_aria'|trans({'%count%': panier_n}) }}"><i class="u-a1f5fb4b fa-solid fa-bag-shopping"></i> <span class="cart-badge">{{ panier_n }}</span></a>
     </div>
     {% endif %}
+
+    {{ include('_locale_dropdown.html.twig', {variant: 'desktop'}) }}
 
   </nav>
 
   {# Mobile nav #}
-  <div class="mobile-nav" id="mobileNav" aria-label="Menu mobile">
+  <div class="mobile-nav" id="mobileNav" aria-label="{{ 'nav.mobile_aria'|trans }}">
 
     <div class="mob-section">
-      <div class="mob-section-head">Club <i class="fa-solid fa-chevron-down"></i></div>
+      <div class="mob-section-head">{{ 'nav.club'|trans }} <i class="fa-solid fa-chevron-down"></i></div>
       <div class="mob-links">
-        <a href="{{ path('app_histoire') }}">Histoire</a>
-        <a href="{{ path('app_encadrement') }}">Encadrement</a>
-        <a href="{{ path('app_infrastructure') }}">Infrastructure</a>
+        <a href="{{ path('app_histoire') }}">{{ 'nav.history'|trans }}</a>
+        <a href="{{ path('app_encadrement') }}">{{ 'nav.staff'|trans }}</a>
+        <a href="{{ path('app_infrastructure') }}">{{ 'nav.facilities'|trans }}</a>
       </div>
     </div>
 
@@ -154,29 +156,31 @@
     #}
 
     <a href="{{ match_live and match_live.url ? match_live.url : '#' }}"{{ match_live and match_live.url ? ' target="_blank" rel="noopener"' : '' }} class="mob-direct">
-      Match en Live
+      {{ 'nav.live_match'|trans }}
       {% if match_live and match_live.enDirect %}
         <span class="u-c3f83707 on-air">
           <span class="on-air-dot"></span>
-          En cours
+          {{ 'nav.live_in_progress'|trans }}
         </span>
       {% endif %}
     </a>
 
-    <a href="{{ path('boutique_index') }}" class="mob-direct">Boutique</a>
+    <a href="{{ path('boutique_index') }}" class="mob-direct">{{ 'nav.shop'|trans }}</a>
 
-    <a href="{{ path('app_contact') }}" class="mob-direct">Contact</a>
+    <a href="{{ path('app_contact') }}" class="mob-direct">{{ 'nav.contact'|trans }}</a>
 
     {% if app.user %}
-    <a href="{{ path('portail_index') }}" class="mob-direct"><i class="fa-solid fa-user"></i> Mon compte{% if not is_granted('ROLE_EDITOR') %} <span class="cart-badge" data-chat-badge {{ chat_unread() == 0 ? 'hidden' }}>{{ chat_unread() }}</span>{% endif %}</a>
-    <a href="{{ path('portail_logout') }}" class="mob-direct"><i class="fa-solid fa-right-from-bracket"></i> Déconnexion</a>
+    <a href="{{ path('portail_index') }}" class="mob-direct"><i class="fa-solid fa-user"></i> {{ 'nav.account'|trans }}{% if not is_granted('ROLE_EDITOR') %} <span class="cart-badge" data-chat-badge {{ chat_unread() == 0 ? 'hidden' }}>{{ chat_unread() }}</span>{% endif %}</a>
+    <a href="{{ path('portail_logout') }}" class="mob-direct"><i class="fa-solid fa-right-from-bracket"></i> {{ 'nav.logout'|trans }}</a>
     {% else %}
-    <a href="{{ path('portail_login') }}" class="mob-direct"><i class="fa-solid fa-right-to-bracket"></i> Se connecter</a>
+    <a href="{{ path('portail_login') }}" class="mob-direct"><i class="fa-solid fa-right-to-bracket"></i> {{ 'nav.login'|trans }}</a>
     {% endif %}
 
     {% if panier_n > 0 %}
-    <a href="{{ path('boutique_panier') }}" class="mob-direct"><i class="fa-solid fa-bag-shopping"></i> Mon panier <span class="cart-badge">{{ panier_n }}</span></a>
+    <a href="{{ path('boutique_panier') }}" class="mob-direct"><i class="fa-solid fa-bag-shopping"></i> {{ 'nav.cart'|trans }} <span class="cart-badge">{{ panier_n }}</span></a>
     {% endif %}
+
+    {{ include('_locale_dropdown.html.twig', {variant: 'mobile'}) }}
 
   </div>
 </header>
@@ -196,40 +200,40 @@
     <div class="footer-grid">
 
       <div class="footer-col">
-        <h5>ES Coutances</h5>
-        <p>Depuis 1961, l'Entente Sportive Coutançaise forme des joueurs, des éducateurs et des passionnés de football en Normandie.</p>
+        <h5>{{ 'footer.about_title'|trans }}</h5>
+        <p>{{ 'footer.about_text'|trans }}</p>
       </div>
 
       <div class="footer-col">
-        <h5>Navigation</h5>
+        <h5>{{ 'footer.navigation'|trans }}</h5>
         <ul>
-          <li><a href="#">Le club</a></li>
+          <li><a href="#">{{ 'nav.the_club'|trans }}</a></li>
           {# Actualités désactivé : fonctionnalité non utilisée pour le moment
           <li><a href="#">Actualités</a></li>
           #}
-          <li><a href="{{ match_live and match_live.url ? match_live.url : '#' }}"{{ match_live and match_live.url ? ' target="_blank" rel="noopener"' : '' }}>Match en Live</a></li>
-          <li><a href="{{ path('boutique_index') }}">Boutique</a></li>
-          <li><a href="{{ path('app_contact') }}">Contact</a></li>
-          <li><a href="{{ path('app_login') }}">Administration</a></li>
+          <li><a href="{{ match_live and match_live.url ? match_live.url : '#' }}"{{ match_live and match_live.url ? ' target="_blank" rel="noopener"' : '' }}>{{ 'nav.live_match'|trans }}</a></li>
+          <li><a href="{{ path('boutique_index') }}">{{ 'nav.shop'|trans }}</a></li>
+          <li><a href="{{ path('app_contact') }}">{{ 'nav.contact'|trans }}</a></li>
+          <li><a href="{{ path('app_login') }}">{{ 'nav.admin'|trans }}</a></li>
         </ul>
       </div>
 
       <div class="footer-col">
-        <h5>Liens utiles</h5>
+        <h5>{{ 'footer.useful_links'|trans }}</h5>
         <ul>
-          <li><a href="https://portailclubs.fff.fr/" target="_blank" rel="noopener">Portailclubs</a></li>
-          <li><a href="https://normandie.fff.fr/" target="_blank" rel="noopener">Ligue de Football de Normandie</a></li>
-          <li><a href="https://manche.fff.fr/" target="_blank" rel="noopener">District de la Manche de Football</a></li>
+          <li><a href="https://portailclubs.fff.fr/" target="_blank" rel="noopener">{{ 'footer.link_portailclubs'|trans }}</a></li>
+          <li><a href="https://normandie.fff.fr/" target="_blank" rel="noopener">{{ 'footer.link_league'|trans }}</a></li>
+          <li><a href="https://manche.fff.fr/" target="_blank" rel="noopener">{{ 'footer.link_district'|trans }}</a></li>
         </ul>
       </div>
 
       <div class="footer-col">
-        <h5>Nous suivre</h5>
+        <h5>{{ 'footer.follow_us'|trans }}</h5>
         <div class="social-links">
-          <a href="https://www.facebook.com/ententesportivecoutancaise" target="_blank" rel="noopener" aria-label="Facebook ES Coutances">
+          <a href="https://www.facebook.com/ententesportivecoutancaise" target="_blank" rel="noopener" aria-label="{{ 'footer.facebook_aria'|trans }}">
             <i class="fa-brands fa-facebook-f"></i>
           </a>
-          <a href="https://www.instagram.com/escoutances/" target="_blank" rel="noopener" aria-label="Instagram ES Coutances">
+          <a href="https://www.instagram.com/escoutances/" target="_blank" rel="noopener" aria-label="{{ 'footer.instagram_aria'|trans }}">
             <i class="fa-brands fa-instagram"></i>
           </a>
         </div>
@@ -237,12 +241,12 @@
 
     </div>
     <div class="footer-bottom">
-      © {{ "now"|date("Y") }} Entente Sportive Coutançaise — Tous droits réservés
-      <nav class="footer-legal" aria-label="Informations légales">
-        <a href="{{ path('app_legal_mentions') }}">Mentions légales</a>
-        <a href="{{ path('app_legal_confidentialite') }}">Confidentialité</a>
-        <a href="{{ path('app_legal_cgv') }}">Conditions de vente</a>
-        <a href="{{ path('app_legal_cookies') }}">Cookies</a>
+      {{ 'footer.rights'|trans({'%year%': 'now'|date('Y')}) }}
+      <nav class="footer-legal" aria-label="{{ 'footer.legal_aria'|trans }}">
+        <a href="{{ path('app_legal_mentions') }}">{{ 'footer.legal_notice'|trans }}</a>
+        <a href="{{ path('app_legal_confidentialite') }}">{{ 'footer.privacy'|trans }}</a>
+        <a href="{{ path('app_legal_cgv') }}">{{ 'footer.terms'|trans }}</a>
+        <a href="{{ path('app_legal_cookies') }}">{{ 'footer.cookies'|trans }}</a>
       </nav>
     </div>
   </div>

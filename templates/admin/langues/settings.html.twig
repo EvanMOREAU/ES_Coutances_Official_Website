@@ -1,0 +1,38 @@
+{% extends 'admin/_layout.html.twig' %}
+
+{% block title %}Langues du site{% endblock %}
+
+{% block body %}
+    <div class="mb-6">
+        <h1 class="u-66972700 text-2xl font-black">{{ 'Langues du site'|trans }}</h1>
+        <p class="text-sm text-admin-text-muted">{{ 'Choisissez les langues proposées aux visiteurs dans le sélecteur de la barre de navigation. Le français est la langue par défaut : il ne peut pas être désactivé.'|trans }}</p>
+    </div>
+
+    <form method="post" novalidate>
+        <input type="hidden" name="_token" value="{{ csrf_token('langues_settings') }}">
+
+        <section class="admin-card rounded-2xl p-6 mb-6 max-w-3xl">
+            {% for code, lang in languages %}
+                <div class="mb-5">
+                    <label class="sv-toggle">
+                        <input type="checkbox" name="enabled[]" value="{{ code }}"{{ lang.enabled ? ' checked' }}{{ lang.locked ? ' disabled checked' }}>
+                        <span class="sv-switch"></span>
+                        <span>
+                            <strong style="display:inline-flex;align-items:center;gap:8px">
+                                <img src="{{ asset('images/flags/' ~ lang.flag) }}" alt="" width="24" height="16" style="border-radius:2px;box-shadow:0 0 0 1px rgba(0,0,0,.15)">
+                                <span lang="{{ code }}" dir="{{ lang.dir }}">{{ lang.name }}</span>
+                                <small style="font-weight:400">({{ code }}{{ lang.dir == 'rtl' ? ', écriture de droite à gauche' }})</small>
+                            </strong>
+                            {% if lang.locked %}<small>{{ 'Langue par défaut : toujours active.'|trans }}</small>{% endif %}
+                        </span>
+                    </label>
+                </div>
+            {% endfor %}
+            <p class="text-sm text-admin-text-muted">{{ 'Les textes non traduits dans une langue s\'affichent en français.'|trans }}</p>
+        </section>
+
+        <div class="flex items-center gap-3 mb-8">
+            <button type="submit" class="rounded-lg admin-gradient px-5 py-2 text-sm font-semibold text-white">{{ 'Enregistrer'|trans }}</button>
+        </div>
+    </form>
+{% endblock %}

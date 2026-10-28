@@ -7,19 +7,24 @@ use App\Form\AppearanceType;
 use App\Form\ProfileType;
 use App\Repository\UserRepository;
 use App\Service\Chat\ChatService;
+use App\Service\Locale\Locales;
+use App\Service\Notification\NotificationMailer;
 use App\Service\Notification\NotificationPreferences;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * Paramètres personnels du compte connecté (profil, sécurité, apparence,
@@ -124,7 +129,11 @@ class AccountSettingsController extends AbstractAccountController
             $em->flush();
             $this->addFlash('success', 'Préférences d\'apparence mises à jour.');
 
-            return $this->to($request, 'apparence');
+            // La langue choisie s'applique dès la page suivante (et se retient pour la page de connexion).
+            $response = $this->to($request, 'apparence');
+            $response->headers->setCookie(Cookie::create(Locales::COOKIE, $user->getLocale(), new \DateTimeImmutable('+1 year'), '/', null, $request->isSecure(), false, false, Cookie::SAMESITE_LAX));
+
+            return $response;
         }
 
         return $this->render($this->tpl($request, 'apparence'), [
@@ -156,5 +165,33 @@ class AccountSettingsController extends AbstractAccountController
             'sections'   => $prefs->availableFor($user),
             'active_tab' => 'preferences',
         ]);
+    }
+
+    /** E-mail de test à soi-même : permet de vérifier que le serveur d'envoi fonctionne et que la boîte reçoit bien les notifications. */
+    #[Route('/admin/parametres/preferences/test', name: 'admin_parametres_preferences_test', methods: ['POST'])]
+    #[Route('/mon-compte/parametres/preferences/test', name: 'portail_parametres_preferences_test', methods: ['POST'])]
+    public function testEmail(Request $request, NotificationMailer $notifications, TranslatorInterface $translator): Response
+    {
+        if (!$this->isCsrfTokenValid('account_notification_test', (string) $request->request->get('_csrf_token'))) {
+            throw $this->createAccessDeniedException();
+        }
+        /** @var User $user */
+        $user   = $this->getUser();
+        $locale = Locales::normalize($user->getLocale());
+
+        try {
+            $notifications->send(
+                $user,
+                $translator->trans('notif.mail.test_title', [], null, $locale),
+                [$translator->trans('notif.mail.test_line', [], null, $locale)],
+                $this->generateUrl($this->zone($request).'_parametres_preferences', [], UrlGeneratorInterface::ABSOLUTE_URL),
+                $translator->trans('notif.page.title', [], null, $locale),
+            );
+            $this->addFlash('success', $translator->trans('notif.page.test_sent', ['%email%' => (string) $user->getEmail()]));
+        } catch (\Throwable $e) {
+            $this->addFlash('error', $translator->trans('notif.page.test_failed', ['%error%' => $e->getMessage()]));
+        }
+
+        return $this->to($request, 'preferences');
     }
 }

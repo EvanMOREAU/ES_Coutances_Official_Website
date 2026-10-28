@@ -2,6 +2,7 @@
 
 namespace App\Controller\Admin;
 
+use App\Service\Upload\ImageCleaner;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -18,6 +19,10 @@ class ContentImageUploadController extends AbstractController
 {
     private const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
     private const MAX_SIZE_BYTES = 5 * 1024 * 1024;
+
+    public function __construct(private readonly ImageCleaner $imageCleaner)
+    {
+    }
 
     #[Route('/admin/content-image-upload', name: 'admin_content_image_upload', methods: ['POST'])]
     public function upload(Request $request): Response
@@ -64,6 +69,7 @@ class ContentImageUploadController extends AbstractController
 
         $destination = $this->getParameter('kernel.project_dir') . '/public/uploads/pages/inline';
         $file->move($destination, $filename);
+        $this->imageCleaner->clean($destination.'/'.$filename);
 
         return new JsonResponse(['url' => '/uploads/pages/inline/' . $filename]);
     }

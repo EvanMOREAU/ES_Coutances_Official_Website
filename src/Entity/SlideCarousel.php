@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\SlideCarouselRepository;
+use App\Translation\Translatable;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -17,14 +18,17 @@ class SlideCarousel
     #[ORM\Column]
     private ?int $id = null;
 
+    #[Translatable]
     #[ORM\Column(length: 150)]
     #[Assert\NotBlank(message: 'Donnez un titre à la slide.')]
     #[Assert\Length(max: 150, maxMessage: 'Maximum 150 caractères.')]
     private ?string $titre = null;
 
+    #[Translatable]
     #[ORM\Column(length: 100, nullable: true)]
     private ?string $titreMot = null;
 
+    #[Translatable]
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $sousTitre = null;
 

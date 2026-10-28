@@ -1,13 +1,13 @@
 {% block body %}
 <!DOCTYPE html>
-<html lang="fr" class="h-full">
+<html lang="{{ app.request ? app.request.locale : 'fr' }}" dir="{{ locale_dir(app.request ? app.request.locale : 'fr') }}" class="h-full">
 <head>
     <meta charset="UTF-8">
     <meta name="csp-nonce" content="{{ csp_nonce() }}">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" type="image/png" href="{{ asset('images/favicon.png') }}">
     <link rel="stylesheet" href="{{ asset('styles/inline-utilities.css') }}">
-    <title>Vérifiez vos e-mails — ES Coutances</title>
+    <title>{{ 'Vérifiez vos e-mails — ES Coutances'|trans }}</title>
     <link rel="stylesheet" href="{{ asset('fonts/fonts.css') }}">
     <link rel="stylesheet" href="{{ asset('styles/admin.css') }}">
     <style nonce="{{ csp_nonce() }}">body { font-family: 'Inter', sans-serif; }</style>
@@ -17,8 +17,8 @@
         <div class="admin-hero relative overflow-hidden rounded-2xl p-8 mb-6 text-center">
             <div class="admin-hero-glow"></div>
             <div class="relative">
-                <img src="{{ asset('images/logo_hd_trans3_gt.png') }}" alt="ES Coutances" class="h-14 mx-auto mb-3">
-                <h1 class="u-66972700 text-xl font-black text-white uppercase tracking-wide">Vérifiez vos e-mails</h1>
+                <img src="{{ asset('images/logo_hd_trans3_gt.png') }}" alt="{{ 'ES Coutances'|trans }}" class="h-14 mx-auto mb-3">
+                <h1 class="u-66972700 text-xl font-black text-white uppercase tracking-wide">{{ 'Vérifiez vos e-mails'|trans }}</h1>
             </div>
         </div>
 
@@ -27,11 +27,11 @@
                 Si un compte correspond à l'adresse indiquée, un e-mail contenant un lien de réinitialisation vient de vous être envoyé.
                 Ce lien expirera dans {{ resetToken.expirationMessageKey|trans(resetToken.expirationMessageData, 'ResetPasswordBundle') }}.
             </p>
-            <p class="mb-6">Si vous ne recevez rien, pensez à vérifier vos courriers indésirables, ou <a href="{{ path('app_forgot_password_request') }}" class="text-admin-primary-to hover:underline">réessayez</a>.</p>
+            <p class="mb-6">{{ 'Si vous ne recevez rien, pensez à vérifier vos courriers indésirables, ou'|trans }} <a href="{{ path('app_forgot_password_request') }}" class="text-admin-primary-to hover:underline">{{ 'réessayez'|trans }}</a>.</p>
 
             <div class="flex flex-col items-center gap-1">
-                <a href="{{ path('app_login') }}" class="hover:text-white">&larr; Connexion espace administration</a>
-                <a href="{{ path('portail_login') }}" class="hover:text-white">&larr; Connexion espace familles &amp; licenciés</a>
+                <a href="{{ path('app_login') }}" class="hover:text-white">{{ '&larr; Connexion espace administration'|trans }}</a>
+                <a href="{{ path('portail_login') }}" class="hover:text-white">{{ '&larr; Connexion espace familles &amp; licenciés'|trans }}</a>
             </div>
         </div>
     </div>

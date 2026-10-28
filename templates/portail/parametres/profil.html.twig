@@ -3,8 +3,8 @@
 {% block tab_content %}
     <section class="card">
         {{ form_start(form, {attr: {novalidate: 'novalidate'}}) }}
-            <h2 class="mc-h2">Profil</h2>
-            <p class="mc-lead">Vos informations personnelles{{ is_client ? '' : ' et votre photo de profil' }}.</p>
+            <h2 class="mc-h2">{{ 'settings.profile.title'|trans }}</h2>
+            <p class="mc-lead">{{ 'settings.profile.lead_portal'|trans({'%photo%': is_client ? '' : 'settings.profile.and_photo'|trans}) }}</p>
 
             {% if form.avatarFile is defined %}
                 {% do form.avatarFile.setRendered %}
@@ -14,9 +14,9 @@
                         {% if not app.user.avatarName %}<span data-avatar-upload-target="initial">{{ app.user.initiale }}</span>{% endif %}
                     </span>
                     <div>
-                        <label for="{{ form.avatarFile.vars.id }}" class="u-b202c6d4 mc-btn">Changer de photo</label>
+                        <label for="{{ form.avatarFile.vars.id }}" class="u-b202c6d4 mc-btn">{{ 'settings.profile.change_photo'|trans }}</label>
                         <input type="file" id="{{ form.avatarFile.vars.id }}" name="{{ form.avatarFile.vars.full_name }}" accept="image/png,image/jpeg,image/gif" class="sr-only" data-avatar-upload-target="input" data-action="change->avatar-upload#preview">
-                        <small data-avatar-upload-target="hint">JPG, PNG ou GIF. 2 Mo maximum.</small>
+                        <small data-avatar-upload-target="hint">{{ 'settings.profile.photo_hint'|trans }}</small>
                         {{ form_errors(form.avatarFile) }}
                     </div>
                 </div>
@@ -29,21 +29,21 @@
             <div class="mc-field">{{ form_label(form.email) }}{{ form_widget(form.email) }}{{ form_errors(form.email) }}</div>
             <div class="mc-field">{{ form_label(form.currentPassword) }}{{ form_widget(form.currentPassword) }}{{ form_errors(form.currentPassword) }}</div>
 
-            <div class="mc-actions"><button type="submit" class="mc-btn is-primary">Enregistrer</button></div>
+            <div class="mc-actions"><button type="submit" class="mc-btn is-primary">{{ 'settings.save'|trans }}</button></div>
         {{ form_end(form) }}
     </section>
 
     <section class="card">
         {{ form_start(passwordForm, {attr: {novalidate: 'novalidate'}}) }}
-            <h2 class="mc-h2">Mot de passe</h2>
-            <p class="mc-lead">Choisissez un mot de passe d'au moins 8 caractères.</p>
+            <h2 class="mc-h2">{{ 'settings.profile.password'|trans }}</h2>
+            <p class="mc-lead">{{ 'settings.profile.password_lead_portal'|trans }}</p>
             <div class="mc-field">{{ form_label(passwordForm.currentPassword) }}{{ form_widget(passwordForm.currentPassword) }}{{ form_errors(passwordForm.currentPassword) }}</div>
             <div class="mc-grid2">
                 <div class="mc-field">{{ form_label(passwordForm.newPassword.first) }}{{ form_widget(passwordForm.newPassword.first) }}{{ form_errors(passwordForm.newPassword.first) }}</div>
                 <div class="mc-field">{{ form_label(passwordForm.newPassword.second) }}{{ form_widget(passwordForm.newPassword.second) }}{{ form_errors(passwordForm.newPassword.second) }}</div>
             </div>
             {% do passwordForm.save.setRendered %}
-            <div class="mc-actions"><button type="submit" class="mc-btn is-primary">Mettre à jour le mot de passe</button></div>
+            <div class="mc-actions"><button type="submit" class="mc-btn is-primary">{{ 'settings.profile.update_password'|trans }}</button></div>
         {{ form_end(passwordForm) }}
     </section>
 {% endblock %}

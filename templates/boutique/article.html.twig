@@ -1,7 +1,7 @@
 {% extends 'boutique/_layout.html.twig' %}
 
-{% block boutique_title %}{{ article.nom }}{% endblock %}
-{% block meta_description %}{% set resume = (article.description ?: "Article de la boutique officielle de l'ES Coutances.")|striptags|trim %}{{ article.nom }} — {{ resume|length > 150 ? resume|slice(0, 150) ~ "…" : resume }}{% endblock %}
+{% block boutique_title %}{{ article.nom|auto_trans }}{% endblock %}
+{% block meta_description %}{% set resume = (article.description ?: "Article de la boutique officielle de l'ES Coutances.")|striptags|trim %}{{ article.nom|auto_trans }} — {{ resume|length > 150 ? resume|slice(0, 150) ~ "…" : resume }}{% endblock %}
 {% block og_type %}product{% endblock %}
 {% block structured_data %}
   <script type="application/ld+json">{{ {
@@ -21,8 +21,8 @@
   }|json_encode(constant('JSON_UNESCAPED_UNICODE') b-or constant('JSON_UNESCAPED_SLASHES'))|raw }}</script>
 {% endblock %}
 {% block og_image %}{% if article.imageName %}{{ absolute_url(('uploads/articles/' ~ article.imageName)|thumb('detail')) }}{% else %}{{ parent() }}{% endif %}{% endblock %}
-{% block breadcrumb %}<a href="{{ path('boutique_index') }}">Boutique</a> <i class="fa-solid fa-chevron-right"></i> <span>{{ article.nom }}</span>{% endblock %}
-{% block hero_title %}{{ article.nom }}{% endblock %}
+{% block breadcrumb %}<a href="{{ path('boutique_index') }}">{{ 'Boutique'|trans }}</a> <i class="fa-solid fa-chevron-right"></i> <span>{{ article.nom|auto_trans }}</span>{% endblock %}
+{% block hero_title %}{{ article.nom|auto_trans }}{% endblock %}
 
 {% block boutique_styles %}
 <style nonce="{{ csp_nonce() }}">
@@ -61,7 +61,7 @@
   <div class="detail">
     <div class="detail-img">
       {% if article.imageName %}
-        <img src="{{ ('uploads/articles/' ~ article.imageName)|thumb('detail') }}" alt="{{ article.nom }}">
+        <img src="{{ ('uploads/articles/' ~ article.imageName)|thumb('detail') }}" alt="{{ article.nom|auto_trans }}">
       {% else %}
         <span class="placeholder"><i class="fa-solid fa-shirt"></i></span>
       {% endif %}
@@ -69,12 +69,12 @@
 
     <div>
       <p class="price">{{ article.prixCentimes|money }}</p>
-      {% if article.description %}<p class="detail-desc">{{ article.description }}</p>{% endif %}
+      {% if article.description %}<p class="detail-desc">{{ article.description|auto_trans }}</p>{% endif %}
 
       {% if not article.disponible %}
-        <p><span class="tag tag-grey">Épuisé</span></p>
-        <p class="u-002535c2 note">Cet article n'est plus en stock pour le moment.</p>
-        <p class="u-3ae1f62a"><a class="btn btn-outline" href="{{ path('boutique_index') }}">Retour à la boutique</a></p>
+        <p><span class="tag tag-grey">{{ 'Épuisé'|trans }}</span></p>
+        <p class="u-002535c2 note">{{ 'Cet article n\'est plus en stock pour le moment.'|trans }}</p>
+        <p class="u-3ae1f62a"><a class="btn btn-outline" href="{{ path('boutique_index') }}">{{ 'Retour à la boutique'|trans }}</a></p>
       {% else %}
         <form method="post" action="{{ path('boutique_panier_ajouter') }}" data-shop-form>
           <input type="hidden" name="_token" value="{{ csrf_token('boutique-panier') }}">
@@ -84,12 +84,12 @@
             {% if variantes.first.stock <= 5 %}<p class="stock-low">Plus que {{ variantes.first.stock }} en stock</p>{% endif %}
           {% else %}
             <fieldset class="u-012333e2">
-              <legend class="field-label">Taille</legend>
+              <legend class="field-label">{{ 'Taille'|trans }}</legend>
               <div class="sizes">
                 {% for v in variantes %}
                   <label class="size">
                     <input type="radio" name="variante" value="{{ v.id }}" {{ v.stock <= 0 ? 'disabled' }} data-stock="{{ v.stock }}" required>
-                    <span>{{ v.libelle }}{% if v.stock <= 0 %}<small>Épuisé</small>{% elseif v.stock <= 3 %}<small>Plus que {{ v.stock }}</small>{% endif %}</span>
+                    <span>{{ v.libelle }}{% if v.stock <= 0 %}<small>{{ 'Épuisé'|trans }}</small>{% elseif v.stock <= 3 %}<small>Plus que {{ v.stock }}</small>{% endif %}</span>
                   </label>
                 {% endfor %}
               </div>
@@ -98,17 +98,17 @@
 
           <div class="buy-row">
             <div class="qty" data-qty>
-              <button type="button" data-step="-1" aria-label="Diminuer la quantité">−</button>
-              <input type="number" name="quantite" value="1" min="1" max="{{ constant('App\\Service\\Boutique\\Panier::QUANTITE_MAX') }}" aria-label="Quantité">
-              <button type="button" data-step="1" aria-label="Augmenter la quantité">+</button>
+              <button type="button" data-step="-1" aria-label="{{ 'Diminuer la quantité'|trans }}">−</button>
+              <input type="number" name="quantite" value="1" min="1" max="{{ constant('App\\Service\\Boutique\\Panier::QUANTITE_MAX') }}" aria-label="{{ 'Quantité'|trans }}">
+              <button type="button" data-step="1" aria-label="{{ 'Augmenter la quantité'|trans }}">+</button>
             </div>
-            <button type="submit" class="btn btn-primary"><i class="fa-solid fa-bag-shopping"></i> Ajouter au panier</button>
+            <button type="submit" class="btn btn-primary"><i class="fa-solid fa-bag-shopping"></i> {{ 'Ajouter au panier'|trans }}</button>
           </div>
         </form>
 
         <div class="perks note">
-          <p><i class="fa-solid fa-store"></i> <strong>Retrait au club</strong> : pas de livraison, nous vous prévenons dès que votre commande est prête.</p>
-          <p><i class="fa-solid fa-credit-card"></i> Règlement par carte en ligne, ou en espèces / par chèque lors du retrait.</p>
+          <p><i class="fa-solid fa-store"></i> <strong>{{ 'Retrait au club'|trans }}</strong> {{ ': pas de livraison, nous vous prévenons dès que votre commande est prête.'|trans }}</p>
+          <p><i class="fa-solid fa-credit-card"></i> {{ 'Règlement par carte en ligne, ou en espèces / par chèque lors du retrait.'|trans }}</p>
         </div>
       {% endif %}
     </div>

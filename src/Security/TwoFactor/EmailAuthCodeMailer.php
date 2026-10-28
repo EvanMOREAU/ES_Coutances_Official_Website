@@ -2,11 +2,14 @@
 
 namespace App\Security\TwoFactor;
 
+use App\Entity\User;
+use App\Service\Locale\MailLocale;
 use Scheb\TwoFactorBundle\Mailer\AuthCodeMailerInterface;
 use Scheb\TwoFactorBundle\Model\Email\TwoFactorInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Address;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * Envoie le code de vérification à deux facteurs par e-mail, avec le même expéditeur
@@ -16,6 +19,8 @@ class EmailAuthCodeMailer implements AuthCodeMailerInterface
 {
     public function __construct(
         private readonly MailerInterface $mailer,
+        private readonly MailLocale $mailLocale,
+        private readonly TranslatorInterface $translator,
         private readonly string $mailerFromAddress,
         private readonly string $mailerFromName,
     ) {
@@ -23,16 +28,17 @@ class EmailAuthCodeMailer implements AuthCodeMailerInterface
 
     public function sendAuthCode(TwoFactorInterface $user): void
     {
-        $email = (new TemplatedEmail())
-            ->from(new Address($this->mailerFromAddress, $this->mailerFromName))
-            ->to($user->getEmailAuthRecipient())
-            ->subject('Votre code de vérification — ES Coutances')
-            ->htmlTemplate('email/2fa_code.html.twig')
-            ->context([
-                'code' => $user->getEmailAuthCode(),
-            ])
-        ;
-
-        $this->mailer->send($email);
+        $this->mailLocale->runFor($user instanceof User ? $user : null, function () use ($user): void {
+            $this->mailer->send(
+                (new TemplatedEmail())
+                    ->from(new Address($this->mailerFromAddress, $this->mailerFromName))
+                    ->to($user->getEmailAuthRecipient())
+                    ->subject($this->translator->trans('Votre code de vérification — ES Coutances'))
+                    ->htmlTemplate('email/2fa_code.html.twig')
+                    ->context([
+                        'code' => $user->getEmailAuthCode(),
+                    ]),
+            );
+        });
     }
 }

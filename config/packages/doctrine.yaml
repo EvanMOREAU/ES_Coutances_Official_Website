@@ -20,11 +20,21 @@ doctrine:
                 dir: '%kernel.project_dir%/src/Entity'
                 prefix: 'App\Entity'
                 alias: App
+        # Cache des requêtes « réglages » exécutées à chaque page (voir App\Doctrine\SingletonCacheInvalidator).
+        # Hors production, un cache en mémoire (propre à chaque requête) : aucun risque de données périmées.
+        result_cache_driver:
+            type: pool
+            pool: doctrine.result_cache_pool
+
+framework:
+    cache:
+        pools:
+            doctrine.result_cache_pool:
+                adapter: cache.adapter.array
 
 when@test:
     doctrine:
         dbal:
-            # "TEST_TOKEN" is typically set by ParaTest
             dbname_suffix: '_test%env(default::TEST_TOKEN)%'
 
 when@prod:
@@ -33,9 +43,6 @@ when@prod:
             query_cache_driver:
                 type: pool
                 pool: doctrine.system_cache_pool
-            result_cache_driver:
-                type: pool
-                pool: doctrine.result_cache_pool
 
     framework:
         cache:

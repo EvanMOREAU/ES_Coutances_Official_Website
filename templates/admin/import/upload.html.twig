@@ -4,8 +4,8 @@
 
 {% block body %}
     <div class="mb-6">
-        <h1 class="u-66972700 text-2xl font-black">Import Foot Club</h1>
-        <p class="text-sm text-admin-text-muted">Déposez l'export .xlsx du logiciel fédéral « Foot Club » pour créer ou mettre à jour les familles et licenciés du site à partir de ses données.</p>
+        <h1 class="u-66972700 text-2xl font-black">{{ 'Import Foot Club'|trans }}</h1>
+        <p class="text-sm text-admin-text-muted">{{ 'Déposez l\'export .xlsx du logiciel fédéral « Foot Club » pour créer ou mettre à jour les familles et licenciés du site à partir de ses données.'|trans }}</p>
     </div>
 
     <div class="admin-card rounded-2xl p-6 max-w-xl">
@@ -13,14 +13,14 @@
             <input type="hidden" name="_token" value="{{ csrf_token('import-upload') }}">
 
             <div>
-                <label for="fichier" class="block text-sm font-medium mb-1">Fichier export (.xlsx)</label>
+                <label for="fichier" class="block text-sm font-medium mb-1">{{ 'Fichier export (.xlsx)'|trans }}</label>
                 <input type="file" id="fichier" name="fichier" accept=".xlsx" required
                        class="block w-full text-sm rounded-lg border border-admin-border bg-admin-surface p-2">
-                <p class="text-xs text-admin-text-muted mt-1">Feuille « Feuil1 », une ligne par licencié, en-têtes en première ligne.</p>
+                <p class="text-xs text-admin-text-muted mt-1">{{ 'Feuille « Feuil1 », une ligne par licencié, en-têtes en première ligne.'|trans }}</p>
             </div>
 
             <button type="submit" class="rounded-lg admin-gradient px-5 py-2 text-sm font-semibold text-white">
-                <i class="fa-solid fa-arrow-right"></i> Analyser le fichier
+                <i class="fa-solid fa-arrow-right"></i> {{ 'Analyser le fichier'|trans }}
             </button>
         </form>
     </div>

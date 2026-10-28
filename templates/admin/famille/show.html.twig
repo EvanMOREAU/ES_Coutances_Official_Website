@@ -3,27 +3,27 @@
 {% block title %}{{ famille.nomAffiche }}{% endblock %}
 
 {% block body %}
-    <p class="mb-4"><a href="{{ path('admin_famille_index') }}" class="text-sm text-admin-text-muted hover:text-white">&larr; Retour aux familles</a></p>
+    <p class="mb-4"><a href="{{ path('admin_famille_index') }}" class="text-sm text-admin-text-muted hover:text-white">{{ '&larr; Retour aux familles'|trans }}</a></p>
 
     <div class="flex items-center justify-between mb-6">
         <h1 class="u-66972700 text-2xl font-black">{{ famille.nomAffiche }}</h1>
-        <a href="{{ path('admin_famille_edit', {id: famille.id}) }}" class="rounded-lg admin-gradient px-4 py-2 text-sm font-semibold text-white">Modifier</a>
+        <a href="{{ path('admin_famille_edit', {id: famille.id}) }}" class="rounded-lg admin-gradient px-4 py-2 text-sm font-semibold text-white">{{ 'Modifier'|trans }}</a>
     </div>
 
     <div class="grid md:grid-cols-2 gap-6">
         <div class="admin-card rounded-2xl p-6">
-            <h2 class="font-bold mb-4">Informations</h2>
+            <h2 class="font-bold mb-4">{{ 'Informations'|trans }}</h2>
             <dl class="text-sm space-y-2">
-                <div class="flex justify-between"><dt class="text-admin-text-muted">Compte</dt><dd>{{ famille.user }}{% if not famille.hasEmailValide %} <span class="badge badge-danger ml-1">Email invalide</span>{% endif %}</dd></div>
-                <div class="flex justify-between"><dt class="text-admin-text-muted">Adresse</dt><dd>{{ famille.adresse ?? '—' }}</dd></div>
-                <div class="flex justify-between"><dt class="text-admin-text-muted">Ville</dt><dd>{{ famille.codePostal }} {{ famille.ville }}</dd></div>
-                <div class="flex justify-between"><dt class="text-admin-text-muted">Téléphone</dt><dd>{{ famille.telephone ?? '—' }}</dd></div>
+                <div class="flex justify-between"><dt class="text-admin-text-muted">{{ 'Compte'|trans }}</dt><dd>{{ famille.user }}{% if not famille.hasEmailValide %} <span class="badge badge-danger ml-1">{{ 'Email invalide'|trans }}</span>{% endif %}</dd></div>
+                <div class="flex justify-between"><dt class="text-admin-text-muted">{{ 'Adresse'|trans }}</dt><dd>{{ famille.adresse ?? '—' }}</dd></div>
+                <div class="flex justify-between"><dt class="text-admin-text-muted">{{ 'Ville'|trans }}</dt><dd>{{ famille.codePostal }} {{ famille.ville }}</dd></div>
+                <div class="flex justify-between"><dt class="text-admin-text-muted">{{ 'Téléphone'|trans }}</dt><dd>{{ famille.telephone ?? '—' }}</dd></div>
             </dl>
         </div>
         <div class="admin-card rounded-2xl p-6">
-            <h2 class="font-bold mb-4">Licenciés rattachés</h2>
+            <h2 class="font-bold mb-4">{{ 'Licenciés rattachés'|trans }}</h2>
             {% if famille.licencies is empty %}
-                <p class="text-sm text-admin-text-muted">Aucun licencié rattaché.</p>
+                <p class="text-sm text-admin-text-muted">{{ 'Aucun licencié rattaché.'|trans }}</p>
             {% else %}
                 <ul class="text-sm space-y-2">
                     {% for licencie in famille.licencies %}
@@ -39,13 +39,13 @@
 
     {% if famille.user and not famille.user.staff and not famille.user.anonymized and can_url(path('admin_compte_anonymiser', {id: famille.user.id}), 'POST') %}
         <section class="u-869f86b1 admin-card rounded-2xl p-6 mt-6">
-            <h2 class="font-bold mb-1">Anonymiser le compte</h2>
+            <h2 class="font-bold mb-1">{{ 'Anonymiser le compte'|trans }}</h2>
             <p class="text-sm text-admin-text-muted mb-4">Efface les données personnelles de {{ famille.user.nomComplet ?: famille.user.email }} (compte, famille, licenciés, messages, documents) à sa demande (RGPD). Les factures — licences, règlements, commandes — sont conservées, sans lien avec une identité.</p>
             <form method="post" action="{{ path('admin_compte_anonymiser', {id: famille.user.id}) }}"
-                  data-confirm="Les données personnelles de ce compte seront définitivement effacées ; seules les factures seront conservées. Cette action est irréversible." data-confirm-title="Anonymiser ce compte ?" data-confirm-label="Anonymiser">
+                  data-confirm="Les données personnelles de ce compte seront définitivement effacées ; seules les factures seront conservées. Cette action est irréversible." data-confirm-title="{{ 'Anonymiser ce compte ?'|trans }}" data-confirm-label="Anonymiser">
                 <input type="hidden" name="_token" value="{{ csrf_token('anonymize-compte-' ~ famille.user.id) }}">
                 <input type="hidden" name="retour" value="{{ path('admin_famille_index') }}">
-                <button type="submit" class="rounded-lg border border-admin-danger/40 text-admin-danger px-4 py-2 text-sm font-semibold hover:bg-admin-danger/10"><i class="fa-solid fa-user-slash"></i> Anonymiser le compte</button>
+                <button type="submit" class="rounded-lg border border-admin-danger/40 text-admin-danger px-4 py-2 text-sm font-semibold hover:bg-admin-danger/10"><i class="fa-solid fa-user-slash"></i> {{ 'Anonymiser le compte'|trans }}</button>
             </form>
         </section>
     {% endif %}

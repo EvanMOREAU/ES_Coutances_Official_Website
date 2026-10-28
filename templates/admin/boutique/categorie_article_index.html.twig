@@ -3,10 +3,10 @@
 {% block title %}Catégories boutique{% endblock %}
 
 {% block body %}
-    <a href="{{ path('admin_article_index') }}" class="text-sm text-admin-text-muted hover:text-admin-text"><i class="fa-solid fa-arrow-left"></i> Tous les articles</a>
+    <a href="{{ path('admin_article_index') }}" class="text-sm text-admin-text-muted hover:text-admin-text"><i class="fa-solid fa-arrow-left"></i> {{ 'Tous les articles'|trans }}</a>
     <div class="flex items-center justify-between mt-3 mb-6">
-        <h1 class="u-66972700 text-2xl font-black">Catégories boutique</h1>
-        {% if can_url(path('admin_boutique_categorie_new')) %}<a href="{{ path('admin_boutique_categorie_new') }}" class="rounded-lg admin-gradient px-4 py-2 text-sm font-semibold text-white">+ Nouvelle catégorie</a>{% endif %}
+        <h1 class="u-66972700 text-2xl font-black">{{ 'Catégories boutique'|trans }}</h1>
+        {% if can_url(path('admin_boutique_categorie_new')) %}<a href="{{ path('admin_boutique_categorie_new') }}" class="rounded-lg admin-gradient px-4 py-2 text-sm font-semibold text-white">{{ '+ Nouvelle catégorie'|trans }}</a>{% endif %}
     </div>
 
     {% embed 'admin/_components/data_table.html.twig' with {

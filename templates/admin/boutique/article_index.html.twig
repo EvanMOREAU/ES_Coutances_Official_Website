@@ -4,13 +4,13 @@
 
 {% block body %}
     <div class="flex flex-wrap items-center justify-between gap-3 mb-2">
-        <h1 class="u-66972700 text-2xl font-black">Articles de la boutique</h1>
+        <h1 class="u-66972700 text-2xl font-black">{{ 'Articles de la boutique'|trans }}</h1>
         <div class="flex items-center gap-2">
-            <a href="{{ path('admin_commande_index') }}" class="admin-btn admin-btn-ghost"><i class="fa-solid fa-bag-shopping"></i> Commandes</a>
-            {% if can_url(path('admin_article_new')) %}<a href="{{ path('admin_article_new') }}" class="rounded-lg admin-gradient px-4 py-2 text-sm font-semibold text-white">+ Nouvel article</a>{% endif %}
+            <a href="{{ path('admin_commande_index') }}" class="admin-btn admin-btn-ghost"><i class="fa-solid fa-bag-shopping"></i> {{ 'Commandes'|trans }}</a>
+            {% if can_url(path('admin_article_new')) %}<a href="{{ path('admin_article_new') }}" class="rounded-lg admin-gradient px-4 py-2 text-sm font-semibold text-white">{{ '+ Nouvel article'|trans }}</a>{% endif %}
         </div>
     </div>
-    <p class="text-sm text-admin-text-muted mb-6">Chaque article se décline en tailles, avec son propre stock. Seuls les articles « actifs » apparaissent dans la <a href="{{ path('boutique_index') }}" target="_blank" rel="noopener" class="underline">boutique du site</a>.</p>
+    <p class="text-sm text-admin-text-muted mb-6">{{ 'Chaque article se décline en tailles, avec son propre stock. Seuls les articles « actifs » apparaissent dans la'|trans }} <a href="{{ path('boutique_index') }}" target="_blank" rel="noopener" class="underline">{{ 'boutique du site'|trans }}</a>.</p>
 
     {% embed 'admin/_components/data_table.html.twig' with {
         key: 'article',
@@ -48,7 +48,7 @@
                     <td data-col="categorie" data-sort="{{ article.categorie ? article.categorie.nom|lower : '' }}" class="dt-muted">{{ article.categorie ? article.categorie.nom : '—' }}</td>
                     <td data-col="prix" data-sort="{{ article.prixCentimes }}">{{ article.prixCentimes|money }}</td>
                     <td data-col="stock" data-sort="{{ article.stockTotal }}">
-                        {% if article.stockTotal == 0 %}<span class="badge badge-cmd-annulee">Épuisé</span>{% else %}{{ article.stockTotal }}{% endif %}
+                        {% if article.stockTotal == 0 %}<span class="badge badge-cmd-annulee">{{ 'Épuisé'|trans }}</span>{% else %}{{ article.stockTotal }}{% endif %}
                     </td>
                     <td data-col="statut"><span class="badge badge-{{ article.statut }}">{{ article.statutLabel }}</span></td>
                     <td data-col="cree" data-sort="{{ article.createdAt ? article.createdAt|date('Y-m-d H:i') : '' }}" class="dt-muted">{{ article.createdAt ? article.createdAt|date('d/m/Y') : '—' }}</td>

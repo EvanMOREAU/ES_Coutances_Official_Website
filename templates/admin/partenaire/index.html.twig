@@ -4,8 +4,8 @@
 
 {% block body %}
     <div class="flex items-center justify-between mb-6">
-        <h1 class="u-66972700 text-2xl font-black">Partenaires &amp; Sponsors</h1>
-        {% if can_url(path('admin_partenaire_new')) %}<a href="{{ path('admin_partenaire_new') }}" class="rounded-lg admin-gradient px-4 py-2 text-sm font-semibold text-white">+ Nouveau partenaire</a>{% endif %}
+        <h1 class="u-66972700 text-2xl font-black">{{ 'Partenaires &amp; Sponsors'|trans }}</h1>
+        {% if can_url(path('admin_partenaire_new')) %}<a href="{{ path('admin_partenaire_new') }}" class="rounded-lg admin-gradient px-4 py-2 text-sm font-semibold text-white">{{ '+ Nouveau partenaire'|trans }}</a>{% endif %}
     </div>
 
     {% embed 'admin/_components/data_table.html.twig' with {
@@ -30,7 +30,7 @@
             {% for partenaire in partenaires %}
                 <tr data-data-table-target="row" data-reorder-target="row" data-action="dragover->reorder#over drop->reorder#drop" data-id="{{ partenaire.id }}" data-status="{{ partenaire.statut }}">
                     {% if bulk %}<td class="dt-check-col"><input type="checkbox" data-row-check value="{{ partenaire.id }}" data-action="change->data-table#toggleRow" aria-label="Sélectionner {{ partenaire.nom }}"></td>{% endif %}
-                    <td data-col="drag" class="dt-drag-handle" draggable="true" data-action="dragstart->reorder#start dragend->reorder#end" title="Glisser pour réordonner"><i class="fa-solid fa-grip-vertical"></i></td>
+                    <td data-col="drag" class="dt-drag-handle" draggable="true" data-action="dragstart->reorder#start dragend->reorder#end" title="{{ 'Glisser pour réordonner'|trans }}"><i class="fa-solid fa-grip-vertical"></i></td>
                     <td data-col="logo">
                         {% if partenaire.logoName %}
                             <img src="{{ ('uploads/partenaires/' ~ partenaire.logoName)|thumb('mini') }}" alt="" class="h-8 w-8 rounded object-cover bg-white/10">

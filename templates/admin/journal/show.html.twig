@@ -10,7 +10,7 @@
 {% endmacro %}
 
 {% block body %}
-    <a href="{{ path('admin_journal_index') }}" class="text-sm text-admin-text-muted hover:text-admin-text"><i class="fa-solid fa-arrow-left"></i> Journal d'activité</a>
+    <a href="{{ path('admin_journal_index') }}" class="text-sm text-admin-text-muted hover:text-admin-text"><i class="fa-solid fa-arrow-left"></i> {{ 'Journal d\'activité'|trans }}</a>
 
     <div class="flex flex-wrap items-center gap-3 mt-3 mb-5">
         <span class="jr-type jr-type-{{ log.type }}">{{ log.operationLabel ?: log.typeLabel }}</span>
@@ -23,7 +23,7 @@
                 <section class="admin-card rounded-2xl p-6">
                     <h2 class="font-semibold mb-4">{{ log.operation == 'creation' ? 'Valeurs enregistrées' : (log.operation == 'suppression' ? 'Valeurs supprimées' : 'Modifications') }}</h2>
                     <table class="cmd-lines jr-changes">
-                        <thead><tr><th>Champ</th>{% if log.operation != 'creation' %}<th>Avant</th>{% endif %}{% if log.operation != 'suppression' %}<th>Après</th>{% endif %}</tr></thead>
+                        <thead><tr><th>{{ 'Champ'|trans }}</th>{% if log.operation != 'creation' %}<th>{{ 'Avant'|trans }}</th>{% endif %}{% if log.operation != 'suppression' %}<th>{{ 'Après'|trans }}</th>{% endif %}</tr></thead>
                         <tbody>
                             {% for field, change in log.changes %}
                                 <tr>
@@ -43,15 +43,15 @@
 
             {% if log.context %}
                 <section class="admin-card rounded-2xl p-6">
-                    <h2 class="font-semibold mb-4">Détails de l'action</h2>
+                    <h2 class="font-semibold mb-4">{{ 'Détails de l\'action'|trans }}</h2>
                     <pre class="jr-pre">{{ log.context|json_encode(constant('JSON_UNESCAPED_UNICODE') b-or constant('JSON_PRETTY_PRINT')) }}</pre>
                 </section>
             {% endif %}
 
             {% if related %}
                 <section class="admin-card rounded-2xl p-6">
-                    <h2 class="font-semibold mb-1">Même requête</h2>
-                    <p class="text-xs text-admin-text-muted mb-3">Tout ce que cette action a provoqué.</p>
+                    <h2 class="font-semibold mb-1">{{ 'Même requête'|trans }}</h2>
+                    <p class="text-xs text-admin-text-muted mb-3">{{ 'Tout ce que cette action a provoqué.'|trans }}</p>
                     <ul class="jr-list">
                         {% for r in related %}
                             <li><a href="{{ path('admin_journal_show', {id: r.id}) }}"><span class="jr-type jr-type-{{ r.type }}">{{ r.operationLabel ?: r.typeLabel }}</span> {{ r.summary }}</a></li>
@@ -62,7 +62,7 @@
 
             {% if history %}
                 <section class="admin-card rounded-2xl p-6">
-                    <h2 class="font-semibold mb-1">Historique de cet élément</h2>
+                    <h2 class="font-semibold mb-1">{{ 'Historique de cet élément'|trans }}</h2>
                     <p class="text-xs text-admin-text-muted mb-3">{{ log.entityShort }} #{{ log.entityId }} — les 15 dernières lignes.</p>
                     <ul class="jr-list">
                         {% for r in history %}
@@ -75,30 +75,30 @@
 
         <aside class="space-y-6">
             <section class="admin-card rounded-2xl p-6">
-                <h2 class="font-semibold mb-4">Qui et quand</h2>
+                <h2 class="font-semibold mb-4">{{ 'Qui et quand'|trans }}</h2>
                 <dl class="cmd-dl">
                     <dt>Date</dt><dd>{{ log.occurredAt|date('d/m/Y à H:i:s') }}</dd>
-                    <dt>Compte</dt><dd>{{ log.userName ?: '—' }}</dd>
-                    <dt>E-mail</dt><dd>{{ log.userEmail ?: '—' }}</dd>
-                    <dt>Identifiant</dt><dd>{{ log.userId ?: '—' }}</dd>
-                    <dt>Rôles</dt><dd>{{ log.userRoles ?: '—' }}</dd>
-                    <dt>Adresse IP</dt><dd><strong>{{ log.ip ?: '—' }}</strong></dd>
-                    {% if log.forwardedFor %}<dt>Transmise par</dt><dd>{{ log.forwardedFor }}</dd>{% endif %}
-                    <dt>Navigateur</dt><dd>{{ log.userAgent ?: '—' }}</dd>
+                    <dt>{{ 'Compte'|trans }}</dt><dd>{{ log.userName ?: '—' }}</dd>
+                    <dt>{{ 'E-mail'|trans }}</dt><dd>{{ log.userEmail ?: '—' }}</dd>
+                    <dt>{{ 'Identifiant'|trans }}</dt><dd>{{ log.userId ?: '—' }}</dd>
+                    <dt>{{ 'Rôles'|trans }}</dt><dd>{{ log.userRoles ?: '—' }}</dd>
+                    <dt>{{ 'Adresse IP'|trans }}</dt><dd><strong>{{ log.ip ?: '—' }}</strong></dd>
+                    {% if log.forwardedFor %}<dt>{{ 'Transmise par'|trans }}</dt><dd>{{ log.forwardedFor }}</dd>{% endif %}
+                    <dt>{{ 'Navigateur'|trans }}</dt><dd>{{ log.userAgent ?: '—' }}</dd>
                 </dl>
             </section>
 
             <section class="admin-card rounded-2xl p-6">
-                <h2 class="font-semibold mb-4">Requête</h2>
+                <h2 class="font-semibold mb-4">{{ 'Requête'|trans }}</h2>
                 <dl class="cmd-dl">
-                    <dt>Rubrique</dt><dd>{{ log.category }}</dd>
+                    <dt>{{ 'Rubrique'|trans }}</dt><dd>{{ log.category }}</dd>
                     <dt>Origine</dt><dd>{{ log.source == 'cli' ? 'Ligne de commande' : 'Navigateur' }}</dd>
-                    <dt>Méthode</dt><dd>{{ log.method ?: '—' }}</dd>
-                    <dt>Route</dt><dd>{{ log.route ?: '—' }}</dd>
-                    <dt>Adresse</dt><dd>{{ log.path ?: '—' }}</dd>
-                    <dt>Code HTTP</dt><dd>{{ log.statusCode ?: '—' }}</dd>
-                    {% if log.entityClass %}<dt>Élément</dt><dd>{{ log.entityShort }} #{{ log.entityId }}{{ log.entityLabel ? ' — ' ~ log.entityLabel }}</dd>{% endif %}
-                    <dt>N° de requête</dt><dd><a href="{{ path('admin_journal_index', {request: log.requestId}) }}" class="underline">{{ log.requestId }}</a></dd>
+                    <dt>{{ 'Méthode'|trans }}</dt><dd>{{ log.method ?: '—' }}</dd>
+                    <dt>{{ 'Route'|trans }}</dt><dd>{{ log.route ?: '—' }}</dd>
+                    <dt>{{ 'Adresse'|trans }}</dt><dd>{{ log.path ?: '—' }}</dd>
+                    <dt>{{ 'Code HTTP'|trans }}</dt><dd>{{ log.statusCode ?: '—' }}</dd>
+                    {% if log.entityClass %}<dt>{{ 'Élément'|trans }}</dt><dd>{{ log.entityShort }} #{{ log.entityId }}{{ log.entityLabel ? ' — ' ~ log.entityLabel }}</dd>{% endif %}
+                    <dt>{{ 'N° de requête'|trans }}</dt><dd><a href="{{ path('admin_journal_index', {request: log.requestId}) }}" class="underline">{{ log.requestId }}</a></dd>
                 </dl>
             </section>
         </aside>

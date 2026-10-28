@@ -3,20 +3,20 @@
 {% block title %}{{ licencie.prenom }} {{ licencie.nom }}{% endblock %}
 
 {% block body %}
-    <a class="lien-retour" href="{{ path('portail_index') }}"><i class="fa-solid fa-arrow-left"></i> Retour à l'accueil</a>
+    <a class="lien-retour" href="{{ path('portail_index') }}"><i class="fa-solid fa-arrow-left"></i> {{ 'Retour à l\'accueil'|trans }}</a>
     <div class="mc-page-head">
-        <span class="mc-eyebrow">Fiche licencié</span>
+        <span class="mc-eyebrow">{{ 'Fiche licencié'|trans }}</span>
         <h1>{{ licencie.prenom }} {{ licencie.nom }}</h1>
-        <p class="mc-sub">{{ licencie.categorie }} · saison {{ licencie.saison }}</p>
+        <p class="mc-sub">{{ 'portal.category_season'|trans({'%category%': licencie.categorie, '%season%': licencie.saison}) }}</p>
     </div>
 
     <div class="card">
-        <div class="card-head"><h2>Informations</h2><span class="{{ licencie.actif ? 'badge-ok' : 'badge-ko' }}">{{ licencie.actif ? 'Actif' : 'Inactif' }}</span></div>
+        <div class="card-head"><h2>{{ 'Informations'|trans }}</h2><span class="{{ licencie.actif ? 'badge-ok' : 'badge-ko' }}">{{ (licencie.actif ? 'portal.active' : 'portal.inactive')|trans }}</span></div>
         <dl class="kv">
-            <dt>Date de naissance</dt><dd>{{ licencie.dateNaissance|date('d/m/Y') }}</dd>
-            <dt>Famille</dt><dd>{{ licencie.famille }}</dd>
-            <dt>Catégorie(s)</dt><dd>{{ licencie.categorie ~ (licencie.equipes|length ? ' — ' ~ licencie.equipes|map(e => e.nom)|join(', ') : '') }}</dd>
-            <dt>Saison</dt><dd>{{ licencie.saison }}</dd>
+            <dt>{{ 'Date de naissance'|trans }}</dt><dd>{{ licencie.dateNaissance|date('d/m/Y') }}</dd>
+            <dt>{{ 'Famille'|trans }}</dt><dd>{{ licencie.famille }}</dd>
+            <dt>{{ 'Catégorie(s)'|trans }}</dt><dd>{{ licencie.categorie ~ (licencie.equipes|length ? ' — ' ~ licencie.equipes|map(e => e.nom)|join(', ') : '') }}</dd>
+            <dt>{{ 'Saison'|trans }}</dt><dd>{{ licencie.saison }}</dd>
         </dl>
     </div>
 {% endblock %}

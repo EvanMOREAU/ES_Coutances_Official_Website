@@ -1,0 +1,12 @@
+# Chargé uniquement si REDIS_URL est renseigné (voir App\Kernel::configureContainer) : cache applicatif,
+# limiteurs de débit et sessions partagés entre plusieurs processus / conteneurs, et plus rapides que le disque.
+#   REDIS_URL=redis://redis:6379          (extension PHP « redis » requise, présente dans le Dockerfile)
+# Le conteneur de production est compilé avec cette valeur : relancer `cache:clear` après l'avoir changée.
+framework:
+    cache:
+        default_redis_provider: '%env(REDIS_URL)%'
+        app: cache.adapter.redis
+    session:
+        handler_id: '%env(REDIS_URL)%'
+        # Préfixe distinct par application si le Redis est partagé.
+        # (sf_s est le préfixe par défaut des sessions Symfony)

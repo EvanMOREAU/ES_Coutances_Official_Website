@@ -171,3 +171,32 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }
+
+/* SÉLECTEUR DE LANGUE */
+.lang-switch { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 6px 14px; margin-top: 10px; font-size: 12px; }
+.lang-switch a { color: inherit; opacity: .7; text-decoration: none; }
+.lang-switch a:hover, .lang-switch a.is-active { opacity: 1; text-decoration: underline; }
+.lang-switch a.is-active { font-weight: 700; }
+
+/* SÉLECTEUR DE LANGUE DE LA BARRE DE NAVIGATION (menu déroulant drapeau + nom) */
+.lang-flag { width: 22px; height: 15px; object-fit: cover; border-radius: 2px; box-shadow: 0 0 0 1px rgba(0,0,0,.18); flex-shrink: 0; vertical-align: middle; }
+.nav-lang > button { text-transform: none; letter-spacing: .03em; }
+.nav-lang .dropdown { left: auto; right: auto; inset-inline: auto 0; min-width: 190px; }
+.dd-lang .dd-col { min-width: 190px; padding: 8px 0; }
+.dd-lang a { text-transform: none; letter-spacing: 0; display: flex; align-items: center; gap: 10px; padding: 9px 18px; font-size: 14px; font-weight: 600; color: var(--dark); white-space: nowrap; }
+.dd-lang a:hover { color: var(--red); background: rgba(0,0,0,.04); }
+.dd-lang a.is-active, .mob-lang .mob-links a.is-active { color: var(--red); font-weight: 800; }
+.mob-lang .lang-current { display: inline-flex; align-items: center; gap: 10px; }
+.mob-lang .mob-links a { display: flex; align-items: center; gap: 10px; padding: 8px 0; font-size: 14px; text-transform: none; }
+
+/* ÉCRITURE DE DROITE À GAUCHE (arabe) */
+html[dir="rtl"] body { font-family: 'Segoe UI', Tahoma, 'Noto Sans Arabic', Arial, sans-serif; }
+html[dir="rtl"] .logo-name, html[dir="rtl"] .logo-sub, html[dir="rtl"] .header-tagline,
+html[dir="rtl"] .nav-item > a, html[dir="rtl"] .nav-item > button,
+html[dir="rtl"] .mob-section-head, html[dir="rtl"] .mob-direct { font-family: inherit; letter-spacing: 0; font-style: normal; text-transform: none; }
+html[dir="rtl"] .nav-item > a::after, html[dir="rtl"] .nav-item > button::after { left: 16px; right: 16px; }
+html[dir="rtl"] .dropdown { left: auto; right: 0; }
+html[dir="rtl"] .nav-lang .dropdown { right: auto; left: 0; }
+html[dir="rtl"] .mob-links { padding: 0 32px 12px 24px; }
+html[dir="rtl"] .mob-links h5, html[dir="rtl"] .footer-col h5 { letter-spacing: 0; }
+html[dir="rtl"] .footer-grid, html[dir="rtl"] .footer-bottom { text-align: right; }

@@ -67,9 +67,17 @@ class ChatController extends AbstractController
     {
         $me = $this->me();
         $this->chat->touchPresence($me);
+        // La session n'est plus nécessaire : on libère son verrou pour ne pas bloquer les autres requêtes de l'utilisateur.
+        $request->getSession()->save();
 
-        $payload = ['active' => null];
         $activeId = $request->query->getInt('active');
+        $stamp    = $this->chat->changeStamp($me, $activeId, max(0, $request->query->getInt('after')));
+        if ('' !== (string) $request->query->get('v') && hash_equals($stamp, (string) $request->query->get('v'))) {
+            // Rien de nouveau depuis la dernière réponse : on évite de reconstruire les discussions.
+            return $this->json(['unchanged' => true, 'v' => $stamp], headers: ['Cache-Control' => 'no-store']);
+        }
+
+        $payload = ['active' => null, 'v' => $stamp];
         if ($activeId > 0) {
             $conversation = $this->em->find(Conversation::class, $activeId);
             if ($conversation !== null && $this->chat->canAccess($conversation, $me)) {
@@ -224,9 +232,12 @@ class ChatController extends AbstractController
     /** Nombre de messages non lus, interrogé en arrière-plan par toutes les pages pour mettre le badge à jour. */
     #[Route('/admin/messagerie/api/non-lus', name: 'admin_chat_unread', methods: ['GET'])]
     #[Route('/mon-compte/messagerie/api/non-lus', name: 'portail_chat_unread', methods: ['GET'])]
-    public function unread(): JsonResponse
+    public function unread(Request $request): JsonResponse
     {
-        return $this->json(['unread' => $this->chat->unreadTotal($this->me())], headers: ['Cache-Control' => 'no-store']);
+        $me = $this->me();
+        $request->getSession()->save();
+
+        return $this->json(['unread' => $this->chat->unreadTotal($me)], headers: ['Cache-Control' => 'no-store']);
     }
 
     #[Route('/admin/messagerie/api/contacts', name: 'admin_chat_contacts', methods: ['GET'])]

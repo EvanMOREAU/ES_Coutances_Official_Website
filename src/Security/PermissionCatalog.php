@@ -79,6 +79,7 @@ final class PermissionCatalog
                 ]],
                 'mail'         => ['label' => 'Paramètres e-mail (serveur SMTP)', 'actions' => [self::VOIR => 'Voir', self::MODIFIER => 'Modifier', 'tester' => 'Envoyer un e-mail de test']],
                 'helloasso'    => ['label' => 'Paramètres HelloAsso (paiement en ligne)', 'actions' => [self::VOIR => 'Voir', self::MODIFIER => 'Modifier']],
+                'langues'      => ['label' => 'Langues du site (activer / désactiver)', 'actions' => [self::VOIR => 'Voir', self::MODIFIER => 'Modifier']],
                 'messagerie'   => ['label' => 'Messagerie', 'actions' => ['utiliser' => 'Utiliser la messagerie', 'support' => 'Support client (répondre aux clients de la boutique)']],
                 'boutique_maintenance' => ['label' => 'Réglages de la boutique (maintenance, seuil de stock)', 'actions' => [self::VOIR => 'Voir', self::MODIFIER => 'Modifier']],
                 'deploiement'  => ['label' => 'Mise à jour du site', 'actions' => [self::VOIR => 'Voir', 'lancer' => 'Lancer une mise à jour (et supprimer la sauvegarde des fichiers)']],

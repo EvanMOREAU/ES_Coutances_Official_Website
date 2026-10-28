@@ -1,6 +1,6 @@
 {% extends 'portail/_layout.html.twig' %}
 
-{% block title %}Messagerie{% endblock %}
+{% block title %}{{ 'Messagerie'|trans }}{% endblock %}
 
 {% block head_assets %}
     {{ include('_importmap.html.twig', {entry: 'portail'}) }}
@@ -23,11 +23,11 @@
 
 {% block page_head %}
     <div class="mc-page-head">
-        <span class="mc-eyebrow">Échanges</span>
-        <h1>{{ chat_solo ? 'Support' : 'Messagerie' }}</h1>
-        <p class="mc-sub">{{ chat_solo ? 'Une question, un souci avec une commande ? Écrivez-nous : l\'équipe vous répond ici.' : 'Écrivez aux responsables du club : ils vous répondent ici, sans recharger la page.' }}</p>
+        <span class="mc-eyebrow">{{ 'Échanges'|trans }}</span>
+        <h1>{{ (chat_solo ? 'portal.support' : 'portal.messaging')|trans }}</h1>
+        <p class="mc-sub">{{ (chat_solo ? 'portal.support_lead' : 'portal.messaging_lead')|trans }}</p>
         {% if chat_solo %}
-            <p class="mc-info"><i class="fa-solid fa-circle-info"></i><span>Nos réponses peuvent prendre un peu de temps. Chaque message que vous recevez vous est aussi signalé par e-mail.</span></p>
+            <p class="mc-info"><i class="fa-solid fa-circle-info"></i><span>{{ 'Nos réponses peuvent prendre un peu de temps. Chaque message que vous recevez vous est aussi signalé par e-mail.'|trans }}</span></p>
         {% endif %}
     </div>
 {% endblock %}

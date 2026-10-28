@@ -68,7 +68,7 @@ final class ConsoleCommandsTest extends DatabaseTestCase
     public function testAuditPurgeDeletesOnlyEntriesOlderThanTheRetention(): void
     {
         $connection = $this->em->getConnection();
-        $insert = static fn (string $date, string $summary) => $connection->insert('audit_log', [
+        $insert = static fn (string $date, string $summary) => $connection->insert('es_audit_log', [
             'occurred_at' => $date, 'type' => 'requete', 'category' => 'Autre', 'summary' => $summary, 'source' => 'web',
         ]);
         $insert((new \DateTimeImmutable('-13 months'))->format('Y-m-d H:i:s'), 'ancienne-entree');
@@ -78,7 +78,7 @@ final class ConsoleCommandsTest extends DatabaseTestCase
         $tester->execute([]);
 
         $tester->assertCommandIsSuccessful();
-        $summaries = $connection->fetchFirstColumn("SELECT summary FROM audit_log WHERE summary IN ('ancienne-entree', 'entree-recente')");
+        $summaries = $connection->fetchFirstColumn("SELECT summary FROM es_audit_log WHERE summary IN ('ancienne-entree', 'entree-recente')");
         self::assertSame(['entree-recente'], $summaries);
     }
 

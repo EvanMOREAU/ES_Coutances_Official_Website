@@ -7,10 +7,10 @@
 
     <section class="card">
         {{ form_start(form, {attr: {'data-controller': 'appearance', novalidate: 'novalidate'}}) }}
-            <h2 class="mc-h2">Apparence</h2>
-            <p class="mc-lead">Personnalisez l'affichage de votre espace : l'aperçu est immédiat, pensez à enregistrer.</p>
+            <h2 class="mc-h2">{{ 'settings.appearance.title'|trans }}</h2>
+            <p class="mc-lead">{{ 'settings.appearance.lead_portal'|trans }}</p>
 
-            <h3 class="mc-h3">Thème</h3>
+            <h3 class="mc-h3">{{ 'settings.appearance.theme'|trans }}</h3>
             <div class="mc-choices c3">
                 {% for child in form.theme %}
                     <label class="mc-choice">
@@ -21,7 +21,7 @@
                 {% endfor %}
             </div>
 
-            <h3 class="mc-h3">Couleur d'accent</h3>
+            <h3 class="mc-h3">{{ 'settings.appearance.accent'|trans }}</h3>
             <div class="mc-choices c7">
                 {% for child in form.colorScheme %}
                     <label class="mc-choice">
@@ -32,7 +32,7 @@
                 {% endfor %}
             </div>
 
-            <h3 class="mc-h3">Densité</h3>
+            <h3 class="mc-h3">{{ 'settings.appearance.density'|trans }}</h3>
             <div class="mc-choices c3">
                 {% for child in form.density %}
                     <label class="mc-choice">
@@ -43,15 +43,19 @@
                 {% endfor %}
             </div>
 
-            <h3 class="mc-h3">Langue</h3>
-            <div class="u-a0fcf227 mc-choices c3">
-                <div class="u-7e30c2a0 mc-choice"><i class="u-aaabfbad fa-solid fa-globe"></i><span>Français</span></div>
-                <div class="mc-choice is-off"><i class="fa-solid fa-globe"></i><span>English</span></div>
-                <div class="mc-choice is-off"><i class="fa-solid fa-globe"></i><span>Deutsch</span></div>
+            <h3 class="mc-h3">{{ 'settings.appearance.language'|trans }}</h3>
+            <div class="mc-choices c3">
+                {% for child in form.locale %}
+                    <label class="mc-choice">
+                        {{ form_widget(child, {attr: {class: 'sr-only'}}) }}
+                        <i class="fa-solid fa-globe"></i>
+                        <span>{{ child.vars.label }}</span>
+                    </label>
+                {% endfor %}
             </div>
-            <p class="mc-lead">Seul le français est disponible pour le moment.</p>
+            <p class="mc-lead">{{ 'settings.appearance.language_help'|trans }}</p>
 
-            <div class="mc-actions"><button type="submit" class="mc-btn is-primary">Enregistrer</button></div>
+            <div class="mc-actions"><button type="submit" class="mc-btn is-primary">{{ 'settings.save'|trans }}</button></div>
         {{ form_end(form) }}
     </section>
 {% endblock %}

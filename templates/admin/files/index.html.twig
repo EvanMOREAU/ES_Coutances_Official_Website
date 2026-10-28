@@ -4,8 +4,8 @@
 
 {% block body %}
     <div class="mb-5">
-        <h1 class="u-66972700 text-2xl font-black">Gestionnaire de fichiers</h1>
-        <p class="text-sm text-admin-text-muted">Gérez les documents, images et fichiers du site.</p>
+        <h1 class="u-66972700 text-2xl font-black">{{ 'Gestionnaire de fichiers'|trans }}</h1>
+        <p class="text-sm text-admin-text-muted">{{ 'Gérez les documents, images et fichiers du site.'|trans }}</p>
     </div>
 
     <div class="fm" data-controller="files"
@@ -24,40 +24,40 @@
 
         <aside class="fm-side">
             <nav class="fm-nav">
-                <button type="button" class="fm-nav-item is-active" data-files-target="nav" data-view="all" data-action="click->files#selectNav"><i class="fa-regular fa-folder-open"></i> Tous les fichiers</button>
-                <button type="button" class="fm-nav-item" data-files-target="nav" data-view="recent" data-action="click->files#selectNav"><i class="fa-regular fa-clock"></i> Récents</button>
-                <button type="button" class="fm-nav-item" data-files-target="nav" data-view="starred" data-action="click->files#selectNav"><i class="fa-regular fa-star"></i> Favoris</button>
-                <button type="button" class="fm-nav-item" data-files-target="nav" data-view="orphans" data-action="click->files#selectNav"><i class="fa-solid fa-broom"></i> Fichiers inutilisés</button>
+                <button type="button" class="fm-nav-item is-active" data-files-target="nav" data-view="all" data-action="click->files#selectNav"><i class="fa-regular fa-folder-open"></i> {{ 'Tous les fichiers'|trans }}</button>
+                <button type="button" class="fm-nav-item" data-files-target="nav" data-view="recent" data-action="click->files#selectNav"><i class="fa-regular fa-clock"></i> {{ 'Récents'|trans }}</button>
+                <button type="button" class="fm-nav-item" data-files-target="nav" data-view="starred" data-action="click->files#selectNav"><i class="fa-regular fa-star"></i> {{ 'Favoris'|trans }}</button>
+                <button type="button" class="fm-nav-item" data-files-target="nav" data-view="orphans" data-action="click->files#selectNav"><i class="fa-solid fa-broom"></i> {{ 'Fichiers inutilisés'|trans }}</button>
             </nav>
             <div class="fm-storage">
-                <p class="fm-storage-title"><i class="fa-regular fa-hard-drive"></i> Stockage</p>
+                <p class="fm-storage-title"><i class="fa-regular fa-hard-drive"></i> {{ 'Stockage'|trans }}</p>
                 <div class="fm-storage-bar"><span data-files-target="usageBar"></span></div>
-                <p class="fm-storage-text" data-files-target="usageText">Calcul…</p>
+                <p class="fm-storage-text" data-files-target="usageText">{{ 'Calcul…'|trans }}</p>
             </div>
         </aside>
 
         <section class="fm-main">
             <div class="fm-toolbar">
-                <button type="button" class="fm-icon-btn" data-files-target="back" data-action="click->files#goBack" aria-label="Dossier parent" hidden><i class="fa-solid fa-arrow-left"></i></button>
+                <button type="button" class="fm-icon-btn" data-files-target="back" data-action="click->files#goBack" aria-label="{{ 'Dossier parent'|trans }}" hidden><i class="fa-solid fa-arrow-left"></i></button>
                 <label class="fm-search">
                     <i class="fa-solid fa-magnifying-glass"></i>
-                    <input type="search" placeholder="Rechercher des fichiers…" data-files-target="search" data-action="input->files#search" autocomplete="off">
+                    <input type="search" placeholder="{{ 'Rechercher des fichiers…'|trans }}" data-files-target="search" data-action="input->files#search" autocomplete="off">
                 </label>
-                <div class="fm-modes" role="group" aria-label="Affichage">
-                    <button type="button" class="is-active" data-files-target="modeButton" data-mode="grid" data-action="click->files#setMode" aria-label="Grille"><i class="fa-solid fa-table-cells-large"></i></button>
-                    <button type="button" data-files-target="modeButton" data-mode="list" data-action="click->files#setMode" aria-label="Liste"><i class="fa-solid fa-list"></i></button>
+                <div class="fm-modes" role="group" aria-label="{{ 'Affichage'|trans }}">
+                    <button type="button" class="is-active" data-files-target="modeButton" data-mode="grid" data-action="click->files#setMode" aria-label="{{ 'Grille'|trans }}"><i class="fa-solid fa-table-cells-large"></i></button>
+                    <button type="button" data-files-target="modeButton" data-mode="list" data-action="click->files#setMode" aria-label="{{ 'Liste'|trans }}"><i class="fa-solid fa-list"></i></button>
                 </div>
-                <button type="button" class="admin-btn admin-btn-ghost" data-files-target="newFolder" data-action="click->files#createFolder"><i class="fa-solid fa-folder-plus"></i> <span class="fm-btn-label">Nouveau dossier</span></button>
-                <button type="button" class="admin-btn admin-btn-primary" data-files-target="cleanup" data-action="click->files#deleteOrphans" hidden><i class="fa-solid fa-trash"></i> <span class="fm-btn-label">Tout supprimer</span></button>
-                <button type="button" class="admin-btn admin-btn-primary" data-files-target="upload" data-action="click->files#pick"><i class="fa-solid fa-arrow-up-from-bracket"></i> <span class="fm-btn-label">Envoyer</span></button>
+                <button type="button" class="admin-btn admin-btn-ghost" data-files-target="newFolder" data-action="click->files#createFolder"><i class="fa-solid fa-folder-plus"></i> <span class="fm-btn-label">{{ 'Nouveau dossier'|trans }}</span></button>
+                <button type="button" class="admin-btn admin-btn-primary" data-files-target="cleanup" data-action="click->files#deleteOrphans" hidden><i class="fa-solid fa-trash"></i> <span class="fm-btn-label">{{ 'Tout supprimer'|trans }}</span></button>
+                <button type="button" class="admin-btn admin-btn-primary" data-files-target="upload" data-action="click->files#pick"><i class="fa-solid fa-arrow-up-from-bracket"></i> <span class="fm-btn-label">{{ 'files.upload'|trans }}</span></button>
                 <input type="file" multiple hidden data-files-target="picker" data-action="change->files#picked" accept="{{ allowed_extensions|map(e => '.' ~ e)|join(',') }}">
             </div>
 
-            <nav class="fm-crumbs" data-files-target="crumbs" aria-label="Fil d'Ariane"></nav>
+            <nav class="fm-crumbs" data-files-target="crumbs" aria-label="{{ 'Fil d\'Ariane'|trans }}"></nav>
 
             <div class="fm-content" data-files-target="content"></div>
 
-            <div class="fm-drop" data-files-target="drop" hidden><div><i class="fa-solid fa-cloud-arrow-up"></i><strong>Déposez vos fichiers ici</strong><span>Jusqu'à {{ max_mb }} Mo par fichier</span></div></div>
+            <div class="fm-drop" data-files-target="drop" hidden><div><i class="fa-solid fa-cloud-arrow-up"></i><strong>{{ 'Déposez vos fichiers ici'|trans }}</strong><span>Jusqu'à {{ max_mb }} Mo par fichier</span></div></div>
         </section>
 
         <dialog class="fm-viewer" data-files-target="viewer" data-action="close->files#viewerClosed click->files#viewerBackdrop">
@@ -68,13 +68,13 @@
                 </div>
                 <div class="fm-viewer-actions">
                     <a class="fm-icon-btn" data-files-target="viewerDownload" href="#" aria-label="Télécharger" title="Télécharger"><i class="fa-solid fa-download"></i></a>
-                    <button type="button" class="fm-icon-btn" data-action="click->files#closeViewer" aria-label="Fermer" title="Fermer"><i class="fa-solid fa-xmark"></i></button>
+                    <button type="button" class="fm-icon-btn" data-action="click->files#closeViewer" aria-label="{{ 'Fermer'|trans }}" title="{{ 'Fermer'|trans }}"><i class="fa-solid fa-xmark"></i></button>
                 </div>
             </header>
             <div class="fm-viewer-stage">
-                <button type="button" class="fm-viewer-step is-prev" data-files-target="viewerPrev" data-step="-1" data-action="click->files#viewerStep" aria-label="Précédent"><i class="fa-solid fa-chevron-left"></i></button>
+                <button type="button" class="fm-viewer-step is-prev" data-files-target="viewerPrev" data-step="-1" data-action="click->files#viewerStep" aria-label="{{ 'Précédent'|trans }}"><i class="fa-solid fa-chevron-left"></i></button>
                 <div class="fm-viewer-body" data-files-target="viewerBody"></div>
-                <button type="button" class="fm-viewer-step is-next" data-files-target="viewerNext" data-step="1" data-action="click->files#viewerStep" aria-label="Suivant"><i class="fa-solid fa-chevron-right"></i></button>
+                <button type="button" class="fm-viewer-step is-next" data-files-target="viewerNext" data-step="1" data-action="click->files#viewerStep" aria-label="{{ 'Suivant'|trans }}"><i class="fa-solid fa-chevron-right"></i></button>
             </div>
         </dialog>
     </div>

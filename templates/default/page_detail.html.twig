@@ -1,6 +1,6 @@
 {% extends 'club/_layout.html.twig' %}
 
-{% block title %}{{ page.titre }} — ES Coutances{% endblock %}
+{% block title %}{{ page.titre|auto_trans }} — ES Coutances{% endblock %}
 {% block meta_description %}{% set resume = (page.chapo ?: page.contenu ?: "")|striptags|trim %}{% if resume %}{{ resume|length > 155 ? resume|slice(0, 155) ~ "…" : resume }}{% else %}{{ parent() }}{% endif %}{% endblock %}
 
 {% block body %}
@@ -11,9 +11,9 @@
     <div class="breadcrumb">
       <a href="{{ path('app_home') }}">Accueil</a>
       <i class="fa-solid fa-chevron-right"></i>
-      <span>{{ page.titre }}</span>
+      <span>{{ page.titre|auto_trans }}</span>
     </div>
-    <h1>{{ page.titre }}</h1>
+    <h1>{{ page.titre|auto_trans }}</h1>
   </div>
 </section>
 
@@ -21,13 +21,13 @@
 <section class="page-content">
   <div class="container">
     {% if page.imageName %}
-      <img class="page-content-image" src="{{ ('uploads/pages/' ~ page.imageName)|thumb('detail') }}" alt="{{ page.titre }}">
+      <img class="page-content-image" src="{{ ('uploads/pages/' ~ page.imageName)|thumb('detail') }}" alt="{{ page.titre|auto_trans }}">
     {% endif %}
     {% if page.chapo %}
-      <p class="page-content-chapo">{{ page.chapo }}</p>
+      <p class="page-content-chapo">{{ page.chapo|auto_trans }}</p>
     {% endif %}
     <div class="prose">
-      {{ page.contenu|raw }}
+      {{ page.contenu|auto_trans|safe_html }}
     </div>
   </div>
 </section>

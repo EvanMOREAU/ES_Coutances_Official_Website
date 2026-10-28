@@ -15,6 +15,7 @@ use Symfony\Component\Validator\Constraints\Email;
 use Symfony\Component\Validator\Constraints\IsTrue;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\NotCompromisedPassword;
 
 /** Création libre d'un compte boutique (voir RegistrationController) : pas de famille, pas de licencié.
  * @extends AbstractType<mixed>
@@ -52,7 +53,7 @@ class RegistrationType extends AbstractType
                 'first_options'   => ['label' => 'Mot de passe', 'attr' => ['autocomplete' => 'new-password']],
                 'second_options'  => ['label' => 'Confirmer le mot de passe', 'attr' => ['autocomplete' => 'new-password']],
                 'invalid_message' => 'Les deux mots de passe ne correspondent pas.',
-                'constraints'     => [new NotBlank(message: 'Choisissez un mot de passe.'), new Length(min: 8, minMessage: 'Le mot de passe doit contenir au moins {{ limit }} caractères.')],
+                'constraints'     => [new NotBlank(message: 'Choisissez un mot de passe.'), new Length(min: 8, minMessage: 'Le mot de passe doit contenir au moins {{ limit }} caractères.'), new NotCompromisedPassword(skipOnError: true)],
             ])
         ;
     }

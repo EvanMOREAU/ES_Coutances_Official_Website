@@ -59,6 +59,7 @@ final class RoutePermissionsTest extends TestCase
     public static function readWriteRoutes(): iterable
     {
         yield 'mail' => ['admin_mail_settings', 'mail.voir', 'mail.modifier'];
+        yield 'langues' => ['admin_langues_settings', 'langues.voir', 'langues.modifier'];
         yield 'helloasso' => ['admin_helloasso_settings', 'helloasso.voir', 'helloasso.modifier'];
         yield 'réglages' => ['admin_reglages_accueil', 'reglages.voir', 'reglages.modifier'];
         yield 'maintenance' => ['admin_boutique_maintenance', 'boutique_maintenance.voir', 'boutique_maintenance.modifier'];

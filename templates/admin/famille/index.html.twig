@@ -4,8 +4,8 @@
 
 {% block body %}
     <div class="flex items-center justify-between mb-6">
-        <h1 class="u-66972700 text-2xl font-black">Familles</h1>
-        {% if can_url(path('admin_famille_new')) %}<a href="{{ path('admin_famille_new') }}" class="rounded-lg admin-gradient px-4 py-2 text-sm font-semibold text-white">+ Nouvelle famille</a>{% endif %}
+        <h1 class="u-66972700 text-2xl font-black">{{ 'Familles'|trans }}</h1>
+        {% if can_url(path('admin_famille_new')) %}<a href="{{ path('admin_famille_new') }}" class="rounded-lg admin-gradient px-4 py-2 text-sm font-semibold text-white">{{ '+ Nouvelle famille'|trans }}</a>{% endif %}
     </div>
 
     {% embed 'admin/_components/data_table.html.twig' with {
@@ -45,7 +45,7 @@
                     <td data-col="nom" data-sort="{{ famille.nom|lower }}" class="font-medium">
                         <a href="{{ path('admin_famille_show', {id: famille.id}) }}" class="hover:underline">{{ famille.nomAffiche }}</a>
                     </td>
-                    <td data-col="compte" class="dt-muted">{{ famille.user }}{% if not famille.hasEmailValide %} <span class="badge badge-danger ml-1">Email invalide</span>{% endif %}</td>
+                    <td data-col="compte" class="dt-muted">{{ famille.user }}{% if not famille.hasEmailValide %} <span class="badge badge-danger ml-1">{{ 'Email invalide'|trans }}</span>{% endif %}</td>
                     <td data-col="ville" class="dt-muted">{{ famille.ville ?? '—' }}</td>
                     <td data-col="licencies" data-sort="{{ famille.licencies|length }}">{{ famille.licencies|length }}</td>
                     <td data-col="statut"><span class="badge badge-{{ famille.statut }}">{{ famille.statutLabel }}</span></td>

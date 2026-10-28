@@ -1,24 +1,24 @@
 {% extends 'portail/_layout.html.twig' %}
 
-{% block title %}Mes commandes{% endblock %}
+{% block title %}{{ 'Mes commandes'|trans }}{% endblock %}
 
 {% block page_head %}
     <div class="mc-page-head">
-        <span class="mc-eyebrow">Boutique du club</span>
-        <h1>Mes commandes</h1>
-        <p class="mc-sub">Suivez vos commandes et leur règlement.</p>
+        <span class="mc-eyebrow">{{ 'Boutique du club'|trans }}</span>
+        <h1>{{ 'Mes commandes'|trans }}</h1>
+        <p class="mc-sub">{{ 'Suivez vos commandes et leur règlement.'|trans }}</p>
     </div>
 {% endblock %}
 
 {% block body %}
     <div class="card">
         {% if commandes is empty %}
-            <div class="mc-empty"><i class="fa-solid fa-bag-shopping"></i>Vous n'avez pas encore passé de commande depuis ce compte.</div>
+            <div class="mc-empty"><i class="fa-solid fa-bag-shopping"></i>{{ 'Vous n\'avez pas encore passé de commande depuis ce compte.'|trans }}</div>
         {% else %}
             <div class="mc-table-wrap">
                 <table>
                     <thead>
-                        <tr><th>Commande</th><th>Date</th><th>Total</th><th>Règlement</th><th>Statut</th><th></th></tr>
+                        <tr><th>{{ 'Commande'|trans }}</th><th>{{ 'Date'|trans }}</th><th>{{ 'Total'|trans }}</th><th>{{ 'Règlement'|trans }}</th><th>{{ 'Statut'|trans }}</th><th></th></tr>
                     </thead>
                     <tbody>
                         {% for commande in commandes %}
@@ -26,15 +26,15 @@
                                 <td><strong>{{ commande.reference }}</strong></td>
                                 <td>{{ commande.createdAt|date('d/m/Y') }}</td>
                                 <td>{{ commande.totalCentimes|money }}</td>
-                                <td>{% if commande.statut == 'annulee' %}—{% elseif commande.payee %}<span class="badge-ok">Payée</span>{% else %}<span class="badge-ko">À régler</span>{% endif %}</td>
+                                <td>{% if commande.statut == 'annulee' %}—{% elseif commande.payee %}<span class="badge-ok">{{ 'Payée'|trans }}</span>{% else %}<span class="badge-ko">{{ 'À régler'|trans }}</span>{% endif %}</td>
                                 <td>{{ commande.statutLabel }}</td>
-                                <td><a class="bouton" href="{{ path('boutique_commande_suivi', {reference: commande.reference, token: commande.token}) }}">Voir</a></td>
+                                <td><a class="bouton" href="{{ path('boutique_commande_suivi', {reference: commande.reference, token: commande.token}) }}">{{ 'Voir'|trans }}</a></td>
                             </tr>
                         {% endfor %}
                     </tbody>
                 </table>
             </div>
         {% endif %}
-        <p class="u-3ae1f62a"><a class="bouton is-ghost" href="{{ path('boutique_index') }}"><i class="fa-solid fa-store"></i> Aller à la boutique</a></p>
+        <p class="u-3ae1f62a"><a class="bouton is-ghost" href="{{ path('boutique_index') }}"><i class="fa-solid fa-store"></i> {{ 'Aller à la boutique'|trans }}</a></p>
     </div>
 {% endblock %}

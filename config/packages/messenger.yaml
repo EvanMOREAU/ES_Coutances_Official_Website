@@ -6,10 +6,15 @@ framework:
             # https://symfony.com/doc/current/messenger.html#transport-configuration
             async:
                 dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+                options:
+                    table_name: es_messenger_messages
                 retry_strategy:
                     max_retries: 3
                     multiplier: 2
-            failed: 'doctrine://default?queue_name=failed'
+            failed:
+                dsn: 'doctrine://default?queue_name=failed'
+                options:
+                    table_name: es_messenger_messages
             # sync: 'sync://'
 
         default_bus: messenger.bus.default

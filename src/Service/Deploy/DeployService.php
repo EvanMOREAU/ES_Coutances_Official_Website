@@ -153,6 +153,7 @@ class DeployService
         $this->em->persist($deployment);
         $this->em->flush();
 
+        $this->notifyStarted($deployment);
         $this->spawnConsole('app:deploy', [(string) $deployment->getId()]);
 
         return $deployment;
@@ -506,11 +507,30 @@ class DeployService
     }
 
     /**
-     * Prévient par e-mail tous les comptes développeur de l'issue de chaque déploiement : un
-     * déploiement lancé à l'insu de l'équipe (compte compromis) ou raté ne passe pas inaperçu.
-     * Un échec d'envoi ne doit jamais faire échouer le déploiement.
+     * Prévient par e-mail tous les comptes développeur du lancement de chaque déploiement : un
+     * déploiement lancé à l'insu de l'équipe (compte compromis) est signalé immédiatement.
      */
-    private function notify(Deployment $deployment): void
+    private function notifyStarted(Deployment $deployment): void
+    {
+        $short = substr((string) $deployment->getFromCommit(), 0, 7) ?: '—';
+        $this->mailDevelopers(
+            '[ES Coutances] Mise à jour lancée',
+            sprintf(
+                "Mise à jour n°%d lancée par %s le %s.
+Commit actuel : %s.
+
+Vous recevrez un second e-mail avec le résultat.
+Si vous n'êtes pas à l'origine de cette mise à jour, changez immédiatement les mots de passe des comptes développeur.",
+                $deployment->getId(),
+                $deployment->getTriggeredBy() ?? 'inconnu',
+                $deployment->getStartedAt()->format('d/m/Y à H:i'),
+                $short,
+            ),
+        );
+    }
+
+    /** Envoie un e-mail à tous les comptes développeur. Un échec d'envoi ne doit jamais faire échouer le déploiement. */
+    private function mailDevelopers(string $subject, string $body): void
     {
         try {
             $recipients = array_filter(array_map(
@@ -523,10 +543,23 @@ class DeployService
                 return;
             }
 
-            $success = Deployment::STATUS_SUCCESS === $deployment->getStatus();
-            $short   = static fn (?string $hash): string => null === $hash ? '—' : substr($hash, 0, 7);
-            $body    = sprintf(
-                "Mise à jour n°%d : %s
+            $this->mailer->send((new Email())
+                ->from(new Address($this->mailerFromAddress, $this->mailerFromName))
+                ->to(...$recipients)
+                ->subject($subject)
+                ->text($body));
+        } catch (\Throwable $e) {
+            $this->logger->warning('Notification de mise à jour non envoyée : {message}', ['message' => $e->getMessage()]);
+        }
+    }
+
+    /** Prévient les comptes développeur de l'issue du déploiement (réussi, échoué, retour arrière). */
+    private function notify(Deployment $deployment): void
+    {
+        $success = Deployment::STATUS_SUCCESS === $deployment->getStatus();
+        $short   = static fn (?string $hash): string => null === $hash ? '—' : substr($hash, 0, 7);
+        $body    = sprintf(
+            "Mise à jour n°%d : %s
 
 Lancée par : %s
 Début : %s
@@ -535,26 +568,19 @@ Commit : %s → %s
 Journal complet : Administration > Développeur > Mise à jour.
 
 Si vous n'êtes pas à l'origine de cette mise à jour, changez immédiatement les mots de passe des comptes développeur.",
-                $deployment->getId(),
-                $success ? 'réussi' : 'ÉCHEC',
-                $deployment->getTriggeredBy() ?? 'inconnu',
-                $deployment->getStartedAt()->format('d/m/Y H:i'),
-                $short($deployment->getFromCommit()),
-                $short($deployment->getToCommit()),
-                match (true) {
-                    $success => $deployment->getDbBackup() ? sprintf("Sauvegarde de la base : %s (conservée).\nSauvegarde des fichiers : à supprimer depuis l'historique une fois la mise à jour validée.\n", $deployment->getDbBackup()) : '',
-                    $deployment->isRolledBack() => "Le site a été remis automatiquement dans son état d'avant la mise à jour.\n",
-                    default => "Le retour arrière automatique n'a pas abouti ou n'était pas nécessaire : consultez le journal.\n",
-                },
-            );
+            $deployment->getId(),
+            $success ? 'réussi' : 'ÉCHEC',
+            $deployment->getTriggeredBy() ?? 'inconnu',
+            $deployment->getStartedAt()->format('d/m/Y H:i'),
+            $short($deployment->getFromCommit()),
+            $short($deployment->getToCommit()),
+            match (true) {
+                $success => $deployment->getDbBackup() ? sprintf("Sauvegarde de la base : %s (conservée).\nSauvegarde des fichiers : à supprimer depuis l'historique une fois la mise à jour validée.\n", $deployment->getDbBackup()) : '',
+                $deployment->isRolledBack() => "Le site a été remis automatiquement dans son état d'avant la mise à jour.\n",
+                default => "Le retour arrière automatique n'a pas abouti ou n'était pas nécessaire : consultez le journal.\n",
+            },
+        );
 
-            $this->mailer->send((new Email())
-                ->from(new Address($this->mailerFromAddress, $this->mailerFromName))
-                ->to(...$recipients)
-                ->subject(sprintf('[ES Coutances] Mise à jour %s', $success ? 'réussie' : 'en échec'))
-                ->text($body));
-        } catch (\Throwable $e) {
-            $this->logger->warning('Notification de mise à jour non envoyée : {message}', ['message' => $e->getMessage()]);
-        }
+        $this->mailDevelopers(sprintf('[ES Coutances] Mise à jour %s', $success ? 'réussie' : 'en échec'), $body);
     }
 }

@@ -34,6 +34,7 @@ class RegistrationController extends AbstractController
             $user->recordConsent(LegalVersion::CURRENT);
             $user->setRoles([]); // compte boutique : aucun rôle particulier, seulement ROLE_USER (implicite)
             $user->setPassword($hasher->hashPassword($user, (string) $form->get('plainPassword')->getData()));
+            $user->setLocale($request->getLocale()); // le compte garde la langue choisie par le visiteur
             $em->persist($user);
             $em->flush();
 

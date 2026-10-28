@@ -66,4 +66,29 @@ class ContratPartenaireRepository extends ServiceEntityRepository
 
         return ['rows' => $rows, 'total' => $total];
     }
+
+    /**
+     * Tâches de contrat non réalisées : celles dont l'échéance est dépassée et celles à faire dans les $days prochains jours.
+     *
+     * @return array{late: int, soon: int}
+     */
+    public function tachesATraiter(int $days = 7): array
+    {
+        $today = new \DateTimeImmutable('today');
+        $count = function (string $where, array $params): int {
+            $qb = $this->getEntityManager()->createQueryBuilder()
+                ->select('COUNT(t.id)')->from(ContratPartenaireTache::class, 't')
+                ->andWhere('t.fait = false')->andWhere($where);
+            foreach ($params as $name => $value) {
+                $qb->setParameter($name, $value);
+            }
+
+            return (int) $qb->getQuery()->getSingleScalarResult();
+        };
+
+        return [
+            'late' => $count('t.echeance < :today', ['today' => $today]),
+            'soon' => $count('t.echeance >= :today AND t.echeance <= :limit', ['today' => $today, 'limit' => $today->modify(sprintf('+%d days', $days))]),
+        ];
+    }
 }

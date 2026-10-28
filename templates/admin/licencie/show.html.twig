@@ -7,22 +7,22 @@
 {% endmacro %}
 
 {% block body %}
-    <p class="mb-4"><a href="{{ path('admin_licencie_index') }}" class="text-sm text-admin-text-muted hover:text-admin-text">&larr; Retour aux licenciés</a></p>
+    <p class="mb-4"><a href="{{ path('admin_licencie_index') }}" class="text-sm text-admin-text-muted hover:text-admin-text">{{ '&larr; Retour aux licenciés'|trans }}</a></p>
 
     <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
         <div class="flex flex-wrap items-center gap-3">
             <h1 class="u-66972700 text-2xl font-black">{{ licencie }}</h1>
             <span class="rounded-full admin-gradient px-2.5 py-0.5 text-xs font-semibold text-white">{{ licencie.categorie }}</span>
             <span class="badge badge-{{ licencie.statut }}">{{ licencie.statutLabel }}</span>
-            {% if licencie.autonome %}<span class="badge badge-neutral">Gère lui-même son compte</span>{% endif %}
-            {% if licencie.saisonTerminee %}<span class="badge badge-archived">Saison terminée</span>{% endif %}
+            {% if licencie.autonome %}<span class="badge badge-neutral">{{ 'Gère lui-même son compte'|trans }}</span>{% endif %}
+            {% if licencie.saisonTerminee %}<span class="badge badge-archived">{{ 'Saison terminée'|trans }}</span>{% endif %}
         </div>
-        <a href="{{ path('admin_licencie_edit', {id: licencie.id}) }}" class="rounded-lg admin-gradient px-4 py-2 text-sm font-semibold text-white">Modifier</a>
+        <a href="{{ path('admin_licencie_edit', {id: licencie.id}) }}" class="rounded-lg admin-gradient px-4 py-2 text-sm font-semibold text-white">{{ 'Modifier'|trans }}</a>
     </div>
 
     <div class="grid md:grid-cols-2 gap-6">
         <section class="admin-card rounded-2xl p-6">
-            <h2 class="font-bold mb-4">Identité</h2>
+            <h2 class="font-bold mb-4">{{ 'Identité'|trans }}</h2>
             <dl class="text-sm space-y-2">
                 {{ _self.row('Civilité', licencie.civilite) }}
                 {{ _self.row('Nom', licencie.nom) }}
@@ -35,7 +35,7 @@
         </section>
 
         <section class="admin-card rounded-2xl p-6">
-            <h2 class="font-bold mb-4">Licence</h2>
+            <h2 class="font-bold mb-4">{{ 'Licence'|trans }}</h2>
             <dl class="text-sm space-y-2">
                 {{ _self.row('Saison', licencie.saison) }}
                 {{ _self.row('Catégorie', licencie.categorie ~ (licencie.decalageCategorie > 0 ? ' (surclassé)' : (licencie.decalageCategorie < 0 ? ' (sous-classé)'))) }}
@@ -47,19 +47,19 @@
         </section>
 
         <section class="admin-card rounded-2xl p-6">
-            <h2 class="font-bold mb-4">Compte et famille</h2>
+            <h2 class="font-bold mb-4">{{ 'Compte et famille'|trans }}</h2>
             <dl class="text-sm space-y-2">
                 {{ _self.row('E-mail du compte', licencie.user.email) }}
-                <div class="flex justify-between gap-4"><dt class="text-admin-text-muted">Famille</dt><dd class="text-right"><a href="{{ path('admin_famille_show', {id: licencie.famille.id}) }}" class="hover:underline">{{ licencie.famille }}</a></dd></div>
+                <div class="flex justify-between gap-4"><dt class="text-admin-text-muted">{{ 'Famille'|trans }}</dt><dd class="text-right"><a href="{{ path('admin_famille_show', {id: licencie.famille.id}) }}" class="hover:underline">{{ licencie.famille }}</a></dd></div>
                 {{ _self.row('Accès', licencie.autonome ? 'Planning et factures (compte autonome)' : 'Planning et informations (les factures sont sur le compte famille)') }}
             </dl>
             {% if licencie.user.email ends with '@import.local' %}
-                <p class="text-xs text-admin-text-muted mt-3">Adresse provisoire créée par l'import : aucune e-mail réelle n'est connue pour ce compte.</p>
+                <p class="text-xs text-admin-text-muted mt-3">{{ 'Adresse provisoire créée par l\'import : aucune e-mail réelle n\'est connue pour ce compte.'|trans }}</p>
             {% endif %}
         </section>
 
         <section class="admin-card rounded-2xl p-6">
-            <h2 class="font-bold mb-4">Coordonnées</h2>
+            <h2 class="font-bold mb-4">{{ 'Coordonnées'|trans }}</h2>
             <dl class="text-sm space-y-2">
                 {{ _self.row('Téléphone', licencie.telephone) }}
                 {{ _self.row('E-mail individuel', licencie.emailIndividuel) }}
@@ -71,11 +71,11 @@
 
     <section class="admin-card rounded-2xl p-6 mt-6">
         <div class="flex items-center justify-between mb-4">
-            <h2 class="font-bold">Licences et paiements</h2>
-            {% if can_url(path('admin_adhesion_new', {licencie: licencie.id})) %}<a href="{{ path('admin_adhesion_new', {licencie: licencie.id}) }}" class="admin-btn admin-btn-ghost admin-btn-sm"><i class="fa-solid fa-plus"></i> Nouvelle licence</a>{% endif %}
+            <h2 class="font-bold">{{ 'Licences et paiements'|trans }}</h2>
+            {% if can_url(path('admin_adhesion_new', {licencie: licencie.id})) %}<a href="{{ path('admin_adhesion_new', {licencie: licencie.id}) }}" class="admin-btn admin-btn-ghost admin-btn-sm"><i class="fa-solid fa-plus"></i> {{ 'Nouvelle licence'|trans }}</a>{% endif %}
         </div>
         {% if adhesions is empty %}
-            <p class="text-sm text-admin-text-muted">Aucune licence enregistrée pour le suivi des paiements.</p>
+            <p class="text-sm text-admin-text-muted">{{ 'Aucune licence enregistrée pour le suivi des paiements.'|trans }}</p>
         {% else %}
             <ul class="text-sm space-y-2">
                 {% for a in adhesions %}

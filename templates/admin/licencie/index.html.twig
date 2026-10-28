@@ -4,17 +4,17 @@
 
 {% block body %}
     <div class="flex items-center justify-between mb-6">
-        <h1 class="u-66972700 text-2xl font-black">Licenciés</h1>
-        {% if can_url(path('admin_licencie_new')) %}<a href="{{ path('admin_licencie_new') }}" class="rounded-lg admin-gradient px-4 py-2 text-sm font-semibold text-white">+ Nouveau licencié</a>{% endif %}
+        <h1 class="u-66972700 text-2xl font-black">{{ 'Licenciés'|trans }}</h1>
+        {% if can_url(path('admin_licencie_new')) %}<a href="{{ path('admin_licencie_new') }}" class="rounded-lg admin-gradient px-4 py-2 text-sm font-semibold text-white">{{ '+ Nouveau licencié'|trans }}</a>{% endif %}
     </div>
 
     <form method="get" class="mb-4 flex items-center gap-2 text-sm">
-        <label for="filtre-saison" class="text-admin-text-muted">Saison</label>
+        <label for="filtre-saison" class="text-admin-text-muted">{{ 'Saison'|trans }}</label>
         <select id="filtre-saison" name="saison" class="admin-input" data-auto-submit>
             {% for s in saisons %}<option value="{{ s.id }}"{{ saison and saison.id == s.id ? ' selected' }}>{{ s }}{{ s.active ? ' (en cours)' }}</option>{% endfor %}
-            <option value="toutes"{{ saison is null ? ' selected' }}>Toutes les saisons</option>
+            <option value="toutes"{{ saison is null ? ' selected' }}>{{ 'Toutes les saisons'|trans }}</option>
         </select>
-        <noscript><button type="submit" class="admin-btn admin-btn-ghost admin-btn-sm">Filtrer</button></noscript>
+        <noscript><button type="submit" class="admin-btn admin-btn-ghost admin-btn-sm">{{ 'Filtrer'|trans }}</button></noscript>
     </form>
 
     {% embed 'admin/_components/data_table.html.twig' with {
@@ -36,7 +36,7 @@
             {% for licencie in licencies %}
                 <tr data-data-table-target="row" data-id="{{ licencie.id }}" data-status="{{ licencie.statut }}" data-href="{{ path('admin_licencie_show', {id: licencie.id}) }}">
                     {% if bulk %}<td class="dt-check-col"><input type="checkbox" data-row-check value="{{ licencie.id }}" data-action="change->data-table#toggleRow" aria-label="Sélectionner {{ licencie }}"></td>{% endif %}
-                    <td data-col="nom" data-sort="{{ licencie.nom|lower }} {{ licencie.prenom|lower }}" class="font-medium">{{ licencie.prenom }} {{ licencie.nom }}{% if licencie.autonome %} <span class="badge badge-neutral ml-1" title="Gère lui-même son compte">Autonome</span>{% endif %}</td>
+                    <td data-col="nom" data-sort="{{ licencie.nom|lower }} {{ licencie.prenom|lower }}" class="font-medium">{{ licencie.prenom }} {{ licencie.nom }}{% if licencie.autonome %} <span class="badge badge-neutral ml-1" title="{{ 'Gère lui-même son compte'|trans }}">{{ 'Autonome'|trans }}</span>{% endif %}</td>
                     <td data-col="famille" class="dt-muted">{{ licencie.famille }}</td>
                     <td data-col="categorie" data-sort="{{ licencie.categorie }}">
                         <span class="rounded-full admin-gradient px-2.5 py-0.5 text-xs font-semibold text-white">{{ licencie.categorie }}</span>

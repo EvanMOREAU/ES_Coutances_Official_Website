@@ -1,14 +1,14 @@
 {% extends 'portail/_auth.html.twig' %}
 
-{% block title %}Connexion{% endblock %}
-{% block heading %}Connexion{% endblock %}
-{% block lead %}Accédez à votre compte pour commander à la boutique et suivre vos commandes.{% endblock %}
+{% block title %}{{ 'Connexion'|trans }}{% endblock %}
+{% block heading %}{{ 'Connexion'|trans }}{% endblock %}
+{% block lead %}{{ 'Accédez à votre compte pour commander à la boutique et suivre vos commandes.'|trans }}{% endblock %}
 
 {% block head_assets %}{{ include('_importmap.html.twig', {entry: 'portail'}) }}{% endblock %}
 
 {% block card %}
     {% for message in app.flashes('success') %}
-        <div class="mc-alert ok">{{ message }}</div>
+        <div class="mc-alert ok">{{ message|trans }}</div>
     {% endfor %}
     {% if error %}
         <div class="mc-alert ko">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
@@ -16,30 +16,30 @@
 
     <form method="post">
         <div class="mc-field">
-            <label for="email">Adresse e-mail</label>
+            <label for="email">{{ 'Adresse e-mail'|trans }}</label>
             <input type="email" id="email" name="email" value="{{ last_username }}" autocomplete="email" required autofocus>
         </div>
         <div class="mc-field">
-            <label for="password">Mot de passe</label>
+            <label for="password">{{ 'Mot de passe'|trans }}</label>
             <input type="password" id="password" name="password" autocomplete="current-password" required>
         </div>
 
         <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
 
-        <button type="submit" class="mc-submit">Se connecter</button>
+        <button type="submit" class="mc-submit">{{ 'Se connecter'|trans }}</button>
     </form>
 
     <div class="u-9fa20676" data-controller="passkey"
          data-passkey-options-url-value="{{ path('portail_webauthn_login_options') }}"
          data-passkey-finish-url-value="{{ path('portail_webauthn_login_check') }}">
         <button type="button" data-passkey-target="button" data-action="click->passkey#login" class="mc-btn u-btn-full">
-            <i class="fa-solid fa-fingerprint"></i> Se connecter avec une clé d'accès
+            <i class="fa-solid fa-fingerprint"></i> {{ 'Se connecter avec une clé d\'accès'|trans }}
         </button>
         <p class="u-13076d95 mc-err" data-passkey-target="status"></p>
     </div>
 
     <div class="mc-auth-links">
-        <a href="{{ path('app_forgot_password_request') }}">Mot de passe oublié ?</a>
-        <a href="{{ path('portail_inscription') }}">Pas encore de compte ? <strong>Créer un compte</strong></a>
+        <a href="{{ path('app_forgot_password_request') }}">{{ 'Mot de passe oublié ?'|trans }}</a>
+        <a href="{{ path('portail_inscription') }}">{{ 'Pas encore de compte ?'|trans }} <strong>{{ 'Créer un compte'|trans }}</strong></a>
     </div>
 {% endblock %}

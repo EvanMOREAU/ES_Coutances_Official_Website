@@ -5,9 +5,11 @@ namespace App\Service;
 use App\Entity\ArticleVariante;
 use App\Entity\NotificationState;
 use App\Entity\User;
+use App\Repository\AdhesionRepository;
 use App\Repository\ArticleVarianteRepository;
 use App\Repository\BoutiqueSettingsRepository;
 use App\Repository\CommandeRepository;
+use App\Repository\ContratPartenaireRepository;
 use App\Repository\EntrainementRepository;
 use App\Repository\FamilleRepository;
 use App\Repository\LicencieRepository;
@@ -21,6 +23,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use SortDirection;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * Notifications de la clochette du back-office. Elles sont calculées à la
@@ -31,6 +34,9 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
  * Une notification masquée ne réapparaît pas ; une notification dont le
  * contenu change (ex. le nombre de conseils à compléter) reçoit une nouvelle
  * clé et redevient donc non lue.
+ *
+ * Chaque rubrique peut être désactivée par l'utilisateur (NotificationPreferences) ; les textes
+ * sont traduits dans la langue du compte (clés « notif.bell.* »).
  */
 class AdminNotificationProvider
 {
@@ -55,6 +61,9 @@ class AdminNotificationProvider
         private readonly UpdateWatcher $updates,
         private readonly ArticleVarianteRepository $varianteRepository,
         private readonly BoutiqueSettingsRepository $boutiqueSettings,
+        private readonly TranslatorInterface $translator,
+        private readonly AdhesionRepository $adhesionRepository,
+        private readonly ContratPartenaireRepository $contratRepository,
     ) {
     }
 
@@ -141,6 +150,12 @@ class AdminNotificationProvider
         $this->cache = null;
     }
 
+    /** @param array<string, scalar> $params */
+    private function t(string $key, array $params = []): string
+    {
+        return $this->translator->trans($key, $params);
+    }
+
     /** @return list<array{key: string, icon: string, text: string, meta: string, url: string}> */
     private function compute(): array
     {
@@ -155,22 +170,22 @@ class AdminNotificationProvider
                 $notifications[] = [
                     'key'  => 'messages:'.$unread,
                     'icon' => 'fa-comments',
-                    'text' => sprintf('%d message%s non lu%s', $unread, $unread > 1 ? 's' : '', $unread > 1 ? 's' : ''),
-                    'meta' => 'Messagerie',
+                    'text' => $this->t('notif.bell.messages', ['%count%' => $unread]),
+                    'meta' => $this->t('notif.bell.messages_meta'),
                     'url'  => $this->urls->generate('admin_chat_index'),
                 ];
             }
         }
 
         // Mise à jour du site disponible (développeurs) ; la clé change avec le nombre, une nouvelle version redevient non lue.
-        if ($me instanceof User && $this->security->isGranted('ROLE_DEV')) {
+        if ($me instanceof User && $this->security->isGranted('ROLE_DEV') && $wants('systeme')) {
             $pending = $this->updates->pendingCount();
             if ($pending > 0) {
                 $notifications[] = [
                     'key'  => 'maj:'.$pending,
                     'icon' => 'fa-rocket',
-                    'text' => sprintf('%d mise%s à jour disponible%s', $pending, $pending > 1 ? 's' : '', $pending > 1 ? 's' : ''),
-                    'meta' => 'Développeur · Mise à jour du site',
+                    'text' => $this->t('notif.bell.update', ['%count%' => $pending]),
+                    'meta' => $this->t('notif.bell.update_meta'),
                     'url'  => $this->urls->generate('admin_deploy_index'),
                 ];
             }
@@ -187,8 +202,8 @@ class AdminNotificationProvider
                 $notifications[] = [
                     'key'  => 'planning:'.$event->getId(),
                     'icon' => 'fa-calendar-day',
-                    'text' => sprintf('%s — %s', $event->getTitre(), $event->getDate()?->format('d/m').' à '.$event->getHeureDebut()?->format('H:i')),
-                    'meta' => 'Planning',
+                    'text' => $this->t('notif.bell.planning', ['%title%' => $event->getTitre(), '%date%' => (string) $event->getDate()?->format('d/m'), '%time%' => (string) $event->getHeureDebut()?->format('H:i')]),
+                    'meta' => $this->t('notif.bell.planning_meta'),
                     'url'  => $this->urls->generate('admin_planning_index'),
                 ];
             }
@@ -197,10 +212,10 @@ class AdminNotificationProvider
         // Commandes de la boutique à préparer.
         foreach ($wants('commandes') && $this->permissions->can('commande.voir') ? $this->commandeRepository->findAPreparer(5) : [] as $commande) {
             $notifications[] = [
-                'key'  => 'commande:' . $commande->getId(),
+                'key'  => 'commande:'.$commande->getId(),
                 'icon' => 'fa-bag-shopping',
-                'text' => sprintf('Nouvelle commande %s de %s', $commande->getReference(), $commande->getNomComplet()),
-                'meta' => sprintf('Boutique · %s · %s', Money::format($commande->getTotalCentimes()), $commande->isPayee() ? 'payée' : 'règlement en attente'),
+                'text' => $this->t('notif.bell.order', ['%ref%' => (string) $commande->getReference(), '%name%' => $commande->getNomComplet()]),
+                'meta' => $this->t($commande->isPayee() ? 'notif.bell.order_meta_paid' : 'notif.bell.order_meta_pending', ['%total%' => Money::format($commande->getTotalCentimes())]),
                 'url'  => $this->urls->generate('admin_commande_show', ['id' => $commande->getId()]),
             ];
         }
@@ -213,25 +228,50 @@ class AdminNotificationProvider
                 $notifications[] = [
                     'key'  => 'stock:'.substr(md5(implode('|', $noms)), 0, 10),
                     'icon' => 'fa-box-open',
-                    'text' => sprintf('%d taille%s en stock bas', count($basses), count($basses) > 1 ? 's' : ''),
+                    'text' => $this->t('notif.bell.stock', ['%count%' => count($basses)]),
                     'meta' => implode(' · ', array_slice($noms, 0, 3)),
                     'url'  => $this->urls->generate('admin_article_index'),
                 ];
             }
         }
 
+        // Licences récemment enregistrées (paiements des licences).
+        foreach ($wants('adhesions') && $this->permissions->can('adhesion.voir') ? $this->adhesionRepository->findBy([], ['id' => 'DESC'], 3) : [] as $adhesion) {
+            $notifications[] = [
+                'key'  => 'adhesion:'.$adhesion->getId(),
+                'icon' => 'fa-file-invoice-dollar',
+                'text' => $this->t('notif.bell.adhesion', ['%name%' => $adhesion->getLicencieAffichage(), '%season%' => (string) $adhesion->getSaison()?->getLibelle()]),
+                'meta' => $this->t('notif.bell.adhesion_meta', ['%status%' => $adhesion->getStatutPaiementLabel()]),
+                'url'  => $this->urls->generate('admin_adhesion_index'),
+            ];
+        }
+
+        // Tâches de contrats partenaires en retard ou à faire cette semaine.
+        if ($wants('partenaires') && $this->permissions->can('partenaire.voir')) {
+            $taches = $this->contratRepository->tachesATraiter();
+            if ($taches['late'] + $taches['soon'] > 0) {
+                $notifications[] = [
+                    'key'  => sprintf('taches:%d:%d', $taches['late'], $taches['soon']),
+                    'icon' => 'fa-list-check',
+                    'text' => $this->t('notif.bell.tasks', ['%count%' => $taches['late'] + $taches['soon']]),
+                    'meta' => $this->t('notif.bell.tasks_meta', ['%late%' => $taches['late'], '%soon%' => $taches['soon']]),
+                    'url'  => $this->urls->generate('admin_partenaire_index'),
+                ];
+            }
+        }
+
         // Conseils de configuration : simples invitations à compléter le site, jamais bloquantes.
         $hubs = [
-            SiteAdvisor::HUB_VITRINE    => ['vitrine', 'Site vitrine', '/admin/site-vitrine'],
-            SiteAdvisor::HUB_LICENCIES  => ['licencies', 'Gestion des licenciés', '/admin/gestion-licencies'],
-            SiteAdvisor::HUB_PARTENAIRE => ['partenaire', 'Partenaires', '/admin/partenaires/hub'],
+            SiteAdvisor::HUB_VITRINE    => ['vitrine', 'notif.bell.hub_vitrine', '/admin/site-vitrine'],
+            SiteAdvisor::HUB_LICENCIES  => ['licencies', 'notif.bell.hub_licencies', '/admin/gestion-licencies'],
+            SiteAdvisor::HUB_PARTENAIRE => ['partenaire', 'notif.bell.hub_partenaires', '/admin/partenaires/hub'],
         ];
         $hubPermission = [
             SiteAdvisor::HUB_VITRINE    => 'rejoindre_card.voir,offre_emploi.voir,slide_carousel.voir,page_contenu.voir,membre.voir,reglages.voir',
             SiteAdvisor::HUB_LICENCIES  => 'famille.voir,licencie.voir,equipe.voir,saison.voir',
             SiteAdvisor::HUB_PARTENAIRE => 'partenaire.voir',
         ];
-        foreach ($hubs as $hub => [$slug, $label, $url]) {
+        foreach ($hubs as $hub => [$slug, $labelKey, $url]) {
             if (!$wants('conseils') || !$this->permissions->can($hubPermission[$hub])) {
                 continue;
             }
@@ -240,8 +280,8 @@ class AdminNotificationProvider
                 $notifications[] = [
                     'key'  => sprintf('conseil:%s:%d', $slug, $count),
                     'icon' => 'fa-lightbulb',
-                    'text' => sprintf('%s : %d élément%s à compléter', $label, $count, $count > 1 ? 's' : ''),
-                    'meta' => 'Conseil de configuration',
+                    'text' => $this->t('notif.bell.advice', ['%hub%' => $this->t($labelKey), '%count%' => $count]),
+                    'meta' => $this->t('notif.bell.advice_meta'),
                     'url'  => $url,
                 ];
             }
@@ -256,8 +296,8 @@ class AdminNotificationProvider
                 $notifications[] = [
                     'key'  => sprintf('email-invalide:%d', $count),
                     'icon' => 'fa-envelope-circle-exclamation',
-                    'text' => sprintf('%d famille%s sans email valide', $count, $count > 1 ? 's' : ''),
-                    'meta' => 'À corriger',
+                    'text' => $this->t('notif.bell.invalid_email', ['%count%' => $count]),
+                    'meta' => $this->t('notif.bell.invalid_email_meta'),
                     'url'  => $this->urls->generate('admin_famille_index'),
                 ];
             }
@@ -265,21 +305,21 @@ class AdminNotificationProvider
 
         foreach ($wants('familles') && $this->permissions->can('famille.voir') ? $this->familleRepository->findBy([], ['id' => 'DESC'], 3) : [] as $famille) {
             $notifications[] = [
-                'key'  => 'famille:' . $famille->getId(),
+                'key'  => 'famille:'.$famille->getId(),
                 'icon' => 'fa-house-user',
-                'text' => sprintf('Nouvelle famille : %s', $famille->getNom()),
-                'meta' => 'Famille',
-                'url'  => '/admin/familles/' . $famille->getId(),
+                'text' => $this->t('notif.bell.family', ['%name%' => (string) $famille->getNom()]),
+                'meta' => $this->t('notif.bell.family_meta'),
+                'url'  => '/admin/familles/'.$famille->getId(),
             ];
         }
 
         foreach ($wants('licencies') && $this->permissions->can('licencie.voir') ? $this->licencieRepository->findBy([], ['id' => 'DESC'], 3) : [] as $licencie) {
             $notifications[] = [
-                'key'  => 'licencie:' . $licencie->getId(),
+                'key'  => 'licencie:'.$licencie->getId(),
                 'icon' => 'fa-id-card',
-                'text' => sprintf('Nouveau licencié : %s %s', $licencie->getPrenom(), $licencie->getNom()),
-                'meta' => 'Licencié',
-                'url'  => '/admin/licencies/' . $licencie->getId(),
+                'text' => $this->t('notif.bell.member', ['%name%' => $licencie->getPrenom().' '.$licencie->getNom()]),
+                'meta' => $this->t('notif.bell.member_meta'),
+                'url'  => '/admin/licencies/'.$licencie->getId(),
             ];
         }
 
@@ -293,10 +333,10 @@ class AdminNotificationProvider
                 ->getResult();
             foreach ($latest as $account) {
                 $notifications[] = [
-                    'key'  => 'compte:' . $account->getId(),
+                    'key'  => 'compte:'.$account->getId(),
                     'icon' => 'fa-user-plus',
-                    'text' => sprintf('Nouveau compte : %s', $account->getNomComplet() ?: $account->getEmail()),
-                    'meta' => 'Compte utilisateur',
+                    'text' => $this->t('notif.bell.account', ['%name%' => $account->getNomComplet() ?: (string) $account->getEmail()]),
+                    'meta' => $this->t('notif.bell.account_meta'),
                     'url'  => $this->urls->generate('admin_user_index'),
                 ];
             }

@@ -3,6 +3,8 @@
 namespace App\Service\Backup;
 
 use Doctrine\DBAL\Connection;
+use Psr\Cache\CacheItemPoolInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
  * Sauvegarde et restauration de la base de données (MySQL / MariaDB), sans dépendre de `mysqldump`.
@@ -37,6 +39,7 @@ class DatabaseBackup
     public function __construct(
         private readonly Connection $connection,
         private readonly string $projectDir,
+        #[Autowire(service: 'doctrine.result_cache_pool')] private readonly ?CacheItemPoolInterface $resultCache = null,
     ) {
     }
 
@@ -297,6 +300,8 @@ class DatabaseBackup
         } finally {
             gzclose($gz);
             $this->connection->executeStatement('SET FOREIGN_KEY_CHECKS=1');
+            // Les réglages mis en cache (voir SingletonCacheInvalidator) ne correspondent plus à la base restaurée.
+            $this->resultCache?->clear();
         }
     }
 

@@ -1,6 +1,6 @@
 {% extends 'portail/_layout.html.twig' %}
 
-{% block title %}Paramètres{% endblock %}
+{% block title %}{{ 'settings.title'|trans }}{% endblock %}
 
 {% block head_assets %}
     {{ include('_importmap.html.twig', {entry: 'portail'}) }}
@@ -8,22 +8,22 @@
 
 {% block page_head %}
     <div class="mc-page-head">
-        <span class="mc-eyebrow">Mon compte</span>
-        <h1>Paramètres</h1>
-        <p class="mc-sub">Gérez votre compte et personnalisez l'affichage.</p>
+        <span class="mc-eyebrow">{{ 'nav.account'|trans }}</span>
+        <h1>{{ 'settings.title'|trans }}</h1>
+        <p class="mc-sub">{{ 'settings.lead_portal'|trans }}</p>
     </div>
 {% endblock %}
 
 {% block body %}
     {% set tabs = [
-        { id: 'profil', label: 'Profil', desc: 'Informations et mot de passe', icon: 'fa-user', route: 'portail_parametres_profil' },
-        { id: 'securite', label: 'Sécurité', desc: 'Double authentification', icon: 'fa-shield-halved', route: 'portail_parametres_securite' },
-        { id: 'preferences', label: 'Notifications', desc: 'Alertes et e-mails', icon: 'fa-bell', route: 'portail_parametres_preferences' },
-        { id: 'apparence', label: 'Apparence', desc: 'Thème et affichage', icon: 'fa-palette', route: 'portail_parametres_apparence' },
-        { id: 'confidentialite', label: 'Confidentialité', desc: 'Vos données et votre compte', icon: 'fa-user-lock', route: 'portail_parametres_confidentialite' },
+        { id: 'profil', label: 'settings.tab.profile'|trans, desc: 'settings.tab.profile_desc_portal'|trans, icon: 'fa-user', route: 'portail_parametres_profil' },
+        { id: 'securite', label: 'settings.tab.security'|trans, desc: 'settings.tab.security_desc_portal'|trans, icon: 'fa-shield-halved', route: 'portail_parametres_securite' },
+        { id: 'preferences', label: 'settings.tab.notifications'|trans, desc: 'settings.tab.notifications_desc_portal'|trans, icon: 'fa-bell', route: 'portail_parametres_preferences' },
+        { id: 'apparence', label: 'settings.tab.appearance'|trans, desc: 'settings.tab.appearance_desc'|trans, icon: 'fa-palette', route: 'portail_parametres_apparence' },
+        { id: 'confidentialite', label: 'settings.tab.privacy'|trans, desc: 'settings.tab.privacy_desc'|trans, icon: 'fa-user-lock', route: 'portail_parametres_confidentialite' },
     ] %}
     <div class="mc-set">
-        <nav class="mc-set-nav" aria-label="Paramètres">
+        <nav class="mc-set-nav" aria-label="{{ 'settings.title'|trans }}">
             {% for tab in tabs %}
                 <a href="{{ path(tab.route) }}" class="{{ active_tab == tab.id ? 'is-active' }}">
                     <i class="fa-solid {{ tab.icon }}"></i>
@@ -34,7 +34,7 @@
         <div class="mc-set-body">
             {% for type, label in {success: 'ok', error: 'ko'} %}
                 {% for message in app.flashes(type) %}
-                    <div class="mc-alert {{ label }}">{{ message }}</div>
+                    <div class="mc-alert {{ label }}">{{ message|trans }}</div>
                 {% endfor %}
             {% endfor %}
             {% block tab_content %}{% endblock %}

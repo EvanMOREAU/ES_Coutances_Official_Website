@@ -8,33 +8,33 @@
         <h1 class="u-66972700 text-2xl font-black">{{ contrat.titre }}</h1>
         <span class="badge badge-pay-{{ contrat.statutPaiement }}">{{ contrat.statutPaiementLabel }}</span>
         {% if can_url(path('admin_partenaire_contrat_edit', {id: contrat.id})) %}
-            <a href="{{ path('admin_partenaire_contrat_edit', {id: contrat.id}) }}" class="ml-auto admin-btn admin-btn-ghost admin-btn-sm"><i class="fa-solid fa-pen"></i> Modifier le contrat</a>
+            <a href="{{ path('admin_partenaire_contrat_edit', {id: contrat.id}) }}" class="ml-auto admin-btn admin-btn-ghost admin-btn-sm"><i class="fa-solid fa-pen"></i> {{ 'Modifier le contrat'|trans }}</a>
         {% endif %}
     </div>
 
     <div class="ad-tiles">
-        <div class="ad-tile"><span>Montant du contrat</span><strong>{{ contrat.montantCentimes|money }}</strong></div>
-        <div class="ad-tile"><span>Encaissé</span><strong>{{ contrat.reglementsRecusCentimes|money }}</strong></div>
-        <div class="ad-tile"><span>Reste à encaisser</span><strong>{{ contrat.resteCentimes|money }}</strong></div>
-        <div class="ad-tile"><span>Tâches restantes</span><strong>{{ contrat.tachesRestantes }} / {{ contrat.tachesTotal }}</strong></div>
+        <div class="ad-tile"><span>{{ 'Montant du contrat'|trans }}</span><strong>{{ contrat.montantCentimes|money }}</strong></div>
+        <div class="ad-tile"><span>{{ 'Encaissé'|trans }}</span><strong>{{ contrat.reglementsRecusCentimes|money }}</strong></div>
+        <div class="ad-tile"><span>{{ 'Reste à encaisser'|trans }}</span><strong>{{ contrat.resteCentimes|money }}</strong></div>
+        <div class="ad-tile"><span>{{ 'Tâches restantes'|trans }}</span><strong>{{ contrat.tachesRestantes }} / {{ contrat.tachesTotal }}</strong></div>
     </div>
 
     <div class="grid gap-6 lg:grid-cols-3 items-start">
         <div class="lg:col-span-2 space-y-6">
             <section class="admin-card rounded-2xl p-6">
-                <h2 class="font-semibold mb-4">Contrat</h2>
+                <h2 class="font-semibold mb-4">{{ 'Contrat'|trans }}</h2>
                 <dl class="grid sm:grid-cols-2 gap-x-6 gap-y-3 text-sm">
-                    <div><dt class="text-admin-text-muted text-xs">Intitulé</dt><dd class="font-medium">{{ contrat.titre }}</dd></div>
-                    <div><dt class="text-admin-text-muted text-xs">Montant</dt><dd class="font-medium">{{ contrat.montantCentimes|money }}</dd></div>
-                    <div><dt class="text-admin-text-muted text-xs">Début</dt><dd class="font-medium">{{ contrat.dateDebut ? contrat.dateDebut|date('d/m/Y') : '—' }}</dd></div>
-                    <div><dt class="text-admin-text-muted text-xs">Fin</dt><dd class="font-medium">{{ contrat.dateFin ? contrat.dateFin|date('d/m/Y') : '—' }}</dd></div>
+                    <div><dt class="text-admin-text-muted text-xs">{{ 'Intitulé'|trans }}</dt><dd class="font-medium">{{ contrat.titre }}</dd></div>
+                    <div><dt class="text-admin-text-muted text-xs">{{ 'Montant'|trans }}</dt><dd class="font-medium">{{ contrat.montantCentimes|money }}</dd></div>
+                    <div><dt class="text-admin-text-muted text-xs">{{ 'Début'|trans }}</dt><dd class="font-medium">{{ contrat.dateDebut ? contrat.dateDebut|date('d/m/Y') : '—' }}</dd></div>
+                    <div><dt class="text-admin-text-muted text-xs">{{ 'Fin'|trans }}</dt><dd class="font-medium">{{ contrat.dateFin ? contrat.dateFin|date('d/m/Y') : '—' }}</dd></div>
                 </dl>
             </section>
 
             <section class="admin-card rounded-2xl p-6">
-                <h2 class="font-semibold mb-4">Règlements</h2>
+                <h2 class="font-semibold mb-4">{{ 'Règlements'|trans }}</h2>
                 {% if contrat.reglements is empty %}
-                    <p class="text-sm text-admin-text-muted">Aucun règlement enregistré.</p>
+                    <p class="text-sm text-admin-text-muted">{{ 'Aucun règlement enregistré.'|trans }}</p>
                 {% else %}
                     <ul class="divide-y divide-admin-border text-sm">
                         {% for r in contrat.reglements %}
@@ -54,9 +54,9 @@
             </section>
 
             <section class="admin-card rounded-2xl p-6">
-                <h2 class="font-semibold mb-4">Tâches à réaliser</h2>
+                <h2 class="font-semibold mb-4">{{ 'Tâches à réaliser'|trans }}</h2>
                 {% if contrat.taches is empty %}
-                    <p class="text-sm text-admin-text-muted">Aucune tâche enregistrée.</p>
+                    <p class="text-sm text-admin-text-muted">{{ 'Aucune tâche enregistrée.'|trans }}</p>
                 {% else %}
                     <ul class="divide-y divide-admin-border text-sm">
                         {% for t in contrat.taches %}
@@ -72,7 +72,7 @@
 
             {% if contrat.notes %}
                 <section class="admin-card rounded-2xl p-6">
-                    <h2 class="font-semibold mb-3">Notes</h2>
+                    <h2 class="font-semibold mb-3">{{ 'Notes'|trans }}</h2>
                     <p class="text-sm whitespace-pre-line">{{ contrat.notes }}</p>
                 </section>
             {% endif %}
@@ -80,13 +80,13 @@
 
         <aside class="space-y-6">
             <section class="admin-card rounded-2xl p-6">
-                <h2 class="font-semibold mb-3">Partenaire</h2>
+                <h2 class="font-semibold mb-3">{{ 'Partenaire'|trans }}</h2>
                 <p class="text-sm">{{ partenaire.nom }}</p>
             </section>
             <section class="admin-card rounded-2xl p-6">
-                <h2 class="font-semibold mb-3">Documents</h2>
+                <h2 class="font-semibold mb-3">{{ 'Documents'|trans }}</h2>
                 {% if contrat.documents is empty %}
-                    <p class="text-sm text-admin-text-muted">Aucun document hébergé.</p>
+                    <p class="text-sm text-admin-text-muted">{{ 'Aucun document hébergé.'|trans }}</p>
                 {% else %}
                     <ul class="text-sm space-y-2">
                         {% for document in contrat.documents %}

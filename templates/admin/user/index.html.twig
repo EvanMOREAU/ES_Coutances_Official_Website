@@ -4,8 +4,8 @@
 
 {% block body %}
     <div class="flex items-center justify-between mb-6">
-        <h1 class="u-66972700 text-2xl font-black">Utilisateurs</h1>
-        {% if can('utilisateur.creer') %}{% if can_url(path('admin_user_new')) %}<a href="{{ path('admin_user_new') }}" class="rounded-lg admin-gradient px-4 py-2 text-sm font-semibold text-white">+ Nouvel utilisateur</a>{% endif %}{% endif %}
+        <h1 class="u-66972700 text-2xl font-black">{{ 'Utilisateurs'|trans }}</h1>
+        {% if can('utilisateur.creer') %}{% if can_url(path('admin_user_new')) %}<a href="{{ path('admin_user_new') }}" class="rounded-lg admin-gradient px-4 py-2 text-sm font-semibold text-white">{{ '+ Nouvel utilisateur'|trans }}</a>{% endif %}{% endif %}
     </div>
 
     {# Pas d'actions groupées ici : un compte ne se supprime qu'individuellement (règles du UserVoter). #}

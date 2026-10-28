@@ -4,8 +4,8 @@
 
 {% block body %}
     <div class="mb-6">
-        <h1 class="u-66972700 text-2xl font-black">Clients de la boutique</h1>
-        <p class="text-sm text-admin-text-muted">Comptes limités à la boutique, et familles ou licenciés ayant déjà commandé. L'équipe du club n'y figure pas.</p>
+        <h1 class="u-66972700 text-2xl font-black">{{ 'Clients de la boutique'|trans }}</h1>
+        <p class="text-sm text-admin-text-muted">{{ 'Comptes limités à la boutique, et familles ou licenciés ayant déjà commandé. L\'équipe du club n\'y figure pas.'|trans }}</p>
     </div>
 
     {% embed 'admin/_components/data_table.html.twig' with {

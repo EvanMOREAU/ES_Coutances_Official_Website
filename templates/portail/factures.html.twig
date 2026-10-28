@@ -1,44 +1,44 @@
 {% extends 'portail/_layout.html.twig' %}
 
-{% block title %}Mes factures{% endblock %}
+{% block title %}{{ 'Mes factures'|trans }}{% endblock %}
 
 {% block page_head %}
     <div class="mc-page-head">
-        <span class="mc-eyebrow">Licences</span>
-        <h1>Mes factures</h1>
-        <p class="mc-sub">Le détail de vos licences, règlements et aides.</p>
+        <span class="mc-eyebrow">{{ 'Licences'|trans }}</span>
+        <h1>{{ 'Mes factures'|trans }}</h1>
+        <p class="mc-sub">{{ 'Le détail de vos licences, règlements et aides.'|trans }}</p>
     </div>
 {% endblock %}
 
 {% block body %}
     {% if adhesions is empty %}
-        <div class="card"><div class="mc-empty"><i class="fa-solid fa-file-invoice"></i>Aucune licence n'est encore enregistrée pour votre famille. Le club y ajoutera le détail de vos règlements.</div></div>
+        <div class="card"><div class="mc-empty"><i class="fa-solid fa-file-invoice"></i>{{ 'Aucune licence n\'est encore enregistrée pour votre famille. Le club y ajoutera le détail de vos règlements.'|trans }}</div></div>
     {% endif %}
 
     {% for a in adhesions %}
         <div class="card">
-            <div class="card-head"><div><h2>{{ a.licencie.prenom }} {{ a.licencie.nom }}</h2><p class="card-sub">Licence {{ a.saison }}</p></div><span class="{{ a.resteCentimes > 0 ? 'badge-ko' : 'badge-ok' }}">{{ a.statutPaiementLabel }}</span></div>
+            <div class="card-head"><div><h2>{{ a.licencie.prenom }} {{ a.licencie.nom }}</h2><p class="card-sub">{{ 'portal.licence_season'|trans({'%season%': a.saison}) }}</p></div><span class="{{ a.resteCentimes > 0 ? 'badge-ko' : 'badge-ok' }}">{{ a.statutPaiementLabel }}</span></div>
             <dl class="kv">
-                <dt>Prix de la licence</dt><dd>{{ a.montantBaseCentimes|money }}</dd>
+                <dt>{{ 'Prix de la licence'|trans }}</dt><dd>{{ a.montantBaseCentimes|money }}</dd>
                 {% if a.reductionCentimes > 0 %}
-                    <dt>Réduction{{ a.reductionMotif ? ' (' ~ a.reductionMotif ~ ')' }}</dt><dd>− {{ a.reductionCentimes|money }}</dd>
+                    <dt>{{ 'portal.discount'|trans }}{{ a.reductionMotif ? ' (' ~ a.reductionMotif ~ ')' }}</dt><dd>− {{ a.reductionCentimes|money }}</dd>
                 {% endif %}
-                <dt>Montant à payer</dt><dd><strong>{{ a.montantDuCentimes|money }}</strong></dd>
-                <dt>Déjà réglé</dt><dd>{{ a.recuCentimes|money }}</dd>
-                <dt>Reste à régler</dt><dd><span class="{{ a.resteCentimes > 0 ? 'badge-ko' : 'badge-ok' }}">{{ a.resteCentimes|money }}</span></dd>
+                <dt>{{ 'Montant à payer'|trans }}</dt><dd><strong>{{ a.montantDuCentimes|money }}</strong></dd>
+                <dt>{{ 'Déjà réglé'|trans }}</dt><dd>{{ a.recuCentimes|money }}</dd>
+                <dt>{{ 'Reste à régler'|trans }}</dt><dd><span class="{{ a.resteCentimes > 0 ? 'badge-ko' : 'badge-ok' }}">{{ a.resteCentimes|money }}</span></dd>
             </dl>
 
             {% if a.reglements|length %}
-                <h3>Règlements</h3>
+                <h3>{{ 'Règlements'|trans }}</h3>
                 <div class="mc-table-wrap"><table>
-                    <thead><tr><th>Échéance</th><th>Mode</th><th>Montant</th><th>État</th></tr></thead>
+                    <thead><tr><th>{{ 'Échéance'|trans }}</th><th>{{ 'Mode'|trans }}</th><th>{{ 'Montant'|trans }}</th><th>{{ 'État'|trans }}</th></tr></thead>
                     <tbody>
                         {% for r in a.reglements %}
                             <tr>
                                 <td>{{ r.ordre }}/{{ a.reglements|length }}{{ r.dateEcheance ? ' — ' ~ r.dateEcheance|date('d/m/Y') }}</td>
                                 <td>{{ r.modeLabel }}</td>
                                 <td>{{ r.montantCentimes|money }}</td>
-                                <td>{% if r.recu %}<span class="badge-ok">Reçu{{ r.dateRemise ? ' le ' ~ r.dateRemise|date('d/m/Y') }}</span>{% else %}<span class="badge-wait">En attente</span>{% endif %}</td>
+                                <td>{% if r.recu %}<span class="badge-ok">{{ r.dateRemise ? 'portal.received_on'|trans({'%date%': r.dateRemise|date('d/m/Y')}) : 'portal.received'|trans }}</span>{% else %}<span class="badge-wait">{{ 'En attente'|trans }}</span>{% endif %}</td>
                             </tr>
                         {% endfor %}
                     </tbody>
@@ -46,15 +46,15 @@
             {% endif %}
 
             {% if a.aides|length %}
-                <h3>Aides</h3>
+                <h3>{{ 'Aides'|trans }}</h3>
                 <div class="mc-table-wrap"><table>
-                    <thead><tr><th>Aide</th><th>Montant</th><th>État</th></tr></thead>
+                    <thead><tr><th>{{ 'Aide'|trans }}</th><th>{{ 'Montant'|trans }}</th><th>{{ 'État'|trans }}</th></tr></thead>
                     <tbody>
                         {% for aide in a.aides %}
                             <tr>
                                 <td>{{ aide.typeLabel }}</td>
                                 <td>{{ aide.montantCentimes|money }}</td>
-                                <td>{% if aide.recue %}<span class="badge-ok">Reçue{{ aide.dateReception ? ' le ' ~ aide.dateReception|date('d/m/Y') }}</span>{% else %}<span class="badge-wait">Attendue</span>{% endif %}</td>
+                                <td>{% if aide.recue %}<span class="badge-ok">{{ aide.dateReception ? 'portal.aid_received_on'|trans({'%date%': aide.dateReception|date('d/m/Y')}) : 'portal.aid_received'|trans }}</span>{% else %}<span class="badge-wait">{{ 'Attendue'|trans }}</span>{% endif %}</td>
                             </tr>
                         {% endfor %}
                     </tbody>
