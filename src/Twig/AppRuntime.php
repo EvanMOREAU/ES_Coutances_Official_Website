@@ -3,14 +3,14 @@
 namespace App\Twig;
 
 use App\Entity\MatchLive;
-use App\Service\Locale\LocaleRegistry;
-use App\Translation\TranslationStore;
-use Symfony\Component\HttpFoundation\RequestStack;
 use App\Repository\BoutiqueSettingsRepository;
 use App\Repository\MatchLiveRepository;
+use App\Service\Locale\LocaleRegistry;
+use App\Translation\TranslationStore;
 use Liip\ImagineBundle\Imagine\Cache\CacheManager;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HtmlSanitizer\HtmlSanitizerInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Twig\Extension\RuntimeExtensionInterface;
 
 /**
