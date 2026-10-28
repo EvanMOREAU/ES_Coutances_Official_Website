@@ -25,6 +25,8 @@
     - "En-têtes de sécurité Cross-Origin-Opener-Policy et Cross-Origin-Resource-Policy ; CSP_REPORT_URI (facultatif) reçoit les violations de la Content-Security-Policy."
     - "Index (série, date) sur les entraînements du planning — migration Version20261015090000."
     - "Tests : sélecteur de langue, traductions, traduction automatique, tableau de bord, garde du déploiement, déconnexion d'inactivité, synchronisation de la messagerie, e-mails de notification, assainissement du contenu riche, cache des réglages, nettoyage d'images, adhésions."
+  fixed:
+    - "SÉCURITÉ — Dépendances : mise à jour de symfony/expression-language (8.1.9, CVE-2026-109449 : imbrication non bornée dans l'analyseur d'expressions) et de phpunit/phpunit (13.4.5, répertoire temporaire partagé de la couverture de code) ; l'audit Composer de la CI repasse au vert."
   improved:
     - "SÉCURITÉ — Mise à jour du site : page réservée au rôle développeur, double authentification obligatoire sur le compte et ressaisie du mot de passe avant chaque lancement (valable pour un seul lancement, 5 minutes, limitée à 5 essais par 15 minutes — REAUTH_TTL). Les comptes développeur reçoivent un e-mail dès le lancement, puis un second avec le résultat. DEPLOY_FROM_ADMIN=0 dans les tests."
     - "SÉCURITÉ — Contenu riche des pages du club (éditeur Trix) : assaini à l'affichage par une liste blanche stricte (filtre Twig |safe_html), plus aucun |raw direct sur du contenu saisi."
