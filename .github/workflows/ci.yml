@@ -184,7 +184,12 @@ jobs:
         working-directory: e2e
         run: |
           npm ci
-          npx playwright install --with-deps chromium
+          # Réessaie : apt échoue parfois sur une panne DNS passagère du runner
+          for i in 1 2 3; do
+            npx playwright install --with-deps chromium && break
+            [ "$i" -eq 3 ] && exit 1
+            sleep 20
+          done
       - name: Parcours de bout en bout
         working-directory: e2e
         run: npx playwright test
