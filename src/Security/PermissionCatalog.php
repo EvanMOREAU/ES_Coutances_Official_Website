@@ -67,6 +67,7 @@ final class PermissionCatalog
                 'page_contenu'   => ['label' => 'Pages de contenu', 'actions' => $crud],
                 'membre'         => ['label' => 'Encadrement', 'actions' => $crud],
                 'reglages'       => ['label' => 'Réglages (accueil, contact, match en live)', 'actions' => [self::VOIR => 'Voir', self::MODIFIER => 'Modifier']],
+                'message_contact' => ['label' => 'Messages du formulaire de contact', 'actions' => [self::VOIR => 'Voir', self::MODIFIER => 'Marquer comme lu, archiver', self::SUPPRIMER => 'Supprimer']],
             ],
             'Administration' => [
                 'utilisateur'  => ['label' => 'Utilisateurs', 'actions' => $crud],

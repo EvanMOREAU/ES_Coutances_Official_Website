@@ -191,10 +191,10 @@ class NotificationMailer
     /** @param list<mixed> $entities */
     private function contactMails(array $entities): void
     {
-        $url = $this->urls->generate('admin_reglages_contact', [], UrlGeneratorInterface::ABSOLUTE_URL);
+        $url = $this->urls->generate('admin_message_contact_index', [], UrlGeneratorInterface::ABSOLUTE_URL);
         foreach ($entities as $contact) {
             foreach ($this->users->findStaff() as $user) {
-                if (!$this->canMail($user) || !$this->permissions->can('reglages.voir', $user) || !$this->prefs->wants($user, 'contact', NotificationPreferences::EMAIL)) {
+                if (!$this->canMail($user) || !$this->permissions->can('message_contact.voir', $user) || !$this->prefs->wants($user, 'contact', NotificationPreferences::EMAIL)) {
                     continue;
                 }
                 $locale = Locales::normalize($user->getLocale());

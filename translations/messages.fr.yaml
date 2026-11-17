@@ -59,6 +59,7 @@ admin:
         planning: "Planning"
         exchanges: "Échanges"
         messaging: "Messagerie"
+        contact_messages: "Messages du site"
         partners: "Partenaires"
         shop: "Boutique"
         orders: "Commandes"

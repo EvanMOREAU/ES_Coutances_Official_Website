@@ -68,7 +68,7 @@ class NotificationPreferences
             'audience' => 'staff', 'permission' => 'partenaire.voir', 'channels' => [self::BELL, self::EMAIL],
         ],
         'contact' => [
-            'audience' => 'staff', 'permission' => 'reglages.voir', 'channels' => [self::EMAIL],
+            'audience' => 'staff', 'permission' => 'message_contact.voir', 'channels' => [self::EMAIL],
         ],
         'conseils' => [
             'audience' => 'staff', 'permission' => null, 'channels' => [self::BELL],

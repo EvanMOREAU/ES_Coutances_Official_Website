@@ -49,7 +49,8 @@ final class RoutePermissions
         'admin_slide_carousel'  => 'slide_carousel',
         'admin_page_contenu'    => 'page_contenu',
         'admin_membre'          => 'membre',
-        'admin_categorie'       => 'categorie',
+        'admin_message_contact' => 'message_contact',
+        'admin_categorie'     => 'categorie',
         'admin_user'            => 'utilisateur',
         'admin_profil'          => 'autorisation',
     ];
@@ -114,6 +115,7 @@ final class RoutePermissions
         'admin_journal_show'           => 'journal.voir',
         'admin_journal_export'         => 'journal.exporter',
         'admin_changelog_index'        => 'changelog.voir',
+        'admin_message_contact_traiter' => 'message_contact.modifier',
     ];
 
     /** Ressource d'une action groupée / d'une bascule d'activation, d'après son type. */

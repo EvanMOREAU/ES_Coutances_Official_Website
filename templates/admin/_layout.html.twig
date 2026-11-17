@@ -83,11 +83,12 @@
                 </div>
                 {% endif %}
 
-                {% if can('messagerie.utiliser,messagerie.support') %}
+                {% if can('messagerie.utiliser,messagerie.support,message_contact.voir') %}
                 <div data-controller="nav-section" data-nav-section-id-value="echanges">
                     {{ _self.nav_section_label('admin.nav.exchanges') }}
                     <div class="space-y-1" data-nav-section-target="links">
-                        {{ _self.nav_link('admin_chat_index', 'admin_chat', 'fa-comments', 'admin.nav.messaging', false, chat_unread(), true) }}
+                        {% if can('messagerie.utiliser,messagerie.support') %}{{ _self.nav_link('admin_chat_index', 'admin_chat', 'fa-comments', 'admin.nav.messaging', false, chat_unread(), true) }}{% endif %}
+                        {% if can('message_contact.voir') %}{{ _self.nav_link('admin_message_contact_index', 'admin_message_contact', 'fa-envelope', 'admin.nav.contact_messages', false, contact_messages_unread(), false, 'admin.nav.unread_messages') }}{% endif %}
                     </div>
                 </div>
                 {% endif %}

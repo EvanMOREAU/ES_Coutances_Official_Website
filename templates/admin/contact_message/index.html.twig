@@ -1,0 +1,72 @@
+{% extends 'admin/_layout.html.twig' %}
+
+{% block title %}{{ 'Messages du site'|trans }}{% endblock %}
+
+{% block body %}
+    <div class="mb-6">
+        <h1 class="u-66972700 text-2xl font-black">{{ 'Messages du site'|trans }}</h1>
+        <p class="text-sm text-admin-text-muted">{{ 'Messages envoyés par les visiteurs depuis la page de contact. Cliquez sur un message pour le lire en détail.'|trans }}</p>
+    </div>
+
+    <div class="ad-tiles">
+        <div class="ad-tile"><span>{{ 'Non lus'|trans }}</span><strong>{{ unread }}</strong></div>
+        <div class="ad-tile"><span>{{ 'Messages reçus'|trans }}</span><strong>{{ messages|length }}</strong></div>
+    </div>
+
+    {% embed 'admin/_components/data_table.html.twig' with {
+        key: 'message_contact',
+        plural: 'messages',
+        bulk: false,
+        statuses: true,
+        status_tabs: {all: 'Tous', new: 'Non lus', read: 'Lus', archived: 'Archivés'},
+        search_placeholder: 'Rechercher un message…',
+        empty_message: 'Aucun message pour le moment.',
+        columns: [
+            {key: 'date', label: 'Reçu le', type: 'date'},
+            {key: 'nom', label: 'Expéditeur'},
+            {key: 'sujet', label: 'Sujet'},
+            {key: 'type', label: 'Type de demande'},
+            {key: 'email', label: 'Email'},
+        ],
+    } %}
+        {% block rows %}
+            {% for m in messages %}
+                {% set status = m.archived ? 'archived' : (m.read ? 'read' : 'new') %}
+                {% set show_url = path('admin_message_contact_show', {id: m.id}) %}
+                <tr data-data-table-target="row" data-id="{{ m.id }}" data-status="{{ status }}" data-href="{{ show_url }}">
+                    <td data-col="date" data-sort="{{ m.createdAt|date('Y-m-d H:i:s') }}" class="dt-muted whitespace-nowrap">{{ m.createdAt|date('d/m/Y H:i') }}</td>
+                    <td data-col="nom" data-sort="{{ m.nom|lower }}" class="{{ m.read ? 'font-medium' : 'font-bold' }}">
+                        {% if not m.read %}<i class="fa-solid fa-circle text-[7px] align-middle admin-text-accent" title="{{ 'Non lu'|trans }}"></i> {% endif %}
+                        <a href="{{ show_url }}" class="hover:underline">{{ m.nom }}</a>
+                    </td>
+                    <td data-col="sujet" data-sort="{{ m.sujet|lower }}" class="{{ m.read ? '' : 'font-semibold' }}">{{ m.sujet }}</td>
+                    <td data-col="type" class="dt-muted">{{ m.typeLabel|trans }}</td>
+                    <td data-col="email" class="dt-muted">{{ m.email }}</td>
+                    {% include 'admin/_components/row_menu.html.twig' with {
+                        show_url: show_url,
+                        actions: [
+                            m.read ? {
+                                url: path('admin_message_contact_traiter', {id: m.id, action: 'non_lu', _back: 'index'}),
+                                token: csrf_token('message-contact-' ~ m.id), label: 'Marquer comme non lu', icon: 'fa-envelope',
+                            } : {
+                                url: path('admin_message_contact_traiter', {id: m.id, action: 'lu', _back: 'index'}),
+                                token: csrf_token('message-contact-' ~ m.id), label: 'Marquer comme lu', icon: 'fa-envelope-open',
+                            },
+                            m.archived ? {
+                                url: path('admin_message_contact_traiter', {id: m.id, action: 'desarchiver', _back: 'index'}),
+                                token: csrf_token('message-contact-' ~ m.id), label: 'Désarchiver', icon: 'fa-box-open',
+                            } : {
+                                url: path('admin_message_contact_traiter', {id: m.id, action: 'archiver', _back: 'index'}),
+                                token: csrf_token('message-contact-' ~ m.id), label: 'Archiver', icon: 'fa-box-archive',
+                            },
+                        ],
+                        delete_url: path('admin_message_contact_delete', {id: m.id}),
+                        delete_token: csrf_token('message-contact-' ~ m.id),
+                        delete_title: 'Supprimer ce message ?',
+                        delete_message: 'Le message de ' ~ m.nom ~ ' sera supprimé définitivement.',
+                    } %}
+                </tr>
+            {% endfor %}
+        {% endblock %}
+    {% endembed %}
+{% endblock %}
