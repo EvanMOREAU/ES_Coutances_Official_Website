@@ -14,6 +14,7 @@ final class ContactMessageTest extends DatabaseTestCase
         return static::getContainer()->get(ContactMessageRepository::class);
     }
 
+    /** @param array<string, string> $override */
     private function submit(array $override = []): void
     {
         $values = $override + [
