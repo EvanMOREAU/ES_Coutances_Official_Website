@@ -2,12 +2,13 @@
 
 namespace App\Controller;
 
+use App\Entity\ContactMessage;
 use App\Form\ContactType;
 use App\Repository\ContactSettingsRepository;
 use App\Service\Notification\NotificationMailer;
+use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
@@ -24,7 +25,7 @@ class ContactController extends AbstractController
     private const DEFAULT_CONTACT_EMAIL = 'evan.moreau@etik.com';
 
     #[Route('/contact', name: 'app_contact')]
-    public function index(Request $request, MailerInterface $mailer, ContactSettingsRepository $contactSettingsRepo, LoggerInterface $logger, NotificationMailer $notifications): Response
+    public function index(Request $request, MailerInterface $mailer, ContactSettingsRepository $contactSettingsRepo, LoggerInterface $logger, NotificationMailer $notifications, EntityManagerInterface $em): Response
     {
         $form = $this->createForm(ContactType::class);
         $form->handleRequest($request);
@@ -34,6 +35,19 @@ class ContactController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
+
+            // Le message est d'abord conservé en base : il reste consultable dans l'admin même si l'e-mail ne part pas.
+            $saved = (new ContactMessage())
+                ->setNom((string) $data['nom'])
+                ->setEmail((string) $data['email'])
+                ->setTelephone($data['telephone'] ?? null)
+                ->setType((string) $data['type'])
+                ->setSujet((string) $data['sujet'])
+                ->setMessage((string) $data['message']);
+            $em->persist($saved);
+            $em->flush();
+            $success = true;
+            $notifications->contactReceived((string) $data['nom'], (string) $data['email'], (string) $data['sujet'], (string) $data['message']);
 
             $contactEmail = $contactSettings?->getEmail() ?: self::DEFAULT_CONTACT_EMAIL;
 
@@ -61,12 +75,9 @@ class ContactController extends AbstractController
 
             try {
                 $mailer->send($email);
-                $success = true;
-                $notifications->contactReceived((string) $data['nom'], (string) $data['email'], (string) $data['sujet'], (string) $data['message']);
             } catch (TransportExceptionInterface $e) {
-                // Panne du serveur d'e-mails : le visiteur garde son message à l'écran et peut réessayer.
-                $logger->error('Message du formulaire de contact non envoyé : {message}', ['message' => $e->getMessage()]);
-                $form->addError(new FormError('Votre message n\'a pas pu être envoyé pour le moment. Merci de réessayer dans quelques minutes ou de nous contacter par téléphone.'));
+                // Panne du serveur d'e-mails : le message est déjà enregistré et visible dans l'admin, le visiteur n'a rien à refaire.
+                $logger->error('E-mail du formulaire de contact non envoyé (message #{id} conservé en base) : {message}', ['id' => $saved->getId(), 'message' => $e->getMessage()]);
             }
         }
 

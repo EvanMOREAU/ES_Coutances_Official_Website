@@ -4,6 +4,7 @@ namespace App\Twig;
 
 use App\Entity\User;
 use App\Repository\CommandeRepository;
+use App\Repository\ContactMessageRepository;
 use App\Service\AdminNotificationProvider;
 use App\Service\ChangelogFile;
 use App\Service\Deploy\UpdateWatcher;
@@ -18,6 +19,7 @@ class AdminNotificationsExtension extends AbstractExtension
         private readonly AdminNotificationProvider $notificationProvider,
         private readonly SiteAdvisor $advisor,
         private readonly CommandeRepository $commandes,
+        private readonly ContactMessageRepository $contactMessages,
         private readonly ChangelogFile $changelog,
         private readonly Security $security,
         private readonly UpdateWatcher $updates,
@@ -31,6 +33,8 @@ class AdminNotificationsExtension extends AbstractExtension
             // Pastille « commandes à préparer » du menu Boutique.
             new TwigFunction('commandes_a_preparer', [$this->commandes, 'countAPreparer']),
             new TwigFunction('admin_notifications_unread', [$this->notificationProvider, 'unreadCount']),
+            // Pastille « messages non lus » du menu Messages du site (formulaire de contact).
+            new TwigFunction('contact_messages_unread', [$this->contactMessages, 'countUnread']),
             // Conseils de configuration (voir SiteAdvisor) : advice_items('vitrine'|'licencies'), advice_count(...)
             new TwigFunction('advice_items', [$this->advisor, 'items']),
             new TwigFunction('advice_count', [$this->advisor, 'count']),

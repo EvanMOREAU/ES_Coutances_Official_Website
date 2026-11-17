@@ -1,0 +1,75 @@
+{% extends 'admin/_layout.html.twig' %}
+
+{% block title %}{{ message.sujet }}{% endblock %}
+
+{% block body %}
+    <a href="{{ path('admin_message_contact_index') }}" class="text-sm text-admin-text-muted hover:text-admin-text"><i class="fa-solid fa-arrow-left"></i> {{ 'Messages du site'|trans }}</a>
+
+    <div class="mt-3 mb-5 flex flex-wrap items-start justify-between gap-4">
+        <div>
+            <h1 class="u-66972700 text-2xl font-black">{{ message.sujet }}</h1>
+            <p class="text-sm text-admin-text-muted">
+                {{ 'Reçu le'|trans }} {{ message.createdAt|date('d/m/Y à H:i') }}
+                {% if message.archived %}· {{ 'Archivé'|trans }}{% endif %}
+            </p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2">
+            <a href="mailto:{{ message.email }}?subject={{ ('Re: ' ~ message.sujet)|url_encode }}" class="admin-btn admin-btn-primary"><i class="fa-solid fa-reply"></i> {{ 'Répondre par e-mail'|trans }}</a>
+            {% if can_url(path('admin_message_contact_traiter', {id: message.id, action: 'lu'}), 'POST') %}
+                <form method="post" action="{{ path('admin_message_contact_traiter', {id: message.id, action: 'non_lu', _back: 'index'}) }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('message-contact-' ~ message.id) }}">
+                    <button type="submit" class="admin-btn admin-btn-ghost"><i class="fa-solid fa-envelope"></i> {{ 'Marquer comme non lu'|trans }}</button>
+                </form>
+                <form method="post" action="{{ path('admin_message_contact_traiter', {id: message.id, action: message.archived ? 'desarchiver' : 'archiver'}) }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('message-contact-' ~ message.id) }}">
+                    <button type="submit" class="admin-btn admin-btn-ghost">
+                        {% if message.archived %}<i class="fa-solid fa-box-open"></i> {{ 'Désarchiver'|trans }}{% else %}<i class="fa-solid fa-box-archive"></i> {{ 'Archiver'|trans }}{% endif %}
+                    </button>
+                </form>
+            {% endif %}
+            {% if can_url(path('admin_message_contact_delete', {id: message.id}), 'POST') %}
+                <form method="post" action="{{ path('admin_message_contact_delete', {id: message.id}) }}"
+                      data-confirm="{{ ('Le message de ' ~ message.nom ~ ' sera supprimé définitivement.') }}" data-confirm-title="{{ 'Supprimer ce message ?'|trans }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('message-contact-' ~ message.id) }}">
+                    <button type="submit" class="admin-btn admin-btn-danger"><i class="fa-solid fa-trash"></i> {{ 'Supprimer'|trans }}</button>
+                </form>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="grid gap-6 lg:grid-cols-3 items-start">
+        <section class="admin-card rounded-2xl p-6 lg:col-span-2">
+            <h2 class="font-semibold mb-4">{{ 'Message'|trans }}</h2>
+            <div class="text-sm leading-relaxed whitespace-pre-line break-words">{{ message.message }}</div>
+        </section>
+
+        <section class="admin-card rounded-2xl p-6">
+            <h2 class="font-semibold mb-4">{{ 'Expéditeur'|trans }}</h2>
+            <dl class="space-y-3 text-sm">
+                <div>
+                    <dt class="text-admin-text-muted">{{ 'Nom'|trans }}</dt>
+                    <dd class="font-medium">{{ message.nom }}</dd>
+                </div>
+                <div>
+                    <dt class="text-admin-text-muted">{{ 'Email'|trans }}</dt>
+                    <dd class="font-medium break-all"><a href="mailto:{{ message.email }}" class="hover:underline">{{ message.email }}</a></dd>
+                </div>
+                <div>
+                    <dt class="text-admin-text-muted">{{ 'Téléphone'|trans }}</dt>
+                    <dd class="font-medium">
+                        {% if message.telephone %}<a href="tel:{{ message.telephone|replace({' ': '', '.': ''}) }}" class="hover:underline">{{ message.telephone }}</a>{% else %}<span class="text-admin-text-muted">{{ 'Non renseigné'|trans }}</span>{% endif %}
+                    </dd>
+                </div>
+                <div>
+                    <dt class="text-admin-text-muted">{{ 'Type de demande'|trans }}</dt>
+                    <dd class="font-medium">{{ message.typeLabel|trans }}</dd>
+                </div>
+                <div>
+                    <dt class="text-admin-text-muted">{{ 'Lu pour la première fois le'|trans }}</dt>
+                    <dd class="font-medium">{{ message.readAt ? message.readAt|date('d/m/Y à H:i') : '—' }}</dd>
+                </div>
+            </dl>
+        </section>
+    </div>
+{% endblock %}
