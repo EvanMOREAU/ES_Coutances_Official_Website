@@ -31,7 +31,7 @@ final class ContactFormTest extends DatabaseTestCase
     {
         $this->submit($this->valid());
 
-        self::assertResponseIsSuccessful();
+        self::assertResponseRedirects('/contact');
         self::assertEmailCount(1);
         $email = self::getMailerMessage();
         self::assertEmailHeaderSame($email, 'reply-to', 'sophie@test.local');
@@ -77,13 +77,51 @@ final class ContactFormTest extends DatabaseTestCase
     public function testTooManyMessagesFromTheSameIpAreThrottled(): void
     {
         for ($i = 0; $i < 5; ++$i) {
+            // Nouveau visiteur à chaque tour (même IP) : le délai entre deux messages est lié à la session.
+            $this->client->getCookieJar()->clear();
             $this->submit($this->valid());
-            self::assertResponseIsSuccessful();
+            self::assertResponseRedirects('/contact');
         }
 
+        $this->client->getCookieJar()->clear();
         $this->submit($this->valid());
 
         self::assertResponseStatusCodeSame(429);
         self::assertEmailCount(0);
+    }
+
+    public function testFormComesBackEmptyAfterASuccessfulSend(): void
+    {
+        $this->submit($this->valid());
+        $crawler = $this->client->followRedirect();
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('.form-success');
+        self::assertSame('', $crawler->filter('form[name=contact] textarea')->text());
+        self::assertEmpty($crawler->filter('form[name=contact] input[name="contact[nom]"]')->attr('value'));
+
+        // Un rechargement de la page n'affiche plus le message de succès.
+        $this->client->request('GET', '/contact');
+        self::assertSelectorNotExists('.form-success');
+    }
+
+    public function testSecondMessageInARowIsRefusedByTheCooldown(): void
+    {
+        $this->submit($this->valid());
+        self::assertEmailCount(1);
+
+        // Même session, tout de suite après : rien n'est envoyé ni enregistré, la saisie est conservée.
+        $this->submit($this->valid());
+
+        self::assertResponseStatusCodeSame(429);
+        self::assertEmailCount(0);
+        self::assertSelectorTextContains('body', 'patienter');
+        self::assertSame(1, $this->countSavedMessages());
+    }
+
+    private function countSavedMessages(): int
+    {
+        return (int) static::getContainer()->get(\Doctrine\ORM\EntityManagerInterface::class)
+            ->getRepository(\App\Entity\ContactMessage::class)->count([]);
     }
 }

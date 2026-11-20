@@ -9,8 +9,10 @@ use App\Service\Notification\NotificationMailer;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\FlashBagAwareSessionInterface;
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
@@ -24,16 +26,34 @@ class ContactController extends AbstractController
      */
     private const DEFAULT_CONTACT_EMAIL = 'evan.moreau@etik.com';
 
+    /** Délai minimal, en secondes, entre deux messages envoyés depuis la même session. */
+    private const COOLDOWN_SECONDS = 60;
+
+    private const SESSION_LAST_SENT = 'contact_last_sent';
+
     #[Route('/contact', name: 'app_contact')]
     public function index(Request $request, MailerInterface $mailer, ContactSettingsRepository $contactSettingsRepo, LoggerInterface $logger, NotificationMailer $notifications, EntityManagerInterface $em): Response
     {
         $form = $this->createForm(ContactType::class);
         $form->handleRequest($request);
 
-        $success = false;
         $contactSettings = $contactSettingsRepo->getSingleton();
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $session = $request->getSession();
+            $elapsed = time() - (int) $session->get(self::SESSION_LAST_SENT, 0);
+            if ($elapsed < self::COOLDOWN_SECONDS) {
+                // Double clic, F5 ou envois en rafale : rien n'est enregistré, le formulaire garde sa saisie.
+                $form->addError(new FormError(sprintf("Votre message vient d'être envoyé. Merci de patienter %d seconde(s) avant d'en envoyer un autre.", self::COOLDOWN_SECONDS - $elapsed)));
+
+                return $this->render('contact/index.html.twig', [
+                    'form'             => $form,
+                    'success'          => false,
+                    'contact_settings' => $contactSettings,
+                ], new Response(status: Response::HTTP_TOO_MANY_REQUESTS));
+            }
+            $session->set(self::SESSION_LAST_SENT, time());
+
             $data = $form->getData();
 
             // Le message est d'abord conservé en base : il reste consultable dans l'admin même si l'e-mail ne part pas.
@@ -46,7 +66,6 @@ class ContactController extends AbstractController
                 ->setMessage((string) $data['message']);
             $em->persist($saved);
             $em->flush();
-            $success = true;
             $notifications->contactReceived((string) $data['nom'], (string) $data['email'], (string) $data['sujet'], (string) $data['message']);
 
             $contactEmail = $contactSettings?->getEmail() ?: self::DEFAULT_CONTACT_EMAIL;
@@ -79,11 +98,17 @@ class ContactController extends AbstractController
                 // Panne du serveur d'e-mails : le message est déjà enregistré et visible dans l'admin, le visiteur n'a rien à refaire.
                 $logger->error('E-mail du formulaire de contact non envoyé (message #{id} conservé en base) : {message}', ['id' => $saved->getId(), 'message' => $e->getMessage()]);
             }
+
+            // Post/Redirect/Get : le formulaire revient vide et un rechargement de la page ne renvoie plus le message.
+            $this->addFlash('contact_success', 'sent');
+
+            return $this->redirectToRoute('app_contact');
         }
 
         return $this->render('contact/index.html.twig', [
             'form'             => $form,
-            'success'          => $success,
+            // On ne touche à la session que si le visiteur en a déjà une : une page vue sans cookie reste publique (cache).
+            'success'          => $request->hasPreviousSession() && ($session = $request->getSession()) instanceof FlashBagAwareSessionInterface && [] !== $session->getFlashBag()->get('contact_success'),
             'contact_settings' => $contactSettings,
         ]);
     }
