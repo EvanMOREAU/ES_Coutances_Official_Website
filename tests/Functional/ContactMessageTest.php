@@ -43,7 +43,7 @@ final class ContactMessageTest extends DatabaseTestCase
     {
         $this->submit();
 
-        self::assertResponseRedirects("/contact");
+        self::assertResponseRedirects('/contact');
         $stored = $this->repo()->findAll();
         self::assertCount(1, $stored);
         self::assertSame('Sophie Leroy', $stored[0]->getNom());

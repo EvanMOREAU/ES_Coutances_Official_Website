@@ -12,6 +12,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\FlashBagAwareSessionInterface;
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
@@ -107,7 +108,7 @@ class ContactController extends AbstractController
         return $this->render('contact/index.html.twig', [
             'form'             => $form,
             // On ne touche à la session que si le visiteur en a déjà une : une page vue sans cookie reste publique (cache).
-            'success'          => $request->hasPreviousSession() && [] !== $request->getSession()->getFlashBag()->get('contact_success'),
+            'success'          => $request->hasPreviousSession() && ($session = $request->getSession()) instanceof FlashBagAwareSessionInterface && [] !== $session->getFlashBag()->get('contact_success'),
             'contact_settings' => $contactSettings,
         ]);
     }
