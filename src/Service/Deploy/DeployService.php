@@ -40,6 +40,9 @@ class DeployService
     /** Au-delà, un déploiement resté « en cours » est considéré comme mort (processus tué). */
     private const STALE_AFTER = 'PT30M';
 
+    /** Un peu plus que `opcache.revalidate_freq` (10 s, voir deploy/php-prod.ini). */
+    private const OPCACHE_SETTLE_SECONDS = 12;
+
     public function __construct(
         private readonly GitRepository $git,
         private readonly DeploymentRepository $deployments,
@@ -262,9 +265,25 @@ class DeployService
             $deployment->setToCommit($this->git->head());
             $this->log($deployment, 'Code à jour : '.$this->git->shortHash($deployment->getToCommit()).'.');
 
+            if ($isProd) {
+                // PHP-FPM garde l'ancien code en OPcache jusqu'à `revalidate_freq` (10 s). Une requête web reçue
+                // pendant ce délai recompile le conteneur avec les anciennes classes et fait planter `cache:clear`
+                // (TypeError sur un constructeur modifié). On attend donc que FPM voie le nouveau code.
+                $this->log($deployment, sprintf('Attente de %d s : renouvellement du cache de code PHP-FPM.', self::OPCACHE_SETTLE_SECONDS));
+                sleep(self::OPCACHE_SETTLE_SECONDS);
+            }
+
             $this->step($deployment, 'Dépendances PHP');
             $composer = $this->composerCommand();
-            $this->exec($deployment, [...$composer, 'install', '--no-interaction', '--no-progress', ...($isProd ? ['--no-dev', '--optimize-autoloader'] : [])], 900);
+            $install  = [...$composer, 'install', '--no-interaction', '--no-progress', ...($isProd ? ['--no-dev', '--optimize-autoloader'] : [])];
+            try {
+                $this->exec($deployment, $install, 900);
+            } catch (\RuntimeException $e) {
+                // Un conteneur pollué par une requête concurrente est purgé à nouveau par le script de Composer :
+                // un second essai suffit presque toujours. S'il échoue aussi, le retour arrière s'enclenche.
+                $this->log($deployment, 'Échec : nouvel essai après purge du cache.');
+                $this->exec($deployment, $install, 900);
+            }
 
             $this->step($deployment, 'Migrations de la base de données');
             $dataTouched = true;
