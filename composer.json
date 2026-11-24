@@ -57,7 +57,7 @@
         "twig/extra-bundle": "^2.12|^3.24",
         "twig/twig": "^2.12|^3.28",
         "vich/uploader-bundle": "^3.0",
-        "web-auth/webauthn-lib": "^5.3"
+        "web-auth/webauthn-lib": "^5.3.17"
     },
     "config": {
         "allow-plugins": {
