@@ -85,7 +85,6 @@ final class PermissionCatalog
                 'boutique_maintenance' => ['label' => 'Réglages de la boutique (maintenance, seuil de stock)', 'actions' => [self::VOIR => 'Voir', self::MODIFIER => 'Modifier']],
                 'deploiement'  => ['label' => 'Mise à jour du site', 'actions' => [self::VOIR => 'Voir', 'lancer' => 'Lancer une mise à jour (et supprimer la sauvegarde des fichiers)']],
                 'journal'      => ['label' => 'Journal d\'activité', 'actions' => [self::VOIR => 'Voir', 'exporter' => 'Exporter en CSV']],
-                'changelog'    => ['label' => 'Changelog', 'actions' => [self::VOIR => 'Voir']],
             ],
         ];
     }

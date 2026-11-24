@@ -326,7 +326,7 @@ class AdminNotificationProvider
         if ($wants('utilisateurs') && $this->permissions->can('utilisateur.voir')) {
             $latest = $this->userRepository->createQueryBuilder('u')
                 ->where('u.anonymizedAt IS NULL')
-                ->andWhere("u.roles NOT LIKE '%ROLE_EDITOR%' AND u.roles NOT LIKE '%ROLE_ADMIN%' AND u.roles NOT LIKE '%ROLE_DEV%'")
+                ->andWhere("u.roles NOT LIKE '%ROLE_EDITOR%' AND u.roles NOT LIKE '%ROLE_BOUTIQUE%' AND u.roles NOT LIKE '%ROLE_ADMIN%' AND u.roles NOT LIKE '%ROLE_DEV%'")
                 ->orderBy('u.id', SortDirection::Descending)
                 ->setMaxResults(3)
                 ->getQuery()

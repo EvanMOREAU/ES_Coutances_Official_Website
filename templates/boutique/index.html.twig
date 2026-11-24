@@ -23,6 +23,7 @@
 .product-category { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--red); }
 .product-name { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 21px; letter-spacing: .03em; text-transform: uppercase; line-height: 1.15; color: var(--dark); }
 .product-sizes { font-size: 12px; color: #888; }
+.product-sizes .size-out { text-decoration: line-through; opacity: .5; }
 .product-foot { display: flex; align-items: center; justify-content: space-between; margin-top: auto; padding-top: 14px; border-top: 1px solid var(--border); }
 .product-foot .price { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 20px; color: var(--dark); }
 .product.is-out .product-img img { filter: grayscale(1); opacity: .6; }
@@ -64,7 +65,7 @@
             {% if article.categorie %}<span class="product-category">{{ article.categorie.nom }}</span>{% endif %}
             <h2 class="product-name">{{ article.nom|auto_trans }}</h2>
             {% if not article.sansDeclinaison %}
-              <p class="product-sizes">{{ article.variantes|map(v => v.libelle)|join(' · ') }}</p>
+              <p class="product-sizes">{% for v in article.variantes %}{% if v.stock <= 0 %}<s class="size-out" title="{{ 'Épuisé'|trans }}">{{ v.libelle }}</s>{% else %}<span>{{ v.libelle }}</span>{% endif %}{% if not loop.last %} · {% endif %}{% endfor %}</p>
             {% endif %}
             <div class="product-foot">
               <span class="price">{{ article.prixCentimes|money }}</span>

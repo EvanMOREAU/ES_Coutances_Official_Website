@@ -82,10 +82,10 @@
 
 <div class="shop">
   <div class="container">
-    {% if boutique_en_maintenance() and is_granted('ROLE_DEV') %}
+    {% if boutique_en_maintenance() and (is_granted('ROLE_DEV') or is_granted('ROLE_BOUTIQUE')) %}
       <div class="shop-flash warning" role="status">
         <i class="fa-solid fa-triangle-exclamation"></i>
-        <span>{{ 'Cette boutique n\'est pas publiée — vous la voyez uniquement parce que vous êtes développeur.'|trans }}</span>
+        <span>{{ 'Cette boutique n\'est pas publiée — vous la voyez uniquement parce que vous êtes développeur ou gestionnaire de la boutique.'|trans }}</span>
       </div>
     {% endif %}
 

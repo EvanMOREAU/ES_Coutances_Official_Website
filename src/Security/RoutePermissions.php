@@ -14,9 +14,9 @@ use Symfony\Component\HttpFoundation\Request;
  */
 final class RoutePermissions
 {
-    /** Routes accessibles à tout utilisateur du back-office (profil, notifications, tableau de bord…). */
+    /** Routes accessibles à tout utilisateur du back-office (profil, notifications, tableau de bord, changelog…). */
     private const FREE = [
-        'admin', 'admin_notification_index', 'admin_notification_read', 'admin_notification_dismiss',
+        'admin', 'admin_changelog_index', 'admin_notification_index', 'admin_notification_read', 'admin_notification_dismiss',
         'admin_table_preferences', 'admin_parametres_profil', 'admin_parametres_apparence', 'admin_parametres_preferences',
         'admin_parametres_securite', 'admin_parametres_securite_totp_generer', 'admin_parametres_securite_totp_confirmer',
         'admin_parametres_securite_totp_annuler', 'admin_parametres_securite_totp_desactiver',
@@ -114,7 +114,6 @@ final class RoutePermissions
         'admin_journal_index'          => 'journal.voir',
         'admin_journal_show'           => 'journal.voir',
         'admin_journal_export'         => 'journal.exporter',
-        'admin_changelog_index'        => 'changelog.voir',
         'admin_message_contact_traiter' => 'message_contact.modifier',
     ];
 

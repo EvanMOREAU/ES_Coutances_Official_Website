@@ -26,10 +26,11 @@ class UserController extends AbstractController
     {
         return $this->render('admin/user/index.html.twig', [
             'users' => $repository->createQueryBuilder('u')
-                ->andWhere("u.roles LIKE '%ROLE_DEV%' OR u.roles LIKE '%ROLE_ADMIN%' OR u.roles LIKE '%ROLE_EDITOR%'")
+                ->andWhere("u.roles LIKE '%ROLE_DEV%' OR u.roles LIKE '%ROLE_ADMIN%' OR u.roles LIKE '%ROLE_EDITOR%' OR u.roles LIKE '%ROLE_BOUTIQUE%'")
                 ->addSelect("CASE
                     WHEN u.roles LIKE '%ROLE_DEV%' THEN 0
                     WHEN u.roles LIKE '%ROLE_ADMIN%' THEN 1
+                    WHEN u.roles LIKE '%ROLE_BOUTIQUE%' THEN 2
                     WHEN u.roles LIKE '%ROLE_EDITOR%' THEN 2
                     ELSE 3 END AS HIDDEN role_order")
                 ->orderBy('role_order', SortDirection::Ascending)

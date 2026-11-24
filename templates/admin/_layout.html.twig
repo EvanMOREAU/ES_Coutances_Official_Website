@@ -148,10 +148,14 @@
                         {{ _self.nav_link('admin_deploy_index', 'admin_deploy', 'fa-rocket', 'admin.nav.update', false, update_count, true, 'admin.nav.updates_available', 'data-update-badge') }}
                         {{ _self.nav_link('admin_dev_backup_index', 'admin_dev_backup', 'fa-database', 'admin.nav.backups') }}
                         {{ _self.nav_link('admin_journal_index', 'admin_journal', 'fa-scroll', 'admin.nav.activity_log') }}
-                        {{ _self.nav_link('admin_changelog_index', 'admin_changelog', 'fa-clock-rotate-left', 'admin.nav.changelog', false, changelog_non_lu(), false, 'admin.nav.new_version') }}
                     </div>
                 </div>
                 {% endif %}
+
+                {# Le changelog est ouvert à tous les comptes du back-office, pas seulement aux développeurs #}
+                <div class="space-y-1">
+                    {{ _self.nav_link('admin_changelog_index', 'admin_changelog', 'fa-clock-rotate-left', 'admin.nav.changelog', false, changelog_non_lu(), false, 'admin.nav.new_version') }}
+                </div>
             </nav>
 
             <div class="border-t border-admin-border p-3">

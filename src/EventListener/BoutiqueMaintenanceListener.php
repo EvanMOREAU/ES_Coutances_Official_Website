@@ -14,7 +14,7 @@ use Twig\Environment;
 /**
  * Quand la boutique est en maintenance (réglage admin, distinct du mode
  * maintenance fichier de tout le site), remplace les pages de la boutique
- * publique par une page d'indisponibilité — sauf pour les comptes ROLE_DEV,
+ * publique par une page d'indisponibilité — sauf pour les comptes ROLE_DEV et ROLE_BOUTIQUE,
  * qui continuent de voir la boutique (avec un bandeau d'avertissement, voir
  * boutique/_layout.html.twig).
  */
@@ -46,7 +46,7 @@ class BoutiqueMaintenanceListener implements EventSubscriberInterface
             return;
         }
 
-        if ($this->security->isGranted('ROLE_DEV')) {
+        if ($this->security->isGranted('ROLE_DEV') || $this->security->isGranted('ROLE_BOUTIQUE')) {
             return;
         }
 
