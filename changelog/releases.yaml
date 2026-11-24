@@ -1,4 +1,4 @@
-# Journal des modifications du site (page « Changelog » de l'administration, réservée aux développeurs).
+# Journal des modifications du site (page « Changelog » de l'administration, ouverte à tous les comptes du back-office).
 #
 # Ce fichier est versionné avec le code : à chaque mise à jour, ajoutez une entrée EN HAUT de la liste.
 # Au déploiement, la page se met à jour toute seule, rien à saisir en base de données.
@@ -7,6 +7,21 @@
 #   version : numéro (ex. 1.2.0)      date : AAAA-MM-JJ      titre : résumé court (facultatif)
 #   added / improved / fixed / removed : listes de phrases (Ajouté / Amélioré / Corrigé / Retiré)
 
+- version: "1.0.15"
+  date: "2026-11-24"
+  titre: "Rôle gestionnaire boutique, tailles épuisées barrées, messages de contact conservés en base"
+  added:
+    - "Nouveau rôle « Gestionnaire boutique » (ROLE_BOUTIQUE), à côté de Développeur, Administrateur et Éditeur dans le formulaire utilisateur. Il donne accès au back-office (il hérite du rôle Éditeur) et, quel que soit le profil d'autorisation du compte, à toute la rubrique Boutique (articles, commandes, clients, bons de livraison), aux Réglages de la boutique (maintenance, seuil de stock bas) et au support client de la messagerie ; un profil peut lui ajouter d'autres droits. Comme un développeur, il continue de voir la boutique publique quand elle est en maintenance, avec le bandeau « Cette boutique n'est pas publiée ». Il est compté parmi les comptes de l'équipe (liste des utilisateurs, accès, notifications, messagerie : libellé « Gestionnaire boutique ») et jamais comme client de la boutique."
+    - "Administration > Messages du site : les messages du formulaire de contact sont désormais enregistrés en base (table es_contact_message, migration Version20261117100000) et consultables dans l'administration (liste, détail, marquer comme lu, archiver, supprimer), avec une pastille « non lus » dans le menu. Nouvelle autorisation « message_contact » (voir / marquer comme lu et archiver / supprimer). La notification e-mail « message de contact » est réservée aux comptes qui ont cette autorisation et renvoie vers la liste des messages."
+    - "Tests : messages de contact (ContactMessageTest) et formulaire de contact (ContactFormTest) étendus."
+  improved:
+    - "Changelog : la page est désormais ouverte à tous les comptes du back-office (et plus seulement aux développeurs) ; elle ne demande plus d'autorisation particulière (la ligne « Changelog » disparaît de la matrice des autorisations) et son lien est affiché en bas du menu pour tout le monde, avec la pastille « nouvelle version »."
+    - "Boutique publique : sur la carte d'un article, toutes les tailles proposées restent affichées et celles dont le stock est épuisé sont barrées et grisées (avec « Épuisé » en infobulle)."
+    - "Formulaire de contact : le message est d'abord conservé en base, puis l'e-mail est envoyé ; si le serveur d'e-mails est en panne, le visiteur n'a plus rien à refaire et le message reste visible dans l'administration. Après l'envoi, le formulaire revient vide (Post/Redirect/Get : un rechargement ne renvoie plus le message). Délai de 60 s entre deux messages d'une même session, et bouton désactivé dès le premier envoi (assets/pages/contact-form.js) contre les doubles clics."
+    - "Mise à jour du site : en production, le déploiement attend 12 s après la récupération du code que PHP-FPM renouvelle son cache OPcache avant de lancer Composer et le vidage du cache (évite un plantage « TypeError » du conteneur lorsqu'un constructeur change) ; une nouvelle tentative est faite si l'installation des dépendances échoue."
+    - "Accueil : les cartes d'accès rapide (résultats, calendrier, classement…) pointent vers la page du club sur epreuves.fff.fr."
+    - "Intégration continue : actions GitHub mises à jour (checkout v7, cache v6) et installation de Playwright réessayée jusqu'à 3 fois en cas de panne DNS passagère du runner."
+    - "Dépendances : symfony/flex 2.12, symfony/stimulus-bundle et symfony/ux-turbo 3.7, phpunit 13.4.6, web-auth/webauthn-lib 5.3.12, phpstan 2.3.5, phpstan-doctrine 2.1.2, liip/imagine-bundle 2.18.1."
 - version: "1.0.14"
   date: "2026-10-28"
   titre: "Site en 7 langues avec traduction automatique, tableau de bord refondu, notifications complètes, sécurité et Redis"

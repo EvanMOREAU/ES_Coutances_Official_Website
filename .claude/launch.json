@@ -3,8 +3,8 @@
   "configurations": [
     {
       "name": "symfony-server",
-      "runtimeExecutable": "symfony",
-      "runtimeArgs": ["server:start", "--no-tls", "--port=8000"],
+      "runtimeExecutable": "php",
+      "runtimeArgs": ["-S", "127.0.0.1:8000", "-t", "public", "public/index.php"],
       "port": 8000
     }
   ]

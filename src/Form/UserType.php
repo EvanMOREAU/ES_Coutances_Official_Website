@@ -49,6 +49,7 @@ class UserType extends AbstractType
                 'choices'  => [
                     'Développeur'    => 'ROLE_DEV',
                     'Administrateur' => 'ROLE_ADMIN',
+                    'Gestionnaire boutique' => 'ROLE_BOUTIQUE',
                     'Éditeur'        => 'ROLE_EDITOR',
                 ],
                 'multiple' => true,

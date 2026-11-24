@@ -55,7 +55,7 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
     private function boutiqueClientsQuery(): \Doctrine\ORM\QueryBuilder
     {
         return $this->createQueryBuilder('u')
-            ->andWhere("u.roles NOT LIKE '%ROLE_EDITOR%' AND u.roles NOT LIKE '%ROLE_ADMIN%' AND u.roles NOT LIKE '%ROLE_DEV%'")
+            ->andWhere("u.roles NOT LIKE '%ROLE_EDITOR%' AND u.roles NOT LIKE '%ROLE_BOUTIQUE%' AND u.roles NOT LIKE '%ROLE_ADMIN%' AND u.roles NOT LIKE '%ROLE_DEV%'")
             ->andWhere("(u.roles NOT LIKE '%ROLE_FAMILLE%' AND u.roles NOT LIKE '%ROLE_LICENCIE%'
                     AND NOT EXISTS (SELECT f.id FROM App\Entity\Famille f WHERE f.user = u)
                     AND NOT EXISTS (SELECT l.id FROM App\Entity\Licencie l WHERE l.user = u))
@@ -73,7 +73,7 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
     public function findStaff(): array
     {
         return $this->createQueryBuilder('u')
-            ->andWhere("u.roles LIKE '%ROLE_EDITOR%' OR u.roles LIKE '%ROLE_ADMIN%' OR u.roles LIKE '%ROLE_DEV%'")
+            ->andWhere("u.roles LIKE '%ROLE_EDITOR%' OR u.roles LIKE '%ROLE_BOUTIQUE%' OR u.roles LIKE '%ROLE_ADMIN%' OR u.roles LIKE '%ROLE_DEV%'")
             ->getQuery()
             ->getResult();
     }
@@ -85,6 +85,7 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
             ->orderBy("CASE 
                 WHEN u.roles LIKE '%ROLE_DEV%' THEN 0 
                 WHEN u.roles LIKE '%ROLE_ADMIN%' THEN 1 
+                WHEN u.roles LIKE '%ROLE_BOUTIQUE%' THEN 2 
                 WHEN u.roles LIKE '%ROLE_EDITOR%' THEN 2 
                 ELSE 3 END", SortDirection::Ascending)
             ->addOrderBy('u.nom', SortDirection::Ascending)

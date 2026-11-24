@@ -635,6 +635,7 @@ class ChatService
         return match (true) {
             \in_array('ROLE_DEV', $user->getRoles(), true)    => 'Développeur',
             \in_array('ROLE_ADMIN', $user->getRoles(), true)  => 'Administrateur',
+            \in_array('ROLE_BOUTIQUE', $user->getRoles(), true) => 'Gestionnaire boutique',
             \in_array('ROLE_EDITOR', $user->getRoles(), true) => 'Encadrement',
             $this->isClient($user)                             => 'Client',
             default                                            => 'Famille / licencié',

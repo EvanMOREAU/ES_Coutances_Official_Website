@@ -487,7 +487,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, TotpTwo
     /** Compte de l'équipe du club (encadrant, administrateur ou développeur), par opposition à un compte famille / licencié. */
     public function isStaff(): bool
     {
-        return (bool) array_intersect($this->getRoles(), ['ROLE_EDITOR', 'ROLE_ADMIN', 'ROLE_DEV']);
+        return (bool) array_intersect($this->getRoles(), ['ROLE_EDITOR', 'ROLE_BOUTIQUE', 'ROLE_ADMIN', 'ROLE_DEV']);
     }
 
     // --- Authentification à deux facteurs : application (TOTP) ---

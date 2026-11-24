@@ -2,6 +2,7 @@ security:
     role_hierarchy:
         ROLE_DEV:    [ROLE_ADMIN, ROLE_EDITOR, ROLE_USER]
         ROLE_ADMIN:  [ROLE_EDITOR, ROLE_USER]
+        ROLE_BOUTIQUE: [ROLE_EDITOR, ROLE_USER]
         ROLE_EDITOR: ROLE_USER
         # Comptes du portail familles/licenciés (espace /mon-compte), distincts
         # des comptes de gestion du site (ROLE_EDITOR/ROLE_ADMIN/ROLE_DEV).

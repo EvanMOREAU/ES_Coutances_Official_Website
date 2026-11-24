@@ -22,7 +22,7 @@ class AccesHubController extends AbstractController
         $defaults->seedIfEmpty();
 
         $staff = $users->createQueryBuilder('u')
-            ->andWhere("u.roles LIKE '%ROLE_DEV%' OR u.roles LIKE '%ROLE_ADMIN%' OR u.roles LIKE '%ROLE_EDITOR%'")
+            ->andWhere("u.roles LIKE '%ROLE_DEV%' OR u.roles LIKE '%ROLE_ADMIN%' OR u.roles LIKE '%ROLE_EDITOR%' OR u.roles LIKE '%ROLE_BOUTIQUE%'")
             ->getQuery()->getResult();
         $parProfil = [];
         foreach ($staff as $user) {

@@ -10,6 +10,7 @@ use Symfony\Bundle\SecurityBundle\Security;
  *
  * - Développeur : toutes les autorisations, toujours.
  * - Administrateur sans restriction (cas des comptes existants) : toutes, y compris les futures.
+ * - Gestionnaire boutique : en plus de son profil, toute la rubrique Boutique, ses réglages et le support client.
  * - Sinon : celles de son profil, plus celles qu'on lui ajoute, moins celles qu'on lui retire.
  */
 class PermissionChecker
@@ -53,6 +54,19 @@ class PermissionChecker
         return isset($effective['*']) ? PermissionCatalog::all() : array_keys($effective);
     }
 
+    /** @return list<string> */
+    private function boutiqueCodes(): array
+    {
+        $codes = ['boutique_maintenance.voir', 'boutique_maintenance.modifier', 'messagerie.utiliser', 'messagerie.support'];
+        foreach (PermissionCatalog::groups()['Boutique'] as $resource => $definition) {
+            foreach (array_keys($definition['actions']) as $action) {
+                $codes[] = $resource.'.'.$action;
+            }
+        }
+
+        return $codes;
+    }
+
     /** @return array<string, true> */
     private function effective(User $user): array
     {
@@ -67,6 +81,10 @@ class PermissionChecker
         }
 
         $codes = $user->getProfil()?->getPermissions() ?? [];
+        if (in_array('ROLE_BOUTIQUE', $roles, true)) {
+            // Le gestionnaire boutique a toujours la rubrique Boutique, ses réglages et le support client.
+            $codes = array_merge($codes, $this->boutiqueCodes());
+        }
         $codes = array_merge($codes, $user->getPermissionsAjoutees());
         $codes = array_diff($codes, $user->getPermissionsRetirees());
 
